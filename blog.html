@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記事一覧 | PokeEdge</title>
+<meta name="description" content="ポケモン対戦に役立つ解説記事・ガイドの一覧です。ダメージ計算の仕組み、努力値の振り方、パーティ構築の考え方など。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="記事一覧 | PokeEdge">
+<meta property="og:description" content="ポケモン対戦に役立つ解説記事・ガイドの一覧です。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/blog.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/blog.html">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;
+  --border:#1a2540;--border2:#243356;
+  --accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;
+  --text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,200,240,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 30% at 90% 90%,rgba(255,48,96,0.06) 0%,transparent 60%),
+    linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);
+  background-size:auto,auto,52px 52px,52px 52px;}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 20px rgba(0,200,240,0.4);flex-shrink:0;cursor:pointer;}
+.logo em{color:var(--accent2);font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+
+.main{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:40px 24px 60px;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--accent);margin-bottom:8px;}
+.page-sub{font-size:11px;color:var(--text2);letter-spacing:2px;margin-bottom:40px;}
+
+/* 記事カード */
+.article-list{display:flex;flex-direction:column;gap:16px;}
+.article-card{
+  display:block;background:var(--panel);border:1px solid var(--border);
+  padding:24px;text-decoration:none;transition:all 0.2s;position:relative;overflow:hidden;
+}
+.article-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transition:transform 0.2s;}
+.article-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.article-card:hover::before{transform:scaleX(1);}
+.article-meta{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.article-date{font-size:11px;color:var(--text2);letter-spacing:1px;}
+.article-tag{font-size:9px;letter-spacing:1px;padding:2px 8px;border:1px solid var(--border2);color:var(--text2);}
+.article-tag.guide{border-color:var(--accent);color:var(--accent);}
+.article-tag.beginner{border-color:var(--green);color:var(--green);}
+.article-tag.advanced{border-color:var(--accent2);color:var(--accent2);}
+.article-tag.tool{border-color:var(--accent3);color:var(--accent3);}
+.article-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.6;}
+.article-excerpt{font-size:13px;color:var(--text3);line-height:1.9;}
+.article-read{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);letter-spacing:1px;}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+.footer-text{font-size:10px;color:var(--text2);line-height:1.6;}
+
+/* ナビゲーション */
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
+
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
+@media(max-width:768px){
+  .header-nav{
+    display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);
+    background:rgba(7,9,15,0.98);border-left:1px solid var(--border);
+    flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);
+  }
+  .header-nav.open{display:flex;}
+  .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left;letter-spacing:1px;}
+  .nav-btn:last-child{border-bottom:none;}
+  .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);}
+  .hamburger{display:flex;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">記事一覧</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="index.html">トップ</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
+    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="season.html">使用可能ポケモン</a>
+    <a class="nav-btn" href="speed.html">素早さライン</a>
+    <a class="nav-btn active" href="blog.html">記事</a>
+    <a class="nav-btn" href="policy.html">サイト情報</a>
+  </div>
+
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+</header>
+
+<div class="main">
+  <div class="page-title">Articles</div>
+  <div class="page-sub">ポケモン対戦に役立つ解説記事・ガイド</div>
+
+  <div class="article-list">
+
+    <!-- ===== 記事5 ===== -->
+    <!--
+    <a class="article-card" href="articles/article-5.html">
+      <div class="article-meta">
+        <span class="article-date">2026.00.00</span>
+        <span class="article-tag guide">ガイド</span>
+      </div>
+      <div class="article-title">記事タイトル</div>
+      <div class="article-excerpt">記事の概要をここに書きます。2〜3行程度で記事の内容がわかるように。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+    -->
+
+    <!-- ===== 記事4 ===== -->
+    <!--
+    <a class="article-card" href="articles/article-4.html">
+      <div class="article-meta">
+        <span class="article-date">2026.00.00</span>
+        <span class="article-tag beginner">初心者向け</span>
+      </div>
+      <div class="article-title">記事タイトル</div>
+      <div class="article-excerpt">記事の概要をここに書きます。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+    -->
+
+    <!-- ===== 記事3 ===== -->
+    <!--
+    <a class="article-card" href="articles/article-3.html">
+      <div class="article-meta">
+        <span class="article-date">2026.00.00</span>
+        <span class="article-tag advanced">実践</span>
+      </div>
+      <div class="article-title">記事タイトル</div>
+      <div class="article-excerpt">記事の概要をここに書きます。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+    -->
+
+
+    <!-- ===== 記事4: 最近の更新まとめ ===== -->
+    <a class="article-card" href="articles/recent-updates-images-register-known-moves.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.10</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag tool">更新まとめ</span>
+      </div>
+      <div class="article-title">最近の更新まとめ：画像作成・登録機能・判明技一覧を追加しました</div>
+      <div class="article-excerpt">ダメージ計算の画像作成、ポケモンやパーティー登録の画像作成、各ポケモンで現在判明している技の確認機能をまとめて紹介します。共有しやすさと見返しやすさを中心に整えた更新です。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+
+    <!-- ===== 記事3: 技選択判定の使いこなし方 ===== -->
+    <a class="article-card" href="articles/move-judge-guide.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.09</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag tool">ツール</span>
+      </div>
+      <div class="article-title">技選択判定の使いこなし方 — どの技を押すか迷ったときの考え方</div>
+      <div class="article-excerpt">技選択判定の基本的な使い方から、対面・交代読み・構築段階での活用法までを整理しました。複数の技をどう見比べればいいかを、実戦目線でわかりやすく紹介します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+
+    <!-- ===== 記事2: PokeEdgeでできること ===== -->
+    <a class="article-card" href="articles/features-guide.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.07</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag beginner">初心者向け</span>
+      </div>
+      <div class="article-title">PokeEdgeでできること全まとめ！ — 9つの機能をやさしく紹介</div>
+      <div class="article-excerpt">「PokeEdgeって何ができるの？」という方へ。ダメージ計算・技選択判定・パーティ管理・ポケモン登録・アイテム一覧・選出率記録・バトルアナライザー・使用可能ポケモン・素早さラインの9つの機能を、はじめての方にもわかるようにやさしく紹介します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+
+    <!-- ===== 記事1: ダメージ計算の仕組み ===== -->
+    <a class="article-card" href="articles/damage-calc-guide.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.07</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag beginner">初心者向け</span>
+      </div>
+      <div class="article-title">【完全ガイド】ダメージ計算の仕組みを徹底解説 — 計算式・乱数・確定数の意味</div>
+      <div class="article-excerpt">ポケモン対戦で「確定1発」「乱数2発」という言葉を聞いたことはありますか？ この記事では、ダメージ計算の基本的な仕組みから、乱数の16段階、確定数の考え方まで、実際の計算例を交えながらわかりやすく解説します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
+  <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
+
+<script>
+var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
+function applyTheme(theme) {
+  var vars = THEMES[theme] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  localStorage.setItem('pokeedge_theme', theme);
+  var btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function toggleTheme() {
+  var current = localStorage.getItem('pokeedge_theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+(function(){
+  var t = localStorage.getItem('pokeedge_theme') || 'dark';
+  var vars = THEMES[t] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  document.documentElement.setAttribute('data-theme', t);
+})();
+
+function toggleNav(){
+  const nav = document.querySelector('.header-nav');
+  const hb  = document.getElementById('hamburger');
+  const ov  = document.getElementById('nav-overlay');
+  if(!nav) return;
+  nav.classList.toggle('open');
+  hb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeNav(){
+  const nav = document.querySelector('.header-nav');
+  const hb  = document.getElementById('hamburger');
+  const ov  = document.getElementById('nav-overlay');
+  if(!nav) return;
+  nav.classList.remove('open');
+  hb.classList.remove('open');
+  ov.classList.remove('show');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.nav-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth <= 768) closeNav();
+    });
+  });
+});
+</script>
+<script>
+window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });
+</script>
+</body>
+</html>

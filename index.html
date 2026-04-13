@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PokeEdge | ポケモン対戦支援ツール</title>
+<meta name="description" content="ポケモン対戦をもっと深く、もっと正確に。ダメージ計算・技選択判定・パーティ管理を無料で。">
+<meta name="keywords" content="ポケモン,ダメージ計算,対戦,構築,努力値,個体値,パーティ,PokeEdge">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="PokeEdge | ポケモン対戦支援ツール">
+<meta property="og:description" content="ダメージ計算・技選択判定・パーティ管理を無料で。ポケモン1200種以上・技520種対応。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/">
+<meta property="og:site_name" content="PokeEdge">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PokeEdge | ポケモン対戦支援ツール">
+<meta name="twitter:description" content="ダメージ計算・技選択判定・パーティ管理を無料で。">
+<link rel="canonical" href="https://poke-edge.pages.dev/">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;
+  --border:#1a2540;--border2:#243356;
+  --accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;
+  --text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,200,240,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 30% at 90% 90%,rgba(255,48,96,0.06) 0%,transparent 60%),
+    linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);
+  background-size:auto,auto,52px 52px,52px 52px;}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 20px rgba(0,200,240,0.4);flex-shrink:0;cursor:pointer;}
+.logo em{color:var(--accent2);font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+
+/* HERO */
+.hero{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:72px 24px 48px;}
+.hero-eyebrow{font-size:11px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:16px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,88px);line-height:0.95;letter-spacing:4px;margin-bottom:24px;}
+.hero-title .hl{color:var(--accent);}
+.hero-title .hl2{color:var(--accent2);}
+.hero-desc{font-size:15px;color:var(--text3);line-height:1.9;max-width:560px;margin-bottom:40px;}
+
+/* CTAボタン */
+.cta-group{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:64px;}
+.cta-primary{
+  display:inline-block;padding:14px 32px;
+  background:linear-gradient(135deg,var(--accent),#007a99);
+  color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;
+  text-decoration:none;cursor:pointer;border:none;transition:all 0.18s;
+}
+.cta-primary:hover{opacity:0.85;transform:translateY(-2px);}
+.cta-secondary{
+  display:inline-block;padding:14px 32px;
+  background:transparent;border:1px solid var(--border2);
+  color:var(--text3);font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;
+  text-decoration:none;cursor:pointer;transition:all 0.18s;
+}
+.cta-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ツール選択カード */
+.tools-section{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px 64px;}
+.section-head{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--text2);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.section-head::after{content:'';flex:1;height:1px;background:var(--border);}
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:640px){.tools-grid{grid-template-columns:1fr;}}
+.tool-card{
+  background:var(--panel);border:1px solid var(--border);
+  padding:24px 20px;cursor:pointer;transition:all 0.2s;
+  text-decoration:none;display:block;position:relative;overflow:hidden;
+}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transition:transform 0.2s;}
+.tool-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+.tool-card:hover::before{transform:scaleX(1);}
+.tool-card-icon{font-size:28px;margin-bottom:12px;}
+.tool-card-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--accent);margin-bottom:8px;}
+.tool-card-desc{font-size:12px;color:var(--text3);line-height:1.8;}
+.tool-card-tag{display:inline-block;margin-top:12px;font-size:9px;letter-spacing:2px;color:var(--text2);border:1px solid var(--border2);padding:2px 8px;}
+
+/* 使い方セクション */
+.usage-section{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px 64px;}
+.usage-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:640px){.usage-grid{grid-template-columns:1fr;}}
+.usage-card{background:var(--panel);border:1px solid var(--border);padding:22px;}
+.usage-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--border2);line-height:1;margin-bottom:8px;}
+.usage-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.usage-desc{font-size:12px;color:var(--text3);line-height:1.9;}
+
+/* ユースケース */
+.case-section{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px 64px;}
+.case-list{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);}
+.case-item{background:var(--panel);padding:18px 22px;display:flex;align-items:flex-start;gap:16px;}
+.case-item:hover{background:var(--panel2);}
+.case-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+.case-text{font-size:13px;color:var(--text3);line-height:1.8;}
+.case-text strong{color:var(--text);display:block;margin-bottom:3px;font-size:13px;}
+
+/* 世代バナー */
+
+
+@media(max-width:640px){}
+
+
+
+
+
+
+
+
+/* アフィリ */
+.affili-section{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px 48px;}
+.affili-row{display:flex;gap:10px;flex-wrap:wrap;}
+.affili-card{display:block;background:var(--panel);border:1px solid var(--border);padding:14px 18px;text-decoration:none;transition:border-color 0.18s;flex:1;min-width:200px;}
+.affili-card:hover{border-color:var(--accent3);}
+.affili-badge{font-size:8px;color:var(--accent3);letter-spacing:2px;font-weight:700;margin-bottom:5px;}
+.affili-name{font-size:12px;color:var(--text);font-weight:700;}
+.affili-price{font-size:12px;color:var(--accent3);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.affili-cta{display:inline-block;margin-top:8px;background:var(--accent3);color:#000;font-size:9px;font-weight:700;padding:4px 10px;letter-spacing:1px;}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+.footer-text{font-size:10px;color:var(--text2);line-height:1.6;}
+/* ナビゲーション */
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
+
+/* ハンバーガーメニュー（スマホ） */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
+@media(max-width:768px){
+  .header-nav{
+    display:none;
+    position:fixed;
+    top:52px;right:0;
+    width:220px;
+    height:calc(100vh - 52px);
+    background:rgba(7,9,15,0.98);
+    border-left:1px solid var(--border);
+    flex-direction:column;
+    gap:0;
+    padding:12px 0;
+    z-index:99;
+    overflow-y:auto;
+    backdrop-filter:blur(20px);
+  }
+  .header-nav.open{display:flex;}
+  .nav-btn{
+    padding:14px 22px;
+    font-size:13px;
+    border:none;
+    border-bottom:1px solid var(--border);
+    width:100%;
+    text-align:left;
+    letter-spacing:1px;
+  }
+  .nav-btn:last-child{border-bottom:none;}
+  .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);}
+  .hamburger{display:flex;}
+}
+
+/* ===== ライトモード ===== */
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">対戦支援ツール</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn active" href="index.html">トップ</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
+    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="season.html">使用可能ポケモン</a>
+    <a class="nav-btn" href="speed.html">素早さライン</a>
+    <a class="nav-btn" href="blog.html">記事</a>
+    <a class="nav-btn" href="policy.html">サイト情報</a>
+  </div>
+
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Pokemon Battle Assistant</div>
+  <h1 class="hero-title">
+POKE-EDGE
+  </h1>
+  <p class="hero-desc">
+    「この技で倒せるか」「どの技が通りやすいか」——対戦中に迷いやすい場面を、数字で確認しやすくするためのツールです。Pokémon Championsの準備から実戦中の見直しまで、1か所で使いやすい形にまとめています。
+  </p>
+  <div class="cta-group">
+    <a class="cta-primary" href="calc.html">ツールを使う →</a>
+    <a class="cta-secondary" href="#tools">機能を見る</a>
+  </div>
+</div>
+
+<!-- ツール選択 -->
+<div class="tools-section" id="tools">
+  <div class="section-head">機能一覧</div>
+  <div class="tools-grid">
+    <a class="tool-card" href="calc.html">
+      <div class="tool-card-icon">⚡</div>
+      <div class="tool-card-name">ダメージ計算</div>
+      <div class="tool-card-desc">攻撃側・防御側のポケモンと技を選んで、ダメージ量と割合を確認できます。乱数16段階の表示に対応しているので、確定数の目安も追いやすくしています。Champions / 従来作の両方に対応。体重依存技・連続技・必ず急所技も計算できます。</div>
+      <span class="tool-card-tag">Champions対応 / 体重依存・連続技対応</span>
+    </a>
+    <a class="tool-card" href="move.html">
+      <div class="tool-card-icon">🎯</div>
+      <div class="tool-card-name">技選択判定</div>
+      <div class="tool-card-desc">相手ポケモンに対して複数の技をまとめて比較し、通りやすい技を見つけやすくします。登録済みポケモンを選ぶと技・努力値が自動入力されます。確定数の目安、タイプ相性、タイプ一致補正、特性による無効も確認できます。</div>
+      <span class="tool-card-tag">登録ポケモン連携 / 全技自動計算</span>
+    </a>
+    <a class="tool-card" href="party.html">
+      <div class="tool-card-icon">📋</div>
+      <div class="tool-card-name">パーティ管理</div>
+      <div class="tool-card-desc">6匹のパーティを編成・保存。タイプカバレッジを自動チェックして構築の穴を可視化します。ログイン済みならクラウドに保存され、スマホ・PCで同じデータを共有できます。</div>
+      <span class="tool-card-tag">クラウド同期 / カバレッジ確認</span>
+    </a>
+    <a class="tool-card" href="pokemon.html">
+      <div class="tool-card-icon">🔴</div>
+      <div class="tool-card-name">ポケモン登録</div>
+      <div class="tool-card-desc">ポケモンごとに性格・個体値・努力値・技・持ち物を登録。Champions / 従来作の努力値モードを切替可能。登録データはダメージ計算・技判定・アナライザーで自動読み込みされます。</div>
+      <span class="tool-card-tag">Champions努力値対応 / 全ツール連携</span>
+    </a>
+    <a class="tool-card" href="items.html">
+      <div class="tool-card-icon">🎒</div>
+      <div class="tool-card-name">アイテム一覧</div>
+      <div class="tool-card-desc">現在使える道具・きのみ・メガストーンを一覧表示。入手方法と効果をまとめて確認できるので、ポケモン登録で持ち物を決める前の確認にも向いています。</div>
+      <span class="tool-card-tag">入手方法 / 効果を一覧確認</span>
+    </a>
+    <a class="tool-card" href="stats.html">
+      <div class="tool-card-icon">📊</div>
+      <div class="tool-card-name">選出率記録</div>
+      <div class="tool-card-desc">試合ごとの自分・相手の選出・初手・勝敗を記録。蓄積するとポケモン別の選出率・初手率・勝率を自動集計します。ログイン済みならクラウドに保存。</div>
+      <span class="tool-card-tag">勝率 / 選出率 / 初手率集計</span>
+    </a>
+    <a class="tool-card" href="scope.html">
+      <div class="tool-card-icon">🔭</div>
+      <div class="tool-card-name">バトルアナライザー</div>
+      <div class="tool-card-desc">自分と相手の選出を入力して、盤面を整理しやすくするための機能です。タイプ相性・実数値・技をもとに形勢の見え方を確認でき、交代や行動の候補を考える材料として使えます。登録済みポケモンは技・努力値が自動入力されます。</div>
+      <span class="tool-card-tag">形勢判断 / 交代候補提示</span>
+    </a>
+    <a class="tool-card" href="season.html">
+      <div class="tool-card-icon">📅</div>
+      <div class="tool-card-name">使用可能ポケモン</div>
+      <div class="tool-card-desc">シーズンごとの使用可能ポケモンを図鑑形式で一覧表示。種族値・タイプを確認しながらシーズンフィルターで絞り込み可能。各ページの検索でも同じフィルターが使えます。</div>
+      <span class="tool-card-tag">種族値表示 / シーズン別フィルター</span>
+    </a>
+    <a class="tool-card" href="speed.html">
+      <div class="tool-card-icon">💨</div>
+      <div class="tool-card-name">素早さライン</div>
+      <div class="tool-card-desc">内定ポケモンの素早さ実数値を一覧比較。最速・準速・無振りの実数値に加え、スカーフ・追い風・天候特性・ランク補正をワンクリックで反映。自分の素早さを入力すると抜ける/抜けないをハイライト表示。</div>
+      <span class="tool-card-tag">スカーフ・追い風・特性補正対応</span>
+    </a>
+  </div>
+</div>
+
+<!-- こんな時に使える -->
+<div class="case-section">
+  <div class="section-head">こんな時に使えます</div>
+  <div class="case-list">
+    <div class="case-item">
+      <div class="case-icon">🏆</div>
+      <div class="case-text">
+        <strong>大会・レート戦の前日準備として</strong>
+        持ち込みたいポケモンが相手のエースを確定で倒せるか、ダメージ計算で事前に確かめておく。当日の判断ミスを減らせます。
+      </div>
+    </div>
+    <div class="case-item">
+      <div class="case-icon">🔧</div>
+      <div class="case-text">
+        <strong>努力値の振り方を決める時に</strong>
+        「このポケモンに耐えるにはHPの努力値がどれくらい必要か」を逆算したい場面で、防御側の努力値スライダーを動かしながら確認できます。
+      </div>
+    </div>
+    <div class="case-item">
+      <div class="case-icon">🤔</div>
+      <div class="case-text">
+        <strong>対戦中にどの技を打つか迷った時に</strong>
+        技選択判定に相手のポケモンと自分の技を入力すると、ダメージや通り方を見比べながら、押しやすい技を整理できます。
+      </div>
+    </div>
+    <div class="case-item">
+      <div class="case-icon">🧩</div>
+      <div class="case-text">
+        <strong>パーティの弱点を見直したい時に</strong>
+        6匹を登録するとタイプカバレッジが自動で可視化されます。「炎タイプへの対策が薄い」といった構築の穴をすぐに発見できます。
+      </div>
+    </div>
+    <div class="case-item">
+      <div class="case-icon">📖</div>
+      <div class="case-text">
+        <strong>ポケモン対戦を始めたばかりの時に</strong>
+        ダメージの仕組みや技の分類（物理・特殊）の違いを、実際に数字を動かしながら体感的に理解できます。
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 使い方ガイド -->
+<div style="position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 20px 48px;">
+
+  <!-- ログイン説明 -->
+  <div style="margin-bottom:36px;">
+    <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:16px;">LOGIN GUIDE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+      <!-- 未ログイン -->
+      <div style="background:var(--panel);border:1px solid var(--border);padding:20px;">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:8px;">未ログイン</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text3);margin-bottom:12px;">ブラウザ内のみ保存</div>
+        <ul style="font-size:12px;color:var(--text3);line-height:2;list-style:none;padding:0;">
+          <li>✓ ポケモン登録・パーティ・対戦記録を保存</li>
+          <li>✓ 全ての計算機能が使える</li>
+          <li style="color:var(--accent2);">✗ 端末をまたいでデータは見られない</li>
+          <li style="color:var(--accent2);">✗ キャッシュ削除でデータが消える</li>
+        </ul>
+      </div>
+
+      <!-- ログイン済み -->
+      <div style="background:var(--panel);border:1px solid var(--accent);padding:20px;position:relative;">
+        <div style="position:absolute;top:-1px;right:12px;background:var(--accent);color:#000;font-size:9px;font-weight:700;padding:2px 8px;letter-spacing:1px;">推奨</div>
+        <div style="font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">ログイン済み</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);margin-bottom:12px;">クラウド同期</div>
+        <ul style="font-size:12px;color:var(--text3);line-height:2;list-style:none;padding:0;">
+          <li style="color:var(--green);">✓ スマホ↔PCでデータが同期される</li>
+          <li style="color:var(--green);">✓ キャッシュ削除してもデータが残る</li>
+          <li style="color:var(--green);">✓ ポケモン登録・パーティ・対戦記録が同期</li>
+          <li>✓ 全ての計算機能が使える</li>
+        </ul>
+        <a href="auth.html" style="display:inline-block;margin-top:12px;padding:8px 20px;background:linear-gradient(135deg,var(--accent),#007a99);color:#000;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;text-decoration:none;">無料登録 →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 機能別ログイン効果 -->
+  <div>
+    <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:16px;">FEATURES</div>
+    <div style="background:var(--panel);border:1px solid var(--border);overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="padding:12px 16px;text-align:left;color:var(--text2);font-weight:400;letter-spacing:1px;font-size:10px;">機能</th>
+            <th style="padding:12px 16px;text-align:center;color:var(--text2);font-weight:400;letter-spacing:1px;font-size:10px;">未ログイン</th>
+            <th style="padding:12px 16px;text-align:center;color:var(--accent);font-weight:400;letter-spacing:1px;font-size:10px;">ログイン済み</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 16px;color:var(--text);">ダメージ計算</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 16px;color:var(--text);">技選択判定</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 16px;color:var(--text);">バトルアナライザー</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 16px;color:var(--text);">ポケモン登録</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--text3);">端末内のみ保存</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 16px;color:var(--text);">パーティ管理</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--text3);">端末内のみ保存</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
+          </tr>
+          <tr>
+            <td style="padding:11px 16px;color:var(--text);">選出率記録</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--text3);">端末内のみ保存</td>
+            <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>ポケモン1210種・技520種対応</div>
+  <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
+
+<script>
+
+
+// ===== テーマ切替 =====
+var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
+function applyTheme(theme) {
+  var vars = THEMES[theme] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  localStorage.setItem('pokeedge_theme', theme);
+  var btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function toggleTheme() {
+  var current = localStorage.getItem('pokeedge_theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+// 即時適用
+(function(){
+  var t = localStorage.getItem('pokeedge_theme') || 'dark';
+  var vars = THEMES[t] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  document.documentElement.setAttribute('data-theme', t);
+})();
+
+
+function toggleNav(){
+  const nav = document.querySelector('.header-nav');
+  const hb  = document.getElementById('hamburger');
+  const ov  = document.getElementById('nav-overlay');
+  if(!nav) return;
+  nav.classList.toggle('open');
+  hb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeNav(){
+  const nav = document.querySelector('.header-nav');
+  const hb  = document.getElementById('hamburger');
+  const ov  = document.getElementById('nav-overlay');
+  if(!nav) return;
+  nav.classList.remove('open');
+  hb.classList.remove('open');
+  ov.classList.remove('show');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.nav-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth <= 768) closeNav();
+    });
+  });
+});
+</script>
+<script>
+window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });
+</script>
+</body>
+</html>

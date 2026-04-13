@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>素早さライン早見表 | PokeEdge</title>
+<meta name="description" content="ポケモン対戦の素早さライン早見表。最速・準速・無振りの実数値一覧。スカーフ・追い風・特性補正対応。内定ポケモンフィルター付き。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="素早さライン早見表 | PokeEdge">
+<meta property="og:description" content="素早さ実数値の一覧表。スカーフ・追い風・特性補正・ランク補正対応。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/speed.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/speed.html">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;--border:#1a2540;--border2:#243356;--accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;--text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 35% at 10% 5%,rgba(0,200,240,0.06) 0%,transparent 60%),linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);background-size:auto,52px 52px,52px 52px;}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);cursor:pointer;flex-shrink:0;}
+.logo em{color:var(--accent2);font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
+@media(max-width:768px){
+  .header-nav{display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);background:rgba(7,9,15,0.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);}
+  .header-nav.open{display:flex;}
+  .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left;}
+  .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);}
+  .hamburger{display:flex;}
+}
+
+.main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:20px 16px;}
+.desc{font-size:12px;color:var(--text3);margin-bottom:14px;}
+
+/* 設定パネル */
+.ctrl-panel{background:var(--panel);border:1px solid var(--border);padding:16px;margin-bottom:14px;}
+.ctrl-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;}
+.ctrl-row:last-child{margin-bottom:0;}
+.ctrl-item{display:flex;flex-direction:column;gap:3px;}
+.ctrl-lbl{font-size:9px;color:var(--text2);letter-spacing:1px;}
+.ctrl-sel{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-family:'Noto Sans JP',sans-serif;font-size:11px;outline:none;}
+.ctrl-sel:focus{border-color:var(--accent);}
+.ctrl-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;width:80px;text-align:right;}
+.ctrl-input:focus{border-color:var(--accent);}
+.ctrl-search{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-family:'Noto Sans JP',sans-serif;font-size:11px;outline:none;width:180px;}
+.ctrl-search:focus{border-color:var(--accent);}
+
+/* チェックボックス風トグル */
+.toggle-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.tgl{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;padding:3px 8px;border:1px solid var(--border);transition:all 0.15s;user-select:none;}
+.tgl:hover{border-color:var(--accent);}
+.tgl.on{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+.tgl-scarf.on{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.08);}
+.tgl-tw.on{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.08);}
+.tgl-para.on{border-color:var(--accent2);color:var(--accent2);background:rgba(255,48,96,0.08);}
+
+/* 自分の素早さ入力 */
+.my-speed-wrap{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);border:1px solid var(--accent);margin-bottom:14px;}
+.my-speed-lbl{font-size:11px;color:var(--accent);white-space:nowrap;}
+
+/* テーブル */
+.speed-table-wrap{overflow-x:auto;border:1px solid var(--border);}
+.speed-table{width:100%;border-collapse:collapse;font-size:11px;}
+.speed-table th{background:var(--bg2);color:var(--text2);padding:8px 10px;text-align:left;font-weight:400;letter-spacing:1px;font-size:10px;position:sticky;top:0;z-index:2;border-bottom:1px solid var(--border);}
+.speed-table th.num{text-align:right;}
+.speed-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text3);}
+.speed-table td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;}
+.speed-table tr:hover td{background:rgba(0,200,240,0.03);}
+.speed-table tr.faster td{background:rgba(0,230,118,0.06);}
+.speed-table tr.same td{background:rgba(255,200,0,0.08);}
+.speed-table tr.slower td{background:rgba(255,48,96,0.04);}
+.poke-name{font-weight:700;color:var(--text);font-size:12px;}
+.tp{display:inline-block;padding:1px 5px;font-size:8px;font-weight:700;}
+.tp-ノーマル{background:#546e7a;color:#fff;}.tp-ほのお{background:#c62828;color:#fff;}.tp-みず{background:#1565c0;color:#fff;}
+.tp-でんき{background:#f9a825;color:#000;}.tp-くさ{background:#2e7d32;color:#fff;}.tp-こおり{background:#00838f;color:#fff;}
+.tp-かくとう{background:#b71c1c;color:#fff;}.tp-どく{background:#6a1b9a;color:#fff;}.tp-じめん{background:#6d4c41;color:#fff;}
+.tp-ひこう{background:#0277bd;color:#fff;}.tp-エスパー{background:#ad1457;color:#fff;}.tp-むし{background:#558b2f;color:#fff;}
+.tp-いわ{background:#4e342e;color:#fff;}.tp-ゴースト{background:#4a148c;color:#fff;}.tp-ドラゴン{background:#4527a0;color:#fff;}
+.tp-あく{background:#212121;color:#fff;}.tp-はがね{background:#455a64;color:#fff;}.tp-フェアリー{background:#880e4f;color:#fff;}
+.ab-badge{font-size:9px;color:var(--accent3);border:1px solid rgba(255,200,0,0.3);padding:0 4px;margin-left:4px;}
+.count-info{font-size:11px;color:var(--text2);margin-bottom:8px;}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">素早さライン</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="index.html">トップ</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
+    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="season.html">使用可能ポケモン</a>
+    <a class="nav-btn active" href="speed.html">素早さライン</a>
+    <a class="nav-btn" href="blog.html">記事</a>
+    <a class="nav-btn" href="policy.html">サイト情報</a>
+  </div>
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+</header>
+
+<div class="main">
+  <div style="margin-bottom:14px;">
+    <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:3px;">SPEED TIER CHART</div>
+    <div class="desc">素早さの実数値を一覧で比較。スカーフ・追い風・特性補正・ランク補正にも対応。自分の素早さを入力すると、抜ける相手と抜けない相手がハイライトされます。</div>
+  </div>
+
+  <!-- 設定パネル -->
+  <div class="ctrl-panel">
+    <div class="ctrl-row">
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">シーズン</span>
+        <select class="ctrl-sel" id="season-filter" onchange="render()">
+          <option value="">すべてのポケモン</option>
+        </select>
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">表示列</span>
+        <select class="ctrl-sel" id="col-mode" onchange="render()">
+          <option value="all">最速・準速・無振り・最遅</option>
+          <option value="fastest">最速のみ</option>
+          <option value="semi">準速のみ</option>
+          <option value="no">無振りのみ</option>
+        </select>
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">名前検索</span>
+        <input class="ctrl-search" id="name-filter" type="text" placeholder="ポケモン名..." oninput="render()">
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">種族値フィルター</span>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <input class="ctrl-input" id="spe-min" type="number" placeholder="下限" oninput="render()" style="width:60px;">
+          <span style="font-size:10px;color:var(--text2);">〜</span>
+          <input class="ctrl-input" id="spe-max" type="number" placeholder="上限" oninput="render()" style="width:60px;">
+        </div>
+      </div>
+    </div>
+    <div class="ctrl-row">
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">補正</span>
+        <div class="toggle-row">
+          <div class="tgl tgl-scarf" id="tgl-scarf" onclick="toggleTgl(this)">🧣 スカーフ ×1.5</div>
+          <div class="tgl tgl-tw" id="tgl-tailwind" onclick="toggleTgl(this)">🌪 追い風 ×2</div>
+          <div class="tgl tgl-para" id="tgl-para" onclick="toggleTgl(this)">⚡ 麻痺 ×0.5</div>
+          <div class="tgl" id="tgl-ability" onclick="toggleTgl(this)">🔥 天候特性 ×2</div>
+        </div>
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">ランク補正</span>
+        <select class="ctrl-sel" id="rank-mod" onchange="render()">
+          <option value="0">なし</option>
+          <option value="1">+1 (×1.5)</option>
+          <option value="2">+2 (×2.0)</option>
+          <option value="3">+3 (×2.5)</option>
+          <option value="-1">-1 (×0.67)</option>
+          <option value="-2">-2 (×0.5)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自分の素早さ -->
+  <div class="my-speed-wrap">
+    <span class="my-speed-lbl">自分の素早さ実数値:</span>
+    <input class="ctrl-input" id="my-speed" type="number" placeholder="例: 252" oninput="render()" style="width:70px;">
+    <span style="font-size:10px;color:var(--text2);">入力すると抜ける/抜けないをハイライト</span>
+  </div>
+
+  <div class="count-info" id="count-info"></div>
+
+  <!-- テーブル -->
+  <div class="speed-table-wrap" style="max-height:75vh;overflow-y:auto;">
+    <table class="speed-table" id="speed-table">
+      <thead id="speed-thead"></thead>
+      <tbody id="speed-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
+
+<script>
+let POKEMON_DATA=[], ABILITY_MAP={}, SEASON_DATA={seasons:[]}, ABILITY_DATA=[];
+
+// 素早さ2倍特性
+const SPEED_DOUBLE_ABILITIES = {
+  'すいすい':'あめ','すなかき':'すなあらし','ようりょくそ':'にほんばれ',
+  'ゆきかき':'ゆき','サーフテール':'エレキフィールド'
+};
+const SPEED_15_ABILITIES = {'はやあし':'状態異常','かるわざ':'道具消費'};
+
+// ランク補正テーブル
+const RANK_MULT = {'-6':2/8,'-5':2/7,'-4':2/6,'-3':2/5,'-2':2/4,'-1':2/3,'0':1,'1':3/2,'2':4/2,'3':5/2,'4':6/2,'5':7/2,'6':8/2};
+
+async function loadData(){
+  const [pd,ad,sd,abd]=await Promise.all([
+    fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
+    fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
+    fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
+    fetch('abilities_data.json?v='+Date.now()).then(r=>r.json()).catch(()=>[]),
+  ]);
+  POKEMON_DATA=pd; ABILITY_MAP=ad; SEASON_DATA=sd; ABILITY_DATA=abd;
+  initSeasonFilter();
+  render();
+}
+
+function initSeasonFilter(){
+  const sel=document.getElementById('season-filter');
+  if(!SEASON_DATA||!SEASON_DATA.seasons) return;
+  SEASON_DATA.seasons.forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s; opt.textContent=s+'（'+(SEASON_DATA[s]||[]).length+'体）';
+    sel.appendChild(opt);
+  });
+  // デフォルトで内定を選択
+  if(SEASON_DATA.seasons.includes('内定')) sel.value='内定';
+}
+
+function calcSpe(base,iv,ev,lv,natMult){
+  return Math.floor((Math.floor((base*2+iv+Math.floor(ev/4))*lv/100)+5)*natMult);
+}
+
+function getSpeedAbilities(pokeName){
+  const abs = ABILITY_MAP[pokeName]||[];
+  const result = [];
+  abs.forEach(a=>{
+    if(SPEED_DOUBLE_ABILITIES[a]) result.push({name:a, mult:2, condition:SPEED_DOUBLE_ABILITIES[a]});
+    if(SPEED_15_ABILITIES[a]) result.push({name:a, mult:1.5, condition:SPEED_15_ABILITIES[a]});
+  });
+  return result;
+}
+
+function toggleTgl(el){ el.classList.toggle('on'); render(); }
+
+function render(){
+  const season = document.getElementById('season-filter').value;
+  const colMode = document.getElementById('col-mode').value;
+  const nameQ = document.getElementById('name-filter').value.trim();
+  const speMin = parseInt(document.getElementById('spe-min').value)||0;
+  const speMax = parseInt(document.getElementById('spe-max').value)||9999;
+  const mySpeed = parseInt(document.getElementById('my-speed').value)||0;
+  const scarf = document.getElementById('tgl-scarf').classList.contains('on');
+  const tailwind = document.getElementById('tgl-tailwind').classList.contains('on');
+  const para = document.getElementById('tgl-para').classList.contains('on');
+  const abilityBoost = document.getElementById('tgl-ability').classList.contains('on');
+  const rankStr = document.getElementById('rank-mod').value;
+  const rankMult = RANK_MULT[rankStr]||1;
+
+  let itemMult = 1;
+  if(scarf) itemMult *= 1.5;
+  if(tailwind) itemMult *= 2;
+  if(para) itemMult *= 0.5;
+
+  // フィルター
+  let pokes = POKEMON_DATA.filter(p=>{
+    if(season && SEASON_DATA[season] && !SEASON_DATA[season].includes(p.name)) return false;
+    if(nameQ && !p.name.includes(nameQ)) return false;
+    if(p.spe < speMin || p.spe > speMax) return false;
+    return true;
+  });
+
+  // 各ポケモンの素早さ計算
+  const rows = pokes.map(p=>{
+    const fastest = calcSpe(p.spe, 31, 252, 50, 1.1); // 最速
+    const semi    = calcSpe(p.spe, 31, 252, 50, 1.0);  // 準速
+    const noev    = calcSpe(p.spe, 31, 0,   50, 1.0);  // 無振り
+    const slowest = calcSpe(p.spe, 0,  0,   50, 0.9);  // 最遅
+    const speedAbs = getSpeedAbilities(p.name);
+
+    // 補正適用
+    const applyMod = (val, abMult) => {
+      let v = val;
+      if(abilityBoost && abMult > 1) v = Math.floor(v * abMult);
+      v = Math.floor(v * itemMult);
+      v = Math.floor(v * rankMult);
+      return v;
+    };
+
+    // 特性の最大倍率
+    const maxAbMult = speedAbs.length > 0 ? Math.max(...speedAbs.map(a=>a.mult)) : 1;
+
+    return {
+      name: p.name,
+      type1: p.type1,
+      type2: p.type2,
+      baseSpe: p.spe,
+      fastest: applyMod(fastest, maxAbMult),
+      semi: applyMod(semi, maxAbMult),
+      noev: applyMod(noev, maxAbMult),
+      slowest: applyMod(slowest, maxAbMult),
+      speedAbs,
+      rawFastest: fastest,
+    };
+  });
+
+  // 最速降順ソート
+  rows.sort((a,b)=>b.fastest-a.fastest || b.baseSpe-a.baseSpe);
+
+  // テーブルヘッダー
+  const thead = document.getElementById('speed-thead');
+  let thHtml = '<tr><th>ポケモン</th><th>タイプ</th><th class="num">種族値</th>';
+  if(colMode==='all'||colMode==='fastest') thHtml+='<th class="num">最速</th>';
+  if(colMode==='all'||colMode==='semi')    thHtml+='<th class="num">準速</th>';
+  if(colMode==='all'||colMode==='no')      thHtml+='<th class="num">無振り</th>';
+  if(colMode==='all')                       thHtml+='<th class="num">最遅</th>';
+  thHtml+='<th>素早さ特性</th></tr>';
+  thead.innerHTML = thHtml;
+
+  // テーブルボディ
+  const tbody = document.getElementById('speed-tbody');
+  let html = '';
+
+  rows.forEach(r=>{
+    // ハイライト判定（最速値で比較）
+    let rowClass = '';
+    if(mySpeed > 0){
+      if(mySpeed > r.fastest) rowClass = 'faster';
+      else if(mySpeed === r.fastest) rowClass = 'same';
+      else rowClass = 'slower';
+    }
+
+    const t1 = r.type1 ? `<span class="tp tp-${r.type1}">${r.type1}</span>` : '';
+    const t2 = r.type2 ? `<span class="tp tp-${r.type2}">${r.type2}</span>` : '';
+    const abHtml = r.speedAbs.map(a=>`<span class="ab-badge" title="${a.condition}で×${a.mult}">${a.name}</span>`).join('');
+
+    html += `<tr class="${rowClass}">`;
+    html += `<td><span class="poke-name">${r.name}</span></td>`;
+    html += `<td>${t1}${t2}</td>`;
+    html += `<td class="num">${r.baseSpe}</td>`;
+    if(colMode==='all'||colMode==='fastest') html+=`<td class="num">${r.fastest}</td>`;
+    if(colMode==='all'||colMode==='semi')    html+=`<td class="num">${r.semi}</td>`;
+    if(colMode==='all'||colMode==='no')      html+=`<td class="num">${r.noev}</td>`;
+    if(colMode==='all')                       html+=`<td class="num">${r.slowest}</td>`;
+    html += `<td>${abHtml||'<span style="color:var(--border2);">—</span>'}</td>`;
+    html += '</tr>';
+  });
+
+  tbody.innerHTML = html;
+  document.getElementById('count-info').textContent = `${rows.length}体 表示中`;
+}
+
+window.onload = async ()=>{
+  await loadData();
+  await initAuth();
+};
+</script>
+
+<script>
+var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
+function applyTheme(theme){var vars=THEMES[theme]||THEMES.dark;var root=document.documentElement.style;for(var k in vars)root.setProperty(k,vars[k]);localStorage.setItem('pokeedge_theme',theme);var btn=document.getElementById('theme-btn');if(btn)btn.textContent=theme==='light'?'🌙':'☀️';document.documentElement.setAttribute('data-theme',theme);}
+function toggleTheme(){var current=localStorage.getItem('pokeedge_theme')||'dark';applyTheme(current==='dark'?'light':'dark');}
+(function(){var t=localStorage.getItem('pokeedge_theme')||'dark';applyTheme(t);})();
+function toggleNav(){const nav=document.querySelector('.header-nav');const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.toggle('open');hb.classList.toggle('open');ov.classList.toggle('show');}
+function closeNav(){const nav=document.querySelector('.header-nav');const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
+document.addEventListener('DOMContentLoaded',function(){
+  const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');
+  if(hb)hb.addEventListener('click',toggleNav);if(ov)ov.addEventListener('click',closeNav);
+  document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){if(window.innerWidth<=768)closeNav();});});
+});
+</script>
+</body>
+</html>

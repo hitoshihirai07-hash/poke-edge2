@@ -1,0 +1,8182 @@
+[
+  {
+    "name": "3ぼんのや",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アーマーキャノン",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アームハンマー",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アイアンテール",
+    "type": "はがね",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アイアンヘッド",
+    "type": "はがね",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アイアンローラー",
+    "type": "はがね",
+    "category": "物理",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アイススピナー",
+    "type": "こおり",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アイスハンマー",
+    "type": "こおり",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アイスボール",
+    "type": "こおり",
+    "category": "物理",
+    "power": 30,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あおいほのお",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクアカッター",
+    "type": "みず",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクアジェット",
+    "type": "みず",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクアステップ",
+    "type": "みず",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクアテール",
+    "type": "みず",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクアブレイク",
+    "type": "みず",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あくうせつだん",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクセルブレイク",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクセルロック",
+    "type": "いわ",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あくのはどう",
+    "type": "あく",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アクロバット",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アシストパワー",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 20,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アシッドボム",
+    "type": "どく",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アストラルビット",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あてみなげ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あなをほる",
+    "type": "じめん",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あばれる",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アフロブレイク",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あやしいかぜ",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あわ",
+    "type": "みず",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "アンカーショット",
+    "type": "はがね",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "あんこくきょうだ",
+    "type": "あく",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "TRUE",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いあいぎり",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いかり",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 20,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いじげんホール",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いじげんラッシュ",
+    "type": "あく",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いっちょうあがり",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いてつくしせん",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "イナズマドライブ",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いにしえのうた",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いびき",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いわおとし",
+    "type": "いわ",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いわくだき",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "いわなだれ",
+    "type": "いわ",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "インファイト",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ウェーブタックル",
+    "type": "みず",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ウェザーボール",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "うずしお",
+    "type": "みず",
+    "category": "特殊",
+    "power": 35,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "うたかたのアリア",
+    "type": "みず",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "うちおとす",
+    "type": "いわ",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ウッドハンマー",
+    "type": "くさ",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ウッドホーン",
+    "type": "くさ",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "うっぷんばらし",
+    "type": "あく",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "うらみつらみ",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エアカッター",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エアスラッシュ",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エアロブラスト",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エコーボイス",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "えだづき",
+    "type": "くさ",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エナジーボール",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エラがみ",
+    "type": "みず",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エレキネット",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エレクトロビーム",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "オーバードライブ",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "オーバーヒート",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "オーラウイング",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "オーラぐるま",
+    "type": "でんき",
+    "category": "物理",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "オーロラビーム",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "おいうち",
+    "type": "あく",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "おうふくビンタ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 15,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "オクタンほう",
+    "type": "みず",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "おしゃべり",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "おどろかす",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 30,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "おはかまいり",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かいりき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かえんぐるま",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かえんだん",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かえんほうしゃ",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かえんボール",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かかとおとし",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かげうち",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かげぬい",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かぜおこし",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かたきうち",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かふんだんご",
+    "type": "むし",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かまいたち",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かみくだく",
+    "type": "あく",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かみつく",
+    "type": "あく",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かみなり",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かみなりあらし",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かみなりのキバ",
+    "type": "でんき",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かみなりパンチ",
+    "type": "でんき",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "からげんき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "からてチョップ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "からではさむ",
+    "type": "みず",
+    "category": "物理",
+    "power": 35,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "からみつく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 10,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "かわらわり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ガリョウテンセイ",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "がんせきアックス",
+    "type": "いわ",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "がんせきふうじ",
+    "type": "いわ",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "がんせきほう",
+    "type": "いわ",
+    "category": "物理",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きあいだま",
+    "type": "かくとう",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きあいパンチ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きつけ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きまぐレーザー",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きゅうけつ",
+    "type": "むし",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きょけんとつげき",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きょじゅうざん",
+    "type": "はがね",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きょじゅうだん",
+    "type": "はがね",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "キラースピン",
+    "type": "どく",
+    "category": "物理",
+    "power": 30,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "きりさく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ギアソーサー",
+    "type": "はがね",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ギガインパクト",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ギガドレイン",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ぎんいろのかぜ",
+    "type": "むし",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クイックターン",
+    "type": "みず",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "くさのちかい",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "くさわけ",
+    "type": "くさ",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "くちばしキャノン",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "くらいつく",
+    "type": "あく",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クラブハンマー",
+    "type": "みず",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クリアスモッグ",
+    "type": "どく",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クロスサンダー",
+    "type": "でんき",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クロスチョップ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クロスフレイム",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クロスポイズン",
+    "type": "どく",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "クロロブラスト",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "グラススライダー",
+    "type": "くさ",
+    "category": "物理",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "グラスミキサー",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "グランドフォース",
+    "type": "じめん",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "グロウパンチ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "げきりん",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ゲップ",
+    "type": "どく",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "げんしのちから",
+    "type": "いわ",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "コールドフレア",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "コアパニッシャー",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こうげきしれい",
+    "type": "むし",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こうそくスピン",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こおりのいぶき",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "TRUE",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こおりのキバ",
+    "type": "こおり",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こおりのつぶて",
+    "type": "こおり",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こがらしあらし",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こごえるかぜ",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こごえるせかい",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こちこちフロスト",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こなゆき",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "このは",
+    "type": "くさ",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "コメットパンチ",
+    "type": "はがね",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "こんげんのはどう",
+    "type": "みず",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ゴーストダイブ",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ゴールドラッシュ",
+    "type": "はがね",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ゴッドバード",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイケこうせん",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコカッター",
+    "type": "エスパー",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコキネシス",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコショック",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコノイズ",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコファング",
+    "type": "エスパー",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコブースト",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコブレイク",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サイコブレイド",
+    "type": "エスパー",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サウザンアロー",
+    "type": "じめん",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サウザンウェーブ",
+    "type": "じめん",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "さばきのつぶて",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "さわぐ",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サンダーダイブ",
+    "type": "でんき",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "サンダープリズン",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シードフレア",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シェルアームズ",
+    "type": "どく",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シェルブレード",
+    "type": "みず",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しおづけ",
+    "type": "いわ",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しおふき",
+    "type": "みず",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しおみず",
+    "type": "みず",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シグナルビーム",
+    "type": "むし",
+    "category": "特殊",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シザークロス",
+    "type": "むし",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "したでなめる",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 30,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しっとのほのお",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しっぺがえし",
+    "type": "あく",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しねんのずつき",
+    "type": "エスパー",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しめつける",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 15,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャカシャカほう",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャドークロー",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャドースチール",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャドーダイブ",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャドーパンチ",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャドーボール",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャドーボーン",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シャドーレイ",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しんくうは",
+    "type": "かくとう",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "シンクロノイズ",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しんそく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しんぴのちから",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "しんぴのつるぎ",
+    "type": "かくとう",
+    "category": "特殊",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "Gのちから",
+    "type": "くさ",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ジェットパンチ",
+    "type": "みず",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じごくぐるま",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じごくづき",
+    "type": "あく",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じしん",
+    "type": "じめん",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じだんだ",
+    "type": "じめん",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じならし",
+    "type": "じめん",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じばく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 200,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じゃどくのくさり",
+    "type": "どく",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じゃれつく",
+    "type": "フェアリー",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "10まんばりき",
+    "type": "じめん",
+    "category": "物理",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "10まんボルト",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じんつうりき",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じんらい",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スイープビンタ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 25,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "すいとる",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 20,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "すいりゅうれんだ",
+    "type": "みず",
+    "category": "物理",
+    "power": 25,
+    "hits": "3",
+    "alwaysCrit": "TRUE",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スカイアッパー",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "すくすくボンバー",
+    "type": "くさ",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スケイルショット",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 25,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スケイルノイズ",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スターアサルト",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スチームバースト",
+    "type": "みず",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "すてみタックル",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ストーンエッジ",
+    "type": "いわ",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "すなじごく",
+    "type": "じめん",
+    "category": "物理",
+    "power": 35,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スパーク",
+    "type": "でんき",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スピードスター",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スマートホーン",
+    "type": "はがね",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "スモッグ",
+    "type": "どく",
+    "category": "特殊",
+    "power": 30,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ずつき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "せいなるつるぎ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "せいなるほのお",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ソーラービーム",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ソーラーブレード",
+    "type": "くさ",
+    "category": "物理",
+    "power": 125,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ソウルクラッシュ",
+    "type": "フェアリー",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "そらをとぶ",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "たいあたり",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "タキオンカッター",
+    "type": "はがね",
+    "category": "特殊",
+    "power": 50,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "たきのぼり",
+    "type": "みず",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "たたきつける",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "たたりめ",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "たつまき",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "タネばくだん",
+    "type": "くさ",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "タネマシンガン",
+    "type": "くさ",
+    "category": "物理",
+    "power": 25,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "タマゴばくだん",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "たまなげ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 15,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だいちのちから",
+    "type": "じめん",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だいちのはどう",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だいばくはつ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 250,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダイビング",
+    "type": "みず",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だいふんげき",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダイマックスほう",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だいもんじ",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダイヤストーム",
+    "type": "いわ",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だくりゅう",
+    "type": "みず",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダストシュート",
+    "type": "どく",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダブルアタック",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 35,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダブルウイング",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 40,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダブルチョップ",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 40,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダブルニードル",
+    "type": "むし",
+    "category": "物理",
+    "power": 25,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダブルパンツァー",
+    "type": "はがね",
+    "category": "物理",
+    "power": 60,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だましうち",
+    "type": "あく",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ダメおし",
+    "type": "あく",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "だんがいのつるぎ",
+    "type": "じめん",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "チャージビーム",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "チャームボイス",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ついばむ",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ツインビーム",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つけあがる",
+    "type": "あく",
+    "category": "物理",
+    "power": 20,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つじぎり",
+    "type": "あく",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ツタこんぼう",
+    "type": "くさ",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つっぱり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 15,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つつく",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 35,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つのでつく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つばさでうつ",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つばめがえし",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つららおとし",
+    "type": "こおり",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つららばり",
+    "type": "こおり",
+    "category": "物理",
+    "power": 25,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つるのムチ",
+    "type": "くさ",
+    "category": "物理",
+    "power": 45,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "テクノバスター",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "てっていこうせん",
+    "type": "はがね",
+    "category": "特殊",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "テラクラスター",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "テラバースト",
+    "type": "ノーマル",
+    "category": "auto",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "TRUE",
+    "notes": ""
+  },
+  {
+    "name": "であいがしら",
+    "type": "むし",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "DDラリアット",
+    "type": "あく",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "デカハンマー",
+    "type": "はがね",
+    "category": "物理",
+    "power": 160,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "デスウイング",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "でんきショック",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "でんげきくちばし",
+    "type": "でんき",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "でんげきは",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "でんこうせっか",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "でんこうそうげき",
+    "type": "でんき",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "でんじほう",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ときのほうこう",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とげキャノン",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 20,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とっしん",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とっておき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とどめばり",
+    "type": "むし",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とびかかる",
+    "type": "むし",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とびげり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とびつく",
+    "type": "むし",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とびはねる",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とびひざげり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ともえなげ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トライアタック",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トラップシェル",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トラバサミ",
+    "type": "くさ",
+    "category": "物理",
+    "power": 35,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トリックフラワー",
+    "type": "くさ",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "TRUE",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トリプルアクセル",
+    "type": "こおり",
+    "category": "物理",
+    "power": 20,
+    "hits": "3",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トリプルキック",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 10,
+    "hits": "3",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トリプルダイブ",
+    "type": "みず",
+    "category": "物理",
+    "power": 30,
+    "hits": "3",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "トロピカルキック",
+    "type": "くさ",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "とんぼがえり",
+    "type": "むし",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どくづき",
+    "type": "どく",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どくどくのキバ",
+    "type": "どく",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どくばり",
+    "type": "どく",
+    "category": "物理",
+    "power": 15,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どくばりセンボン",
+    "type": "どく",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どげざつき",
+    "type": "あく",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドゲザン",
+    "type": "あく",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どばどばオーラ",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドラゴンアロー",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 50,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドラゴンエナジー",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドラゴンクロー",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドラゴンダイブ",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドラゴンテール",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドラゴンハンマー",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドラムアタック",
+    "type": "くさ",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドリルくちばし",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドリルライナー",
+    "type": "じめん",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドレインキッス",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ドレインパンチ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どろかけ",
+    "type": "じめん",
+    "category": "特殊",
+    "power": 20,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どろばくだん",
+    "type": "じめん",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "どろぼう",
+    "type": "あく",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ナイトバースト",
+    "type": "あく",
+    "category": "特殊",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "なしくずし",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "なみのり",
+    "type": "みず",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ニードルアーム",
+    "type": "くさ",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ニトロチャージ",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "にどげり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 30,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ねこだまし",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ネコにこばん",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ネズミざん",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 20,
+    "hits": "1～10",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ねっさのあらし",
+    "type": "じめん",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ねっさのだいち",
+    "type": "じめん",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ねっとう",
+    "type": "みず",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ねっぷう",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ねらいうち",
+    "type": "みず",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ねんりき",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "のしかかり",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハートスタンプ",
+    "type": "エスパー",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハードプラント",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハードローラー",
+    "type": "むし",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハイドロカノン",
+    "type": "みず",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハイドロスチーム",
+    "type": "みず",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハイドロポンプ",
+    "type": "みず",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハイパードリル",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ハイパーボイス",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はいよるいちげき",
+    "type": "むし",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はかいこうせん",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はがねのつばさ",
+    "type": "はがね",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はさむ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はじけるほのお",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はたきおとす",
+    "type": "あく",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はたく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はっけい",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はっぱカッター",
+    "type": "くさ",
+    "category": "物理",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はどうだん",
+    "type": "かくとう",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はなびらのまい",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はなふぶき",
+    "type": "くさ",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はめつのねがい",
+    "type": "はがね",
+    "category": "特殊",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はめつのひかり",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はやてがえし",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "はるのあらし",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "バークアウト",
+    "type": "あく",
+    "category": "特殊",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ばかぢから",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ばくおんぱ",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ばくれつパンチ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ばちばちアクセル",
+    "type": "でんき",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "バブルこうせん",
+    "type": "みず",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "バリアーラッシュ",
+    "type": "エスパー",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "バレットパンチ",
+    "type": "はがね",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "パラボラチャージ",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "パワーウィップ",
+    "type": "くさ",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "パワージェム",
+    "type": "いわ",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "パワフルエッジ",
+    "type": "いわ",
+    "category": "物理",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひけん・ちえなみ",
+    "type": "あく",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひっかく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひっさつまえば",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひのこ",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひみつのちから",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひゃっきやこう",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひやみず",
+    "type": "みず",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ひょうざんおろし",
+    "type": "こおり",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ビックリヘッド",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "びりびりエレキ",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "びりびりちくちく",
+    "type": "でんき",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ピヨピヨパンチ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふいうち",
+    "type": "あく",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フェイタルクロー",
+    "type": "どく",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フェイント",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 30,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フォトンゲイザー",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふぶき",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふみつけ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フライングプレス",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フリーズドライ",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フリーズボルト",
+    "type": "こおり",
+    "category": "物理",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フリーフォール",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フルールカノン",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フレアソング",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "フレアドライブ",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふわふわフォール",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふんえん",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふんか",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふんどのこぶし",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "Vジェネレート",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 180,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ぶきみなじゅもん",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ぶちかまし",
+    "type": "じめん",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ブラストバーン",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ブラッドムーン",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 140,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ブリザードランス",
+    "type": "こおり",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ブレイククロー",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ブレイズキック",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ブレイブバード",
+    "type": "ひこう",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ぶんまわす",
+    "type": "あく",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "プラズマフィスト",
+    "type": "でんき",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "プリズムレーザー",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 160,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ヘドロウェーブ",
+    "type": "どく",
+    "category": "特殊",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ヘドロこうげき",
+    "type": "どく",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ヘドロばくだん",
+    "type": "どく",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ベノムショック",
+    "type": "どく",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ホイールスピン",
+    "type": "はがね",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほうでん",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほしがる",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほっぺすりすり",
+    "type": "でんき",
+    "category": "物理",
+    "power": 20,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ホネこんぼう",
+    "type": "じめん",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ホネブーメラン",
+    "type": "じめん",
+    "category": "物理",
+    "power": 50,
+    "hits": "2",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほのおのうず",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 35,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほのおのキバ",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほのおのちかい",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほのおのパンチ",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほのおのまい",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ほのおのムチ",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ボーンラッシュ",
+    "type": "じめん",
+    "category": "物理",
+    "power": 25,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ぼうふう",
+    "type": "ひこう",
+    "category": "特殊",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ボディプレス",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "防御依存"
+  },
+  {
+    "name": "ボルテッカー",
+    "type": "でんき",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ボルトチェンジ",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ポイズンテール",
+    "type": "どく",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ポルターガイスト",
+    "type": "ゴースト",
+    "category": "物理",
+    "power": 110,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "まきつく",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 15,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マグネットボム",
+    "type": "はがね",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マグマストーム",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マジカルシャイン",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マジカルフレイム",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マジカルリーフ",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マッドショット",
+    "type": "じめん",
+    "category": "特殊",
+    "power": 55,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マッハパンチ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "まとわりつく",
+    "type": "むし",
+    "category": "特殊",
+    "power": 20,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "マルチアタック",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "まわしげり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ミサイルばり",
+    "type": "むし",
+    "category": "物理",
+    "power": 25,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ミストバースト",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ミストボール",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みずあめボム",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みずしゅりけん",
+    "type": "みず",
+    "category": "特殊",
+    "power": 15,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みずでっぽう",
+    "type": "みず",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みずのちかい",
+    "type": "みず",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みずのはどう",
+    "type": "みず",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みだれづき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 15,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みだれひっかき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 18,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ミラーショット",
+    "type": "はがね",
+    "category": "特殊",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みらいよち",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "みわくのボイス",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ムーンフォース",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ムゲンダイビーム",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 160,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "むしくい",
+    "type": "むし",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "むしのさざめき",
+    "type": "むし",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "むしのていこう",
+    "type": "むし",
+    "category": "特殊",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "むねんのつるぎ",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "メガトンキック",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "メガトンパンチ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "メガドレイン",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "メガホーン",
+    "type": "むし",
+    "category": "物理",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "めざましビンタ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "めざめるダンス",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "めざめるパワー",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "メタルクロー",
+    "type": "はがね",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "メテオドライブ",
+    "type": "はがね",
+    "category": "物理",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "メテオビーム",
+    "type": "いわ",
+    "category": "特殊",
+    "power": 120,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "めらめらバーン",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "もえあがるいかり",
+    "type": "あく",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "もえつきる",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "もろはのずつき",
+    "type": "いわ",
+    "category": "物理",
+    "power": 150,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "やきつくす",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "やけっぱち",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "やまあらし",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "TRUE",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ゆめくい",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ようかいえき",
+    "type": "どく",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ようせいのかぜ",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 40,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "らいげき",
+    "type": "でんき",
+    "category": "物理",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ライジングボルト",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 70,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "らいめいげり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ラスターカノン",
+    "type": "はがね",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ラスターパージ",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "リーフストーム",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "リーフブレード",
+    "type": "くさ",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "りゅうせいぐん",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "りゅうのいぶき",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "りゅうのはどう",
+    "type": "ドラゴン",
+    "category": "特殊",
+    "power": 85,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "りんごさん",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "りんしょう",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ルミナコリジョン",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "レイジングブル",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "れいとうパンチ",
+    "type": "こおり",
+    "category": "物理",
+    "power": 75,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "れいとうビーム",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "れんごく",
+    "type": "ほのお",
+    "category": "特殊",
+    "power": 100,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "れんぞくパンチ",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 18,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ローキック",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 65,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ロケットずつき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 130,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ロッククライム",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ロックブラスト",
+    "type": "いわ",
+    "category": "物理",
+    "power": 25,
+    "hits": "2～5",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ワイドフォース",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 80,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ワイドブレイカー",
+    "type": "ドラゴン",
+    "category": "物理",
+    "power": 60,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ワイルドボルト",
+    "type": "でんき",
+    "category": "物理",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "わるあがき",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 50,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ワンダースチーム",
+    "type": "フェアリー",
+    "category": "特殊",
+    "power": 90,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "つるぎのまい",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "自己強化"
+  },
+  {
+    "name": "まもる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "自己強化"
+  },
+  {
+    "name": "どくどく",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "状態異常"
+  },
+  {
+    "name": "じこさいせい",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "回復"
+  },
+  {
+    "name": "アクアリング",
+    "type": "みず",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あくび",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あくまのキッス",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あくむ",
+    "type": "ゴースト",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あさのひざし",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "アシストギア",
+    "type": "はがね",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あまいかおり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あまえる",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あまごい",
+    "type": "みず",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あやしいひかり",
+    "type": "ゴースト",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "あられ",
+    "type": "こおり",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "アロマセラピー",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "アロマミスト",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "アンコール",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いえき",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いかりのこな",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いたみわけ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いちゃもん",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いとをはく",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いのちのしずく",
+    "type": "みず",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いばる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いやしのすず",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いやしのねがい",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いやしのはどう",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "いやなおと",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "うそなき",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "うたう",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "うつしえ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "うらみ",
+    "type": "ゴースト",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "エレキフィールド",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "えんまく",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "オーロラベール",
+    "type": "こおり",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おいかぜ",
+    "type": "ひこう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おいわい",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "オウムがえし",
+    "type": "ひこう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おかたづけ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おきみやげ",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おさきにどうぞ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おたけび",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おだてる",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おちゃかい",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おにび",
+    "type": "ほのお",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おまじない",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "おんねん",
+    "type": "ゴースト",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かいでんぱ",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かいふくしれい",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かいふくふうじ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かえんのまもり",
+    "type": "ほのお",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かぎわける",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かくばる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かげぶんしん",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かたくなる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "かなしばり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "からにこもる",
+    "type": "みず",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "からをやぶる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ガードシェア",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ガードスワップ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "きあいだめ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "キノコのほうし",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "きりばらい",
+    "type": "ひこう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "キングシールド",
+    "type": "はがね",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "きんぞくおん",
+    "type": "はがね",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ギアチェンジ",
+    "type": "はがね",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ギフトパス",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "くさぶえ",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "くすぐる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "クモのす",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "くろいきり",
+    "type": "こおり",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "くろいまなざし",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "グラスフィールド",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "コーチング",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "コートチェンジ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "こうごうせい",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "こうそくいどう",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "こころのめ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "コスモパワー",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "コットンガード",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "このゆびとまれ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "こらえる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "こわいかお",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "さいきのいのり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "サイコシフト",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "サイコフィールド",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "サイドチェンジ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "さいはい",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "さいみんじゅつ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "さきおくり",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "さきどり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "さしおさえ",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "さむいギャグ",
+    "type": "こおり",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "しぜんのちから",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "しっぽきり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "しっぽをふる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "しびれごな",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "しょうりのまい",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "しろいきり",
+    "type": "こおり",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "しんぴのまもり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "シンプルビーム",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ジオコントロール",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "じこあんじ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "じばそうさ",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ジャングルヒール",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "じゅうでん",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "じゅうりょく",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "じょうか",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "スキルスワップ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "スケッチ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "すてゼリフ",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ステルスロック",
+    "type": "いわ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "すなあつめ",
+    "type": "じめん",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "すなあらし",
+    "type": "いわ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "すなかけ",
+    "type": "じめん",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "スピードスワップ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "スプーンまげ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "スポットライト",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "すりかえ",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "スレッドトラップ",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "せいちょう",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "そうでん",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ソウルビート",
+    "type": "ドラゴン",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "タールショット",
+    "type": "いわ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "たがやす",
+    "type": "じめん",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "たくわえる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "たこがため",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "たたみがえし",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "たてこもる",
+    "type": "はがね",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "タマゴうみ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ダークホール",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ダイウォール",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ちいさくなる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ちからをすいとる",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ちょうおんぱ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ちょうのまい",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ちょうはつ",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "つきのひかり",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "つぶらなひとみ",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "つぼをつく",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "つめとぎ",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "テクスチャー",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "テクスチャー2",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "てだすけ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "てっぺき",
+    "type": "はがね",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "テレキネシス",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "テレポート",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "てをつなぐ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "てんしのキッス",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "デコレーション",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "でんじは",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "でんじふゆう",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "トーチカ",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "とおせんぼう",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "とおぼえ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "とぎすます",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "とぐろをまく",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "とける",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "トリック",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "トリックガード",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "トリックルーム",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "どくガス",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "どくのいと",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "どくのこな",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "どくびし",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ドラゴンエール",
+    "type": "ドラゴン",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "どろあそび",
+    "type": "じめん",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ドわすれ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ないしょばなし",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ナインエボルブースト",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "なかまづくり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "なかよくする",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "なきごえ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "なまける",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "なみだめ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "なやみのタネ",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "なりきり",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ニードルガード",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "にほんばれ",
+    "type": "ほのお",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "にらみつける",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ねがいごと",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ねこのて",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ねごと",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ねばねばネット",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ねむりごな",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ねむる",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ねをはる",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "のみこむ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "のろい",
+    "type": "ゴースト",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ハートスワップ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "はいすいのじん",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ハッピータイム",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "はねやすめ",
+    "type": "ひこう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "はねる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ハバネロエキス",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "はらだいこ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ハロウィン",
+    "type": "ゴースト",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "バトンタッチ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "バリアー",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "パワーシェア",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "パワーシフト",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "パワースワップ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "パワートリック",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ひかりのかべ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ひっくりかえす",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ビルドアップ",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ファストガード",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ふういん",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "フェアリーロック",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "フェザーダンス",
+    "type": "ひこう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ふきとばし",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ふしょくガス",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "フラッシュ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "フラフラダンス",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "フラワーガード",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "フラワーヒール",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ふるいたてる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ふんじん",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ブレイブチャージ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ブロッキング",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "プラズマシャワー",
+    "type": "でんき",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "へびにらみ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "へんしん",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ベノムトラップ",
+    "type": "どく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ほえる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ほおばる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ほごしょく",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ほたるび",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ほろびのうた",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ぼうぎょしれい",
+    "type": "むし",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ボディパージ",
+    "type": "はがね",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "まきびし",
+    "type": "じめん",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "マジックコート",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "マジックルーム",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "まねっこ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "まほうのこな",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "まるくなる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みかづきのいのり",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みかづきのまい",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みがわり",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みきり",
+    "type": "かくとう",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ミストフィールド",
+    "type": "フェアリー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みずあそび",
+    "type": "みず",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みずびたし",
+    "type": "みず",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みちづれ",
+    "type": "ゴースト",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みやぶる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ミラータイプ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ミラクルアイ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ミルクのみ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "みをけずる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "めいそう",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "メロメロ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ものまね",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "もりののろい",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "やどりぎのタネ",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ゆうわく",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ゆきげしき",
+    "type": "こおり",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ゆびをふる",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ヨガのポーズ",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "よこどり",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "リサイクル",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "リフレクター",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "リフレッシュ",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "りゅうのまい",
+    "type": "ドラゴン",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ロックオン",
+    "type": "ノーマル",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ロックカット",
+    "type": "いわ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ワイドガード",
+    "type": "いわ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "わたほうし",
+    "type": "くさ",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "わるだくみ",
+    "type": "あく",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "ワンダールーム",
+    "type": "エスパー",
+    "category": "変化",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "変化関連"
+  },
+  {
+    "name": "くさむすび",
+    "type": "くさ",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "体重依存"
+  },
+  {
+    "name": "けたぐり",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "体重依存"
+  },
+  {
+    "name": "ジャイロボール",
+    "type": "はがね",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "素早さ依存"
+  },
+  {
+    "name": "ヘビーボンバー",
+    "type": "はがね",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "体重依存"
+  },
+  {
+    "name": "ヒートスタンプ",
+    "type": "ほのお",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "体重依存"
+  },
+  {
+    "name": "カウンター",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "反射"
+  },
+  {
+    "name": "なげつける",
+    "type": "あく",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "ふくろだたき",
+    "type": "あく",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "じたばた",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP依存"
+  },
+  {
+    "name": "ゆきなだれ",
+    "type": "こおり",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "反射"
+  },
+  {
+    "name": "ミラーコート",
+    "type": "エスパー",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "反射"
+  },
+  {
+    "name": "がむしゃら",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP依存"
+  },
+  {
+    "name": "はきだす",
+    "type": "ノーマル",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": ""
+  },
+  {
+    "name": "エレキボール",
+    "type": "でんき",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "素早さ依存"
+  },
+  {
+    "name": "きしかいせい",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP依存"
+  },
+  {
+    "name": "ナイトヘッド",
+    "type": "ゴースト",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "LV依存"
+  },
+  {
+    "name": "イカサマ",
+    "type": "あく",
+    "category": "物理",
+    "power": 95,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "相手の攻撃の能力値でダメージ計算する。"
+  },
+  {
+    "name": "ちきゅうなげ",
+    "type": "かくとう",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "LV依存"
+  },
+  {
+    "name": "ハサミギロチン",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "一撃必殺"
+  },
+  {
+    "name": "ハードプレス",
+    "type": "はがね",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP依存"
+  },
+  {
+    "name": "じわれ",
+    "type": "じめん",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "一撃必殺"
+  },
+  {
+    "name": "いかりのまえば",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP半分"
+  },
+  {
+    "name": "ほうふく",
+    "type": "あく",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP依存"
+  },
+  {
+    "name": "メタルバースト",
+    "type": "はがね",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP依存"
+  },
+  {
+    "name": "ぜったいれいど",
+    "type": "こおり",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "一撃必殺"
+  },
+  {
+    "name": "いのちがけ",
+    "type": "かくとう",
+    "category": "特殊",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "HP依存"
+  },
+  {
+    "name": "つのドリル",
+    "type": "ノーマル",
+    "category": "物理",
+    "power": 0,
+    "hits": "1",
+    "alwaysCrit": "",
+    "teraAdative": "",
+    "notes": "一撃必殺"
+  }
+]

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プライバシーポリシー・利用規約 | PokeEdge</title>
+<meta name="description" content="PokeEdgeのプライバシーポリシー、利用規約、免責事項、お問い合わせ、運営者情報についてのページです。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="プライバシーポリシー・利用規約 | PokeEdge">
+<meta property="og:description" content="PokeEdgeのプライバシーポリシー、利用規約、免責事項、運営者情報。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/policy.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/policy.html">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;
+  --border:#1a2540;--border2:#243356;
+  --accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;
+  --text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;line-height:1.8;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,200,240,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 30% at 90% 90%,rgba(255,48,96,0.06) 0%,transparent 60%),
+    linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);
+  background-size:auto,auto,52px 52px,52px 52px;}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 20px rgba(0,200,240,0.4);flex-shrink:0;cursor:pointer;}
+.logo em{color:var(--accent2);font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+
+.main{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:40px 24px 60px;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--accent);margin-bottom:8px;}
+.page-sub{font-size:11px;color:var(--text2);letter-spacing:2px;margin-bottom:40px;}
+.toc{background:var(--panel);border:1px solid var(--border);padding:18px 22px;margin-bottom:36px;}
+.toc-title{font-size:11px;color:var(--text2);letter-spacing:2px;margin-bottom:10px;}
+.toc a{display:block;font-size:13px;color:var(--text3);text-decoration:none;padding:3px 0;transition:color 0.15s;}
+.toc a:hover{color:var(--accent);}
+.section{margin-bottom:40px;}
+.sec-head{font-size:14px;font-weight:700;color:var(--accent);border-left:3px solid var(--accent);padding-left:12px;margin-bottom:14px;letter-spacing:1px;}
+.sec-body{font-size:13px;color:var(--text3);line-height:2;}
+.sec-body p{margin-bottom:10px;}
+.sec-body ul{margin:10px 0 10px 20px;}
+.sec-body li{margin-bottom:6px;}
+.updated{font-size:11px;color:var(--text2);margin-bottom:36px;}
+.info-table{width:100%;border-collapse:collapse;}
+.info-table tr{border-bottom:1px solid var(--border);}
+.info-table th{text-align:left;padding:10px 14px;font-size:12px;color:var(--text2);width:140px;font-weight:400;}
+.info-table td{padding:10px 14px;font-size:13px;color:var(--text3);}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+.footer-text{font-size:10px;color:var(--text2);line-height:1.6;}
+
+/* ナビゲーション */
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
+
+/* ハンバーガーメニュー */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
+@media(max-width:768px){
+  .header-nav{
+    display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);
+    background:rgba(7,9,15,0.98);border-left:1px solid var(--border);
+    flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);
+  }
+  .header-nav.open{display:flex;}
+  .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left;letter-spacing:1px;}
+  .nav-btn:last-child{border-bottom:none;}
+  .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);}
+  .hamburger{display:flex;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">サイト情報</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="index.html">トップ</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
+    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="season.html">使用可能ポケモン</a>
+    <a class="nav-btn" href="speed.html">素早さライン</a>
+    <a class="nav-btn" href="blog.html">記事</a>
+    <a class="nav-btn active" href="policy.html">サイト情報</a>
+  </div>
+
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+</header>
+
+<div class="main">
+  <div class="page-title">サイト情報</div>
+  <div class="page-sub">プライバシーポリシー・利用規約・お問い合わせ・サイト情報</div>
+  <div class="updated">最終更新日: 2026年4月</div>
+
+  <div class="toc">
+    <div class="toc-title">目次</div>
+    <a href="#privacy">1. 個人情報と利用について</a>
+    <a href="#personal">2. 収集する情報と使い道</a>
+    <a href="#cloud">3. アカウントとクラウド同期</a>
+    <a href="#cookie">4. Cookieについて</a>
+    <a href="#analytics">5. アクセス解析ツールについて</a>
+    <a href="#adsense">6. 広告配信について（Google AdSense）</a>
+    <a href="#affiliate">7. アフィリエイトについて</a>
+    <a href="#terms">8. 利用規約</a>
+    <a href="#copyright">9. 著作権・知的財産権について</a>
+    <a href="#disclaimer">10. 免責事項</a>
+    <a href="#about">11. 運営について</a>
+    <a href="#contact">12. お問い合わせ</a>
+  </div>
+
+  <!-- 1. プライバシーポリシー -->
+  <div class="section" id="privacy">
+    <div class="sec-head">1. 個人情報と利用について</div>
+    <div class="sec-body">
+      <p>PokeEdge（以下「当サイト」）は、ユーザーの個人情報およびプライバシーの保護を重要と考え、以下のとおりプライバシーポリシーを定めます。当サイトをご利用いただく際には、本ポリシーにご同意のうえでご利用ください。</p>
+      <p>当サイトは、個人情報の保護に関する法律（個人情報保護法）およびその他の関連法令を遵守し、ユーザーの個人情報を適切に取り扱います。本ポリシーの内容は、法令の改正やサービス内容の変更に伴い、予告なく変更する場合があります。変更後のプライバシーポリシーは本ページに掲載した時点から効力を生じます。</p>
+    </div>
+  </div>
+
+  <!-- 2. 個人情報の収集と利用目的 -->
+  <div class="section" id="personal">
+    <div class="sec-head">2. 収集する情報と使い道</div>
+    <div class="sec-body">
+      <p>当サイトでは、以下の場合に個人情報を収集することがあります。</p>
+      <ul>
+        <li>お問い合わせの際にご提供いただくお名前、メールアドレス等</li>
+        <li>アカウント登録の際にご提供いただくメールアドレス</li>
+      </ul>
+      <p>取得した個人情報は、以下の目的でのみ利用いたします。</p>
+      <ul>
+        <li>お問い合わせへの回答・対応のため</li>
+        <li>アカウント認証およびクラウド同期機能の提供のため</li>
+        <li>サービスの改善・新機能の開発のため</li>
+        <li>重要なお知らせやサービスに関する通知のため</li>
+      </ul>
+      <p>取得した個人情報は、上記の利用目的の範囲内で適切に取り扱い、ユーザーの同意なく第三者に提供することはありません。ただし、法令に基づく場合、人の生命・身体・財産の保護のために必要な場合など、法律で認められた場合を除きます。</p>
+      <p>当サイトのツール機能（ダメージ計算・技選択判定など）で入力されたデータのうち、未ログイン状態で利用された場合はお使いのブラウザのローカルストレージにのみ保存され、当サイトのサーバーには送信されません。</p>
+    </div>
+  </div>
+
+  <!-- 3. アカウント・クラウド同期 -->
+  <div class="section" id="cloud">
+    <div class="sec-head">3. アカウントとクラウド同期</div>
+    <div class="sec-body">
+      <p>当サイトでは、アカウント登録およびクラウド同期機能の提供のためにSupabase（Supabase, Inc.が提供するサービス）を利用しています。</p>
+      <p>アカウントを作成しログインした場合、ポケモン登録データ・パーティ編成データ・対戦記録データはSupabaseのサーバーに保存され、複数の端末間で同期されます。保存されるデータはゲームに関連するデータのみであり、お使いのブラウザやデバイスの個人情報を追加で収集することはありません。</p>
+      <p>アカウントの削除を希望される場合は、お問い合わせよりご連絡ください。アカウントに紐づくすべてのデータを削除いたします。</p>
+    </div>
+  </div>
+
+  <!-- 4. Cookie -->
+  <div class="section" id="cookie">
+    <div class="sec-head">4. Cookieについて</div>
+    <div class="sec-body">
+      <p>Cookie（クッキー）とは、ウェブサイトがユーザーのブラウザに保存する小さなテキストデータのことです。当サイトでは以下の目的でCookieを使用しています。</p>
+      <ul>
+        <li>ユーザーの表示設定（ダークモード／ライトモードの切り替え）の保持</li>
+        <li>アクセス解析（Google Analytics）によるサイト利用状況の把握</li>
+        <li>ログイン状態の維持（アカウント登録済みの場合）</li>
+        <li>広告配信サービス（Google AdSense）によるパーソナライズ広告の表示</li>
+      </ul>
+      <p>Cookieの使用を望まない場合は、お使いのブラウザの設定からCookieを無効にすることが可能です。ただし、Cookieを無効にした場合、当サイトの一部の機能（テーマ設定の保持、ログイン状態の維持など）が正常に動作しなくなる場合がありますのでご了承ください。</p>
+    </div>
+  </div>
+
+  <!-- 5. アクセス解析 -->
+  <div class="section" id="analytics">
+    <div class="sec-head">5. アクセス解析ツールについて</div>
+    <div class="sec-body">
+      <p>当サイトでは、Googleが提供するアクセス解析ツール「Google Analytics」を使用しています。Google Analyticsはトラフィックデータの収集のためにCookieを使用しています。このトラフィックデータは匿名で収集されており、個人を特定するものではありません。</p>
+      <p>Google Analyticsによるデータ収集はGoogleのプライバシーポリシーに基づいて行われます。Google Analyticsの利用規約およびGoogleのプライバシーポリシーについては、以下のリンクからご確認ください。</p>
+      <ul>
+        <li><a href="https://marketingplatform.google.com/about/analytics/terms/jp/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Google Analytics利用規約</a></li>
+        <li><a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Googleプライバシーポリシー</a></li>
+      </ul>
+      <p>Google Analyticsによるデータ収集を無効にしたい場合は、Googleが提供する<a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">オプトアウトアドオン</a>をご利用ください。</p>
+    </div>
+  </div>
+
+  <!-- 6. Google AdSense -->
+  <div class="section" id="adsense">
+    <div class="sec-head">6. 広告配信について（Google AdSense）</div>
+    <div class="sec-body">
+      <p>当サイトでは、Googleが提供する広告配信サービス「Google AdSense」を利用しています。Google AdSenseでは、ユーザーの興味に応じた広告を配信するためにCookieを使用することがあります。</p>
+      <p>Google AdSenseにおける広告配信では、第三者配信事業者や広告ネットワークが配信する広告が掲載される場合があります。これらの第三者配信事業者や広告ネットワークは、ユーザーのブラウザに保存されたCookieを利用し、当サイトや他のサイトへのアクセス情報に基づいて適切な広告を表示します。</p>
+      <p>GoogleによるCookieの使用については、<a href="https://policies.google.com/technologies/ads?hl=ja" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Googleの広告に関するポリシー</a>をご参照ください。</p>
+      <p>パーソナライズ広告を望まない場合は、<a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Googleの広告設定ページ</a>からパーソナライズ広告を無効にすることができます。また、<a href="https://optout.aboutads.info/?c=2&lang=EN" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">aboutads.info</a>のページから第三者配信事業者のCookieを無効にすることも可能です。</p>
+    </div>
+  </div>
+
+  <!-- 7. アフィリエイト -->
+  <div class="section" id="affiliate">
+    <div class="sec-head">7. アフィリエイトについて</div>
+    <div class="sec-body">
+      <p>当サイトは、Amazon.co.jpを宣伝しリンクすることによってサイトが紹介料を獲得できる手段を提供することを目的に設定されたアフィリエイトプログラムである、Amazonアソシエイト・プログラムの参加者です。</p>
+      <p>当サイト内のリンクの一部はアフィリエイトリンクとなっており、ユーザーがリンクを経由して商品を購入された場合、当サイトに紹介料が支払われます。商品の価格はアフィリエイトリンクの利用によって変動することはなく、ユーザーに追加の費用が発生することはありません。</p>
+      <p>アフィリエイトリンクの掲載にあたっては、ユーザーにとって有益と思われる商品のみを紹介するよう努めています。</p>
+    </div>
+  </div>
+
+  <!-- 8. 利用規約 -->
+  <div class="section" id="terms">
+    <div class="sec-head">8. 利用規約</div>
+    <div class="sec-body">
+      <p>当サイトをご利用いただくにあたり、以下の利用規約にご同意いただいたものとみなします。</p>
+      <p><strong style="color:var(--text);">サービスの利用について</strong></p>
+      <p>当サイトが提供するダメージ計算、技選択判定、パーティ管理、選出率記録、バトルアナライザーなどの各種ツールは、すべて無料でご利用いただけます。ただし、当サイトは予告なくサービス内容の変更、一時停止、または終了を行う場合があります。</p>
+      <p><strong style="color:var(--text);">禁止事項</strong></p>
+      <p>当サイトのご利用にあたり、以下の行為を禁止します。</p>
+      <ul>
+        <li>当サイトのサーバーや機能に過度な負荷をかける行為</li>
+        <li>当サイトのコンテンツ・データを無断で複製・転載・再配布する行為</li>
+        <li>当サイトの運営を妨害する行為</li>
+        <li>他のユーザーの利用を妨害する行為</li>
+        <li>不正アクセスやその他法令に違反する行為</li>
+        <li>その他、運営者が不適切と判断する行為</li>
+      </ul>
+      <p><strong style="color:var(--text);">知的財産について</strong></p>
+      <p>当サイトで独自に作成したコンテンツ（レイアウト、デザイン、文章、プログラムコード等）の著作権は運営者に帰属します。無断での複製・転載・改変は禁止します。</p>
+    </div>
+  </div>
+
+  <!-- 9. 著作権・知的財産権 -->
+  <div class="section" id="copyright">
+    <div class="sec-head">9. 著作権・知的財産権について</div>
+    <div class="sec-body">
+      <p>当サイトは非公式のファンサイトであり、株式会社ポケモン、任天堂株式会社、株式会社ゲームフリーク、株式会社クリーチャーズとは一切関係がありません。</p>
+      <p>当サイトに掲載されているポケモンの名称、キャラクター名、技名、特性名、アイテム名などのゲーム内データに関する著作権および商標権は、株式会社ポケモン、任天堂株式会社、株式会社ゲームフリーク、株式会社クリーチャーズに帰属します。</p>
+      <p>当サイトは、ポケモン対戦コミュニティへの貢献を目的とした非営利のファン活動として運営しており、各権利者の権利を侵害する意図はありません。権利者より掲載内容に関するご指摘があった場合は、速やかに対応いたします。</p>
+    </div>
+  </div>
+
+  <!-- 10. 免責事項 -->
+  <div class="section" id="disclaimer">
+    <div class="sec-head">10. 免責事項</div>
+    <div class="sec-body">
+      <p>当サイトのダメージ計算・実数値計算・技選択判定・バトルアナライザーなど各種ツールの計算結果は、可能な限り正確な実装を心がけていますが、計算結果の正確性・完全性・最新性を保証するものではありません。実際のゲーム内での対戦結果と異なる場合があります。</p>
+      <p>当サイトの情報やツールを利用したことによって生じた、いかなる損害についても当サイトは一切の責任を負いません。すべてのツールは自己責任のもとでご利用ください。</p>
+      <p>当サイトからリンクされた外部サイトの内容や安全性については、当サイトは一切の責任を負いません。外部サイトのご利用は、それぞれのサイトの利用規約・プライバシーポリシーに従ってください。</p>
+      <p>当サイトは予告なく、内容の変更・追加・削除、またはサービスの一時停止・終了を行う場合があります。これらによって生じた損害についても、当サイトは一切の責任を負いません。</p>
+    </div>
+  </div>
+
+  <!-- 11. 運営者情報 -->
+  <div class="section" id="about">
+    <div class="sec-head">11. 運営について</div>
+    <div class="sec-body">
+      <table class="info-table">
+        <tr><th>サイト名</th><td>PokeEdge（ポケエッジ）</td></tr>
+        <tr><th>URL</th><td>https://poke-edge.pages.dev</td></tr>
+        <tr><th>運営者</th><td>個人運営</td></tr>
+        <tr><th>開設</th><td>2026年</td></tr>
+        <tr><th>運営目的</th><td>ポケモン対戦を支援する各種ツール（ダメージ計算・技選択判定・パーティ管理・選出率記録・バトルアナライザーなど）の無料提供</td></tr>
+        <tr><th>対応タイトル</th><td>ポケットモンスター スカーレット・バイオレット / Pokémon Champions / ポケットモンスター ソード・シールド</td></tr>
+        <tr><th>お問い合わせ</th><td>下記のお問い合わせ欄をご参照ください</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 12. お問い合わせ -->
+  <div class="section" id="contact">
+    <div class="sec-head">12. お問い合わせ</div>
+    <div class="sec-body">
+      <p>バグ報告・ご要望・ご意見・個人情報に関するお問い合わせ・アカウント削除依頼などは、以下の方法でお気軽にご連絡ください。原則として、3営業日以内にご返答いたします。</p>
+    </div>
+
+    <!-- X（Twitter） -->
+    <a href="https://x.com/sorasitekanri" target="_blank" rel="noopener"
+      style="display:inline-flex;align-items:center;gap:12px;margin-top:14px;padding:14px 24px;background:var(--panel);border:1px solid var(--border);text-decoration:none;transition:border-color 0.18s;width:100%;"
+      onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--text)"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);">@sorasitekanri</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px;">X（旧Twitter）でDMまたはリプライ</div>
+      </div>
+    </a>
+
+    <!-- お問い合わせフォーム -->
+    <div style="margin-top:16px;">
+      <div style="font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:10px;">お問い合わせフォーム</div>
+      <div style="background:var(--panel);border:1px solid var(--border);padding:24px;">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:16px;">以下のフォームからもお問い合わせいただけます。返信が必要な場合はメールアドレスをご記入ください。</p>
+        <iframe
+          src="https://docs.google.com/forms/d/e/1FAIpQLScwXNQ69Pa5tYX7kibV0H5Ea_4Y2j3Z81csHd8IfKQUISywgw/viewform?embedded=true"
+          width="100%" height="608" frameborder="0" marginheight="0" marginwidth="0"
+          style="border:1px solid var(--border);background:var(--bg2);"
+          loading="lazy"
+          title="お問い合わせフォーム">
+          読み込んでいます…
+        </iframe>
+        <div style="font-size:11px;color:var(--text2);margin-top:10px;">※フォームが表示されない場合は<a href="https://docs.google.com/forms/d/e/1FAIpQLScwXNQ69Pa5tYX7kibV0H5Ea_4Y2j3Z81csHd8IfKQUISywgw/viewform" target="_blank" rel="noopener" style="color:var(--accent);">こちら</a>から直接開いてください。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
+  <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
+
+<script>
+// ===== テーマ切替 =====
+var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
+function applyTheme(theme) {
+  var vars = THEMES[theme] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  localStorage.setItem('pokeedge_theme', theme);
+  var btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function toggleTheme() {
+  var current = localStorage.getItem('pokeedge_theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+(function(){
+  var t = localStorage.getItem('pokeedge_theme') || 'dark';
+  var vars = THEMES[t] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  document.documentElement.setAttribute('data-theme', t);
+})();
+
+function toggleNav(){
+  const nav = document.querySelector('.header-nav');
+  const hb  = document.getElementById('hamburger');
+  const ov  = document.getElementById('nav-overlay');
+  if(!nav) return;
+  nav.classList.toggle('open');
+  hb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeNav(){
+  const nav = document.querySelector('.header-nav');
+  const hb  = document.getElementById('hamburger');
+  const ov  = document.getElementById('nav-overlay');
+  if(!nav) return;
+  nav.classList.remove('open');
+  hb.classList.remove('open');
+  ov.classList.remove('show');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.nav-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth <= 768) closeNav();
+    });
+  });
+});
+</script>
+<script>
+window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });
+</script>
+</body>
+</html>

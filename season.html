@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PokeEdge | 使用可能ポケモン</title>
+<meta name="description" content="シーズンごとの使用可能ポケモンを図鑑形式で一覧表示。種族値・タイプを確認しながらシーズンフィルターで絞り込み。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="使用可能ポケモン | PokeEdge">
+<meta property="og:description" content="シーズンごとの使用可能ポケモンを一覧表示。種族値・タイプ確認付き。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/season.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/season.html">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;--border:#1a2540;--border2:#243356;--accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;--text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 35% at 10% 5%,rgba(0,200,240,0.06) 0%,transparent 60%),linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);background-size:auto,52px 52px,52px 52px;}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);cursor:pointer;flex-shrink:0;}
+.logo em{color:var(--accent2);font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-family:'Noto Sans JP',sans-serif;font-size:11px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
+@media(max-width:768px){
+  .header-nav{display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);background:rgba(7,9,15,0.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);}
+  .header-nav.open{display:flex;}
+  .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left;}
+  .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);}
+  .hamburger{display:flex;}
+}
+.main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:20px 16px;}
+
+/* フィルターバー */
+.filter-bar{background:var(--panel);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.filter-label{font-size:9px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+.season-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.season-btn{padding:4px 12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all 0.15s;}
+.season-btn:hover,.season-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+.search-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:160px;flex:1;}
+.search-input:focus{border-color:var(--accent);}
+
+/* 統計バー */
+.stats-bar{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.stat-item{font-size:11px;color:var(--text2);}
+.stat-item b{color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:18px;margin-right:2px;}
+
+/* テーブル */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--bg2);color:var(--text2);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);font-weight:400;letter-spacing:1px;font-size:10px;white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{color:var(--accent);}
+thead th.sort-asc::after{content:' ▲';color:var(--accent);font-size:9px;}
+thead th.sort-desc::after{content:' ▼';color:var(--accent);font-size:9px;}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+tbody tr:hover{background:var(--bg2);}
+tbody tr.is-nintei{background:rgba(255,200,0,0.04);}
+tbody tr.is-nintei:hover{background:rgba(255,200,0,0.08);}
+td{padding:7px 10px;white-space:nowrap;}
+.td-no{font-family:'JetBrains Mono',monospace;color:var(--text2);font-size:10px;}
+.td-name{font-weight:700;}
+.td-stat{font-family:'JetBrains Mono',monospace;text-align:right;}
+.td-total{font-family:'JetBrains Mono',monospace;text-align:right;font-weight:700;color:var(--accent3);}
+.td-badge{text-align:center;}
+.badge-ok{font-size:9px;font-weight:700;padding:1px 6px;background:rgba(255,200,0,0.15);color:var(--accent3);border:1px solid var(--accent3);}
+/* stat bar */
+.stat-bar-wrap{display:flex;align-items:center;gap:4px;}
+.stat-bar-bg{width:60px;height:4px;background:var(--bg);border-radius:2px;flex-shrink:0;}
+.stat-bar-fg{height:100%;border-radius:2px;}
+/* type pills */
+.tp{display:inline-block;padding:1px 5px;font-size:8px;font-weight:700;margin-right:2px;}
+.tp-ノーマル{background:#546e7a;color:#fff;}.tp-ほのお{background:#c62828;color:#fff;}.tp-みず{background:#1565c0;color:#fff;}
+.tp-でんき{background:#f9a825;color:#000;}.tp-くさ{background:#2e7d32;color:#fff;}.tp-こおり{background:#00838f;color:#fff;}
+.tp-かくとう{background:#b71c1c;color:#fff;}.tp-どく{background:#6a1b9a;color:#fff;}.tp-じめん{background:#6d4c41;color:#fff;}
+.tp-ひこう{background:#0277bd;color:#fff;}.tp-エスパー{background:#ad1457;color:#fff;}.tp-むし{background:#558b2f;color:#fff;}
+.tp-いわ{background:#4e342e;color:#fff;}.tp-ゴースト{background:#4a148c;color:#fff;}.tp-ドラゴン{background:#4527a0;color:#fff;}
+.tp-あく{background:#212121;color:#fff;}.tp-はがね{background:#455a64;color:#fff;}.tp-フェアリー{background:#880e4f;color:#fff;}
+.empty{text-align:center;padding:60px;color:var(--text2);font-size:13px;}
+.td-name{font-weight:700;}
+.name-open-btn{background:none;border:none;color:var(--text);font:inherit;font-weight:700;cursor:pointer;padding:0;text-align:left;}
+.name-open-btn:hover{color:var(--accent);}
+.detail-hint{font-size:11px;color:var(--text2);}
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:none;align-items:center;justify-content:center;z-index:160;padding:14px;}
+.detail-overlay.show{display:flex;}
+.detail-modal{width:min(1120px,100%);max-height:calc(100vh - 28px);background:var(--panel);border:1px solid var(--border2);box-shadow:0 24px 60px rgba(0,0,0,0.35);display:flex;flex-direction:column;overflow:hidden;}
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 18px;border-bottom:1px solid var(--border);background:rgba(0,200,240,0.04);}
+.detail-title{font-size:24px;font-weight:700;line-height:1.2;}
+.detail-sub{margin-top:6px;color:var(--text2);font-size:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.detail-close{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;font-size:12px;cursor:pointer;}
+.detail-close:hover{border-color:var(--accent);color:var(--accent);}
+.detail-body{padding:16px;overflow:auto;display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px;}
+.detail-side,.detail-main{display:flex;flex-direction:column;gap:12px;}
+.detail-card{background:var(--bg2);border:1px solid var(--border);padding:14px;}
+.detail-card-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:10px;}
+.detail-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.detail-summary-item{background:var(--bg);border:1px solid var(--border);padding:10px 12px;}
+.detail-summary-item b{display:block;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);letter-spacing:1px;}
+.detail-summary-item span{display:block;font-size:10px;color:var(--text2);letter-spacing:1px;}
+.detail-season-tags,.detail-type-wrap{display:flex;gap:6px;flex-wrap:wrap;}
+.detail-season-tag{display:inline-block;padding:3px 8px;border:1px solid var(--border);font-size:10px;color:var(--text2);}
+.detail-stats{display:grid;gap:8px;}
+.detail-stat-row{display:grid;grid-template-columns:44px 34px 1fr;gap:8px;align-items:center;font-size:11px;}
+.detail-stat-row b{font-family:'JetBrains Mono',monospace;color:var(--text);text-align:right;}
+.detail-stat-bar{height:6px;background:var(--bg);border-radius:999px;overflow:hidden;}
+.detail-stat-bar span{display:block;height:100%;border-radius:999px;}
+.detail-tools{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.detail-tools input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:220px;max-width:320px;width:100%;}
+.detail-tools input:focus{border-color:var(--accent);}
+.detail-meta-line{font-size:11px;color:var(--text2);}
+.detail-moves-wrap{overflow:auto;border:1px solid var(--border);}
+.detail-moves-table{width:100%;border-collapse:collapse;font-size:12px;min-width:720px;}
+.detail-moves-table th{position:sticky;top:0;background:var(--bg);color:var(--text2);padding:8px;border-bottom:1px solid var(--border);text-align:left;font-size:10px;letter-spacing:1px;font-weight:400;}
+.detail-moves-table td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top;white-space:normal;}
+.detail-moves-table tr:hover td{background:rgba(0,200,240,0.04);}
+.detail-empty{padding:18px;text-align:center;color:var(--text2);font-size:12px;}
+.detail-abilities{display:grid;gap:8px;}
+.detail-ability-item{background:var(--bg);border:1px solid var(--border);padding:10px 12px;}
+.detail-ability-name{font-weight:700;color:var(--accent);font-size:13px;margin-bottom:4px;}
+.detail-ability-effect{font-size:11px;line-height:1.7;color:var(--text2);}
+@media(max-width:900px){.detail-body{grid-template-columns:1fr;}.detail-summary-grid{grid-template-columns:repeat(4,minmax(0,1fr));}.detail-tools input{max-width:none;}.detail-modal{max-height:calc(100vh - 16px);} }
+@media(max-width:640px){.detail-head{padding:14px;}.detail-title{font-size:20px;}.detail-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.detail-body{padding:12px;}.detail-moves-table{min-width:620px;}}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+
+/* ===== ライトモード ===== */
+
+/* ===== 順位確認追加 ===== */
+.view-tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.view-tab{padding:8px 14px;border:1px solid var(--border);background:var(--panel);color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;}
+.view-tab.active,.view-tab:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+.rank-panel{display:none;}
+.rank-panel.show{display:block;}
+.rank-subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.rank-subtab{padding:6px 12px;border:1px solid var(--border);background:var(--panel);color:var(--text2);font-size:11px;cursor:pointer;}
+.rank-subtab.active,.rank-subtab:hover{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.08);}
+.rank-meta{font-size:11px;color:var(--text2);margin-bottom:10px;}
+.rank-wrap{overflow:auto;border:1px solid var(--border);}
+.rank-table{width:100%;border-collapse:collapse;font-size:12px;min-width:980px;}
+.rank-table th{position:sticky;top:0;background:var(--bg2);color:var(--text2);padding:8px;border-bottom:1px solid var(--border);text-align:left;font-size:10px;letter-spacing:1px;font-weight:400;}
+.rank-table td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top;white-space:normal;line-height:1.7;}
+.rank-table tr:hover td{background:rgba(255,200,0,0.04);}
+.rank-cell-block{display:grid;gap:4px;}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:2px 8px;border:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent3);}
+.detail-note{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.7;}
+.detail-ranking-grid{display:grid;gap:10px;}
+.detail-ranking-box{border:1px solid var(--border);background:var(--bg);padding:10px 12px;}
+.detail-ranking-box h5{margin:0 0 8px;font-size:12px;color:var(--accent3);letter-spacing:1px;}
+.detail-ranking-line{font-size:11px;color:var(--text);line-height:1.8;margin-bottom:4px;}
+.detail-ranking-line b{color:var(--accent);margin-right:6px;}
+.detail-form-grid{display:grid;gap:10px;}
+.detail-form-card{border:1px solid var(--border);background:var(--bg);padding:10px 12px;}
+.detail-form-card-title{font-size:12px;color:var(--accent3);margin-bottom:8px;font-weight:700;}
+@media(max-width:900px){.rank-table{min-width:820px;}}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">使用可能ポケモン</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="index.html">トップ</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
+    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn active" href="season.html">使用可能ポケモン</a>
+    <a class="nav-btn" href="speed.html">素早さライン</a>
+    <a class="nav-btn" href="blog.html">記事</a>
+    <a class="nav-btn" href="policy.html">サイト情報</a>
+  </div>
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" aria-label="メニュー"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="nav-overlay"></div>
+</header>
+
+<div class="main">
+  <!-- フィルターバー -->
+  <div class="filter-bar">
+    <span class="filter-label">シーズン</span>
+    <div class="season-btns" id="season-btns">
+      <button class="season-btn active" data-season="" onclick="setSeason(this,'')">すべて</button>
+    </div>
+    <input class="search-input" id="name-search" type="text" placeholder="ポケモン名で絞り込み..." oninput="render()">
+  </div>
+
+  <!-- 統計 -->
+  <div class="stats-bar">
+    <div class="stat-item"><b id="stat-total">0</b>件表示</div>
+    <div class="stat-item"><b id="stat-nintei">0</b>件使用可能</div>
+    <div class="detail-hint">名前クリックで詳細表示</div>
+  </div>
+
+  <!-- テーブル -->
+  <div class="table-wrap">
+    <table id="poke-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('no')">No</th>
+          <th onclick="sortBy('name')">名前</th>
+          <th>タイプ</th>
+          <th onclick="sortBy('hp')">HP</th>
+          <th onclick="sortBy('atk')">攻撃</th>
+          <th onclick="sortBy('def')">防御</th>
+          <th onclick="sortBy('spa')">特攻</th>
+          <th onclick="sortBy('spd')">特防</th>
+          <th onclick="sortBy('spe')">素早</th>
+          <th onclick="sortBy('total')">合計</th>
+          <th>使用可</th>
+        </tr>
+      </thead>
+      <tbody id="poke-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-name">
+    <div class="detail-head">
+      <div>
+        <div class="detail-title" id="detail-name">ポケモン詳細</div>
+        <div class="detail-sub" id="detail-sub"></div>
+      </div>
+      <button class="detail-close" type="button" id="detail-close">閉じる</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-side">
+        <div class="detail-card">
+          <div class="detail-card-title">基本情報</div>
+          <div class="detail-summary-grid" id="detail-summary"></div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-title">タイプ</div>
+          <div class="detail-type-wrap" id="detail-types"></div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-title">特性</div>
+          <div class="detail-abilities" id="detail-abilities"></div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-title">使用可能シーズン</div>
+          <div class="detail-season-tags" id="detail-seasons"></div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-title">種族値</div>
+          <div class="detail-stats" id="detail-stats"></div>
+        </div>
+      </div>
+      <div class="detail-main">
+        <div class="detail-card">
+          <div class="detail-card-title">技一覧</div>
+          <div class="detail-tools">
+            <div class="detail-meta-line" id="detail-move-meta"></div>
+            <input type="text" id="detail-move-search" placeholder="技名・タイプ・ヒット数・説明で絞り込み">
+          </div>
+          <div class="detail-moves-wrap">
+            <table class="detail-moves-table">
+              <thead><tr><th>技</th><th>タイプ</th><th>分類</th><th>威力</th><th>命中</th><th>PP</th><th>ヒット数</th><th>説明</th></tr></thead>
+              <tbody id="detail-moves-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
+
+<script>
+var POKE_DATA = [];
+var POKE_BY_NAME = {};
+var POKE_MOVES_BY_NAME = {};
+var ABILITIES_BY_NAME = {};
+var ABILITY_EFFECTS_BY_NAME = {};
+var SEASON_DATA = {seasons:[]};
+let currentSeason = '';
+let sortKey = 'no';
+let sortDir = 1;
+let currentDetailName = '';
+
+const STAT_MAX = {hp:255,atk:190,def:250,spa:194,spd:250,spe:200,total:1125};
+const STAT_COLORS = {hp:'#e53935',atk:'#fb8c00',def:'#fdd835',spa:'#1e88e5',spd:'#00acc1',spe:'#8e24aa',total:'var(--accent3)'};
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function isNintei(name) {
+  return SEASON_DATA.seasons.some(s => (SEASON_DATA[s]||[]).includes(name));
+}
+function inSeason(name, season) {
+  if(!season) return true;
+  return (SEASON_DATA[season]||[]).includes(name);
+}
+function seasonsForName(name) {
+  return SEASON_DATA.seasons.filter(s => (SEASON_DATA[s]||[]).includes(name));
+}
+
+function setSeason(btn, season) {
+  currentSeason = season;
+  document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function sortBy(key) {
+  if(sortKey === key) { sortDir *= -1; }
+  else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sort-asc','sort-desc');
+    if(th.getAttribute('onclick') === `sortBy('${key}')`) th.classList.add(sortDir===1 ? 'sort-asc' : 'sort-desc');
+  });
+  render();
+}
+
+function statCellHtml(p, key) {
+  const val = p[key]||0;
+  const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
+  const color = STAT_COLORS[key]||'var(--text)';
+  return `<td class="td-stat">
+    <div class="stat-bar-wrap">
+      <span style="min-width:28px;text-align:right;">${val}</span>
+      <div class="stat-bar-bg"><div class="stat-bar-fg" style="width:${pct}%;background:${color};"></div></div>
+    </div>
+  </td>`;
+}
+
+function render() {
+  const q = (document.getElementById('name-search')?.value||'').trim();
+  let filtered = POKE_DATA.filter(p => {
+    if(currentSeason && !inSeason(p.name, currentSeason)) return false;
+    if(q && !p.name.includes(q)) return false;
+    return true;
+  });
+
+  filtered.sort((a,b) => {
+    let va = sortKey==='no' ? parseInt(a.no)||0 : (a[sortKey]||0);
+    let vb = sortKey==='no' ? parseInt(b.no)||0 : (b[sortKey]||0);
+    if(typeof va === 'string') return sortDir * va.localeCompare(vb,'ja');
+    return sortDir * (va - vb);
+  });
+
+  const totalNintei = POKE_DATA.filter(p => isNintei(p.name)).length;
+  document.getElementById('stat-total').textContent = filtered.length;
+  document.getElementById('stat-nintei').textContent = totalNintei;
+
+  if(!filtered.length) {
+    document.getElementById('poke-tbody').innerHTML = '<tr><td colspan="11" class="empty">該当するポケモンがいません</td></tr>';
+    return;
+  }
+
+  const rows = filtered.map(p => {
+    const nintei = isNintei(p.name);
+    const t1 = p.type1 ? `<span class="tp tp-${p.type1}">${escapeHtml(p.type1)}</span>` : '';
+    const t2 = p.type2 ? `<span class="tp tp-${p.type2}">${escapeHtml(p.type2)}</span>` : '';
+    const badge = nintei ? '<span class="badge-ok">✓</span>' : '';
+    return `<tr class="${nintei?'is-nintei':''}">
+      <td class="td-no">#${String(p.no||'').padStart(4,'0')}</td>
+      <td class="td-name"><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</button></td>
+      <td>${t1}${t2}</td>
+      ${statCellHtml(p,'hp')}
+      ${statCellHtml(p,'atk')}
+      ${statCellHtml(p,'def')}
+      ${statCellHtml(p,'spa')}
+      ${statCellHtml(p,'spd')}
+      ${statCellHtml(p,'spe')}
+      <td class="td-total">${p.total}</td>
+      <td class="td-badge">${badge}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('poke-tbody').innerHTML = rows;
+}
+
+function buildSeasonBtns() {
+  const container = document.getElementById('season-btns');
+  SEASON_DATA.seasons.forEach(s => {
+    const count = (SEASON_DATA[s]||[]).length;
+    const btn = document.createElement('button');
+    btn.className = 'season-btn';
+    btn.dataset.season = s;
+    btn.textContent = `${s}（${count}件）`;
+    btn.onclick = () => setSeason(btn, s);
+    container.appendChild(btn);
+  });
+}
+
+function normalizePokemonMovesData(raw) {
+  if(!raw) return {};
+  if(raw.pokemon && typeof raw.pokemon === 'object') return raw.pokemon;
+  if(Array.isArray(raw)) {
+    return raw.reduce((acc, item) => {
+      if(item && item.name) acc[item.name] = item;
+      return acc;
+    }, {});
+  }
+  return {};
+}
+
+function normalizeAbilitiesData(raw) {
+  return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+}
+
+function normalizeAbilityEffectsData(raw) {
+  if(!Array.isArray(raw)) return {};
+  return raw.reduce((acc, item) => {
+    if(item && item.name) acc[item.name] = item;
+    return acc;
+  }, {});
+}
+
+function openPokemonDetail(name) {
+  const pokemon = POKE_BY_NAME[name];
+  if(!pokemon) return;
+  currentDetailName = name;
+  const detail = POKE_MOVES_BY_NAME[name] || { moves: [], updatedAt: '' };
+  const seasons = seasonsForName(name);
+  const moveCount = Array.isArray(detail.moves) ? detail.moves.length : 0;
+
+  document.getElementById('detail-name').textContent = name;
+  document.getElementById('detail-sub').innerHTML = `No.${escapeHtml(pokemon.no || '—')} / 合計 ${escapeHtml(pokemon.total || 0)} / 技 ${escapeHtml(moveCount)}`;
+
+  document.getElementById('detail-summary').innerHTML = [
+    {label:'No', value:pokemon.no || '—'},
+    {label:'合計', value:pokemon.total || 0},
+    {label:'重さ', value:(pokemon.weight || 0) ? `${pokemon.weight}` : '—'},
+    {label:'技数', value:moveCount}
+  ].map(item => `<div class="detail-summary-item"><b>${escapeHtml(item.value)}</b><span>${escapeHtml(item.label)}</span></div>`).join('');
+
+  document.getElementById('detail-types').innerHTML = [pokemon.type1, pokemon.type2].filter(Boolean).map(type => `<span class="tp tp-${type}">${escapeHtml(type)}</span>`).join('') || '<span class="detail-season-tag">タイプ未登録</span>' ;
+  const abilities = Array.isArray(ABILITIES_BY_NAME[name]) ? ABILITIES_BY_NAME[name] : [];
+  document.getElementById('detail-abilities').innerHTML = abilities.length ? abilities.map(ability => {
+    const effect = ABILITY_EFFECTS_BY_NAME[ability] && ABILITY_EFFECTS_BY_NAME[ability].effect ? ABILITY_EFFECTS_BY_NAME[ability].effect : '';
+    return `<div class="detail-ability-item"><div class="detail-ability-name">${escapeHtml(ability)}</div><div class="detail-ability-effect">${escapeHtml(effect || '効果説明なし')}</div></div>`;
+  }).join('') : '<div class="detail-empty">特性データがありません</div>';
+  document.getElementById('detail-seasons').innerHTML = seasons.length ? seasons.map(s => `<span class="detail-season-tag">${escapeHtml(s)}</span>`).join('') : '<span class="detail-season-tag">対象シーズンなし</span>';
+
+  const stats = [
+    ['HP','hp'], ['攻撃','atk'], ['防御','def'], ['特攻','spa'], ['特防','spd'], ['素早','spe']
+  ];
+  document.getElementById('detail-stats').innerHTML = stats.map(([label,key]) => {
+    const val = pokemon[key] || 0;
+    const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
+    const color = STAT_COLORS[key] || 'var(--accent)';
+    return `<div class="detail-stat-row"><span>${label}</span><b>${val}</b><div class="detail-stat-bar"><span style="width:${pct}%;background:${color};"></span></div></div>`;
+  }).join('');
+
+  const updatedAt = detail.updatedAt ? ` / 更新: ${detail.updatedAt}` : '';
+  document.getElementById('detail-move-meta').textContent = moveCount ? `${moveCount}件の技${updatedAt}` : `技データ未登録${updatedAt}`;
+  document.getElementById('detail-move-search').value = '';
+  renderDetailMoves();
+
+  document.getElementById('detail-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderDetailMoves() {
+  const body = document.getElementById('detail-moves-body');
+  const query = (document.getElementById('detail-move-search').value || '').trim();
+  const detail = POKE_MOVES_BY_NAME[currentDetailName] || { moves: [] };
+  const moves = Array.isArray(detail.moves) ? detail.moves : [];
+  const filtered = !query ? moves : moves.filter(m => {
+    return [m.name, m.type, m.category, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query);
+  });
+  if(!filtered.length) {
+    body.innerHTML = `<tr><td colspan="8" class="detail-empty">${moves.length ? '条件に合う技がありません' : '技データがありません'}</td></tr>`;
+    return;
+  }
+  body.innerHTML = filtered.map(m => `<tr>
+    <td>${escapeHtml(m.name || '—')}</td>
+    <td>${m.type ? `<span class="tp tp-${m.type}">${escapeHtml(m.type)}</span>` : '—'}</td>
+    <td>${escapeHtml(m.category || '—')}</td>
+    <td>${escapeHtml(m.power || '—')}</td>
+    <td>${escapeHtml(m.accuracy || '—')}</td>
+    <td>${escapeHtml(m.pp || '—')}</td>
+    <td>${escapeHtml(m.hits || '—')}</td>
+    <td>${escapeHtml(m.description || '—')}</td>
+  </tr>`).join('');
+}
+
+function closePokemonDetail() {
+  document.getElementById('detail-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// 初期ソートクラスをNoに設定
+document.querySelector('thead th').classList.add('sort-asc');
+
+window.onload = async () => {
+  await initAuth();
+  try {
+    const [pd, sd, md, ad, aed] = await Promise.all([
+      fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
+      fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
+      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.ok ? r.json() : null).catch(()=>null),
+      fetch('abilities.json?v='+Date.now()).then(r=>r.ok ? r.json() : {}).catch(()=>({})),
+      fetch('abilities_data.json?v='+Date.now()).then(r=>r.ok ? r.json() : []).catch(()=>[]),
+    ]);
+    POKE_DATA = Array.isArray(pd) ? pd : [];
+    POKE_DATA.forEach(p => {
+      p.total = (p.hp||0)+(p.atk||0)+(p.def||0)+(p.spa||0)+(p.spd||0)+(p.spe||0);
+      POKE_BY_NAME[p.name] = p;
+    });
+    SEASON_DATA = sd || {seasons:[]};
+    POKE_MOVES_BY_NAME = normalizePokemonMovesData(md);
+    ABILITIES_BY_NAME = normalizeAbilitiesData(ad);
+    ABILITY_EFFECTS_BY_NAME = normalizeAbilityEffectsData(aed);
+  } catch(e) {
+    console.error('データ読み込みエラー:', e);
+    alert('データの読み込みに失敗しました。');
+  }
+  buildSeasonBtns();
+  render();
+};
+
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.js-open-detail');
+  if(btn) {
+    openPokemonDetail(btn.dataset.name || '');
+    return;
+  }
+  const overlay = document.getElementById('detail-overlay');
+  if(overlay && e.target === overlay) closePokemonDetail();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const closeBtn = document.getElementById('detail-close');
+  const moveSearch = document.getElementById('detail-move-search');
+  if(closeBtn) closeBtn.addEventListener('click', closePokemonDetail);
+  if(moveSearch) moveSearch.addEventListener('input', renderDetailMoves);
+  document.addEventListener('keydown', function(ev) {
+    if(ev.key === 'Escape') closePokemonDetail();
+  });
+});
+</script>
+
+<script>
+
+
+// ===== テーマ切替 =====
+var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
+function applyTheme(theme) {
+  var vars = THEMES[theme] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  localStorage.setItem('pokeedge_theme', theme);
+  var btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function toggleTheme() {
+  var current = localStorage.getItem('pokeedge_theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+// 即時適用
+(function(){
+  var t = localStorage.getItem('pokeedge_theme') || 'dark';
+  var vars = THEMES[t] || THEMES.dark;
+  var root = document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  document.documentElement.setAttribute('data-theme', t);
+})();
+
+
+function toggleNav(){const nav=document.querySelector('.header-nav');const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.toggle('open');hb.classList.toggle('open');ov.classList.toggle('show');}
+function closeNav(){const nav=document.querySelector('.header-nav');const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
+document.addEventListener('DOMContentLoaded',function(){
+  const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');
+  if(hb)hb.addEventListener('click',toggleNav);if(ov)ov.addEventListener('click',closeNav);
+  document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){if(window.innerWidth<=768)closeNav();});});
+});
+</script>
+
+<script>
+(function(){
+  const ALIAS_TO_SITE_NAME = {
+    'ウォッシュロトム':'ロトム水',
+    'ヒートロトム':'ロトム炎',
+    'フロストロトム':'ロトム氷',
+    'スピンロトム':'ロトム飛',
+    'カットロトム':'ロトム草',
+    'イダイトウ(オス)':'イダイトウ♂',
+    'イダイトウ(メス)':'イダイトウ♀',
+    'フラエッテ(えいえんのはな)':'フラエッテえいえん'
+  };
+  const GROUP_NAME_TO_SITE_NAMES = {
+    'ギルガルド':['ギルガルド盾','ギルガルド剣']
+  };
+  const SITE_NAME_TO_RANKING_NAMES = {
+    'ロトム水':['ウォッシュロトム'],
+    'ロトム炎':['ヒートロトム'],
+    'ロトム氷':['フロストロトム'],
+    'ロトム飛':['スピンロトム'],
+    'ロトム草':['カットロトム'],
+    'イダイトウ♂':['イダイトウ(オス)'],
+    'イダイトウ♀':['イダイトウ(メス)'],
+    'フラエッテえいえん':['フラエッテ(えいえんのはな)'],
+    'ギルガルド盾':['ギルガルド'],
+    'ギルガルド剣':['ギルガルド']
+  };
+
+  let SINGLE_RANKINGS = {rows:[], updatedAt:''};
+  let DOUBLE_RANKINGS = {rows:[], updatedAt:''};
+  let currentViewMode = 'list';
+  let currentRankingBattle = 'single';
+  let currentDetailMoves = [];
+
+  function uniq(arr) {
+    return Array.from(new Set((arr || []).filter(Boolean)));
+  }
+
+  function formatRankingDate(value) {
+    if(!value) return '';
+    const d = new Date(value);
+    if(!isNaN(d.getTime())) {
+      return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+    return String(value).replace('T',' ').replace(/([+-]\d\d:\d\d)$/,'');
+  }
+
+  function inferBaseRankingNames(name) {
+    if(!name || !String(name).startsWith('メガ')) return [];
+    let base = String(name).replace(/^メガ/, '');
+    base = base.replace(/[XY]$/, '');
+    return uniq([base]);
+  }
+
+  function resolveSiteNames(name) {
+    if(GROUP_NAME_TO_SITE_NAMES[name]) return GROUP_NAME_TO_SITE_NAMES[name].slice();
+    return [ALIAS_TO_SITE_NAME[name] || name];
+  }
+
+  function resolveRankingLookupNames(name) {
+    const names = [name];
+    const siteNames = resolveSiteNames(name);
+    siteNames.forEach(siteName => {
+      names.push(siteName);
+      (SITE_NAME_TO_RANKING_NAMES[siteName] || []).forEach(n => names.push(n));
+    });
+    return uniq(names);
+  }
+
+  function resolveRankingRowsForName(name) {
+    const lookup = resolveRankingLookupNames(name);
+    const baseLookups = inferBaseRankingNames(name);
+    function collect(sourceRows) {
+      const seen = new Set();
+      const out = [];
+      (sourceRows || []).forEach(row => {
+        const key = [row.battleType,row.rank,row.name].join('::');
+        const matchSelf = lookup.includes(row.name) || lookup.includes(row.siteName);
+        const matchBase = !matchSelf && (baseLookups.includes(row.name) || baseLookups.includes(row.siteName));
+        if((matchSelf || matchBase) && !seen.has(key)) {
+          seen.add(key);
+          out.push(Object.assign({}, row, {rankingSource: matchBase ? 'base' : 'self'}));
+        }
+      });
+      return out;
+    }
+    return {
+      single: collect(SINGLE_RANKINGS.rows),
+      double: collect(DOUBLE_RANKINGS.rows)
+    };
+  }
+
+  function collectDetailContext(name) {
+    const requestedName = name || '';
+    const siteNames = resolveSiteNames(requestedName).filter(n => POKE_BY_NAME[n]);
+    const fallbackName = POKE_BY_NAME[requestedName] ? requestedName : '';
+    const finalSiteNames = siteNames.length ? siteNames : (fallbackName ? [fallbackName] : []);
+    const records = finalSiteNames.map(n => POKE_BY_NAME[n]).filter(Boolean);
+    const primary = records[0] || null;
+
+    const moveMap = {};
+    finalSiteNames.forEach(siteName => {
+      const detail = POKE_MOVES_BY_NAME[siteName];
+      const moves = detail && Array.isArray(detail.moves) ? detail.moves : [];
+      moves.forEach(m => {
+        if(m && m.name && !moveMap[m.name]) moveMap[m.name] = m;
+      });
+    });
+
+    const abilityNames = uniq(finalSiteNames.flatMap(siteName => Array.isArray(ABILITIES_BY_NAME[siteName]) ? ABILITIES_BY_NAME[siteName] : []));
+    const seasons = uniq(finalSiteNames.flatMap(siteName => seasonsForName(siteName)));
+
+    return {
+      requestedName,
+      displayName: requestedName || (primary ? primary.name : ''),
+      siteNames: finalSiteNames,
+      records,
+      primary,
+      moves: Object.values(moveMap),
+      abilities: abilityNames,
+      seasons,
+      rankings: resolveRankingRowsForName(requestedName || (primary ? primary.name : '')),
+      hasMultipleForms: records.length > 1
+    };
+  }
+
+  function ensureSeasonViews() {
+    const main = document.querySelector('.main');
+    if(!main || document.getElementById('view-tabs')) return;
+
+    const filterBar = main.querySelector('.filter-bar');
+    const statsBar = main.querySelector('.stats-bar');
+    const tableWrap = main.querySelector('.table-wrap');
+    if(!filterBar || !statsBar || !tableWrap) return;
+
+    const tabs = document.createElement('div');
+    tabs.className = 'view-tabs';
+    tabs.id = 'view-tabs';
+    tabs.innerHTML = `
+      <button class="view-tab active" type="button" data-view="list">使用可能ポケモン</button>
+      <button class="view-tab" type="button" data-view="ranking">順位確認</button>
+    `;
+    filterBar.insertAdjacentElement('afterend', tabs);
+
+    const listWrap = document.createElement('div');
+    listWrap.id = 'season-list-view';
+    statsBar.parentNode.insertBefore(listWrap, statsBar);
+    listWrap.appendChild(statsBar);
+    listWrap.appendChild(tableWrap);
+
+    const rankWrap = document.createElement('div');
+    rankWrap.id = 'season-ranking-view';
+    rankWrap.className = 'rank-panel';
+    rankWrap.innerHTML = `
+      <div class="rank-subtabs">
+        <button class="rank-subtab active" type="button" data-battle="single">シングル</button>
+        <button class="rank-subtab" type="button" data-battle="double">ダブル</button>
+      </div>
+      <div class="rank-meta" id="rank-meta">順位データを読み込み中...</div>
+      <div class="rank-wrap">
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th>順位</th>
+              <th>ポケモン</th>
+              <th>技</th>
+              <th>持ち物</th>
+              <th>特性</th>
+              <th>性格</th>
+              <th>調整</th>
+              <th>更新日</th>
+            </tr>
+          </thead>
+          <tbody id="rank-tbody"></tbody>
+        </table>
+      </div>
+    `;
+    listWrap.insertAdjacentElement('afterend', rankWrap);
+
+    tabs.addEventListener('click', function(e) {
+      const btn = e.target.closest('.view-tab');
+      if(!btn) return;
+      setViewMode(btn.dataset.view || 'list');
+    });
+    rankWrap.addEventListener('click', function(e) {
+      const btn = e.target.closest('.rank-subtab');
+      if(!btn) return;
+      currentRankingBattle = btn.dataset.battle || 'single';
+      rankWrap.querySelectorAll('.rank-subtab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRankings();
+    });
+  }
+
+  function ensureDetailRankingBox() {
+    const detailMain = document.querySelector('.detail-main');
+    if(!detailMain || document.getElementById('detail-ranking-box')) return;
+    const card = document.createElement('div');
+    card.className = 'detail-card';
+    card.id = 'detail-ranking-box';
+    card.innerHTML = `
+      <div class="detail-card-title">順位情報</div>
+      <div id="detail-ranking-summary" class="detail-ranking-grid"><div class="detail-empty">順位データがありません</div></div>
+    `;
+    detailMain.insertBefore(card, detailMain.firstElementChild);
+  }
+
+  function setViewMode(mode) {
+    currentViewMode = mode === 'ranking' ? 'ranking' : 'list';
+    const listView = document.getElementById('season-list-view');
+    const rankView = document.getElementById('season-ranking-view');
+    document.querySelectorAll('.view-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.view === currentViewMode));
+    if(listView) listView.style.display = currentViewMode === 'list' ? '' : 'none';
+    if(rankView) rankView.classList.toggle('show', currentViewMode === 'ranking');
+    if(currentViewMode === 'ranking') renderRankings();
+  }
+
+  function rankingRowsForCurrentView() {
+    const source = currentRankingBattle === 'double' ? (DOUBLE_RANKINGS.rows || []) : (SINGLE_RANKINGS.rows || []);
+    const q = (document.getElementById('name-search')?.value || '').trim();
+    return source.filter(row => {
+      const siteNames = resolveSiteNames(row.name);
+      if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
+      if(q) {
+        const hay = [row.name, row.siteName].concat(siteNames).join(' ');
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    }).sort((a,b) => (a.rank || 0) - (b.rank || 0));
+  }
+
+  function renderRankings() {
+    const tbody = document.getElementById('rank-tbody');
+    const meta = document.getElementById('rank-meta');
+    if(!tbody || !meta) return;
+
+    const data = currentRankingBattle === 'double' ? DOUBLE_RANKINGS : SINGLE_RANKINGS;
+    const rows = rankingRowsForCurrentView();
+    const updated = formatRankingDate(data.updatedAt) || '未取得';
+    meta.textContent = `${currentRankingBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件`;
+
+    if(!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="detail-empty">順位データがありません</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(row => `
+      <tr>
+        <td><span class="rank-badge">${escapeHtml(row.rank || '—')}</span></td>
+        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
+        <td><div class="rank-cell-block">${(row.moves || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.items || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.abilities || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.natures || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.spreads || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td>${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderDetailRanking(rankings) {
+    const box = document.getElementById('detail-ranking-summary');
+    if(!box) return;
+    const groups = [];
+    if(rankings.single.length) groups.push({title:'シングル順位', rows:rankings.single});
+    if(rankings.double.length) groups.push({title:'ダブル順位', rows:rankings.double});
+    if(!groups.length) {
+      box.innerHTML = '<div class="detail-empty">順位データがありません</div>';
+      return;
+    }
+    box.innerHTML = groups.map(group => `
+      <div class="detail-ranking-box">
+        <h5>${escapeHtml(group.title)}</h5>
+        ${group.rows.map(row => `
+          <div class="detail-ranking-line"><b>${escapeHtml(row.rank)}位</b>${escapeHtml(row.name || '')}${row.rankingSource === 'base' ? ' <span style="color:var(--accent3)">（元ポケモン順位）</span>' : ''}</div>
+          <div class="detail-ranking-line">更新日: ${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</div>
+          <div class="detail-ranking-line">技: ${escapeHtml((row.moves || []).slice(0,3).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">持ち物: ${escapeHtml((row.items || []).slice(0,3).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">特性: ${escapeHtml((row.abilities || []).slice(0,3).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">性格: ${escapeHtml((row.natures || []).slice(0,3).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">調整: ${escapeHtml((row.spreads || []).slice(0,3).join(' / ') || '—')}</div>
+        `).join('')}
+      </div>
+    `).join('');
+  }
+
+  function renderDetailStats(records) {
+    if(!records.length) {
+      return '<div class="detail-empty">種族値データがありません</div>';
+    }
+    const stats = [['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
+    if(records.length === 1) {
+      const pokemon = records[0];
+      return stats.map(([label,key]) => {
+        const val = pokemon[key] || 0;
+        const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
+        const color = STAT_COLORS[key] || 'var(--accent)';
+        return `<div class="detail-stat-row"><span>${label}</span><b>${val}</b><div class="detail-stat-bar"><span style="width:${pct}%;background:${color};"></span></div></div>`;
+      }).join('');
+    }
+    return `<div class="detail-form-grid">${
+      records.map(pokemon => `
+        <div class="detail-form-card">
+          <div class="detail-form-card-title">${escapeHtml(pokemon.name)}</div>
+          ${stats.map(([label,key]) => {
+            const val = pokemon[key] || 0;
+            const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
+            const color = STAT_COLORS[key] || 'var(--accent)';
+            return `<div class="detail-stat-row"><span>${label}</span><b>${val}</b><div class="detail-stat-bar"><span style="width:${pct}%;background:${color};"></span></div></div>`;
+          }).join('')}
+        </div>
+      `).join('')
+    }</div>`;
+  }
+
+  function renderAbilities(abilityNames) {
+    if(!abilityNames.length) return '<div class="detail-empty">特性データがありません</div>';
+    return abilityNames.map(ability => {
+      const effect = ABILITY_EFFECTS_BY_NAME[ability] && ABILITY_EFFECTS_BY_NAME[ability].effect ? ABILITY_EFFECTS_BY_NAME[ability].effect : '';
+      return `<div class="detail-ability-item"><div class="detail-ability-name">${escapeHtml(ability)}</div><div class="detail-ability-effect">${escapeHtml(effect || '効果説明なし')}</div></div>`;
+    }).join('');
+  }
+
+  function renderDetailMovesPatched() {
+    const body = document.getElementById('detail-moves-body');
+    const query = (document.getElementById('detail-move-search').value || '').trim();
+    const moves = Array.isArray(currentDetailMoves) ? currentDetailMoves : [];
+    const filtered = !query ? moves : moves.filter(m => {
+      return [m.name, m.type, m.category, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query);
+    });
+    if(!filtered.length) {
+      body.innerHTML = `<tr><td colspan="8" class="detail-empty">${moves.length ? '条件に合う技がありません' : '技データがありません'}</td></tr>`;
+      return;
+    }
+    body.innerHTML = filtered.map(m => `<tr>
+      <td>${escapeHtml(m.name || '—')}</td>
+      <td>${m.type ? `<span class="tp tp-${m.type}">${escapeHtml(m.type)}</span>` : '—'}</td>
+      <td>${escapeHtml(m.category || '—')}</td>
+      <td>${escapeHtml(m.power || '—')}</td>
+      <td>${escapeHtml(m.accuracy || '—')}</td>
+      <td>${escapeHtml(m.pp || '—')}</td>
+      <td>${escapeHtml(m.hits || '—')}</td>
+      <td>${escapeHtml(m.description || '—')}</td>
+    </tr>`).join('');
+  }
+
+  const originalOpenPokemonDetail = window.openPokemonDetail;
+  window.renderDetailMoves = renderDetailMovesPatched;
+  window.openPokemonDetail = function(name) {
+    ensureDetailRankingBox();
+    const ctx = collectDetailContext(name);
+    if(!ctx.records.length) {
+      if(typeof originalOpenPokemonDetail === 'function') return originalOpenPokemonDetail(name);
+      return;
+    }
+    const primary = ctx.primary || ctx.records[0];
+    currentDetailName = primary.name;
+    currentDetailMoves = ctx.moves;
+
+    const rankingNameNote = ctx.siteNames.length > 1
+      ? `フォーム: ${ctx.siteNames.join(' / ')}`
+      : ((ctx.displayName !== primary.name) ? `サイト表記: ${primary.name}` : '');
+
+    document.getElementById('detail-name').textContent = ctx.displayName;
+    document.getElementById('detail-sub').innerHTML = [
+      `No.${escapeHtml(primary.no || '—')}`,
+      `合計 ${escapeHtml(primary.total || 0)}`,
+      `技 ${escapeHtml(ctx.moves.length)}`,
+      rankingNameNote ? escapeHtml(rankingNameNote) : ''
+    ].filter(Boolean).join(' / ');
+
+    document.getElementById('detail-summary').innerHTML = [
+      {label:'No', value:primary.no || '—'},
+      {label:'合計', value:primary.total || 0},
+      {label:'重さ', value:(primary.weight || 0) ? `${primary.weight}` : '—'},
+      {label:'技数', value:ctx.moves.length}
+    ].map(item => `<div class="detail-summary-item"><b>${escapeHtml(item.value)}</b><span>${escapeHtml(item.label)}</span></div>`).join('');
+
+    const types = uniq(ctx.records.flatMap(p => [p.type1, p.type2]).filter(Boolean));
+    document.getElementById('detail-types').innerHTML = types.length ? types.map(type => `<span class="tp tp-${type}">${escapeHtml(type)}</span>`).join('') : '<span class="detail-season-tag">タイプ未登録</span>';
+    document.getElementById('detail-abilities').innerHTML = renderAbilities(ctx.abilities);
+    document.getElementById('detail-seasons').innerHTML = ctx.seasons.length ? ctx.seasons.map(s => `<span class="detail-season-tag">${escapeHtml(s)}</span>`).join('') : '<span class="detail-season-tag">対象シーズンなし</span>';
+    document.getElementById('detail-stats').innerHTML = renderDetailStats(ctx.records);
+
+    renderDetailRanking(ctx.rankings);
+
+    const rankingUpdates = uniq(
+      ctx.rankings.single.concat(ctx.rankings.double).map(row => row.updatedAt).filter(Boolean)
+    );
+    const updatedAt = formatRankingDate(rankingUpdates[0] || '');
+    document.getElementById('detail-move-meta').textContent = ctx.moves.length ? `${ctx.moves.length}件の技${updatedAt ? ` / 更新日: ${updatedAt}` : ''}` : `技データ未登録${updatedAt ? ` / 更新日: ${updatedAt}` : ''}`;
+    document.getElementById('detail-move-search').value = '';
+    renderDetailMovesPatched();
+
+    document.getElementById('detail-overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const originalRender = window.render;
+  window.render = function() {
+    if(typeof originalRender === 'function') originalRender();
+    renderRankings();
+  };
+
+  async function loadRankingJson() {
+    try {
+      const [singleRes, doubleRes] = await Promise.all([
+        fetch('season_ranking_single.json?v=' + Date.now()).then(r => r.ok ? r.json() : {rows:[], updatedAt:''}).catch(() => ({rows:[], updatedAt:''})),
+        fetch('season_ranking_double.json?v=' + Date.now()).then(r => r.ok ? r.json() : {rows:[], updatedAt:''}).catch(() => ({rows:[], updatedAt:''}))
+      ]);
+      SINGLE_RANKINGS = singleRes && Array.isArray(singleRes.rows) ? singleRes : {rows:[], updatedAt:''};
+      DOUBLE_RANKINGS = doubleRes && Array.isArray(doubleRes.rows) ? doubleRes : {rows:[], updatedAt:''};
+    } catch(e) {
+      SINGLE_RANKINGS = {rows:[], updatedAt:''};
+      DOUBLE_RANKINGS = {rows:[], updatedAt:''};
+    }
+    renderRankings();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    ensureSeasonViews();
+    ensureDetailRankingBox();
+  });
+  window.addEventListener('load', function() {
+    ensureSeasonViews();
+    ensureDetailRankingBox();
+    loadRankingJson();
+  });
+})();
+</script>
+
+</body>
+</html>

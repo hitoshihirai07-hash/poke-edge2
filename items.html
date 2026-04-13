@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PokeEdge | 道具一覧</title>
+<meta name="description" content="現在使える道具・きのみ・メガストーンを入手方法つきで一覧表示。ポケモン登録前の確認にも使える道具データページです。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="道具一覧 | PokeEdge">
+<meta property="og:description" content="現在使える道具を入手方法つきで一覧表示。どうぐ・きのみ・メガストーンで絞り込み可能。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/items.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/items.html">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;--border:#1a2540;--border2:#243356;--accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;--text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 35% at 10% 5%,rgba(0,200,240,0.06) 0%,transparent 60%),linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);background-size:auto,52px 52px,52px 52px;}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);cursor:pointer;flex-shrink:0;}
+.logo em{color:var(--accent2);font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-family:'Noto Sans JP',sans-serif;font-size:11px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
+@media(max-width:768px){.header-nav{display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);background:rgba(7,9,15,0.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);} .header-nav.open{display:flex;} .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left;} .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);} .hamburger{display:flex;}}
+.main{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:20px 16px;}
+.hero{background:var(--panel);border:1px solid var(--border);padding:18px 20px;margin-bottom:14px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--accent);margin-bottom:6px;}
+.hero-desc{font-size:12px;color:var(--text2);line-height:1.9;max-width:900px;}
+.filter-bar{background:var(--panel);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.filter-label{font-size:9px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+.category-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.category-btn{padding:4px 12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all 0.15s;}
+.category-btn:hover,.category-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+.search-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:200px;flex:1;}
+.search-input:focus{border-color:var(--accent);}
+.stats-bar{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.stat-item{font-size:11px;color:var(--text2);}
+.stat-item b{color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:18px;margin-right:2px;}
+.table-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--bg2);color:var(--text2);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);font-weight:400;letter-spacing:1px;font-size:10px;white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{color:var(--accent);} thead th.sort-asc::after{content:' ▲';color:var(--accent);font-size:9px;} thead th.sort-desc::after{content:' ▼';color:var(--accent);font-size:9px;}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;} tbody tr:hover{background:var(--bg2);} td{padding:8px 10px;vertical-align:top;}
+.td-no{font-family:'JetBrains Mono',monospace;color:var(--text2);font-size:10px;white-space:nowrap;}
+.td-name{font-weight:700;white-space:nowrap;}
+.badge{display:inline-block;padding:2px 7px;font-size:9px;font-weight:700;border:1px solid var(--border2);color:var(--accent3);white-space:nowrap;}
+.effect{min-width:280px;line-height:1.8;color:var(--text);} .obtain{min-width:220px;color:var(--text2);line-height:1.8;}
+.empty{text-align:center;padding:60px;color:var(--text2);font-size:13px;background:var(--panel);border:1px solid var(--border);} 
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;} .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">道具一覧</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="index.html">トップ</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn active" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
+    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="season.html">使用可能ポケモン</a>
+    <a class="nav-btn" href="speed.html">素早さライン</a>
+    <a class="nav-btn" href="blog.html">記事</a>
+    <a class="nav-btn" href="policy.html">サイト情報</a>
+  </div>
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" aria-label="メニュー"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="nav-overlay"></div>
+</header>
+<div class="main">
+  <div class="hero">
+    <div class="hero-title">ITEM LIST</div>
+    <div class="hero-desc">現在使える道具・きのみ・メガストーンをまとめて確認できるページです。名前だけでなく、入手方法と効果も並べて見られるので、ポケモン登録で持ち物を決める前の確認にも使えます。</div>
+  </div>
+  <div class="filter-bar">
+    <span class="filter-label">種類</span>
+    <div class="category-btns" id="category-btns">
+      <button class="category-btn active" data-category="" onclick="setCategory(this,'')">すべて</button>
+      <button class="category-btn" data-category="どうぐ" onclick="setCategory(this,'どうぐ')">どうぐ</button>
+      <button class="category-btn" data-category="きのみ" onclick="setCategory(this,'きのみ')">きのみ</button>
+      <button class="category-btn" data-category="メガストーン" onclick="setCategory(this,'メガストーン')">メガストーン</button>
+    </div>
+    <input class="search-input" id="item-search" type="text" placeholder="道具名・入手方法・効果で絞り込み..." oninput="render()">
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item"><b id="stat-total">0</b>件表示</div>
+    <div class="stat-item"><b id="stat-all">0</b>件登録</div>
+    <div class="stat-item">最終更新 <b id="stat-updated">—</b></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('no')">No</th>
+          <th onclick="sortBy('name')">名前</th>
+          <th onclick="sortBy('category')">種類</th>
+          <th onclick="sortBy('obtain')">入手方法</th>
+          <th onclick="sortBy('effect')">効果</th>
+        </tr>
+      </thead>
+      <tbody id="items-tbody"></tbody>
+    </table>
+  </div>
+  <div id="items-empty" class="empty" style="display:none;">該当する道具が見つかりません</div>
+</div>
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
+<script>
+let ITEMS_DATA = [];
+let currentCategory = '';
+let sortKey = 'no';
+let sortDir = 1;
+function normalize(v){ return (v || '').toString().trim(); }
+function sortValue(item, key){
+  if(key === 'no') return Number(item.no) || 99999;
+  return normalize(item[key]).toLowerCase();
+}
+function setCategory(btn, category){
+  currentCategory = category;
+  document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function sortBy(key){
+  if(sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sort-asc','sort-desc');
+    if(th.getAttribute('onclick') === `sortBy('${key}')`) th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+  });
+  render();
+}
+function getFiltered(){
+  const q = normalize(document.getElementById('item-search').value);
+  return ITEMS_DATA.filter(item => {
+    if(currentCategory && item.category !== currentCategory) return false;
+    if(!q) return true;
+    const text = [item.name, item.category, item.obtain, item.effect].map(normalize).join(' ');
+    return text.includes(q);
+  }).sort((a,b) => {
+    const av = sortValue(a, sortKey);
+    const bv = sortValue(b, sortKey);
+    if(av < bv) return -1 * sortDir;
+    if(av > bv) return 1 * sortDir;
+    return 0;
+  });
+}
+function render(){
+  const rows = getFiltered();
+  document.getElementById('stat-total').textContent = rows.length.toLocaleString();
+  document.getElementById('stat-all').textContent = ITEMS_DATA.length.toLocaleString();
+  const tbody = document.getElementById('items-tbody');
+  const empty = document.getElementById('items-empty');
+  if(!rows.length){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = rows.map(item => `
+    <tr>
+      <td class="td-no">${item.no ?? ''}</td>
+      <td class="td-name">${item.name || ''}</td>
+      <td><span class="badge">${item.category || '道具'}</span></td>
+      <td class="obtain">${item.obtain || '—'}</td>
+      <td class="effect">${item.effect || '—'}</td>
+    </tr>
+  `).join('');
+}
+async function init(){
+  try{
+    const res = await fetch('belongings.json?v=' + Date.now());
+    if(!res.ok) throw new Error('belongings.json の取得に失敗しました');
+    ITEMS_DATA = await res.json();
+    const updated = ITEMS_DATA.map(x => x.updatedAt).filter(Boolean).sort().pop() || '—';
+    document.getElementById('stat-updated').textContent = updated;
+    render();
+  }catch(e){
+    document.getElementById('items-empty').style.display = 'block';
+    document.getElementById('items-empty').textContent = '道具データの読み込みに失敗しました。';
+    console.error(e);
+  }
+  if(typeof initAuth === 'function') await initAuth();
+}
+var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
+function applyTheme(theme){var vars = THEMES[theme] || THEMES.dark; var root = document.documentElement.style; for(var k in vars) root.setProperty(k, vars[k]); localStorage.setItem('pokeedge_theme', theme); var btn = document.getElementById('theme-btn'); if(btn) btn.textContent = theme === 'light' ? '🌙' : '☀️'; document.documentElement.setAttribute('data-theme', theme);}
+function toggleTheme(){var current = localStorage.getItem('pokeedge_theme') || 'dark'; applyTheme(current === 'dark' ? 'light' : 'dark');}
+(function(){var t = localStorage.getItem('pokeedge_theme') || 'dark'; var vars = THEMES[t] || THEMES.dark; var root = document.documentElement.style; for(var k in vars) root.setProperty(k, vars[k]); document.documentElement.setAttribute('data-theme', t);})();
+function toggleNav(){const nav = document.querySelector('.header-nav'); const hb = document.getElementById('hamburger'); const ov = document.getElementById('nav-overlay'); if(!nav) return; nav.classList.toggle('open'); hb.classList.toggle('open'); ov.classList.toggle('show');}
+function closeNav(){const nav = document.querySelector('.header-nav'); const hb = document.getElementById('hamburger'); const ov = document.getElementById('nav-overlay'); if(!nav) return; nav.classList.remove('open'); hb.classList.remove('open'); ov.classList.remove('show');}
+document.addEventListener('DOMContentLoaded', function(){document.getElementById('hamburger')?.addEventListener('click', toggleNav); document.getElementById('nav-overlay')?.addEventListener('click', closeNav); document.querySelectorAll('.nav-btn').forEach(function(btn){ btn.addEventListener('click', function(){ if(window.innerWidth <= 768) closeNav(); }); }); init();});
+</script>
+</body>
+</html>
