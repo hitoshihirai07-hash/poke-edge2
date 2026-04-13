@@ -198,15 +198,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
       <!-- 登録済みから選択 -->
       <div class="reg-sel-wrap">
-        <div class="reg-sel-lbl">⚡ 登録済みポケモンから選択（技・努力値を自動入力）</div>
-        <select class="sel" id="reg-poke-sel" onchange="loadFromReg(this.value)">
-          <option value="">— 登録済みから選ぶ —</option>
-        </select>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
-          <button type="button" onclick="addRegToTeam()" style="padding:7px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;cursor:pointer;">＋ 選択を自分側に追加</button>
-          <button type="button" onclick="addTopRegsToTeam()" style="padding:7px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;cursor:pointer;">＋ 登録先頭から6体</button>
-        </div>
-        <div style="font-size:10px;color:var(--text3);margin-top:5px;">自分側チーム（1〜6体）</div>
+        <div class="reg-sel-lbl">⚡ 自分のポケモン6枠（登録済みから選択 / 詳細確認）</div>
         <div id="my-team-list" class="team-list"></div>
       </div>
 
@@ -485,6 +477,7 @@ let myPoke = null;   // {poke, lv, iv, ev:{atk,spa,spe}, nature, champ}
 let oppSlots = [];   // [{id, poke, evPreset, hpPct, ability}]
 let myMoves = [];    // 選択した技リスト
 let myTeam = [];     // [{id,poke,ability,moves,lv,iv,nature,ev,champ,displayName}]
+let mySlotIds = ['','','','','','']; // 固定6枠
 let _oppSlotCounter = 0;
 
 // ===== 相手スロット管理 =====
@@ -716,9 +709,7 @@ function getOppStatsForSlot(slot) {
 // ===== 登録ポケモンから読み込み =====
 function loadRegSelect() {
   const regs = loadLocal ? loadLocal() : [];
-  const sel = document.getElementById('reg-poke-sel');
-  sel.innerHTML = '<option value="">— 登録済みから選ぶ —</option>'
-    + regs.map(r=>`<option value="${r.id}">${r.displayName}（${r.pokeName||''}）</option>`).join('');
+  if(mySlotIds.length!==6) mySlotIds = ['','','','','',''];
   renderMyTeam();
 }
 
@@ -805,44 +796,40 @@ function addMemberFromRec(rec) {
 function renderMyTeam() {
   const el = document.getElementById('my-team-list');
   if(!el) return;
-  if(!myTeam.length) {
-    el.innerHTML = '<div style="font-size:10px;color:var(--text2);">まだ追加されていません</div>';
-    return;
-  }
-  el.innerHTML = myTeam.map((m, i) => {
-    const mv = (m.moves||[]).map(x=>x.name).slice(0,4).join(' / ') || '攻撃技なし';
+  const regs = loadLocal ? loadLocal() : [];
+  const optBase = '<option value="">— 未選択 —</option>' + regs.map(r=>`<option value="${r.id}">${r.displayName}（${r.pokeName||''}）</option>`).join('');
+  el.innerHTML = mySlotIds.map((sid, i) => {
+    const rec = regs.find(r=>r.id===sid);
+    const detail = rec
+      ? `特性: ${rec.ability||'なし/不明'} / 技: ${((rec.moves||[]).map(m=>m.name||m).slice(0,4).join(' / ')||'未設定')}`
+      : 'ポケモンを選択してください';
+    const opts = optBase.replace(`value="${sid}"`, `value="${sid}" selected`);
     return `<div class="team-item">
-      <div class="team-item-main">
-        <div><span style="color:var(--accent3);">${i+1}.</span> ${m.displayName}（${m.poke.name}）</div>
-        <div class="team-item-sub">特性: ${m.ability||'なし/不明'} / 技: ${mv}</div>
+      <div class="team-item-main" style="width:100%;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--accent3);min-width:18px;">${i+1}.</span>
+          <select class="sel" onchange="setMySlot(${i},this.value)" style="margin:0;flex:1;">${opts}</select>
+        </div>
+        <div class="team-item-sub">${detail}</div>
       </div>
-      <button class="team-item-rm" onclick="removeMyTeamMember('${m.id.replace(/'/g, "\\'")}')">×</button>
     </div>`;
   }).join('');
+  syncMyTeamFromSlots();
 }
 
-function removeMyTeamMember(id) {
-  myTeam = myTeam.filter(m=>m.id!==id);
+function setMySlot(idx, id) {
+  mySlotIds[idx] = id || '';
   renderMyTeam();
   checkJudgeBtn();
 }
 
-function addRegToTeam() {
-  const id = document.getElementById('reg-poke-sel').value;
-  if(!id) return;
+function syncMyTeamFromSlots() {
   const regs = loadLocal ? loadLocal() : [];
-  const rec = regs.find(r=>r.id===id);
-  addMemberFromRec(rec);
-  renderMyTeam();
-  checkJudgeBtn();
-}
-
-function addTopRegsToTeam() {
-  const regs = (loadLocal ? loadLocal() : []).slice(0, 6);
-  regs.forEach(addMemberFromRec);
-  if(myTeam.length > 6) myTeam = myTeam.slice(0, 6);
-  renderMyTeam();
-  checkJudgeBtn();
+  myTeam = [];
+  mySlotIds.forEach(id => {
+    const rec = regs.find(r=>r.id===id);
+    if(rec) addMemberFromRec(rec);
+  });
 }
 
 // ===== ゲームモード切替 =====
