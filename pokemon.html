@@ -442,7 +442,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           </div>
         </div>
         <label>持ち物</label>
-        <input type="text" id="f-item" placeholder="例: こだわりハチマキ">
+        <input type="text" id="f-item" list="item-master-list" placeholder="アイテム一覧から検索して選択">
+        <div style="font-size:10px;color:var(--text2);margin-top:4px;">アイテム一覧にある持ち物名から検索して選べます</div>
       </div>
 
       <!-- 個体値 -->
@@ -555,6 +556,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   </div>
 </div>
 
+<datalist id="item-master-list"></datalist>
+
 <footer>
   <div class="footer-logo">PokeEdge</div>
   <div class="footer-text">非公式ファンサイト / 個人運営</div>
@@ -568,6 +571,7 @@ let POKEMON_DATA = [];
 let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
+let ITEMS_DATA   = [];
 let pokeIndex    = [];
 let moveIndex    = [];
 let _dataLoaded  = false;
@@ -575,16 +579,18 @@ let _dataLoaded  = false;
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd] = await Promise.all([
+    const [pd, md, ad, sd, idata] = await Promise.all([
       fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
       fetch('moves.json?v='+Date.now()).then(r=>r.json()),
       fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
       fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
+      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
     ]);
     POKEMON_DATA = pd;
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
+    ITEMS_DATA   = Array.isArray(idata) ? idata : [];
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     _dataLoaded  = true;
@@ -592,6 +598,25 @@ async function loadGameData() {
     console.error('データ読み込みエラー:', e);
     alert('データの読み込みに失敗しました。ページを再読み込みしてください。');
   }
+}
+
+
+function normalizeItemName(value){
+  const v=String(value||'').trim();
+  return (!v || v==='なし') ? '' : v;
+}
+function setupItemMasterList(){
+  const list=document.getElementById('item-master-list');
+  if(!list) return;
+  const seen=new Set();
+  const names=[];
+  (ITEMS_DATA||[]).forEach(item=>{
+    const name=String(item&&item.name||'').trim();
+    if(!name || seen.has(name)) return;
+    seen.add(name);
+    names.push(name);
+  });
+  list.innerHTML=['<option value=""></option>'].concat(names.map(name=>`<option value="${name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}"></option>`)).join('');
 }
 
 // POKEMON_DATA: 外部JSONから読み込み (loadGameData)
@@ -949,7 +974,7 @@ function getPokemonCardExportData(){
     types:[currentPokeData.type1,currentPokeData.type2].filter(Boolean),
     level:parseInt(document.getElementById('f-lv').value)||50,
     nature:document.getElementById('f-nature').value||'—',
-    item:document.getElementById('f-item').value.trim()||'なし',
+    item:normalizeItemName(document.getElementById('f-item').value)||'なし',
     iv:parseInt(document.getElementById('iv-num').value)||31,
     ev,
     real,
@@ -1204,7 +1229,7 @@ async function savePokemon() {
     type2: currentPokeData?currentPokeData.type2:'',
     lv:  parseInt(document.getElementById('f-lv').value)||50,
     nature: document.getElementById('f-nature').value,
-    item: document.getElementById('f-item').value,
+    item: normalizeItemName(document.getElementById('f-item').value),
     iv:  parseInt(document.getElementById('iv-num').value)||31,
     ev:  getEVs(),
     gameMode: isPokeChampions() ? 'champions' : 'classic',
@@ -1235,7 +1260,7 @@ function loadPokemon(id) {
   document.getElementById('nickname').value=rec.nickname||'';
   document.getElementById('f-lv').value=rec.lv||50;
   document.getElementById('f-nature').value=(rec.nature==='おとぼけ'?'まじめ':(rec.nature||'おっとり'));
-  document.getElementById('f-item').value=rec.item||'';
+  document.getElementById('f-item').value=normalizeItemName(rec.item||'');
   document.getElementById('f-memo').value=rec.memo||'';
   document.getElementById('iv-range').value=rec.iv||31;
   document.getElementById('iv-num').value=rec.iv||31;
@@ -1277,6 +1302,7 @@ function deleteCurrent() {
 // ===== 初期化 =====
 window.onload = async () => {
   await loadGameData();
+  setupItemMasterList();
   await initAuth();
   initSeasonFilter();
 

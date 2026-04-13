@@ -295,9 +295,12 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-action-btn.danger{border-color:var(--accent2);color:var(--accent2);}
 .party-save-btn{padding:9px 20px;background:linear-gradient(135deg,var(--green),#007a40);border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.18s;}
 .party-save-btn:hover{opacity:0.85;}
-.saved-parties-section{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
+.saved-parties-section{margin-bottom:14px;border:1px solid var(--border);padding:14px;background:var(--panel);}
+.saved-parties-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.saved-parties-note{font-size:10px;color:var(--text2);line-height:1.7;}
+.saved-party-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto;}
 .saved-parties-title{font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:8px;}
-.saved-party-list{display:flex;flex-direction:column;gap:4px;}
+.saved-party-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto;}
 .saved-party-item{background:var(--bg2);border:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.18s;}
 .saved-party-item:hover{border-color:var(--accent);}
 .saved-party-name{font-size:12px;font-weight:700;flex:1;}
@@ -401,7 +404,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
       <span style="font-size:11px;color:var(--text2);">登録済みポケモンから選んでパーティを編成</span>
       <a href="pokemon.html" style="margin-left:auto;padding:6px 14px;border:1px solid var(--accent);color:var(--accent);font-size:11px;text-decoration:none;letter-spacing:1px;transition:all 0.18s;" onmouseover="this.style.background='rgba(0,200,240,0.07)'" onmouseout="this.style.background='transparent'">＋ ポケモンを登録</a>
       <button class="party-save-btn" onclick="savePartyLocal()">💾 保存</button>
-      <button class="party-action-btn" onclick="showSavedParties()">📂 読込</button>
+      <button class="party-action-btn" onclick="refreshSavedPartiesPanel()">↻ 保存一覧を更新</button>
       <button class="party-action-btn primary" onclick="exportPartyImage()">📷 構築画像を保存</button>
     </div>
 
@@ -492,12 +495,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 
           <!-- 持ち物 -->
           <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">持ち物</div>
-          <select id="pe-item" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:8px;" onchange="pe_save()">
-            <option value="">なし</option>
-            <option>こだわりハチマキ</option><option>こだわりメガネ</option><option>こだわりスカーフ</option>
-            <option>いのちのたま</option><option>たつじんのおび</option><option>きあいのタスキ</option>
-            <option>とつげきチョッキ</option><option>しんかのきせき</option><option>メガストーン</option><option>その他</option>
-          </select>
+          <input type="text" id="pe-item" list="item-master-list" placeholder="アイテム一覧から検索して選択" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:4px;" oninput="pe_save()" onchange="pe_save()">
+          <div style="font-size:9px;color:var(--text2);margin-bottom:8px;">アイテム一覧にある持ち物名から検索して選べます</div>
 
           <!-- 技 -->
           <div style="font-size:9px;color:var(--text2);margin-bottom:4px;">技（最大4つ）</div>
@@ -525,6 +524,17 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 
       <!-- 右: 登録済みポケモン選択 -->
       <div>
+        <div class="saved-parties-section" id="saved-parties-section">
+          <div class="saved-parties-head">
+            <div>
+              <div class="saved-parties-title">保存済みパーティ</div>
+              <div class="saved-parties-note">一覧を上で見ながら、そのまま読み込みできます。</div>
+            </div>
+            <button class="party-action-btn" type="button" onclick="refreshSavedPartiesPanel()">↻ 更新</button>
+          </div>
+          <div class="saved-party-list" id="saved-party-list"></div>
+        </div>
+
         <!-- タブ切り替え -->
         <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
           <button id="tab-btn-reg" onclick="switchAddTab('reg')" style="flex:1;padding:8px;background:var(--accent);color:#000;border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">登録済みから選ぶ</button>
@@ -562,16 +572,12 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div style="font-size:10px;color:var(--text2);margin-top:8px;">クリックでパーティに追加。パーティが6体の場合は追加できません。</div>
       </div>
     </div>
-
-    <!-- 保存済みパーティ -->
-    <div class="saved-parties-section" id="saved-parties-section" style="display:none;">
-      <div class="saved-parties-title">保存済みパーティ</div>
-      <div class="saved-party-list" id="saved-party-list"></div>
-    </div>
+  </div>
   </div>
 
 </div>
 
+<datalist id="item-master-list"></datalist>
 
 </div>
 
@@ -588,6 +594,7 @@ let POKEMON_DATA = [];
 let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
+let ITEMS_DATA   = [];
 let pokeIndex    = [];
 let moveIndex    = [];
 let _dataLoaded  = false;
@@ -595,16 +602,18 @@ let _dataLoaded  = false;
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd] = await Promise.all([
+    const [pd, md, ad, sd, idata] = await Promise.all([
       fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
       fetch('moves.json?v='+Date.now()).then(r=>r.json()),
       fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
       fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
+      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
     ]);
     POKEMON_DATA = pd;
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
+    ITEMS_DATA   = Array.isArray(idata) ? idata : [];
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     _dataLoaded  = true;
@@ -615,6 +624,30 @@ async function loadGameData() {
 }
 
 
+
+
+function normalizeItemName(value){
+  const v=String(value||'').trim();
+  return (!v || v==='なし') ? '' : v;
+}
+function setupItemMasterList(){
+  const list=document.getElementById('item-master-list');
+  if(!list) return;
+  const seen=new Set();
+  const names=[];
+  (ITEMS_DATA||[]).forEach(item=>{
+    const name=String(item&&item.name||'').trim();
+    if(!name || seen.has(name)) return;
+    seen.add(name);
+    names.push(name);
+  });
+  list.innerHTML=['<option value=""></option>'].concat(names.map(name=>`<option value="${name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}"></option>`)).join('');
+}
+function refreshSavedPartiesPanel(){
+  renderSavedPartyList();
+  const sec=document.getElementById('saved-parties-section');
+  if(sec) sec.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
 
 // POKEMON_DATA: 外部JSONから読み込み (loadGameData)
 // MOVES_DATA: 外部JSONから読み込み (loadGameData)
@@ -1392,7 +1425,7 @@ function selectSlot(i) {
     document.getElementById('pe-ev-'+k).value = m.ev[k]||0;
     document.getElementById('pe-ev-'+k+'-r').value = m.ev[k]||0;
   });
-  document.getElementById('pe-item').value = m.item||'';
+  document.getElementById('pe-item').value = normalizeItemName(m.item||'');
   document.getElementById('pe-memo').value = m.memo||'';
   // ゲームモード復元
   const champ = m.gameMode === 'champions';
@@ -1480,7 +1513,7 @@ function updatePartyMember() {
     spd:parseInt(document.getElementById('pe-ev-spd').value)||0,
     spe:parseInt(document.getElementById('pe-ev-spe').value)||0,
   };
-  m.item = document.getElementById('pe-item').value;
+  m.item = normalizeItemName(document.getElementById('pe-item').value);
   m.memo = document.getElementById('pe-memo').value;
   updateRealStats();
   updateEvRemain();
@@ -1504,7 +1537,7 @@ function pe_save() {
     spd: parseInt(document.getElementById('pe-ev-spd').value)||0,
     spe: parseInt(document.getElementById('pe-ev-spe').value)||0,
   };
-  m.item   = document.getElementById('pe-item').value;
+  m.item   = normalizeItemName(document.getElementById('pe-item').value);
   m.memo   = document.getElementById('pe-memo').value;
   m.gameMode = document.getElementById('pe-mode-champ')?.checked ? 'champions' : 'classic';
   updateEvSummary();
@@ -1603,14 +1636,12 @@ async function savePartyLocal() {
     }))
   };
   await saveParty(name, partyData);
+  await renderSavedPartyList();
   alert(`「${name}」を保存しました！`);
 }
 
 function showSavedParties() {
-  const sec = document.getElementById('saved-parties-section');
-  const isShown = sec.style.display==='block';
-  sec.style.display = isShown ? 'none' : 'block';
-  if(!isShown) renderSavedPartyList();
+  refreshSavedPartiesPanel();
 }
 
 async function renderSavedPartyList() {
@@ -1641,7 +1672,6 @@ async function loadPartyById(id) {
   });
   selectedSlot = -1;
   renderPartySlotList();
-  document.getElementById('saved-parties-section').style.display='none';
   if(party.length) selectSlot(0);
   alert(`「${s.name||d.name}」を読み込みました`);
 }
@@ -1662,7 +1692,6 @@ function loadParty(i) {
   });
   selectedSlot = -1;
   renderPartySlotList();
-  document.getElementById('saved-parties-section').style.display='none';
   if(party.length) selectSlot(0);
   alert(`「${s.name}」を読み込みました`);
 }
@@ -1822,6 +1851,7 @@ window.onload = async () => {
   }
 
   await loadGameData();
+  setupItemMasterList();
   // ===== 初期化（要素が存在する場合のみ実行） =====
 function el(id){ return document.getElementById(id); }
 function setupIfExists(inputId, dropId){ if(el(inputId)) setupSearch(inputId, dropId); }
@@ -1836,7 +1866,7 @@ setupIfExists('atk2-search','atk2-drop');
 if(el('pe-move-search')) setupPeMoveSearch();
 
 // パーティ管理
-if(el('party-slot-list')){ renderPartySlotList(); renderRegPokeList(); }
+if(el('party-slot-list')){ renderPartySlotList(); renderRegPokeList(); renderSavedPartyList(); }
 
 // ダメージ計算スライダー（要素が存在するページのみ）
 ['atk-lv','def-lv'].forEach(id=>{
