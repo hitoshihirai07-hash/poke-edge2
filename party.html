@@ -186,36 +186,6 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .dropdown.show{display:block;}
 .drop-item{padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:10px;transition:background 0.12s;border-bottom:1px solid var(--border);}
 .drop-item:hover{background:var(--bg2);}
-.quick-chip-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
-.quick-chip{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;cursor:pointer;line-height:1.35;transition:all 0.18s;border-radius:999px;}
-.quick-chip:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);}
-.quick-chip.subtle{color:var(--text2);border-style:dashed;cursor:default;}
-.editor-section{background:rgba(7,9,15,0.46);border:1px solid var(--border);border-radius:16px;padding:12px 12px 10px;margin-bottom:10px;}
-.editor-section-title{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-.saved-party-item{align-items:flex-start;padding:12px 14px;border-radius:14px;background:linear-gradient(180deg,rgba(11,14,26,0.96),rgba(15,20,35,0.96));}
-.saved-party-item:hover{border-color:var(--accent);transform:translateY(-1px);}
-.saved-party-main{flex:1;min-width:0;}
-.saved-party-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
-.saved-party-date{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;}
-.saved-party-count{font-size:10px;color:var(--accent3);padding:2px 8px;border:1px solid var(--border2);border-radius:999px;}
-.saved-party-pokes{line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.saved-party-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;margin-left:auto;}
-.saved-party-open,.saved-party-del{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:999px;font-size:10px;cursor:pointer;transition:all 0.18s;}
-.saved-party-open:hover{border-color:var(--accent);color:var(--accent);}
-.saved-party-del:hover{border-color:var(--accent2);color:var(--accent2);}
-.reg-card{background:linear-gradient(180deg,rgba(11,14,26,0.96),rgba(15,20,35,0.96));border:1px solid var(--border);padding:12px 14px;border-radius:14px;cursor:pointer;transition:all 0.18s;margin-bottom:6px;}
-.reg-card:hover{border-color:var(--accent);transform:translateY(-1px);}
-.reg-card.in-party{background:linear-gradient(135deg,rgba(0,200,240,0.12),rgba(15,20,35,0.96));border-color:var(--accent);}
-.reg-card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.reg-card-name{font-size:13px;font-weight:700;}
-.reg-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:10px;color:var(--text2);}
-.reg-card-moves{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;}
-.ability-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;border-radius:10px;}
-.direct-card{background:linear-gradient(180deg,rgba(11,14,26,0.96),rgba(15,20,35,0.96));border:1px solid var(--border);padding:10px 12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.18s;}
-.direct-card:hover{border-color:var(--accent);transform:translateY(-1px);}
-.direct-card-no{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;width:38px;flex-shrink:0;}
-.direct-card-name{font-size:12px;font-weight:700;flex:1;min-width:0;}
-@media(max-width:900px){.saved-party-actions{flex-direction:row;align-items:center;margin-left:0;}.saved-party-item{flex-direction:column;}}
 .drop-name{font-weight:700;}
 .drop-types{display:flex;gap:3px;}
 .poke-card{background:var(--bg2);border:1px solid var(--border);padding:12px;margin-top:8px;display:none;}
@@ -290,12 +260,11 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 @media(max-width:700px){.party-layout{grid-template-columns:1fr;}}
 .party-slot-list{display:flex;flex-direction:column;gap:6px;}
 .party-slot-btn{
-  padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
-  transition:all 0.18s;position:relative;border:1px solid var(--border);background:var(--panel);border-radius:14px;min-height:68px;
-}
-.party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);transform:translateY(-1px);}
-.party-slot-btn.active{background:linear-gradient(135deg,rgba(0,200,240,0.12),rgba(15,20,35,0.96));box-shadow:0 10px 30px rgba(0,0,0,0.16);}
-.party-slot-btn.active::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;background:var(--accent);border-radius:999px;}
+  padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  transition:all 0.18s;position:relative;
+.party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);}
+.party-slot-btn.active{background:rgba(0,200,240,0.06);}
+.party-slot-btn.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
 .party-slot-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--text2);width:16px;flex-shrink:0;}
 .party-slot-info{flex:1;min-width:0;}
 .party-slot-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -326,12 +295,9 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-action-btn.danger{border-color:var(--accent2);color:var(--accent2);}
 .party-save-btn{padding:9px 20px;background:linear-gradient(135deg,var(--green),#007a40);border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.18s;}
 .party-save-btn:hover{opacity:0.85;}
-.saved-parties-section{margin-bottom:14px;border:1px solid var(--border);padding:14px;background:var(--panel);}
-.saved-parties-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
-.saved-parties-note{font-size:10px;color:var(--text2);line-height:1.7;}
-.saved-party-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto;}
+.saved-parties-section{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
 .saved-parties-title{font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:8px;}
-.saved-party-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto;}
+.saved-party-list{display:flex;flex-direction:column;gap:4px;}
 .saved-party-item{background:var(--bg2);border:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.18s;}
 .saved-party-item:hover{border-color:var(--accent);}
 .saved-party-name{font-size:12px;font-weight:700;flex:1;}
@@ -353,7 +319,7 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .add-breakdown{font-size:11px;color:var(--text3);margin-top:8px;line-height:2;}
 .add-ko-tag{display:inline-block;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:6px;}
 .add-ko1{background:var(--accent2);color:#fff;}.add-ko2{background:var(--accent3);color:#000;}.add-ko3{background:var(--text2);color:#fff;}
-footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 /* アクティブタブ不要なので非表示 */
 .tabs{ display:none; }
 
@@ -435,7 +401,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <span style="font-size:11px;color:var(--text2);">登録済みポケモンから選んでパーティを編成</span>
       <a href="pokemon.html" style="margin-left:auto;padding:6px 14px;border:1px solid var(--accent);color:var(--accent);font-size:11px;text-decoration:none;letter-spacing:1px;transition:all 0.18s;" onmouseover="this.style.background='rgba(0,200,240,0.07)'" onmouseout="this.style.background='transparent'">＋ ポケモンを登録</a>
       <button class="party-save-btn" onclick="savePartyLocal()">💾 保存</button>
-      <button class="party-action-btn" onclick="refreshSavedPartiesPanel()">↻ 保存一覧を更新</button>
+      <button class="party-action-btn" onclick="showSavedParties()">📂 読込</button>
       <button class="party-action-btn primary" onclick="exportPartyImage()">📷 構築画像を保存</button>
     </div>
 
@@ -484,12 +450,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             </div>
             <div>
               <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">性格</div>
-              <select id="pe-nature" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;border-radius:10px;" onchange="updateRealStats()">
+              <select id="pe-nature" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;" onchange="updateRealStats()">
             <option value="がんばりや">がんばりや（補正なし）</option>
-            <option value="てれや">てれや（補正なし）</option>
-            <option value="すなお">すなお（補正なし）</option>
-            <option value="まじめ">まじめ（補正なし）</option>
-            <option value="きまぐれ">きまぐれ（補正なし）</option>
             <option value="さみしがり">さみしがり（攻↑防↓）</option>
             <option value="いじっぱり">いじっぱり（攻↑特攻↓）</option>
             <option value="やんちゃ">やんちゃ（攻↑特防↓）</option>
@@ -506,7 +468,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <option value="おとなしい">おとなしい（特防↑特攻↓）</option>
             <option value="しんちょう">しんちょう（特防↑特攻↓）</option>
             <option value="なまいき">なまいき（特防↑素早↓）</option>
-            <option value="おくびょう">おくびょう（素早↑攻↓）</option>
+            <option value="おくびょう">おくびょう（素早↑特防↓）</option>
             <option value="せっかち">せっかち（素早↑防↓）</option>
             <option value="ようき">ようき（素早↑特攻↓）</option>
             <option value="むじゃき">むじゃき（素早↑特防↓）</option>
@@ -515,7 +477,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           </div>
 
           <!-- 努力値 -->
-          <div style="font-size:9px;color:var(--text2);margin-bottom:4px;">努力値 <span id="pe-ev-remain" style="color:var(--accent3);">残り510</span></div>
+          <div style="font-size:9px;color:var(--text2);margin-bottom:4px;"><span id="pe-ev-title">努力値（合計上限510）</span> <span id="pe-ev-remain" style="color:var(--accent3);">残り510</span></div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px;">
             <div><div style="font-size:8px;color:var(--text2);">HP</div><input type="number" id="pe-ev-hp"  value="0" min="0" max="252" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 5px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;outline:none;" oninput="pe_syncEV('hp',this.value)"><input type="range" id="pe-ev-hp-r"  min="0" max="252" step="4" value="0" style="width:100%;accent-color:#e53935;" oninput="pe_syncEV('hp',this.value)"></div>
             <div><div style="font-size:8px;color:var(--text2);">攻撃</div><input type="number" id="pe-ev-atk" value="0" min="0" max="252" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 5px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;outline:none;" oninput="pe_syncEV('atk',this.value)"><input type="range" id="pe-ev-atk-r" min="0" max="252" step="4" value="0" style="width:100%;accent-color:#fb8c00;" oninput="pe_syncEV('atk',this.value)"></div>
@@ -528,31 +490,22 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <!-- 実数値表示 -->
           <div id="pe-real-stats" style="font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:8px;"></div>
 
-          <div class="editor-section">
-            <div class="editor-section-title">特性・持ち物</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <div>
-                <div style="font-size:10px;color:var(--text2);margin-bottom:4px;">特性</div>
-                <select id="pe-ability" class="ability-select" onchange="pe_save()"></select>
-              </div>
-              <div>
-                <div style="font-size:10px;color:var(--text2);margin-bottom:4px;">持ち物</div>
-                <input type="text" id="pe-item" list="item-master-list" placeholder="アイテム一覧から検索して選択" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;border-radius:10px;" oninput="pe_save()" onchange="pe_save()">
-              </div>
-            </div>
-            <div style="font-size:10px;color:var(--text2);margin-top:6px;">持ち物はアイテム一覧から、特性はそのポケモンの候補から選べます。</div>
-          </div>
+          <!-- 持ち物 -->
+          <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">持ち物</div>
+          <select id="pe-item" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:8px;" onchange="pe_save()">
+            <option value="">なし</option>
+            <option>こだわりハチマキ</option><option>こだわりメガネ</option><option>こだわりスカーフ</option>
+            <option>いのちのたま</option><option>たつじんのおび</option><option>きあいのタスキ</option>
+            <option>とつげきチョッキ</option><option>しんかのきせき</option><option>メガストーン</option><option>その他</option>
+          </select>
 
-          <div class="editor-section">
-            <div class="editor-section-title">技</div>
-            <div style="position:relative;margin-bottom:6px;">
-              <input type="text" id="pe-move-search" placeholder="技名を入力して追加..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:12px;outline:none;border-radius:10px;" autocomplete="off">
-              <div class="dropdown" id="pe-move-drop"></div>
-            </div>
-            <div id="pe-move-quick" class="quick-chip-wrap"></div>
-            <div id="pe-move-quick-note" style="font-size:10px;color:var(--text2);margin-top:6px;line-height:1.7;">ポケモンを選ぶと、登録候補の技をここから追加できます。</div>
-            <div id="pe-moves-grid" style="display:flex;flex-direction:column;gap:6px;margin-top:10px;"></div>
+          <!-- 技 -->
+          <div style="font-size:9px;color:var(--text2);margin-bottom:4px;">技（最大4つ）</div>
+          <div style="position:relative;margin-bottom:6px;">
+            <input type="text" id="pe-move-search" placeholder="技名を入力して追加..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-size:12px;outline:none;" autocomplete="off">
+            <div class="dropdown" id="pe-move-drop"></div>
           </div>
+          <div id="pe-moves-grid" style="display:flex;flex-direction:column;gap:3px;margin-bottom:8px;"></div>
 
           <!-- メモ -->
           <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">メモ</div>
@@ -572,17 +525,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
       <!-- 右: 登録済みポケモン選択 -->
       <div>
-        <div class="saved-parties-section" id="saved-parties-section">
-          <div class="saved-parties-head">
-            <div>
-              <div class="saved-parties-title">保存済みパーティ</div>
-              <div class="saved-parties-note">一覧を上で見ながら、そのまま読み込みできます。</div>
-            </div>
-            <button class="party-action-btn" type="button" onclick="refreshSavedPartiesPanel()">↻ 更新</button>
-          </div>
-          <div class="saved-party-list" id="saved-party-list"></div>
-        </div>
-
         <!-- タブ切り替え -->
         <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
           <button id="tab-btn-reg" onclick="switchAddTab('reg')" style="flex:1;padding:8px;background:var(--accent);color:#000;border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">登録済みから選ぶ</button>
@@ -620,12 +562,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div style="font-size:10px;color:var(--text2);margin-top:8px;">クリックでパーティに追加。パーティが6体の場合は追加できません。</div>
       </div>
     </div>
-  </div>
+
+    <!-- 保存済みパーティ -->
+    <div class="saved-parties-section" id="saved-parties-section" style="display:none;">
+      <div class="saved-parties-title">保存済みパーティ</div>
+      <div class="saved-party-list" id="saved-party-list"></div>
+    </div>
   </div>
 
 </div>
 
-<datalist id="item-master-list"></datalist>
 
 </div>
 
@@ -642,8 +588,6 @@ let POKEMON_DATA = [];
 let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
-let ITEMS_DATA   = [];
-let POKEMON_MOVES = {};
 let pokeIndex    = [];
 let moveIndex    = [];
 let _dataLoaded  = false;
@@ -651,20 +595,16 @@ let _dataLoaded  = false;
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata, pmdata] = await Promise.all([
+    const [pd, md, ad, sd] = await Promise.all([
       fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
       fetch('moves.json?v='+Date.now()).then(r=>r.json()),
       fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
       fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
-      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
-      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
     ]);
     POKEMON_DATA = pd;
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
-    ITEMS_DATA   = Array.isArray(idata) ? idata : [];
-    POKEMON_MOVES = pmdata && pmdata.pokemon ? pmdata.pokemon : {};
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     _dataLoaded  = true;
@@ -675,80 +615,6 @@ async function loadGameData() {
 }
 
 
-
-
-function normalizeItemName(value){
-  const v=String(value||'').trim();
-  return (!v || v==='なし') ? '' : v;
-}
-function setupItemMasterList(){
-  const list=document.getElementById('item-master-list');
-  if(!list) return;
-  const seen=new Set();
-  const names=[];
-  (ITEMS_DATA||[]).forEach(item=>{
-    const name=String(item&&item.name||'').trim();
-    if(!name || seen.has(name)) return;
-    seen.add(name);
-    names.push(name);
-  });
-  list.innerHTML=['<option value=""></option>'].concat(names.map(name=>`<option value="${name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}"></option>`)).join('');
-}
-function normalizeNatureName(value){
-  const v=String(value||'').trim();
-  return (!v || v==='おとぼけ') ? 'がんばりや' : v;
-}
-function getAbilityOptions(pokeName){
-  const list = ABILITY_MAP && ABILITY_MAP[pokeName];
-  return Array.isArray(list) ? list.filter(Boolean) : [];
-}
-function getPokemonKnownMoves(pokeName){
-  const row = POKEMON_MOVES && POKEMON_MOVES[pokeName];
-  return row && Array.isArray(row.moves) ? row.moves : [];
-}
-function renderPeAbilityOptions(pokeName, selected){
-  const sel=document.getElementById('pe-ability');
-  if(!sel) return;
-  const options=getAbilityOptions(pokeName);
-  const current = selected || options[0] || '';
-  sel.innerHTML = ['<option value="">特性を選択</option>'].concat(options.map(name=>`<option value="${name}">${name}</option>`)).join('');
-  sel.value = current && options.includes(current) ? current : '';
-}
-function renderPeMoveQuick(pokeName){
-  const wrap=document.getElementById('pe-move-quick');
-  const note=document.getElementById('pe-move-quick-note');
-  if(!wrap || !note) return;
-  const moves=getPokemonKnownMoves(pokeName);
-  if(!pokeName){
-    wrap.innerHTML='';
-    note.textContent='ポケモンを選ぶと、登録候補の技をここから追加できます。';
-    return;
-  }
-  if(!moves.length){
-    wrap.innerHTML='<span class="quick-chip subtle">候補技データなし</span>';
-    note.textContent='候補技データがない場合は、下の検索欄から追加してください。';
-    return;
-  }
-  wrap.innerHTML = moves.slice(0,24).map((m,idx)=>`<button type="button" class="quick-chip" onclick="addKnownPartyMove(${idx})">${m.name}</button>`).join('');
-  note.textContent='よく使う候補技を上に出しています。タップでそのまま追加できます。';
-}
-function addKnownPartyMove(idx){
-  if(selectedSlot<0||!party[selectedSlot]) return;
-  const moves=getPokemonKnownMoves(party[selectedSlot].poke.name);
-  const m=moves[idx];
-  if(!m) return;
-  const list=party[selectedSlot].moves;
-  if(list.length>=4){alert('技は4つまでです');return;}
-  if(list.find(x=>x.name===m.name)){alert('同じ技は登録できません');return;}
-  list.push({name:m.name,type:m.type,power:m.power||'',category:m.category||''});
-  renderPeMoves(list);
-  pe_save();
-}
-function refreshSavedPartiesPanel(){
-  renderSavedPartyList();
-  const sec=document.getElementById('saved-parties-section');
-  if(sec) sec.scrollIntoView({behavior:'smooth', block:'nearest'});
-}
 
 // POKEMON_DATA: 外部JSONから読み込み (loadGameData)
 // MOVES_DATA: 外部JSONから読み込み (loadGameData)
@@ -809,10 +675,15 @@ function getTypeEff(movetype, defTypes) {
 }
 
 // 実数値計算
-function calcHP(base, iv, ev, lv) {
+function calcHP(base, iv, ev, lv, champ=false) {
+  if(champ) return Math.floor((Math.floor((base*2 + iv) * lv / 100) + 10 + lv)) + ev;
   return Math.floor((Math.floor((base*2 + iv + Math.floor(ev/4)) * lv / 100) + 10 + lv));
 }
-function calcStat(base, iv, ev, lv, nature) {
+function calcStat(base, iv, ev, lv, nature, champ=false) {
+  if(champ) {
+    const bs = Math.floor((Math.floor((base*2 + iv) * lv / 100) + 5) * nature);
+    return bs + Math.floor(ev * nature);
+  }
   return Math.floor((Math.floor((base*2 + iv + Math.floor(ev/4)) * lv / 100) + 5) * nature);
 }
 
@@ -1333,11 +1204,10 @@ let selectedSlot = -1;
 // 登録済みポケモンからパーティに追加
 function addToParty(p) {
   if(party.length >= 6) { alert('パーティは6匹までです'); return; }
-  const abilities = getAbilityOptions(p.name);
   party.push({
-    poke: p, lv:50, nature:'がんばりや', ability:abilities[0]||'', iv:31,
+    poke: p, lv:50, nature:'おっとり', iv:31,
     ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},
-    moves:[], item:'', memo:'', gameMode:'classic'
+    moves:[], item:'', memo:''
   });
   renderPartySlotList();
   renderRegPokeList();
@@ -1388,7 +1258,7 @@ function onDirectTypeChange() {
 function renderDirectPokeList() {
   const el = document.getElementById('direct-poke-list');
   if(!el) return;
-  const pokes = getDirectFilteredPokes().slice(0, 80);
+  const pokes = getDirectFilteredPokes().slice(0, 60);
   if(!pokes.length) {
     el.innerHTML = '<div style="font-size:11px;color:var(--text2);padding:12px 0;">該当するポケモンがいません</div>';
     return;
@@ -1396,9 +1266,11 @@ function renderDirectPokeList() {
   el.innerHTML = pokes.map(p => {
     const t1 = p.type1 ? `<span class="type-pill tp-${p.type1}" style="font-size:8px;">${p.type1}</span>` : '';
     const t2 = p.type2 ? `<span class="type-pill tp-${p.type2}" style="font-size:8px;">${p.type2}</span>` : '';
-    return `<div class="direct-card" onclick="addToPartyDirect('${p.name}')">
-      <span class="direct-card-no">#${String(p.no||'').padStart(3,'0')}</span>
-      <span class="direct-card-name">${p.name}</span>
+    return `<div style="background:var(--bg2);border:1px solid var(--border);padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color 0.15s;"
+      onmouseover="this.style.borderColor='var(--accent)'"
+      onmouseout="this.style.borderColor='var(--border)'"
+      onclick="addToPartyDirect('${p.name}')">
+      <span style="font-size:12px;font-weight:700;flex:1;">${p.name}</span>
       ${t1}${t2}
     </div>`;
   }).join('');
@@ -1424,22 +1296,23 @@ function renderRegPokeList(filter) {
     return;
   }
   el.innerHTML = filtered.map(r => {
-    const inParty = party.filter(Boolean).some(m =>m._regId===r.id);
+    const inParty = party.filter(m=>m).some(m =>m._regId===r.id);
     const t1 = r.type1?('<span class="type-pill tp-'+r.type1+'" style="font-size:8px;">'+r.type1+'</span>'):'';
     const t2 = r.type2?('<span class="type-pill tp-'+r.type2+'" style="font-size:8px;">'+r.type2+'</span>'):'';
-    const moveHtml = (r.moves&&r.moves.length)?('<div class="reg-card-moves">'+r.moves.slice(0,4).map(mv=>'<span class="type-pill tp-'+mv.type+'" style="font-size:8px;">'+mv.name+'</span>').join('')+'</div>'):'';
-    const metaParts = [normalizeNatureName(r.nature), r.ability, r.item].filter(Boolean);
-    const metaHtml = metaParts.length ? '<div class="reg-card-meta">'+metaParts.map(v=>'<span>'+v+'</span>').join('')+'</div>' : '';
+    const moveHtml = (r.moves&&r.moves.length)?('<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">'+r.moves.map(mv=>'<span class="type-pill tp-'+mv.type+'" style="font-size:8px;">'+mv.name+'</span>').join('')+'</div>'):'';
+    const memoHtml = r.memo?('<div style="font-size:10px;color:var(--text2);margin-top:4px;">'+r.memo+'</div>'):'';
+    const natHtml  = r.nature?('<span style="font-size:10px;color:var(--text2);">'+r.nature+'</span>'):'';
+    const itemHtml = r.item?('<span style="font-size:10px;color:var(--accent3);">'+r.item+'</span>'):'';
+    const statusHtml = inParty?'<span style="font-size:9px;color:var(--accent);margin-left:auto;">✓ 編成中</span>':'<span style="font-size:9px;color:var(--text2);margin-left:auto;">クリックで追加</span>';
+    const bg     = inParty?'rgba(0,200,240,0.06)':'var(--bg2)';
+    const border = inParty?'var(--accent)':'var(--border)';
+    const cursor = inParty?'default':'pointer';
     const onclick= inParty?'':'addRegPoke(this.dataset.id)';
-    return '<div class="reg-card'+(inParty?' in-party':'')+'" data-id="'+r.id+'" onclick="'+onclick+'">'
-      +'<div class="reg-card-head">'
-      +'<span class="reg-card-name">'+r.displayName+'</span>'
-      +t1+t2
-      +(inParty?'<span style="font-size:9px;color:var(--accent);margin-left:auto;">編成中</span>':'<span style="font-size:9px;color:var(--text2);margin-left:auto;">追加</span>')
-      +'</div>'
-      +metaHtml+moveHtml
-      +(r.memo?'<div style="font-size:10px;color:var(--text2);margin-top:6px;line-height:1.6;">'+r.memo+'</div>':'')
-      +'</div>';
+    return '<div style="background:'+bg+';border:1px solid '+border+';padding:10px 12px;cursor:'+cursor+';transition:all 0.15s;margin-bottom:4px;" data-id="'+r.id+'" onclick="'+onclick+'">'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+      +'<span style="font-size:12px;font-weight:700;">'+r.displayName+'</span>'
+      +t1+t2+natHtml+itemHtml+statusHtml
+      +'</div>'+moveHtml+memoHtml+'</div>';
   }).join('');
 }
 
@@ -1453,8 +1326,7 @@ function addRegPoke(id) {
     _regId: rec.id,
     poke: pokeData,
     lv:   rec.lv||50,
-    nature: normalizeNatureName(rec.nature),
-    ability: rec.ability || (getAbilityOptions(pokeData.name)[0]||''),
+    nature: rec.nature||'おっとり',
     iv:   rec.iv||31,
     ev:   rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},
     moves: rec.moves||[],
@@ -1517,7 +1389,7 @@ function selectSlot(i) {
   const t2=p.type2?`<span class="type-pill tp-${p.type2}">${p.type2}</span>`:'';
   document.getElementById('pe-types').innerHTML = t1+t2;
   document.getElementById('pe-lv').value = m.lv;
-  document.getElementById('pe-nature').value = normalizeNatureName(m.nature);
+  document.getElementById('pe-nature').value = m.nature;
   document.getElementById('pe-iv').value = m.iv;
   document.getElementById('pe-iv-range').value = m.iv;
   document.getElementById('pe-iv-disp').textContent = m.iv;
@@ -1525,9 +1397,7 @@ function selectSlot(i) {
     document.getElementById('pe-ev-'+k).value = m.ev[k]||0;
     document.getElementById('pe-ev-'+k+'-r').value = m.ev[k]||0;
   });
-  renderPeAbilityOptions(p.name, m.ability || (getAbilityOptions(p.name)[0]||''));
-  renderPeMoveQuick(p.name);
-  document.getElementById('pe-item').value = normalizeItemName(m.item||'');
+  document.getElementById('pe-item').value = m.item||'';
   document.getElementById('pe-memo').value = m.memo||'';
   // ゲームモード復元
   const champ = m.gameMode === 'champions';
@@ -1548,7 +1418,8 @@ function pe_syncIV(val) {
 }
 
 function pe_syncEV(stat, val) {
-  const v = Math.min(252,Math.max(0,parseInt(val)||0));
+  const evMax = document.getElementById('pe-mode-champ')?.checked ? 32 : 252;
+  const v = Math.min(evMax, Math.max(0, parseInt(val) || 0));
   document.getElementById('pe-ev-'+stat).value = v;
   document.getElementById('pe-ev-'+stat+'-r').value = v;
   updateEvRemain();
@@ -1556,11 +1427,17 @@ function pe_syncEV(stat, val) {
 }
 
 function updateEvRemain() {
+  const champ = document.getElementById('pe-mode-champ')?.checked;
+  const limit = champ ? 66 : 510;
   const total = ['hp','atk','def','spa','spd','spe'].reduce((s,k)=>s+(parseInt(document.getElementById('pe-ev-'+k).value)||0),0);
-  const remain = 510-total;
-  const el = document.getElementById('pe-ev-remain');
-  el.textContent = remain;
-  el.className = remain<0 ? 'ev-over' : '';
+  const remain = limit - total;
+  const titleEl = document.getElementById('pe-ev-title');
+  const remainEl = document.getElementById('pe-ev-remain');
+  if(titleEl) titleEl.textContent = champ ? '努力値（合計上限66）' : '努力値（合計上限510）';
+  if(remainEl){
+    remainEl.textContent = '残り' + remain;
+    remainEl.className = remain < 0 ? 'ev-over' : '';
+  }
 }
 
 function updateEvSummary() {
@@ -1578,6 +1455,7 @@ function updateRealStats() {
   const lv = parseInt(document.getElementById('pe-lv').value)||50;
   const iv = parseInt(document.getElementById('pe-iv').value)||31;
   const nat = PERSONALITIES[document.getElementById('pe-nature').value]||{atk:1,def:1,spa:1,spd:1,spe:1};
+  const champ = document.getElementById('pe-mode-champ')?.checked;
   const ev = {
     hp: parseInt(document.getElementById('pe-ev-hp').value)||0,
     atk:parseInt(document.getElementById('pe-ev-atk').value)||0,
@@ -1587,12 +1465,12 @@ function updateRealStats() {
     spe:parseInt(document.getElementById('pe-ev-spe').value)||0,
   };
   const stats = [
-    {k:'hp', label:'HP',   val:calcHP(p.hp,   iv, ev.hp,  lv),        c:'#e53935'},
-    {k:'atk',label:'攻撃', val:calcStat(p.atk, iv, ev.atk, lv, nat.atk), c:'#fb8c00'},
-    {k:'def',label:'防御', val:calcStat(p.def, iv, ev.def, lv, nat.def||1), c:'#fdd835'},
-    {k:'spa',label:'特攻', val:calcStat(p.spa, iv, ev.spa, lv, nat.spa), c:'#1e88e5'},
-    {k:'spd',label:'特防', val:calcStat(p.spd, iv, ev.spd, lv, nat.spd||1), c:'#00acc1'},
-    {k:'spe',label:'素早', val:calcStat(p.spe, iv, ev.spe, lv, nat.spe||1), c:'#43a047'},
+    {k:'hp', label:'HP',   val:calcHP(p.hp,   iv, ev.hp,  lv, champ), c:'#e53935'},
+    {k:'atk',label:'攻撃', val:calcStat(p.atk, iv, ev.atk, lv, nat.atk, champ), c:'#fb8c00'},
+    {k:'def',label:'防御', val:calcStat(p.def, iv, ev.def, lv, nat.def||1, champ), c:'#fdd835'},
+    {k:'spa',label:'特攻', val:calcStat(p.spa, iv, ev.spa, lv, nat.spa, champ), c:'#1e88e5'},
+    {k:'spd',label:'特防', val:calcStat(p.spd, iv, ev.spd, lv, nat.spd||1, champ), c:'#00acc1'},
+    {k:'spe',label:'素早', val:calcStat(p.spe, iv, ev.spe, lv, nat.spe||1, champ), c:'#43a047'},
   ];
   document.getElementById('pe-real-stats').innerHTML = stats.map(s=>
     `<div class="rs-item">
@@ -1615,8 +1493,7 @@ function updatePartyMember() {
     spd:parseInt(document.getElementById('pe-ev-spd').value)||0,
     spe:parseInt(document.getElementById('pe-ev-spe').value)||0,
   };
-  m.ability = document.getElementById('pe-ability') ? document.getElementById('pe-ability').value : '';
-  m.item = normalizeItemName(document.getElementById('pe-item').value);
+  m.item = document.getElementById('pe-item').value;
   m.memo = document.getElementById('pe-memo').value;
   updateRealStats();
   updateEvRemain();
@@ -1640,8 +1517,7 @@ function pe_save() {
     spd: parseInt(document.getElementById('pe-ev-spd').value)||0,
     spe: parseInt(document.getElementById('pe-ev-spe').value)||0,
   };
-  m.ability = document.getElementById('pe-ability') ? document.getElementById('pe-ability').value : '';
-  m.item   = normalizeItemName(document.getElementById('pe-item').value);
+  m.item   = document.getElementById('pe-item').value;
   m.memo   = document.getElementById('pe-memo').value;
   m.gameMode = document.getElementById('pe-mode-champ')?.checked ? 'champions' : 'classic';
   updateEvSummary();
@@ -1658,7 +1534,15 @@ function onPeModeChange() {
     if(r){ r.max=max; r.step=step; if(parseInt(r.value)>max) r.value=0; }
     if(n){ n.max=max; if(parseInt(n.value)>max) n.value=0; }
   });
+  ['hp','atk','def','spa','spd','spe'].forEach(k => {
+    const r = document.getElementById('pe-ev-'+k+'-r');
+    const n = document.getElementById('pe-ev-'+k);
+    const safe = Math.min(max, Math.max(0, parseInt((n?.value ?? r?.value ?? 0)) || 0));
+    if(r) r.value = safe;
+    if(n) n.value = safe;
+  });
   pe_save();
+  updateEvRemain();
   updateRealStats();
 }
 
@@ -1735,17 +1619,19 @@ async function savePartyLocal() {
     members: party.filter(m=>m).map(m =>({
       pokeName: m.poke.name, pokeNo: m.poke.no,
       type1: m.poke.type1, type2: m.poke.type2,
-      lv:m.lv, nature:m.nature, ability:m.ability||'', iv:m.iv, ev:m.ev,
-      moves:m.moves, item:m.item, memo:m.memo, gameMode:m.gameMode||'classic'
+      lv:m.lv, nature:m.nature, iv:m.iv, ev:m.ev,
+      moves:m.moves, item:m.item, memo:m.memo
     }))
   };
   await saveParty(name, partyData);
-  await renderSavedPartyList();
   alert(`「${name}」を保存しました！`);
 }
 
 function showSavedParties() {
-  refreshSavedPartiesPanel();
+  const sec = document.getElementById('saved-parties-section');
+  const isShown = sec.style.display==='block';
+  sec.style.display = isShown ? 'none' : 'block';
+  if(!isShown) renderSavedPartyList();
 }
 
 async function renderSavedPartyList() {
@@ -1756,20 +1642,11 @@ async function renderSavedPartyList() {
   el.innerHTML = saved.map((s,i)=>{
     const d = s.data || s;
     const pid = s.id || i;
-    const members = (d.members||[]);
     return `<div class="saved-party-item" onclick="loadPartyById('${pid}')">
-      <div class="saved-party-main">
-        <div class="saved-party-meta">
-          <div class="saved-party-name">${s.name||d.name||'パーティ'}</div>
-          <div class="saved-party-count">${members.length}体</div>
-          <div class="saved-party-date">${d.date||s.created_at?.split('T')[0]||''}</div>
-        </div>
-        <div class="saved-party-pokes">${members.map(m=>m.pokeName).join(' / ')}</div>
-      </div>
-      <div class="saved-party-actions">
-        <button class="saved-party-open" type="button" onclick="event.stopPropagation();loadPartyById('${pid}')">読込</button>
-        <button class="saved-party-del" type="button" onclick="event.stopPropagation();deletePartyById('${pid}')">削除</button>
-      </div>
+      <div class="saved-party-name">${s.name||d.name||'パーティ'}</div>
+      <div class="saved-party-pokes">${(d.members||[]).map(m=>m.pokeName).join(' / ')}</div>
+      <div style="font-size:9px;color:var(--text2);margin-left:auto;">${d.date||s.created_at?.split('T')[0]||''}</div>
+      <button class="saved-party-del" onclick="event.stopPropagation();deletePartyById('${pid}')">🗑</button>
     </div>`;
   }).join('');
 }
@@ -1781,10 +1658,11 @@ async function loadPartyById(id) {
   const d = s.data || s;
   party = (d.members||[]).map(m=>{
     const poke = pokeIndex.find(x=>x.name===m.pokeName)||{name:m.pokeName,no:m.pokeNo,type1:m.type1,type2:m.type2,hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
-    return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'classic'};
+    return {poke, lv:m.lv||50, nature:m.nature||'おっとり', iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||''};
   });
   selectedSlot = -1;
   renderPartySlotList();
+  document.getElementById('saved-parties-section').style.display='none';
   if(party.length) selectSlot(0);
   alert(`「${s.name||d.name}」を読み込みました`);
 }
@@ -1801,10 +1679,11 @@ function loadParty(i) {
   if(!s) return;
   party = s.members.map(m=>{
     const poke = pokeIndex.find(x=>x.name===m.pokeName) || {name:m.pokeName,no:m.pokeNo,type1:m.type1,type2:m.type2,hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
-    return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'classic'};
+    return {poke, lv:m.lv||50, nature:m.nature||'おっとり', iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||''};
   });
   selectedSlot = -1;
   renderPartySlotList();
+  document.getElementById('saved-parties-section').style.display='none';
   if(party.length) selectSlot(0);
   alert(`「${s.name}」を読み込みました`);
 }
@@ -1964,7 +1843,6 @@ window.onload = async () => {
   }
 
   await loadGameData();
-  setupItemMasterList();
   // ===== 初期化（要素が存在する場合のみ実行） =====
 function el(id){ return document.getElementById(id); }
 function setupIfExists(inputId, dropId){ if(el(inputId)) setupSearch(inputId, dropId); }
@@ -1979,7 +1857,7 @@ setupIfExists('atk2-search','atk2-drop');
 if(el('pe-move-search')) setupPeMoveSearch();
 
 // パーティ管理
-if(el('party-slot-list')){ renderPartySlotList(); renderRegPokeList(); renderSavedPartyList(); }
+if(el('party-slot-list')){ renderPartySlotList(); renderRegPokeList(); }
 
 // ダメージ計算スライダー（要素が存在するページのみ）
 ['atk-lv','def-lv'].forEach(id=>{
@@ -2173,13 +2051,14 @@ function getMemberRealStats(member) {
   const iv = parseInt(member.iv) || 31;
   const ev = member.ev || {};
   const nat = PERSONALITIES[member.nature] || {atk:1, def:1, spa:1, spd:1, spe:1};
+  const champ = member.gameMode === 'champions';
   return {
-    hp:  calcHP(parseInt(p.hp)  || 0, iv, parseInt(ev.hp)  || 0, lv),
-    atk: calcStat(parseInt(p.atk) || 0, iv, parseInt(ev.atk) || 0, lv, nat.atk || 1),
-    def: calcStat(parseInt(p.def) || 0, iv, parseInt(ev.def) || 0, lv, nat.def || 1),
-    spa: calcStat(parseInt(p.spa) || 0, iv, parseInt(ev.spa) || 0, lv, nat.spa || 1),
-    spd: calcStat(parseInt(p.spd) || 0, iv, parseInt(ev.spd) || 0, lv, nat.spd || 1),
-    spe: calcStat(parseInt(p.spe) || 0, iv, parseInt(ev.spe) || 0, lv, nat.spe || 1)
+    hp:  calcHP(parseInt(p.hp)  || 0, iv, parseInt(ev.hp)  || 0, lv, champ),
+    atk: calcStat(parseInt(p.atk) || 0, iv, parseInt(ev.atk) || 0, lv, nat.atk || 1, champ),
+    def: calcStat(parseInt(p.def) || 0, iv, parseInt(ev.def) || 0, lv, nat.def || 1, champ),
+    spa: calcStat(parseInt(p.spa) || 0, iv, parseInt(ev.spa) || 0, lv, nat.spa || 1, champ),
+    spd: calcStat(parseInt(p.spd) || 0, iv, parseInt(ev.spd) || 0, lv, nat.spd || 1, champ),
+    spe: calcStat(parseInt(p.spe) || 0, iv, parseInt(ev.spe) || 0, lv, nat.spe || 1, champ)
   };
 }
 
