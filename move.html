@@ -116,6 +116,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .rank-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text2);flex-shrink:0;width:28px;line-height:1;}
 .rank-num.r1{color:var(--accent3);}
 .rank-num.r2{color:var(--accent);}
+.team-list{display:flex;flex-direction:column;gap:6px;margin:8px 0 10px;}
+.team-item{background:var(--bg2);border:1px solid var(--border);padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.team-item-main{display:flex;flex-direction:column;gap:3px;}
+.team-item-sub{font-size:10px;color:var(--text2);}
+.team-item-rm{background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;}
+.team-item-rm:hover{color:var(--accent2);}
 .rank-name{font-size:13px;font-weight:700;margin-bottom:3px;}
 .rank-detail{font-size:11px;color:var(--text3);line-height:1.7;}
 .rank-dmg{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);}
@@ -195,6 +201,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <select class="sel" id="reg-poke-sel" onchange="loadFromReg(this.value)">
           <option value="">— 登録済みから選ぶ —</option>
         </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
+          <button type="button" onclick="addRegToTeam()" style="padding:7px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;cursor:pointer;">＋ 選択を自分側に追加</button>
+          <button type="button" onclick="addTopRegsToTeam()" style="padding:7px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;cursor:pointer;">＋ 登録先頭から6体</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:5px;">自分側チーム（1〜6体）</div>
+        <div id="my-team-list" class="team-list"></div>
       </div>
 
       <!-- または検索 -->
@@ -339,6 +351,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="result-wrap" id="result-wrap">
     <div class="result-title">判定結果 — 全相手に対する総合ランキング</div>
     <div id="result-list"></div>
+    <div style="margin-top:12px;">
+      <div class="result-title">全組み合わせ一覧（自分技 × 相手）</div>
+      <div id="result-matrix" style="overflow:auto;border:1px solid var(--border);"></div>
+    </div>
   </div>
 </div>
 
@@ -467,6 +483,7 @@ function parseHits(s){ const str=String(s||'1').trim(); if(str.includes('～')){
 let myPoke = null;   // {poke, lv, iv, ev:{atk,spa,spe}, nature, champ}
 let oppSlots = [];   // [{id, poke, evPreset, hpPct, ability}]
 let myMoves = [];    // 選択した技リスト
+let myTeam = [];     // [{id,poke,ability,moves,lv,iv,nature,ev,champ,displayName}]
 let _oppSlotCounter = 0;
 
 // ===== 相手スロット管理 =====
@@ -701,6 +718,7 @@ function loadRegSelect() {
   const sel = document.getElementById('reg-poke-sel');
   sel.innerHTML = '<option value="">— 登録済みから選ぶ —</option>'
     + regs.map(r=>`<option value="${r.id}">${r.displayName}（${r.pokeName||''}）</option>`).join('');
+  renderMyTeam();
 }
 
 function loadFromReg(id) {
@@ -737,8 +755,92 @@ function loadFromReg(id) {
 
   // 技
   myMoves = (rec.moves||[]).filter(m=>m.power>0||m.notes==='体重依存');
+  const myAbSel = document.getElementById('my-ability');
+  if(myAbSel && rec.ability) myAbSel.value = rec.ability;
   renderMyMoves();
   recalcMyStats();
+  checkJudgeBtn();
+}
+
+function toMoveObj(m) {
+  if(!m) return null;
+  if(typeof m === 'string') {
+    const fm = moveIndex.find(x=>x.name===m);
+    if(!fm || (!fm.power && fm.notes!=='体重依存')) return null;
+    return {name:fm.name,type:fm.type,category:fm.category,power:fm.power,hits:fm.hits||'1',notes:fm.notes||''};
+  }
+  if(m.name) {
+    if((!m.power || m.power<=0) && m.notes!=='体重依存') {
+      const fm = moveIndex.find(x=>x.name===m.name);
+      if(!fm || (!fm.power && fm.notes!=='体重依存')) return null;
+      return {name:fm.name,type:fm.type,category:fm.category,power:fm.power,hits:fm.hits||'1',notes:fm.notes||''};
+    }
+    return {name:m.name,type:m.type,category:m.category,power:m.power,hits:m.hits||'1',notes:m.notes||''};
+  }
+  return null;
+}
+
+function addMemberFromRec(rec) {
+  if(!rec || myTeam.length >= 6) return;
+  const p = pokeIndex.find(x=>x.name===rec.pokeName);
+  if(!p) return;
+  const uid = String(rec.id || rec.displayName || rec.pokeName);
+  if(myTeam.some(m=>m.id===uid)) return;
+  const moves = (rec.moves||[]).map(toMoveObj).filter(Boolean);
+  myTeam.push({
+    id: uid,
+    displayName: rec.displayName || rec.pokeName,
+    poke: p,
+    ability: rec.ability || '',
+    moves: moves.slice(0,4),
+    lv: rec.lv || 50,
+    iv: rec.iv || 31,
+    nature: rec.nature || 'おっとり',
+    ev: rec.ev || {atk:0,spa:0,spe:0},
+    champ: rec.gameMode === 'champions'
+  });
+}
+
+function renderMyTeam() {
+  const el = document.getElementById('my-team-list');
+  if(!el) return;
+  if(!myTeam.length) {
+    el.innerHTML = '<div style="font-size:10px;color:var(--text2);">まだ追加されていません</div>';
+    return;
+  }
+  el.innerHTML = myTeam.map((m, i) => {
+    const mv = (m.moves||[]).map(x=>x.name).slice(0,4).join(' / ') || '攻撃技なし';
+    return `<div class="team-item">
+      <div class="team-item-main">
+        <div><span style="color:var(--accent3);">${i+1}.</span> ${m.displayName}（${m.poke.name}）</div>
+        <div class="team-item-sub">特性: ${m.ability||'なし/不明'} / 技: ${mv}</div>
+      </div>
+      <button class="team-item-rm" onclick="removeMyTeamMember('${m.id.replace(/'/g, "\\'")}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+function removeMyTeamMember(id) {
+  myTeam = myTeam.filter(m=>m.id!==id);
+  renderMyTeam();
+  checkJudgeBtn();
+}
+
+function addRegToTeam() {
+  const id = document.getElementById('reg-poke-sel').value;
+  if(!id) return;
+  const regs = loadLocal ? loadLocal() : [];
+  const rec = regs.find(r=>r.id===id);
+  addMemberFromRec(rec);
+  renderMyTeam();
+  checkJudgeBtn();
+}
+
+function addTopRegsToTeam() {
+  const regs = (loadLocal ? loadLocal() : []).slice(0, 6);
+  regs.forEach(addMemberFromRec);
+  if(myTeam.length > 6) myTeam = myTeam.slice(0, 6);
+  renderMyTeam();
   checkJudgeBtn();
 }
 
@@ -817,7 +919,8 @@ function renderMyMoves() {
 // ===== 判定ボタン有効化 =====
 function checkJudgeBtn() {
   const hasOpp = oppSlots.some(s=>s.poke);
-  const ok = myPoke&&myPoke.poke&&hasOpp;
+  const hasMy = (myTeam.length > 0) || (myPoke&&myPoke.poke);
+  const ok = hasMy && hasOpp;
   document.getElementById('judge-btn').disabled = !ok;
 }
 
@@ -836,15 +939,8 @@ function getWeightPower(name, atkW, defW) {
 
 // ===== メイン判定（複数相手対応） =====
 function judge() {
-  if(!myPoke||!myPoke.poke) return;
   const validSlots = oppSlots.filter(s=>s.poke);
   if(!validSlots.length) return;
-
-  const mySt  = getMyStats();
-  if(!mySt) return;
-
-  const myP   = myPoke.poke;
-  const myTypes  = [myP.type1, myP.type2].filter(Boolean);
 
   const myAbility = document.getElementById('my-ability').value||'';
   const weather = document.getElementById('my-weather').value||'';
@@ -854,111 +950,88 @@ function judge() {
   // ウェザーボールタイプマップ
   const WB_MAP = {'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こおり'};
 
-  // 計算対象の技
-  const targetMoves = myMoves.length > 0
-    ? myMoves
-    : moveIndex.filter(m=>m.power>0||m.notes==='体重依存').map(m=>({
-        name:m.name, type:m.type, category:m.category,
-        power:m.power, hits:m.hits||'1', notes:m.notes||''
-      }));
-
   const results = [];
-
-  targetMoves.forEach(mv => {
-    let totalScore = 0;
-    const breakdowns = [];
-
-    // スキン特性によるタイプ変更
-    let mvType = mv.type;
-    let skinMult = 1;
-    if(SKIN_MAP[myAbility] && mvType === 'ノーマル') {
-      mvType = SKIN_MAP[myAbility];
-      skinMult = 1.2;
-    }
-
-    // ウェザーボールによるタイプ変更
-    let mvPowerBase = mv.power;
-    if(mv.name === 'ウェザーボール' && weather && WB_MAP[weather]) {
-      mvType = WB_MAP[weather];
-      mvPowerBase = 100;
-    }
-
-    // 天候によるダメージ補正
-    let weatherMult = 1;
-    if(weather === 'sunny') {
-      if(mvType === 'ほのお') weatherMult = 1.5;
-      else if(mvType === 'みず') weatherMult = 0.5;
-    } else if(weather === 'rain') {
-      if(mvType === 'みず') weatherMult = 1.5;
-      else if(mvType === 'ほのお') weatherMult = 0.5;
-    }
-
-    validSlots.forEach(slot => {
-      const oppP = slot.poke;
-      const oppSt = getOppStatsForSlot(slot);
-      if(!oppSt) return;
-      const oppTypes = [oppP.type1, oppP.type2].filter(Boolean);
-      const oppAbility = slot.ability||'';
-      const oppHPpct = slot.hpPct||100;
-      const oppCurHP = Math.floor(oppSt.hp * oppHPpct / 100);
-
-      const eff = typeEffWithAbility(mvType, oppTypes, oppAbility);
-      if(eff === 0) {
-        breakdowns.push({name:oppP.name, eff:0, dmgMin:0, dmgMax:0, pctMin:0, pctMax:0, ko:'無効', immune:true});
-        return;
-      }
-
-      let power = mvPowerBase;
-      if(mv.notes==='体重依存') {
-        power = getWeightPower(mv.name, myP.weight||0, oppP.weight||0);
-      }
-      if(!power) return;
-
-      const stab = myTypes.includes(mvType) ? 1.5 : 1;
-      const atkSt = mv.category==='物理' ? mySt.atk : mySt.spa;
-      let defSt = mv.category==='物理' ? oppSt.def : oppSt.spd;
-      const lv    = mySt.lv;
-
-      // 天候による防御側ステータス補正
-      if(weather==='snow'&&oppTypes.includes('こおり')&&mv.category==='物理'){
-        defSt=Math.floor(defSt*1.5);
-      }
-      if(weather==='sand'&&oppTypes.includes('いわ')&&mv.category==='特殊'){
-        defSt=Math.floor(defSt*1.5);
-      }
-
-      // 特性によるダメージ補正（あついしぼう、フィルター等）
-      const abDmgMult = getAbilityDmgMult(oppAbility, mvType, eff);
-
-      const s1 = Math.floor(lv*2/5+2);
-      const s2 = Math.floor(Math.floor(s1*Math.floor(power*skinMult)*atkSt/defSt)/50)+2;
-      const s3 = Math.floor(s2*stab);
-      const d1Max = Math.floor(Math.floor(s3*eff)*abDmgMult*weatherMult);
-      const d1Min = Math.floor(Math.floor(Math.floor(s3*0.85)*eff)*abDmgMult*weatherMult);
-
-      const hitsInfo = parseHits(mv.hits);
-      const dmgMax = d1Max * hitsInfo.max;
-      const dmgMin = d1Min * hitsInfo.min;
-      const pctMax = Math.round(dmgMax/oppSt.hp*100);
-      const pctMin = Math.round(dmgMin/oppSt.hp*100);
-
-      let ko = '';
-      if(dmgMin >= oppCurHP) ko = '確1';
-      else if(dmgMax >= oppCurHP) ko = '乱1';
-      else if(d1Min*2*hitsInfo.min >= oppCurHP) ko = '確2';
-      else if(d1Max*2*hitsInfo.max >= oppCurHP) ko = '乱2';
-
-      const slotScore = pctMax * eff * stab;
-      totalScore += slotScore;
-
-      breakdowns.push({name:oppP.name, eff, dmgMin, dmgMax, pctMin, pctMax, ko, immune:false});
+  const manualSt = getMyStats();
+  const attackers = [];
+  if(myTeam.length) {
+    myTeam.slice(0,6).forEach(m => {
+      const nat = NATURES[m.nature]||NATURES['おっとり'];
+      const ev = m.ev||{};
+      const atk = calcStat(m.poke.atk, m.iv||31, ev.atk||0, m.lv||50, nat.atk||1, !!m.champ);
+      const spa = calcStat(m.poke.spa, m.iv||31, ev.spa||0, m.lv||50, nat.spa||1, !!m.champ);
+      attackers.push({
+        label: m.displayName || m.poke.name,
+        poke: m.poke,
+        ability: m.ability || '',
+        stats: {atk, spa, lv:m.lv||50},
+        moves: (m.moves&&m.moves.length) ? m.moves : myMoves
+      });
     });
+  } else if(myPoke&&myPoke.poke&&manualSt) {
+    attackers.push({
+      label: myPoke.poke.name,
+      poke: myPoke.poke,
+      ability: myAbility,
+      stats: manualSt,
+      moves: myMoves
+    });
+  }
+  if(!attackers.length) return;
 
-    const stab = myTypes.includes(mvType);
-    results.push({
-      name:mv.name, type:mvType, category:mv.category,
-      stab, totalScore, breakdowns,
-      skinChanged: mvType !== mv.type
+  attackers.forEach(attacker => {
+    const myP = attacker.poke;
+    const myTypes = [myP.type1, myP.type2].filter(Boolean);
+    const targetMoves = (attacker.moves && attacker.moves.length > 0)
+      ? attacker.moves
+      : moveIndex.filter(m=>m.power>0||m.notes==='体重依存').map(m=>({name:m.name,type:m.type,category:m.category,power:m.power,hits:m.hits||'1',notes:m.notes||''}));
+    targetMoves.forEach(mv => {
+      let totalScore = 0;
+      const breakdowns = [];
+      let mvType = mv.type;
+      let skinMult = 1;
+      const attackerAbility = attacker.ability || '';
+      if(SKIN_MAP[attackerAbility] && mvType === 'ノーマル') { mvType = SKIN_MAP[attackerAbility]; skinMult = 1.2; }
+      let mvPowerBase = mv.power;
+      if(mv.name === 'ウェザーボール' && weather && WB_MAP[weather]) { mvType = WB_MAP[weather]; mvPowerBase = 100; }
+      let weatherMult = 1;
+      if(weather === 'sunny') { if(mvType === 'ほのお') weatherMult = 1.5; else if(mvType === 'みず') weatherMult = 0.5; }
+      else if(weather === 'rain') { if(mvType === 'みず') weatherMult = 1.5; else if(mvType === 'ほのお') weatherMult = 0.5; }
+      validSlots.forEach(slot => {
+        const oppP = slot.poke;
+        const oppSt = getOppStatsForSlot(slot);
+        if(!oppSt) return;
+        const oppTypes = [oppP.type1, oppP.type2].filter(Boolean);
+        const oppAbility = slot.ability||'';
+        const oppCurHP = Math.floor(oppSt.hp * (slot.hpPct||100) / 100);
+        const eff = typeEffWithAbility(mvType, oppTypes, oppAbility);
+        if(eff === 0) { breakdowns.push({name:oppP.name, eff:0, dmgMin:0, dmgMax:0, pctMin:0, pctMax:0, ko:'無効', immune:true}); return; }
+        let power = mvPowerBase;
+        if(mv.notes==='体重依存') power = getWeightPower(mv.name, myP.weight||0, oppP.weight||0);
+        if(!power) return;
+        const stab = myTypes.includes(mvType) ? 1.5 : 1;
+        const atkSt = mv.category==='物理' ? attacker.stats.atk : attacker.stats.spa;
+        let defSt = mv.category==='物理' ? oppSt.def : oppSt.spd;
+        const lv = attacker.stats.lv;
+        if(weather==='snow'&&oppTypes.includes('こおり')&&mv.category==='物理') defSt=Math.floor(defSt*1.5);
+        if(weather==='sand'&&oppTypes.includes('いわ')&&mv.category==='特殊') defSt=Math.floor(defSt*1.5);
+        const abDmgMult = getAbilityDmgMult(oppAbility, mvType, eff);
+        const s1 = Math.floor(lv*2/5+2);
+        const s2 = Math.floor(Math.floor(s1*Math.floor(power*skinMult)*atkSt/defSt)/50)+2;
+        const s3 = Math.floor(s2*stab);
+        const d1Max = Math.floor(Math.floor(s3*eff)*abDmgMult*weatherMult);
+        const d1Min = Math.floor(Math.floor(Math.floor(s3*0.85)*eff)*abDmgMult*weatherMult);
+        const hitsInfo = parseHits(mv.hits);
+        const dmgMax = d1Max * hitsInfo.max;
+        const dmgMin = d1Min * hitsInfo.min;
+        const pctMax = Math.round(dmgMax/oppSt.hp*100);
+        const pctMin = Math.round(dmgMin/oppSt.hp*100);
+        let ko = '';
+        if(dmgMin >= oppCurHP) ko = '確1'; else if(dmgMax >= oppCurHP) ko = '乱1';
+        else if(d1Min*2*hitsInfo.min >= oppCurHP) ko = '確2'; else if(d1Max*2*hitsInfo.max >= oppCurHP) ko = '乱2';
+        totalScore += pctMax * eff * stab;
+        breakdowns.push({name:oppP.name, eff, dmgMin, dmgMax, pctMin, pctMax, ko, immune:false});
+      });
+      results.push({name:mv.name, type:mvType, category:mv.category, stab:myTypes.includes(mvType), totalScore, breakdowns, skinChanged:mvType!==mv.type, attacker:attacker.label});
     });
   });
 
@@ -966,8 +1039,42 @@ function judge() {
 
   const topResults = results.filter(r=>r.totalScore>0).slice(0,10);
   renderMultiResults(topResults, validSlots.length);
+  renderDamageMatrix(results, validSlots);
   document.getElementById('result-wrap').style.display='block';
   document.getElementById('result-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderDamageMatrix(results, validSlots) {
+  const wrap = document.getElementById('result-matrix');
+  if(!wrap) return;
+  if(!results.length || !validSlots.length) {
+    wrap.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--text2);">表示できるデータがありません。</div>';
+    return;
+  }
+  const heads = validSlots.map(s=>s.poke?.name||'—');
+  const rows = results.slice(0, 144).map(r => {
+    const byName = {};
+    (r.breakdowns||[]).forEach(b=>{ byName[b.name]=b; });
+    const tds = heads.map(h => {
+      const b = byName[h];
+      if(!b) return '<td style="padding:6px;border-top:1px solid var(--border);color:var(--text2);">—</td>';
+      if(b.immune) return '<td style="padding:6px;border-top:1px solid var(--border);color:var(--text2);">無効</td>';
+      return `<td style="padding:6px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;">${b.pctMin}〜${b.pctMax}% ${b.ko||''}</td>`;
+    }).join('');
+    return `<tr>
+      <td style="padding:6px;border-top:1px solid var(--border);white-space:nowrap;">${r.attacker||'—'}</td>
+      <td style="padding:6px;border-top:1px solid var(--border);white-space:nowrap;">${r.name}</td>
+      ${tds}
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:11px;">
+    <thead><tr style="background:var(--bg2);">
+      <th style="padding:6px;text-align:left;">自分</th>
+      <th style="padding:6px;text-align:left;">技</th>
+      ${heads.map(h=>`<th style="padding:6px;text-align:left;white-space:nowrap;">vs ${h}</th>`).join('')}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
 function renderMultiResults(top, oppCount) {
@@ -999,6 +1106,7 @@ function renderMultiResults(top, oppCount) {
         <div class="rank-num ${numClass}">${i+1}</div>
         <div style="flex:1;">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="font-size:9px;color:var(--accent3);border:1px solid var(--border2);padding:1px 4px;">${r.attacker||'—'}</span>
             <span class="rank-name">${r.name}</span>
             <span class="tp tp-${r.type}" style="font-size:9px;">${r.type}</span>
             <span style="font-size:9px;color:var(--text2);">${r.category}</span>
@@ -1020,6 +1128,7 @@ window.onload = async () => {
   await initAuth();
   initSeasonFilter();
   loadRegSelect();
+  renderMyTeam();
   setupPokeSearch('my-search','my-drop');
   setupMoveSearch();
 
