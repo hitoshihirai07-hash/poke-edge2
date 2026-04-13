@@ -312,9 +312,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <!-- 相手ポケモンスロット一覧 -->
       <div id="opp-slots"></div>
 
-      <!-- 追加ボタン -->
-      <button id="opp-add-btn" onclick="addOppSlot()" style="width:100%;padding:10px;background:var(--bg2);border:1px dashed var(--border2);color:var(--text2);font-size:12px;cursor:pointer;transition:border-color 0.18s;margin-top:6px;" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor='var(--border2)'">＋ 相手ポケモンを追加</button>
-
       <!-- 共通設定 -->
       <div style="margin-top:12px;padding:10px;background:var(--bg2);border:1px solid var(--border);">
         <div class="lbl" style="margin-bottom:6px;">共通設定（全スロットに適用）</div>
@@ -486,15 +483,19 @@ function addOppSlot(pokeData) {
   const id = ++_oppSlotCounter;
   oppSlots.push({id, poke:pokeData||null, evPreset:'none', hpPct:100, ability:''});
   renderOppSlots();
-  if(oppSlots.length >= 6) document.getElementById('opp-add-btn').style.display='none';
   checkJudgeBtn();
 }
 
 function removeOppSlot(id) {
   oppSlots = oppSlots.filter(s=>s.id!==id);
   renderOppSlots();
-  document.getElementById('opp-add-btn').style.display='';
   checkJudgeBtn();
+}
+
+function initOppSlotsFixed() {
+  oppSlots = [];
+  _oppSlotCounter = 0;
+  for(let i=0;i<6;i++) addOppSlot();
 }
 
 function renderOppSlots() {
@@ -508,7 +509,7 @@ function renderOppSlots() {
     const abs = p ? (ABILITY_MAP[p.name]||[]) : [];
     const abOpts = '<option value="">なし/不明</option>' + abs.map(a=>`<option value="${a}"${slot.ability===a?' selected':''}>${a}</option>`).join('');
     return `<div class="opp-slot" id="opp-slot-${slot.id}">
-      <button class="opp-slot-remove" onclick="removeOppSlot(${slot.id})" title="削除">×</button>
+      <button class="opp-slot-remove" style="display:none;" onclick="removeOppSlot(${slot.id})" title="削除">×</button>
       <div class="opp-slot-head">
         <span class="opp-slot-num">${i+1}</span>
         <div class="sw" style="flex:1;margin-bottom:0;">
@@ -1120,8 +1121,8 @@ window.onload = async () => {
   setupPokeSearch('my-search','my-drop');
   setupMoveSearch();
 
-  // 最初の相手スロットを1つ追加
-  addOppSlot();
+  // 相手は固定6枠を初期表示
+  initOppSlotsFixed();
 };
 </script>
 
