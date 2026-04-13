@@ -455,6 +455,15 @@ const EV_PRESETS = {
   'A252':{hp:0,atk:252,def:0,spa:0,spd:0,spe:4},
   'C252':{hp:0,atk:0,def:0,spa:252,spd:0,spe:4},
   'S252':{hp:0,atk:0,def:0,spa:0,spd:0,spe:252},
+  // Champions向け（最大32）
+  'C_H32':{hp:32,atk:0,def:4,spa:0,spd:0,spe:0},
+  'C_B32':{hp:32,atk:0,def:32,spa:0,spd:0,spe:0},
+  'C_D32':{hp:32,atk:0,def:0,spa:0,spd:32,spe:0},
+  'C_HB':{hp:32,atk:0,def:32,spa:0,spd:0,spe:0},
+  'C_HD':{hp:32,atk:0,def:0,spa:0,spd:32,spe:0},
+  'C_A32':{hp:0,atk:32,def:0,spa:0,spd:0,spe:4},
+  'C_C32':{hp:0,atk:0,def:0,spa:32,spd:0,spe:4},
+  'C_S32':{hp:0,atk:0,def:0,spa:0,spd:0,spe:32},
 };
 const EV_PRESET_NAT = {
   'none':{atk:1,def:1,spa:1,spd:1},'H252':{atk:1,def:1,spa:1,spd:1},
@@ -462,6 +471,11 @@ const EV_PRESET_NAT = {
   'HB':{atk:0.9,def:1.1,spa:1,spd:1},'HD':{atk:1,def:1,spa:0.9,spd:1.1},
   'A252':{atk:1.1,def:1,spa:0.9,spd:1},'C252':{atk:0.9,def:1,spa:1.1,spd:1},
   'S252':{atk:1,def:1,spa:0.9,spd:1},
+  'C_H32':{atk:1,def:1,spa:1,spd:1},
+  'C_B32':{atk:0.9,def:1.1,spa:1,spd:1},'C_D32':{atk:1,def:1,spa:0.9,spd:1.1},
+  'C_HB':{atk:0.9,def:1.1,spa:1,spd:1},'C_HD':{atk:1,def:1,spa:0.9,spd:1.1},
+  'C_A32':{atk:1.1,def:1,spa:0.9,spd:1},'C_C32':{atk:0.9,def:1,spa:1.1,spd:1},
+  'C_S32':{atk:1,def:1,spa:0.9,spd:1},
 };
 
 function calcHP(b,iv,ev,lv,champ){ if(champ) return Math.floor((Math.floor((b*2+iv)*lv/100)+10+lv))+ev; return Math.floor((Math.floor((b*2+iv+Math.floor(ev/4))*lv/100)+10+lv)); }
@@ -528,6 +542,11 @@ function renderOppSlots() {
             <option value="HD"${slot.evPreset==='HD'?' selected':''}>HD</option>
             <option value="B252"${slot.evPreset==='B252'?' selected':''}>B252</option>
             <option value="D252"${slot.evPreset==='D252'?' selected':''}>D252</option>
+            <option value="C_H32"${slot.evPreset==='C_H32'?' selected':''}>[Champ] H32</option>
+            <option value="C_HB"${slot.evPreset==='C_HB'?' selected':''}>[Champ] HB</option>
+            <option value="C_HD"${slot.evPreset==='C_HD'?' selected':''}>[Champ] HD</option>
+            <option value="C_B32"${slot.evPreset==='C_B32'?' selected':''}>[Champ] B32</option>
+            <option value="C_D32"${slot.evPreset==='C_D32'?' selected':''}>[Champ] D32</option>
           </select>
         </div>
         <div>
@@ -698,7 +717,10 @@ function getOppStatsForSlot(slot) {
   const lv    = parseInt(document.getElementById('opp-lv').value)||50;
   const iv    = parseInt(document.getElementById('opp-iv').value)||31;
   const champ = document.getElementById('opp-mode-champ').checked;
-  const key   = slot.evPreset||'none';
+  const keyRaw = slot.evPreset||'none';
+  const key = (champ && !String(keyRaw).startsWith('C_'))
+    ? ({none:'none',H252:'C_H32',HB:'C_HB',HD:'C_HD',B252:'C_B32',D252:'C_D32'}[keyRaw]||'none')
+    : keyRaw;
   const ev    = EV_PRESETS[key]||EV_PRESETS['none'];
   const nat   = EV_PRESET_NAT[key]||{atk:1,def:1,spa:1,spd:1};
   const hp  = calcHP(p.hp, iv, ev.hp,  lv, champ);
