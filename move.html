@@ -75,7 +75,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .muted{font-size:11px;color:var(--text3);line-height:1.8;}
 .stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
 @media(max-width:1120px){.stage-grid{grid-template-columns:1fr;}}
-.slot-shell{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:start;}
+.slot-shell{display:grid;grid-template-columns:190px minmax(0,1fr);gap:14px;align-items:start;}
 @media(max-width:900px){.slot-shell{grid-template-columns:1fr;}}
 .slot-nav{display:flex;flex-direction:column;gap:8px;}
 .slot-btn{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:16px;padding:11px 12px;cursor:pointer;text-align:left;transition:all 0.18s;position:relative;overflow:hidden;}
@@ -100,12 +100,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 @media(max-width:620px){.editor-grid,.editor-grid.four,.editor-grid.two{grid-template-columns:1fr;}}
 .section-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
-.stat-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;}
-@media(max-width:1000px){.stat-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
 @media(max-width:560px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:10px;}
-.stat-name{font-size:10px;color:var(--text2);margin-bottom:4px;}
-.stat-input{width:100%;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 10px;}
+.stat-name{font-size:11px;color:var(--text2);margin-bottom:6px;letter-spacing:1px;}
+.stat-input{width:100%;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:18px;outline:none;}
+.field-note{font-size:10px;color:var(--text2);margin-top:5px;line-height:1.6;}
 .real-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
 .real-pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid var(--border);font-size:11px;color:var(--text3);} .real-pill strong{color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:500;}
 .move-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
@@ -180,7 +180,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <div>
       <div style="font-size:10px;color:var(--text2);letter-spacing:3px;margin-bottom:6px;">MOVE MATCHUP BOARD</div>
       <div class="page-title">6体 × 4技 × 6体</div>
-      <div class="page-desc">自分側は保存済みパーティ読み込み・ポケモン登録反映・自由入力の3通り。相手側は6体まで自由入力し、プリセットや性格まで調整したうえで、対面ごとのダメージをまとめて比較できます。</div>
+      <div class="page-desc">自分側は保存済みパーティ読み込み・ポケモン登録反映・自由入力の3通り。相手側は6体まで自由入力し、プリセットや性格まで調整したうえで、内定ポケモンを中心に対面ごとのダメージをまとめて比較できます。</div>
     </div>
   </div>
 
@@ -234,7 +234,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="summary-pill">技行 <strong>0</strong></div>
         <div class="summary-pill">対面結果 <strong>0</strong></div>
       </div>
-      <div class="muted" style="margin-top:10px;">6体×4技×6体まで埋めると 144 通りの結果になります。サイコショック系やボディプレス、イカサマも別扱いで計算します。</div>
+      <div class="muted" style="margin-top:10px;">6体×4技×6体まで埋めると 144 通りの結果になります。候補ポケモンの表示は内定ポケモン優先です。</div>
     </div>
   </div>
 
@@ -284,6 +284,9 @@ let ABILITY_MAP = {};
 let ABILITIES_DATA = [];
 let POKEMON_MOVES = {};
 let BELONGINGS = [];
+let SEASON_DATA = {seasons:[]};
+let confirmedPokemonNames = new Set();
+let confirmedPokemonList = [];
 let pokeIndex = [];
 let moveIndex = [];
 let moveByName = new Map();
@@ -354,13 +357,14 @@ function parseMaybeJson(txt){ try{return JSON.parse(txt);}catch(_e){} const t=St
 async function fetchJsonFlexible(url, fallback){ try{ const r = await fetch(url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now(), {cache:'no-store'}); if(!r.ok) throw new Error('fetch_failed'); const txt = (await r.text()).replace(/^\uFEFF/, '').trim(); if(!txt) return fallback; return parseMaybeJson(txt); } catch(e){ return fallback; } }
 async function loadGameData(){
   if(_dataLoaded) return;
-  const [pd, md, ad, abd, pmd, bd] = await Promise.all([
+  const [pd, md, ad, abd, pmd, bd, sd] = await Promise.all([
     fetchJsonFlexible('pokemon.json', []),
     fetchJsonFlexible('moves.json', []),
     fetchJsonFlexible('abilities.json', {}),
     fetchJsonFlexible('abilities_data.json', []),
     fetchJsonFlexible('pokemon_moves.json', {}),
-    fetchJsonFlexible('belongings.json', [])
+    fetchJsonFlexible('belongings.json', []),
+    fetchJsonFlexible('season.json', {seasons:[]})
   ]);
   POKEMON_DATA = Array.isArray(pd) ? pd : [];
   MOVES_DATA = Array.isArray(md) ? md : [];
@@ -368,17 +372,27 @@ async function loadGameData(){
   ABILITIES_DATA = Array.isArray(abd) ? abd : [];
   POKEMON_MOVES = normalizePokemonMoves(pmd);
   BELONGINGS = normalizeBelongings(bd);
+  SEASON_DATA = sd && typeof sd === 'object' ? sd : {seasons:[]};
+  confirmedPokemonNames = new Set(Array.isArray(SEASON_DATA['内定']) ? SEASON_DATA['内定'].map(name=>String(name||'').trim()).filter(Boolean) : []);
   pokeIndex = POKEMON_DATA.map((p,i)=>Object.assign({_i:i}, p));
+  confirmedPokemonList = pokeIndex.filter(p=>confirmedPokemonNames.has(String(p.name||'').trim()));
   moveIndex = MOVES_DATA.map((m,i)=>Object.assign({_i:i}, m));
   pokeByName = new Map(pokeIndex.map(p=>[String(p.name||'').trim(), p]));
   moveByName = new Map(moveIndex.map(m=>[String(m.name||'').trim(), m]));
   _dataLoaded = true;
 }
+function getSelectablePokemonList(){
+  return confirmedPokemonList.length ? confirmedPokemonList : pokeIndex;
+}
+function isConfirmedPokemonName(name){
+  const key = String(name || '').trim();
+  return !confirmedPokemonNames.size || confirmedPokemonNames.has(key);
+}
 function buildDataLists(){
   const pokeList = el('pokemon-datalist');
   const moveList = el('move-datalist');
   const itemList = el('item-datalist');
-  pokeList.innerHTML = pokeIndex.map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
+  pokeList.innerHTML = getSelectablePokemonList().map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
   moveList.innerHTML = moveIndex.filter(m=>m.category==='物理'||m.category==='特殊').map(m=>`<option value="${escapeAttr(m.name)}"></option>`).join('');
   itemList.innerHTML = BELONGINGS.map(item=>`<option value="${escapeAttr(getItemName(item))}"></option>`).join('');
 }
@@ -512,7 +526,8 @@ function renderSelfEditor(){
       </div>
       <div>
         <div class="label">ポケモン名</div>
-        <input class="input" list="pokemon-datalist" value="${escapeAttr(slot.pokeName)}" onchange="setSlotPokemonName('self',${activeSelfIndex},this.value)" placeholder="自由に選ぶ">
+        <input class="input" list="pokemon-datalist" value="${escapeAttr(slot.pokeName)}" onchange="setSlotPokemonName('self',${activeSelfIndex},this.value)" placeholder="内定ポケモンから選ぶ">
+        <div class="field-note">候補表示は内定ポケモンのみです。</div>
       </div>
     </div>
 
@@ -573,7 +588,8 @@ function renderOppEditor(){
     <div class="editor-grid two">
       <div>
         <div class="label">ポケモン名</div>
-        <input class="input" list="pokemon-datalist" value="${escapeAttr(slot.pokeName)}" onchange="setSlotPokemonName('opp',${activeOppIndex},this.value)" placeholder="自由に選ぶ">
+        <input class="input" list="pokemon-datalist" value="${escapeAttr(slot.pokeName)}" onchange="setSlotPokemonName('opp',${activeOppIndex},this.value)" placeholder="内定ポケモンから選ぶ">
+        <div class="field-note">候補表示は内定ポケモンのみです。</div>
       </div>
       <div>
         <div class="label">努力値プリセット</div>
@@ -659,6 +675,9 @@ function setSlotPokemonName(side, index, value){
   if(poke){
     ensureAbility(slot);
     if(side==='self') ensureMoves(slot);
+    if(!isConfirmedPokemonName(name)){
+      setPageStatus('候補表示は内定ポケモンのみです。入力した「' + name + '」はそのまま保持しています。');
+    }
   } else {
     slot.ability = '';
   }
@@ -907,7 +926,7 @@ window.onload = async()=>{
   buildDataLists();
   renderAll();
   applyImmediateThemeButton();
-  setPageStatus('保存済みパーティ・ポケモン登録・自由入力を混ぜて使えます。');
+  setPageStatus('候補表示は内定ポケモンのみです。努力値は見やすい3列表示にしています。');
 };
 </script>
 <script>
