@@ -196,6 +196,11 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
 .dropdown.show{display:block;}
 .drop-item{padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);transition:background 0.12s;}
 .drop-item:hover{background:var(--bg2);}
+.quick-chip-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.quick-chip{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;cursor:pointer;line-height:1.35;transition:all 0.18s;border-radius:999px;}
+.quick-chip:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);}
+.quick-chip.subtle{color:var(--text2);border-style:dashed;cursor:default;}
+.ability-select{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;border-radius:12px;}
 /* 種族値バー */
 .base-stat-box{background:var(--bg2);border:1px solid var(--border);padding:10px 12px;margin-top:8px;}
 .bstat-row{display:grid;grid-template-columns:48px 1fr 28px;align-items:center;gap:6px;margin-bottom:5px;}
@@ -405,7 +410,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <!-- 基本設定 -->
       <div class="section">
         <div class="sec-title">基本設定</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
           <div>
             <label>レベル</label>
             <input type="number" id="f-lv" value="50" min="1" max="100">
@@ -431,7 +436,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <option value="うっかりや">うっかりや（特攻↑特防↓）</option>
             <option value="れいせい">れいせい（特攻↑素早↓）</option>
             <option value="おだやか">おだやか（特防↑攻↓）</option>
-            <option value="おとなしい">おとなしい（特防↑防↓）</option>
+            <option value="おとなしい">おとなしい（特防↑特攻↓）</option>
             <option value="しんちょう">しんちょう（特防↑特攻↓）</option>
             <option value="なまいき">なまいき（特防↑素早↓）</option>
             <option value="おくびょう">おくびょう（素早↑攻↓）</option>
@@ -440,10 +445,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <option value="むじゃき">むじゃき（素早↑特防↓）</option>
           </select>
           </div>
+          <div>
+            <label>特性</label>
+            <select id="f-ability" class="ability-select"></select>
+          </div>
         </div>
         <label>持ち物</label>
         <input type="text" id="f-item" list="item-master-list" placeholder="アイテム一覧から検索して選択">
-        <div style="font-size:10px;color:var(--text2);margin-top:4px;">アイテム一覧にある持ち物名から検索して選べます</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:4px;line-height:1.8;">持ち物はアイテム一覧から、特性はそのポケモンの候補から選べます</div>
       </div>
 
       <!-- 個体値 -->
@@ -538,6 +547,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <input class="search-input" id="move-search" type="text" placeholder="技名を入力して追加..." autocomplete="off" style="font-size:12px;">
           <div class="dropdown" id="move-drop"></div>
         </div>
+        <div id="move-quick" class="quick-chip-wrap"></div>
+        <div id="move-quick-note" style="font-size:10px;color:var(--text2);margin-top:6px;line-height:1.8;">ポケモンを選ぶと、候補技をここから追加できます。</div>
       </div>
 
       <!-- メモ -->
@@ -572,6 +583,7 @@ let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
 let ITEMS_DATA   = [];
+let POKEMON_MOVES = {};
 let pokeIndex    = [];
 let moveIndex    = [];
 let _dataLoaded  = false;
@@ -579,18 +591,20 @@ let _dataLoaded  = false;
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata] = await Promise.all([
+    const [pd, md, ad, sd, idata, pmdata] = await Promise.all([
       fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
       fetch('moves.json?v='+Date.now()).then(r=>r.json()),
       fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
       fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
       fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
+      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
     ]);
     POKEMON_DATA = pd;
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
     ITEMS_DATA   = Array.isArray(idata) ? idata : [];
+    POKEMON_MOVES = pmdata && pmdata.pokemon ? pmdata.pokemon : {};
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     _dataLoaded  = true;
@@ -617,6 +631,53 @@ function setupItemMasterList(){
     names.push(name);
   });
   list.innerHTML=['<option value=""></option>'].concat(names.map(name=>`<option value="${name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}"></option>`)).join('');
+}
+function normalizeNatureName(value){
+  const v=String(value||'').trim();
+  return (!v || v==='おとぼけ') ? 'がんばりや' : v;
+}
+function getAbilityOptions(pokeName){
+  const list = ABILITY_MAP && ABILITY_MAP[pokeName];
+  return Array.isArray(list) ? list.filter(Boolean) : [];
+}
+function renderAbilityOptions(pokeName, selected){
+  const sel=document.getElementById('f-ability');
+  if(!sel) return;
+  const options=getAbilityOptions(pokeName);
+  const current=selected || options[0] || '';
+  sel.innerHTML=['<option value="">特性を選択</option>'].concat(options.map(name=>`<option value="${name}">${name}</option>`)).join('');
+  sel.value = current && options.includes(current) ? current : '';
+}
+function getPokemonKnownMoves(pokeName){
+  const row = POKEMON_MOVES && POKEMON_MOVES[pokeName];
+  return row && Array.isArray(row.moves) ? row.moves : [];
+}
+function renderMoveQuick(pokeName){
+  const wrap=document.getElementById('move-quick');
+  const note=document.getElementById('move-quick-note');
+  if(!wrap || !note) return;
+  const moves=getPokemonKnownMoves(pokeName);
+  if(!pokeName){
+    wrap.innerHTML='';
+    note.textContent='ポケモンを選ぶと、候補技をここから追加できます。';
+    return;
+  }
+  if(!moves.length){
+    wrap.innerHTML='<span class="quick-chip subtle">候補技データなし</span>';
+    note.textContent='候補技データがない場合は、下の検索欄から追加してください。';
+    return;
+  }
+  wrap.innerHTML=moves.slice(0,24).map((m,idx)=>`<button type="button" class="quick-chip" onclick="addKnownMove(${idx})">${m.name}</button>`).join('');
+  note.textContent='よく使う候補技を上に出しています。タップで追加できます。';
+}
+function addKnownMove(idx){
+  const moves=getPokemonKnownMoves(currentPokeData?.name||'');
+  const m=moves[idx];
+  if(!m) return;
+  if(currentMoves.length>=4){alert('技は4つまでです');return;}
+  if(currentMoves.find(x=>x.name===m.name)){alert('同じ技は登録できません');return;}
+  currentMoves.push({name:m.name,type:m.type,power:m.power||'',category:m.category||''});
+  renderMoves();
 }
 
 // POKEMON_DATA: 外部JSONから読み込み (loadGameData)
@@ -814,6 +875,8 @@ function selectPoke(name) {
   const t1=p.type1?`<span class="type-pill tp-${p.type1}">${p.type1}</span>`:'';
   const t2=p.type2?`<span class="type-pill tp-${p.type2}">${p.type2}</span>`:'';
   document.getElementById('edit-types').innerHTML=t1+t2;
+  renderAbilityOptions(p.name, document.getElementById('f-ability')?.value || getAbilityOptions(p.name)[0] || '');
+  renderMoveQuick(p.name);
   // 種族値バー
   const statKeys=[{k:'hp',l:'HP',c:'#e53935'},{k:'atk',l:'攻撃',c:'#fb8c00'},{k:'def',l:'防御',c:'#fdd835'},{k:'spa',l:'特攻',c:'#1e88e5'},{k:'spd',l:'特防',c:'#00acc1'},{k:'spe',l:'素早',c:'#43a047'}];
   const box=document.getElementById('base-stats-box');
@@ -1041,6 +1104,7 @@ async function exportPokemonCardImage(){
     const infoRows=[
       ['レベル',String(data.level)],
       ['性格',data.nature],
+      ['特性',data.ability||'なし'],
       ['持ち物',data.item],
       ['個体値',`全ステータス ${data.iv}`],
       ['努力値',`H${data.ev.hp} A${data.ev.atk} B${data.ev.def} C${data.ev.spa} D${data.ev.spd} S${data.ev.spe}`]
@@ -1125,6 +1189,7 @@ async function exportPokemonCardImage(){
       `ゲーム: ${data.gameMode}`,
       `登録技数: ${data.moves.length} / 4`,
       `努力値合計: ${data.ev.hp+data.ev.atk+data.ev.def+data.ev.spa+data.ev.spd+data.ev.spe}`,
+      data.ability ? `特性: ${data.ability}` : '特性: なし',
       data.item!=='なし' ? `持ち物: ${data.item}` : '持ち物: なし',
       data.memo && data.memo!=='メモなし' ? 'メモあり' : 'メモなし'
     ];
@@ -1195,7 +1260,9 @@ function newPokemon() {
   document.getElementById('poke-search').value='';
   document.getElementById('nickname').value='';
   document.getElementById('f-lv').value=50;
-  document.getElementById('f-nature').value='おっとり';
+  document.getElementById('f-nature').value='がんばりや';
+  renderAbilityOptions('', '');
+  renderMoveQuick('');
   document.getElementById('f-item').value='';
   document.getElementById('f-memo').value='';
   document.getElementById('iv-range').value=31;
@@ -1209,6 +1276,7 @@ function newPokemon() {
   });
   updateEVRemain();
   renderMoves();
+  renderMoveQuick(currentPokeData ? currentPokeData.name : '');
   renderRegList(document.getElementById('reg-search').value);
 }
 
@@ -1228,7 +1296,8 @@ async function savePokemon() {
     type1: currentPokeData?currentPokeData.type1:'',
     type2: currentPokeData?currentPokeData.type2:'',
     lv:  parseInt(document.getElementById('f-lv').value)||50,
-    nature: document.getElementById('f-nature').value,
+    nature: normalizeNatureName(document.getElementById('f-nature').value),
+    ability: document.getElementById('f-ability') ? document.getElementById('f-ability').value : '',
     item: normalizeItemName(document.getElementById('f-item').value),
     iv:  parseInt(document.getElementById('iv-num').value)||31,
     ev:  getEVs(),
@@ -1259,7 +1328,8 @@ function loadPokemon(id) {
   document.getElementById('poke-search').value=rec.pokeName||'';
   document.getElementById('nickname').value=rec.nickname||'';
   document.getElementById('f-lv').value=rec.lv||50;
-  document.getElementById('f-nature').value=(rec.nature==='おとぼけ'?'まじめ':(rec.nature||'おっとり'));
+  document.getElementById('f-nature').value=normalizeNatureName(rec.nature);
+  renderAbilityOptions(rec.pokeName||'', rec.ability || '');
   document.getElementById('f-item').value=normalizeItemName(rec.item||'');
   document.getElementById('f-memo').value=rec.memo||'';
   document.getElementById('iv-range').value=rec.iv||31;
