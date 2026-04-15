@@ -312,6 +312,13 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
   line-height:1.8;
   color:var(--text2);
 }
+.mobile-result-bar{display:none;}
+.mobile-result-progress{height:5px;background:rgba(255,255,255,0.08);}
+.mobile-result-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--accent3));transition:width 0.25s ease;}
+.mobile-result-summary{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 24px;gap:10px;align-items:center;border:none;background:none;color:var(--text);padding:10px 14px 12px;text-align:left;}
+.mobile-result-summary-main{font-family:'Bebas Neue',sans-serif;font-size:16px;line-height:1.2;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mobile-result-summary-sub{font-size:11px;line-height:1.5;color:var(--text2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mobile-result-summary-icon{font-size:18px;color:var(--text2);text-align:right;}
 
 .dmg-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1;text-shadow:0 0 20px rgba(0,200,240,0.3);}
 .dmg-pct{font-family:'JetBrains Mono',monospace;font-size:26px;color:var(--accent);margin-top:4px;}
@@ -479,10 +486,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 }
 
 @media(max-width:980px){
+  body.mobile-result-padding{padding-bottom:88px;}
   .damage-workspace{grid-template-columns:1fr;gap:12px;}
   .damage-main-col{order:1;}
   .damage-side-col{order:2;}
   .result-sticky{position:static;top:auto;}
+  .result-placeholder{display:none;}
+  .mobile-result-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:950;background:rgba(7,9,15,0.98);backdrop-filter:blur(18px);border-top:1px solid var(--border2);box-shadow:0 -10px 28px rgba(0,0,0,0.35);}
+  .mobile-result-bar[hidden]{display:none !important;}
 }
 @media(max-width:900px){
   .calc-grid{grid-template-columns:1fr;}
@@ -1124,6 +1135,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       </div>
     </div>
 
+    <div class="mobile-result-bar" id="mobile-result-bar" hidden>
+      <div class="mobile-result-progress"><div class="mobile-result-progress-fill" id="mobile-result-progress-fill"></div></div>
+      <button type="button" class="mobile-result-summary" onclick="scrollToResultBox()">
+        <div>
+          <div class="mobile-result-summary-main" id="mobile-result-summary-main">ダメージ結果はここに表示されます</div>
+          <div class="mobile-result-summary-sub" id="mobile-result-summary-sub">計算後に固定表示されます</div>
+        </div>
+        <span class="mobile-result-summary-icon">⌃</span>
+      </button>
+    </div>
+
     <!-- 加算計算セクション -->
     <div class="add-section" id="add-section" style="display:none;">
       <div class="add-section-title">加算ダメージ計算（2体 × 2技）</div>
@@ -1734,7 +1756,38 @@ function calcBaseDamageRolls(lv, effPow, effAtk, effDef, stab, eff, itemMult, dm
 function clearSelectedMove(){
   ['atk-move-search','atk-move-pow','atk-move-type','atk-move-cat','atk-move-hits','atk-move-notes','atk-move-crit'].forEach(id=>{ if(el(id)) el(id).value=''; });
   renderSelectedMoveInfo('atk',null);
+  hideMobileResultBar();
 }
+function hideMobileResultBar(){
+  const bar=el('mobile-result-bar');
+  if(bar) bar.hidden=true;
+  document.body.classList.remove('mobile-result-padding');
+}
+function updateMobileResultBar(){
+  const bar=el('mobile-result-bar');
+  if(!bar) return;
+  const box=el('result-box');
+  if(!box || !box.classList.contains('show')){
+    hideMobileResultBar();
+    return;
+  }
+  const num=(el('dmg-num')?.textContent||'—').replace(/\s+/g,' ').trim();
+  const pct=(el('dmg-pct')?.textContent||'').replace(/\s+/g,' ').trim();
+  const ko=(el('ko-tag')?.innerText||'').replace(/\s+/g,' ').trim();
+  const desc=(el('dmg-desc')?.textContent||'').replace(/\s+/g,' ').trim();
+  const width=(el('dmg-bar')?.style.width||'0%').trim()||'0%';
+  if(el('mobile-result-summary-main')) el('mobile-result-summary-main').textContent=[num,pct?`(${pct})`:'',ko].filter(Boolean).join(' ');
+  if(el('mobile-result-summary-sub')) el('mobile-result-summary-sub').textContent=desc||'タップで詳細を確認';
+  if(el('mobile-result-progress-fill')) el('mobile-result-progress-fill').style.width=width;
+  bar.hidden=false;
+  document.body.classList.add('mobile-result-padding');
+}
+function scrollToResultBox(){
+  const box=el('result-box');
+  if(!box) return;
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function normalizeMoveFromPokemonEntry(entry){
   if(!entry) return null;
   const known = moveIndex.find(m=>m.name===entry.name);
@@ -2032,6 +2085,7 @@ function clearDamageSetupSelection(){
   window._defStats = null;
   clearSelectedMove();
   if(el('result-box')) el('result-box').classList.remove('show');
+  hideMobileResultBar();
   renderQuickMoveChips('');
   updateDamageSetupSummary();
 }
@@ -3112,6 +3166,7 @@ function calcDamage(options={}) {
   else if(judgeMn*3>=100) {kt.innerHTML='<span class="ko-tag ko3">確定3発</span>';el('dmg-desc').textContent=judgePrefix+'3回で確実に倒せます';}
   else if(judgeMx*3>=100) {kt.innerHTML='<span class="ko-tag ko3">乱数3発</span>';el('dmg-desc').textContent=judgePrefix+'乱数次第で3発で倒せます';}
   else                {kt.innerHTML='<span class="ko-tag ko3">4発以上</span>';el('dmg-desc').textContent=judgePrefix+'4回以上必要です';}
+  updateMobileResultBar();
   return true;
 }
 function showResult0(abName){
@@ -3123,6 +3178,7 @@ function showResult0(abName){
   el('ko-tag').innerHTML='<span class="ko-tag ko3">無効</span>';
   el('dmg-desc').textContent='特性により無効化されます';
   el('dmg-rolls').innerHTML='';
+  updateMobileResultBar();
 }
 
 // ===== 加算計算 =====
@@ -3764,6 +3820,7 @@ window.onload = async()=>{
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  hideMobileResultBar();
 };
 </script>
 <script>
