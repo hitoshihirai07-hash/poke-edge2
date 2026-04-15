@@ -504,9 +504,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   body.mobile-result-padding{padding-bottom:88px;}
   .damage-workspace{grid-template-columns:1fr;gap:12px;}
   .damage-main-col{order:1;}
-  .damage-side-col{order:2;}
+  .damage-side-col{display:none;}
   .result-sticky{position:static;top:auto;}
   .result-placeholder{display:none;}
+  #mobile-inline-result-anchor .result-box{margin-top:12px;}
   .mobile-result-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:950;background:rgba(7,9,15,0.98);backdrop-filter:blur(18px);border-top:1px solid var(--border2);box-shadow:0 -10px 28px rgba(0,0,0,0.35);}
   .mobile-result-bar[hidden]{display:none !important;}
 }
@@ -1117,10 +1118,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <button id="add-toggle-btn" onclick="toggleAddMode()" style="background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 16px;cursor:pointer;font-size:11px;font-family:'Noto Sans JP',sans-serif;letter-spacing:1px;transition:all 0.18s;">＋ 加算計算を使う</button>
       <span style="font-size:10px;color:var(--text2);">2体・2技の合計ダメージで倒せるか判定</span>
     </div>
+    <div id="mobile-inline-result-anchor"></div>
       </div>
 
       <div class="damage-side-col">
         <div class="result-sticky">
+          <div id="desktop-result-anchor"></div>
           <div class="result-placeholder" id="result-placeholder">
             <div class="result-placeholder-title">計算結果</div>
             <div class="result-placeholder-main">ここに結果を固定表示します。</div>
@@ -1827,6 +1830,24 @@ function updateMobileResultBar(){
   bar.hidden=false;
   document.body.classList.add('mobile-result-padding');
 }
+function syncResponsiveResultPlacement(){
+  const box=el('result-box');
+  const desktopAnchor=el('desktop-result-anchor');
+  const mobileAnchor=el('mobile-inline-result-anchor');
+  if(!box || !desktopAnchor || !mobileAnchor) return;
+  const mobile=window.innerWidth<=980;
+  const sticky=desktopAnchor.parentElement;
+  if(mobile){
+    if(box.parentElement!==mobileAnchor){
+      mobileAnchor.appendChild(box);
+    }
+  }else{
+    if(box.parentElement!==sticky || box.previousElementSibling!==desktopAnchor){
+      sticky.insertBefore(box, desktopAnchor.nextSibling);
+    }
+  }
+}
+
 function scrollToResultBox(){
   const box=el('result-box');
   if(!box) return;
@@ -3266,6 +3287,7 @@ function calcDamage(options={}) {
   } else {hitPatterns.push(hitsInfo.min);}
 
   el('result-box').classList.add('show');
+  syncResponsiveResultPlacement();
   el('dmg-num').textContent=isTripleEscalating
     ? `${totalMn} 〜 ${totalMx}（${tripleHits.join('+')}）`
     : parentalBondActive
@@ -4016,8 +4038,10 @@ window.onload = async()=>{
   el('poke-picker-search')?.addEventListener('input',renderPokemonPickerList);
   el('poke-picker-modal')?.addEventListener('click',e=>{ if(e.target===el('poke-picker-modal')) closePokemonPicker(); });
   el('mobile-search-modal')?.addEventListener('click',e=>{ if(e.target===el('mobile-search-modal')) closeMobileSearchModal(); });
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); closeMobileSearchModal(); } });
   renderQuickMoveChips('');
+  syncResponsiveResultPlacement();
+  window.addEventListener('resize', syncResponsiveResultPlacement);
   updateDamageSetupSummary();
   hideMobileResultBar();
 };
