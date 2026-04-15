@@ -538,6 +538,158 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .card-title{font-size:11px;}
 }
 /* ===== ライトモード ===== */
+
+
+
+@media(max-width:768px){
+  .mobile-mode-row{
+    display:grid !important;
+    grid-template-columns:1fr;
+    gap:6px;
+    align-items:start !important;
+  }
+  .mobile-mode-row > span{
+    font-size:11px !important;
+  }
+  .mobile-mode-row > label{
+    margin-top:0;
+    margin-bottom:0;
+  }
+}
+
+/* ===== スマホ時の見やすさ調整 ===== */
+@media(max-width:768px){
+  .card{padding:12px;}
+  .setup-entry{padding:12px;}
+  .setup-entry-summary{line-height:1.7;}
+  .poke-card{
+    padding:10px;
+    margin-top:6px;
+    border-color:var(--border2);
+  }
+  .poke-no{
+    display:none;
+  }
+  .poke-name{
+    font-size:18px;
+    line-height:1.25;
+    margin:0;
+  }
+  .poke-types{
+    margin:6px 0 4px;
+    gap:3px;
+  }
+  #atk-basestats,
+  #def-basestats,
+  #atk2-basestats{
+    display:none;
+  }
+  #atk-abilities,
+  #def-abilities,
+  #atk2-abilities{
+    margin-top:4px !important;
+    gap:4px !important;
+  }
+  #atk-abilities > span,
+  #def-abilities > span,
+  #atk2-abilities > span{
+    font-size:9px !important;
+    padding:2px 6px !important;
+  }
+  label{
+    margin-top:6px;
+    margin-bottom:4px;
+    font-size:11px;
+  }
+  input[type=text],
+  input[type=number],
+  select,
+  .search-input{
+    padding:8px 10px;
+    font-size:16px;
+  }
+  .slider-row{
+    margin-bottom:10px;
+  }
+  .slider-header{
+    margin-bottom:4px;
+  }
+  .slider-inputs{
+    grid-template-columns:minmax(0,1fr) 64px;
+    gap:8px;
+  }
+  .slider-val{
+    font-size:12px;
+  }
+  .real-stat-box{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    padding:10px;
+  }
+  .real-stat-row{
+    display:block;
+    margin:0;
+    padding:8px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+  }
+  .real-stat-label{
+    width:auto;
+    display:block;
+    margin-bottom:4px;
+    font-size:10px;
+  }
+  .real-stat-val{
+    display:block;
+    font-size:20px;
+    line-height:1.05;
+  }
+  .real-stat-note{
+    display:block;
+    margin-top:4px;
+    font-size:9px;
+    line-height:1.45;
+  }
+  .corr-section{
+    padding:8px;
+  }
+  .corr-grid{
+    grid-template-columns:1fr !important;
+    gap:8px;
+  }
+  .quick-action-row,
+  .setup-entry-actions,
+  .party-actions{
+    gap:6px;
+  }
+  .quick-action-btn,
+  .party-action-btn,
+  .save-btn{
+    padding:8px 10px;
+    font-size:11px;
+  }
+  .quick-chip{
+    padding:6px 8px;
+    font-size:10px;
+  }
+  .card-title{
+    margin-bottom:10px;
+  }
+  .main-btn{
+    margin:10px 0;
+  }
+}
+@media(max-width:560px){
+  .real-stat-box{
+    grid-template-columns:1fr;
+  }
+  .quick-action-row .quick-action-btn,
+  .setup-entry-actions .quick-action-btn{
+    width:100%;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4074,5 +4226,21 @@ function toggleTheme(){
 function toggleNav(){var nav=document.querySelector('.header-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.toggle('open');hb.classList.toggle('open');ov.classList.toggle('show');}
 function closeNav(){var nav=document.querySelector('.header-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
 </script>
+
+<script>
+(function(){
+  function applyMobileCalcClasses(){
+    ['atk-mode-classic','def-mode-classic','atk2-mode-classic'].forEach(function(id){
+      var radio=document.getElementById(id);
+      if(!radio) return;
+      var wrap=radio.closest('div[style*="display:flex"]');
+      if(wrap) wrap.classList.add('mobile-mode-row');
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', applyMobileCalcClasses);
+  else applyMobileCalcClasses();
+})();
+</script>
+
 </body>
 </html>
