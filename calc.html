@@ -2856,6 +2856,7 @@ function calcDamage(options={}) {
   const effAtk=Math.floor(atkStat*atkStatMult*atkRank);
   const effDef=Math.floor(defStat*defStatMult*defRank);
   const effPow=Math.floor(power*powerMult*skinMult);
+  const parentalBondActive = atkAbName==='おやこあい' && !isParentalBondBlocked(moveName, hitsInfo);
 
   // 16乱数ダメージ
   let mn, mx, totalMn, totalMx, pmn, pmx, rolls, dmg1Min, dmg1Max;
