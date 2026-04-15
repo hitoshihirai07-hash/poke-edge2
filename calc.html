@@ -248,6 +248,13 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .main-btn:hover{opacity:0.85;transform:translateY(-1px);}
 .result-box{background:var(--bg2);border:1px solid var(--border);padding:16px;display:none;}
 .result-box.show{display:block;}
+.damage-workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start;}
+.damage-main-col,.damage-side-col{min-width:0;}
+.damage-side-col{display:block;}
+.result-sticky{position:sticky;top:66px;display:flex;flex-direction:column;gap:12px;}
+.result-placeholder{background:var(--panel);border:1px solid var(--border);padding:14px;}
+.result-placeholder.hide{display:none;}
+#inline-result-anchor{display:none;}
 .dmg-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1;text-shadow:0 0 20px rgba(0,200,240,0.3);}
 .dmg-pct{font-family:'JetBrains Mono',monospace;font-size:26px;color:var(--accent);margin-top:4px;}
 .dmg-bar-wrap{height:8px;background:var(--bg);overflow:hidden;margin:8px 0;}
@@ -437,12 +444,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .mobile-result-summary-sub{font-size:11px;color:var(--text2);line-height:1.5;margin-top:2px;}
 .mobile-result-summary-icon{font-size:18px;color:var(--accent3);flex-shrink:0;}
 @media(max-width:768px){
-  .damage-workspace{grid-template-columns:1fr !important;gap:12px;}
+  .damage-workspace{display:block;gap:12px;}
   .damage-main-col,.damage-side-col,.calc-grid,.card,.setup-entry,.result-box,.add-section,.add-card{min-width:0;}
   .result-placeholder{display:none !important;}
   .mobile-result-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:140;border-top:1px solid var(--border2);box-shadow:0 -10px 24px rgba(0,0,0,0.35);}
-  .damage-side-col{order:2;}
+  .damage-side-col{display:none;}
   .result-sticky{gap:0;}
+  #inline-result-anchor{display:block;}
   .result-box{padding:12px;}
   .result-box .sec{margin-bottom:8px;}
   footer{padding-bottom:82px;}
@@ -1245,6 +1253,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   </div>
 </div>
 
+<div class="mobile-result-bar" id="mobile-result-bar" hidden>
+  <div class="mobile-result-progress"><div class="mobile-result-progress-fill" id="mobile-result-progress-fill"></div></div>
+  <button type="button" class="mobile-result-summary" onclick="scrollToResultBox()">
+    <span>
+      <span class="mobile-result-summary-main" id="mobile-result-summary-main">ダメージ結果はここに表示されます</span>
+      <span class="mobile-result-summary-sub" id="mobile-result-summary-sub">攻撃側・防御側・技を決めると自動更新されます</span>
+    </span>
+    <span class="mobile-result-summary-icon">⌃</span>
+  </button>
+</div>
+
 <footer>
   <div class="footer-logo">PokeEdge</div>
   <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>ポケモン1210種・技520種対応</div>
@@ -1814,26 +1833,29 @@ function renderDamageSetupPicked(kind){
   box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(types)}</div>`;
 }
 function renderDamageSetupLists(){
+  const isMobileSetup = window.innerWidth <= 768;
   ['atk','def'].forEach(kind=>{
     const list = el(`setup-${kind}-list`);
     if(!list) return;
     const selectedName = _damageSetupState[`${kind}Name`];
-    const items = getSetupPokemonItems(kind);
+    const q = (el(`setup-${kind}-search`)?.value||'').trim();
+    const items = (isMobileSetup && !q) ? [] : getSetupPokemonItems(kind);
     list.innerHTML = items.map(p=>{
       const selected = selectedName===p.name ? ' is-selected' : '';
       const types = [p.type1,p.type2].filter(Boolean).join(' / ');
       return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('${kind}','${encodeJsArg(p.name)}')"><div class="picker-item-no">#${String(p.no).padStart(3,'0')}</div><div class="picker-item-name">${escapeHtml(p.name)}</div><div class="damage-setup-item-meta">${escapeHtml(types||'タイプ不明')}</div></button>`;
-    }).join('') || '<div class="quick-note">該当するポケモンがありません。</div>';
+    }).join('') || `<div class="quick-note">${isMobileSetup && !q ? '検索して候補を表示します。' : '該当するポケモンがありません。'}</div>`;
   });
   const moveList = el('setup-move-list');
   if(moveList){
-    const items = getSetupMoveItems();
+    const q = (el('setup-move-search')?.value||'').trim();
+    const items = (isMobileSetup && !q) ? [] : getSetupMoveItems();
     moveList.innerHTML = items.map(m=>{
       const selected = _damageSetupState.moveName===m.name ? ' is-selected' : '';
       const extra = [m.type||'—', m.category||'—', `威力 ${m.power ?? '—'}`];
       const known = m._known ? '判明技を優先表示' : '';
       return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('move','${encodeJsArg(m.name)}')"><div class="picker-item-name">${escapeHtml(m.name)}</div><div class="damage-setup-item-meta">${escapeHtml(extra.join(' / '))}${known?`<br>${escapeHtml(known)}`:''}</div></button>`;
-    }).join('') || '<div class="quick-note">該当する技がありません。</div>';
+    }).join('') || `<div class="quick-note">${isMobileSetup && !q ? '技名を入れると候補を表示します。' : '該当する技がありません。'}</div>`;
   }
   renderDamageSetupPicked('atk');
   renderDamageSetupPicked('def');
@@ -3326,7 +3348,68 @@ function setupEvents(){
 }
 
 
+
+function ensureDamageWorkspace(){
+  const tab=el('tab-damage');
+  const setup=tab?.querySelector('.setup-entry');
+  const resultBox=el('result-box');
+  if(!tab || !setup || !resultBox) return;
+  if(!el('damage-workspace')){
+    const workspace=document.createElement('div');
+    workspace.className='damage-workspace';
+    workspace.id='damage-workspace';
+    const main=document.createElement('div');
+    main.className='damage-main-col';
+    main.id='damage-main-col';
+    const inlineAnchor=document.createElement('div');
+    inlineAnchor.id='inline-result-anchor';
+    const side=document.createElement('aside');
+    side.className='damage-side-col';
+    side.id='damage-side-col';
+    const sticky=document.createElement('div');
+    sticky.className='result-sticky';
+    sticky.id='result-sticky';
+    const placeholder=document.createElement('div');
+    placeholder.className='result-placeholder card';
+    placeholder.id='result-placeholder';
+    placeholder.innerHTML='<div class="card-title">計算結果</div><div style="font-size:12px;color:var(--text3);line-height:1.8;">ここにダメージ結果を表示します。攻撃側・防御側・技を決めたあと、努力値や性格、ランクを変えるたびに更新されます。</div>';
+    sticky.appendChild(placeholder);
+    side.appendChild(sticky);
+
+    const moving=[];
+    let node=setup.nextElementSibling;
+    while(node){
+      const next=node.nextElementSibling;
+      if(node.id==='damage-workspace' || node.id==='mobile-result-bar') break;
+      moving.push(node);
+      node=next;
+    }
+    moving.forEach(child=>{
+      if(child===resultBox) return;
+      if(child.id==='add-section') main.appendChild(inlineAnchor);
+      main.appendChild(child);
+    });
+    if(!inlineAnchor.parentNode) main.appendChild(inlineAnchor);
+    workspace.appendChild(main);
+    workspace.appendChild(side);
+    setup.insertAdjacentElement('afterend', workspace);
+  }
+  placeResultBoxForViewport();
+}
+function placeResultBoxForViewport(){
+  const box=el('result-box');
+  const inlineAnchor=el('inline-result-anchor');
+  const sticky=el('result-sticky');
+  if(!box || !inlineAnchor || !sticky) return;
+  if(window.innerWidth<=768){
+    if(box.parentElement!==inlineAnchor) inlineAnchor.appendChild(box);
+  }else{
+    if(box.parentElement!==sticky) sticky.appendChild(box);
+  }
+}
+
 function updateResultAreaState(){
+  placeResultBoxForViewport();
   const placeholder=el('result-placeholder');
   const resultBox=el('result-box');
   const hasResult=!!(resultBox && resultBox.classList.contains('show'));
@@ -3382,7 +3465,9 @@ window.onload = async()=>{
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  ensureDamageWorkspace();
   updateResultAreaState();
+  window.addEventListener('resize', ()=>{ placeResultBoxForViewport(); renderDamageSetupLists(); updateMobileResultBar(); });
 };
 </script>
 <script>
