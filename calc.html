@@ -301,6 +301,8 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .mobile-search-item-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .mobile-search-item-meta{font-size:10px;color:var(--text2);line-height:1.7;}
 .mobile-search-empty{padding:18px 12px;border:1px dashed var(--border2);font-size:11px;color:var(--text2);line-height:1.8;text-align:center;}
+.setup-mobile-search-btn{display:none;width:100%;margin-top:8px;background:transparent;border:1px solid var(--border2);color:var(--accent);padding:9px 12px;font-size:11px;cursor:pointer;letter-spacing:1px;text-align:center;}
+.setup-mobile-search-btn:hover{border-color:var(--accent);background:rgba(0,200,240,0.08);}
 
 .result-placeholder{
   background:var(--bg2);
@@ -519,6 +521,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .mobile-search-head{padding:12px 14px;}
   .mobile-search-body{padding:12px 12px 18px;}
   .mobile-search-item{padding:12px;}
+  .damage-setup-list{display:none;}
+  .setup-mobile-search-btn{display:block;}
+  .damage-setup-col-head .search-input{cursor:pointer;}
   .result-placeholder-main{font-size:20px;}
   .result-placeholder-sub{font-size:11px;}
   .layout{padding:12px 10px;gap:12px;}
@@ -1342,6 +1347,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="damage-setup-col-head">
           <div class="damage-setup-col-title">攻撃側</div>
           <input type="text" id="setup-atk-search" class="search-input" placeholder="攻撃側ポケモンを検索..." autocomplete="off">
+          <button type="button" class="setup-mobile-search-btn" onclick="openSetupMobileSearch('atk')">攻撃側を検索して選ぶ</button>
           <div class="damage-setup-picked empty" id="setup-atk-picked">未選択</div>
         </div>
         <div class="damage-setup-list" id="setup-atk-list"></div>
@@ -1350,6 +1356,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="damage-setup-col-head">
           <div class="damage-setup-col-title">防御側</div>
           <input type="text" id="setup-def-search" class="search-input" placeholder="防御側ポケモンを検索..." autocomplete="off">
+          <button type="button" class="setup-mobile-search-btn" onclick="openSetupMobileSearch('def')">防御側を検索して選ぶ</button>
           <div class="damage-setup-picked empty" id="setup-def-picked">未選択</div>
         </div>
         <div class="damage-setup-list" id="setup-def-list"></div>
@@ -1358,6 +1365,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="damage-setup-col-head">
           <div class="damage-setup-col-title">技</div>
           <input type="text" id="setup-move-search" class="search-input" placeholder="技名を検索..." autocomplete="off">
+          <button type="button" class="setup-mobile-search-btn" onclick="openSetupMobileSearch('move')">技を検索して選ぶ</button>
           <div class="damage-setup-picked empty" id="setup-move-picked">未選択</div>
           <div class="quick-note" id="setup-move-note">攻撃側が決まっていると、判明している技を先に表示します。</div>
         </div>
@@ -1428,7 +1436,7 @@ let _pickerSide = 'atk';
 let _autoCalcTimer = null;
 let _damageSelectionConfirmed = false;
 let _damageSetupState = { atkName:'', defName:'', moveName:'' };
-let _mobileSearchState = { inputId:'', dropId:'', kind:'pokemon', title:'', placeholder:'', note:'' };
+let _mobileSearchState = { inputId:'', dropId:'', kind:'pokemon', title:'', placeholder:'', note:'', applyMode:'' };
 
 
 async function fetchTextWithRetry(url, retries=2){
@@ -2050,7 +2058,7 @@ function openDamageSetupModal(){
   ['atk','def','move'].forEach(kind=>{ const node = el(`setup-${kind}-search`); if(node) node.value=''; });
   renderDamageSetupLists();
   el('damage-setup-modal')?.classList.add('show');
-  setTimeout(()=>el('setup-atk-search')?.focus(),30);
+  if(!isMobileSearchMode()) setTimeout(()=>el('setup-atk-search')?.focus(),30);
 }
 function closeDamageSetupModal(){
   el('damage-setup-modal')?.classList.remove('show');
@@ -2169,10 +2177,19 @@ function smartSwapSides(){
 function isMobileSearchMode(){
   return window.innerWidth <= 768;
 }
+function openSetupMobileSearch(kind){
+  const map = {
+    atk:{title:'攻撃側ポケモンを検索して選ぶ', placeholder:'攻撃側ポケモン名を入力...', note:'下に候補を並べず、検索結果から攻撃側を選べます。', inputId:'setup-atk-search', kind:'pokemon', applyMode:'setup-atk'},
+    def:{title:'防御側ポケモンを検索して選ぶ', placeholder:'防御側ポケモン名を入力...', note:'下に候補を並べず、検索結果から防御側を選べます。', inputId:'setup-def-search', kind:'pokemon', applyMode:'setup-def'},
+    move:{title:'技を検索して選ぶ', placeholder:'技名を入力...', note:'攻撃側が決まっていると、そのポケモンの判明技を先に表示します。', inputId:'setup-move-search', kind:'move', applyMode:'setup-move'}
+  };
+  openMobileSearchModal(map[kind] || {});
+}
+
 function openMobileSearchModal(cfg={}){
   const modal = el('mobile-search-modal');
   if(!modal) return;
-  _mobileSearchState = Object.assign({ inputId:'', dropId:'', kind:'pokemon', title:'検索して選ぶ', placeholder:'名前を入力...', note:'キーワードを入れると候補が表示されます。' }, cfg || {});
+  _mobileSearchState = Object.assign({ inputId:'', dropId:'', kind:'pokemon', title:'検索して選ぶ', placeholder:'名前を入力...', note:'キーワードを入れると候補が表示されます。', applyMode:'' }, cfg || {});
   if(el('mobile-search-title')) el('mobile-search-title').textContent = _mobileSearchState.title || '検索して選ぶ';
   if(el('mobile-search-sub')) el('mobile-search-sub').textContent = _mobileSearchState.kind==='move' ? '技名を入力して候補を表示します。' : 'ポケモン名を入力して候補を表示します。';
   if(el('mobile-search-note')) el('mobile-search-note').textContent = _mobileSearchState.note || 'キーワードを入れると候補が表示されます。';
@@ -2195,12 +2212,14 @@ function renderMobileSearchResults(){
   if(!list || !input) return;
   const q = (input.value || '').trim();
   const kind = _mobileSearchState.kind || 'pokemon';
+  const applyMode = _mobileSearchState.applyMode || '';
   if(!q){
     list.innerHTML = `<div class="mobile-search-empty">${kind==='move' ? '技名を入れると候補が表示されます。' : 'ポケモン名を入れると候補が表示されます。'}</div>`;
     return;
   }
   if(kind==='move'){
-    const items = moveIndex.filter(m=>String(m.name||'').includes(q)&&(m.power>0||m.notes==='体重依存')).slice(0,40);
+    const sourceMoves = applyMode==='setup-move' ? getSetupMoveItems() : moveIndex;
+    const items = sourceMoves.filter(m=>String(m.name||'').includes(q)&&(m.power>0||m.notes==='体重依存')).slice(0,40);
     if(!items.length){
       list.innerHTML = '<div class="mobile-search-empty">候補がありません。</div>';
       return;
@@ -2220,6 +2239,28 @@ function renderMobileSearchResults(){
 }
 function selectMobileSearchResult(inputId, dropId, kind, encodedValue){
   const value = decodeURIComponent(encodedValue || '');
+  const applyMode = _mobileSearchState.applyMode || '';
+  if(applyMode==='setup-atk'){
+    _damageSetupState.atkName = value;
+    if(el('setup-atk-search')) el('setup-atk-search').value = value;
+    renderDamageSetupLists();
+    closeMobileSearchModal();
+    return;
+  }
+  if(applyMode==='setup-def'){
+    _damageSetupState.defName = value;
+    if(el('setup-def-search')) el('setup-def-search').value = value;
+    renderDamageSetupLists();
+    closeMobileSearchModal();
+    return;
+  }
+  if(applyMode==='setup-move'){
+    _damageSetupState.moveName = value;
+    if(el('setup-move-search')) el('setup-move-search').value = value;
+    renderDamageSetupLists();
+    closeMobileSearchModal();
+    return;
+  }
   if(kind==='move') moveDrop(inputId, dropId, value);
   else searchDropSelect(inputId, dropId, value);
   closeMobileSearchModal();
@@ -2233,6 +2274,22 @@ function bindMobileSearchInput(){
     if(e.key==='Escape') closeMobileSearchModal();
   });
 }
+function bindDamageSetupMobileSearch(){
+  [['setup-atk-search','atk'],['setup-def-search','def'],['setup-move-search','move']].forEach(([id,kind])=>{
+    const inp = el(id);
+    if(!inp || inp.dataset.mobileBound==='1') return;
+    const open = (e)=>{
+      if(!isMobileSearchMode()) return;
+      e.preventDefault();
+      openSetupMobileSearch(kind);
+      inp.blur();
+    };
+    inp.dataset.mobileBound='1';
+    inp.addEventListener('focus', open);
+    inp.addEventListener('click', open);
+  });
+}
+
 // ===== 検索 =====
 function getSeasonFilteredPokes() {
   const sel=el('global-season-filter'); const season=sel?sel.value:'';
@@ -3949,6 +4006,7 @@ window.onload = async()=>{
   setupMoveSearch('atk1b-move-search','atk1b-move-drop');
   setupMoveSearch('atk2-move-search','atk2-move-drop');
   bindMobileSearchInput();
+  bindDamageSetupMobileSearch();
   initSeasonFilter();
   setupEvents();
   bindAutoCalcEvents();
