@@ -289,6 +289,19 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
   z-index:1200;
 }
 
+.mobile-search-panel{width:min(640px,100%);max-height:min(86vh,860px);background:var(--panel);border:1px solid var(--border2);display:flex;flex-direction:column;overflow:hidden;}
+.mobile-search-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.mobile-search-title{font-size:12px;letter-spacing:2px;color:var(--accent);}
+.mobile-search-close{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 10px;cursor:pointer;}
+.mobile-search-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;overflow:auto;}
+.mobile-search-note{font-size:11px;color:var(--text2);line-height:1.7;}
+.mobile-search-list{display:flex;flex-direction:column;gap:8px;}
+.mobile-search-item{background:var(--bg2);border:1px solid var(--border);padding:11px 12px;text-align:left;cursor:pointer;transition:all 0.18s;}
+.mobile-search-item:hover{border-color:var(--accent);transform:translateY(-1px);}
+.mobile-search-item-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.mobile-search-item-meta{font-size:10px;color:var(--text2);line-height:1.7;}
+.mobile-search-empty{padding:18px 12px;border:1px dashed var(--border2);font-size:11px;color:var(--text2);line-height:1.8;text-align:center;}
+
 .result-placeholder{
   background:var(--bg2);
   border:1px solid var(--border);
@@ -501,6 +514,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .swap-btn{writing-mode:horizontal-tb;width:100%;padding:12px 14px;}
 }
 @media(max-width:768px){
+  .search-wrap .dropdown{display:none !important;}
+  .mobile-search-panel{width:100%;height:100%;max-height:none;border:none;border-radius:0;}
+  .mobile-search-head{padding:12px 14px;}
+  .mobile-search-body{padding:12px 12px 18px;}
+  .mobile-search-item{padding:12px;}
   .result-placeholder-main{font-size:20px;}
   .result-placeholder-sub{font-size:11px;}
   .layout{padding:12px 10px;gap:12px;}
@@ -1370,6 +1388,24 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     </div>
     <div class="picker-list" id="poke-picker-list"></div>
   </div>
+
+</div>
+
+<div class="picker-modal" id="mobile-search-modal">
+  <div class="mobile-search-panel">
+    <div class="mobile-search-head">
+      <div>
+        <div class="mobile-search-title" id="mobile-search-title">検索して選ぶ</div>
+        <div class="quick-note" id="mobile-search-sub" style="margin-top:4px;">名前を入力して候補を表示します。</div>
+      </div>
+      <button type="button" class="mobile-search-close" onclick="closeMobileSearchModal()">閉じる</button>
+    </div>
+    <div class="mobile-search-body">
+      <input type="text" id="mobile-search-input" class="search-input" placeholder="名前を入力..." autocomplete="off">
+      <div class="mobile-search-note" id="mobile-search-note">キーワードを入れると候補が表示されます。</div>
+      <div class="mobile-search-list" id="mobile-search-list"></div>
+    </div>
+  </div>
 </div>
 
 <footer>
@@ -1392,6 +1428,7 @@ let _pickerSide = 'atk';
 let _autoCalcTimer = null;
 let _damageSelectionConfirmed = false;
 let _damageSetupState = { atkName:'', defName:'', moveName:'' };
+let _mobileSearchState = { inputId:'', dropId:'', kind:'pokemon', title:'', placeholder:'', note:'' };
 
 
 async function fetchTextWithRetry(url, retries=2){
@@ -2128,6 +2165,74 @@ function smartSwapSides(){
   renderQuickMoveChips(window._atkBase?.name||'');
 }
 
+
+function isMobileSearchMode(){
+  return window.innerWidth <= 768;
+}
+function openMobileSearchModal(cfg={}){
+  const modal = el('mobile-search-modal');
+  if(!modal) return;
+  _mobileSearchState = Object.assign({ inputId:'', dropId:'', kind:'pokemon', title:'検索して選ぶ', placeholder:'名前を入力...', note:'キーワードを入れると候補が表示されます。' }, cfg || {});
+  if(el('mobile-search-title')) el('mobile-search-title').textContent = _mobileSearchState.title || '検索して選ぶ';
+  if(el('mobile-search-sub')) el('mobile-search-sub').textContent = _mobileSearchState.kind==='move' ? '技名を入力して候補を表示します。' : 'ポケモン名を入力して候補を表示します。';
+  if(el('mobile-search-note')) el('mobile-search-note').textContent = _mobileSearchState.note || 'キーワードを入れると候補が表示されます。';
+  const source = el(_mobileSearchState.inputId);
+  const input = el('mobile-search-input');
+  if(input){
+    input.value = source ? (source.value || '') : '';
+    input.placeholder = _mobileSearchState.placeholder || '名前を入力...';
+  }
+  renderMobileSearchResults();
+  modal.classList.add('show');
+  setTimeout(()=>input?.focus(), 30);
+}
+function closeMobileSearchModal(){
+  el('mobile-search-modal')?.classList.remove('show');
+}
+function renderMobileSearchResults(){
+  const list = el('mobile-search-list');
+  const input = el('mobile-search-input');
+  if(!list || !input) return;
+  const q = (input.value || '').trim();
+  const kind = _mobileSearchState.kind || 'pokemon';
+  if(!q){
+    list.innerHTML = `<div class="mobile-search-empty">${kind==='move' ? '技名を入れると候補が表示されます。' : 'ポケモン名を入れると候補が表示されます。'}</div>`;
+    return;
+  }
+  if(kind==='move'){
+    const items = moveIndex.filter(m=>String(m.name||'').includes(q)&&(m.power>0||m.notes==='体重依存')).slice(0,40);
+    if(!items.length){
+      list.innerHTML = '<div class="mobile-search-empty">候補がありません。</div>';
+      return;
+    }
+    list.innerHTML = items.map(m=>`<button type="button" class="mobile-search-item" onclick="selectMobileSearchResult('${_mobileSearchState.inputId}','${_mobileSearchState.dropId}','move','${encodeURIComponent(String(m.name||''))}')"><div class="mobile-search-item-name">${escapeHtml(m.name||'')}</div><div class="mobile-search-item-meta">${escapeHtml((m.type||'—') + ' / ' + (m.category||'—'))} / ${escapeHtml(m.notes==='体重依存' ? '体重依存' : '威力' + String(m.power||0))}</div></button>`).join('');
+    return;
+  }
+  const items = getSeasonFilteredPokes().filter(p=>String(p.name||'').includes(q)).slice(0,40);
+  if(!items.length){
+    list.innerHTML = '<div class="mobile-search-empty">候補がありません。</div>';
+    return;
+  }
+  list.innerHTML = items.map(p=>{
+    const types = [p.type1,p.type2].filter(Boolean).join(' / ') || 'タイプ不明';
+    return `<button type="button" class="mobile-search-item" onclick="selectMobileSearchResult('${_mobileSearchState.inputId}','${_mobileSearchState.dropId}','pokemon','${encodeURIComponent(String(p.name||''))}')"><div class="mobile-search-item-name">${escapeHtml(p.name||'')}</div><div class="mobile-search-item-meta">#${escapeHtml(String(p.no||'').padStart(3,'0'))} / ${escapeHtml(types)}</div></button>`;
+  }).join('');
+}
+function selectMobileSearchResult(inputId, dropId, kind, encodedValue){
+  const value = decodeURIComponent(encodedValue || '');
+  if(kind==='move') moveDrop(inputId, dropId, value);
+  else searchDropSelect(inputId, dropId, value);
+  closeMobileSearchModal();
+}
+function bindMobileSearchInput(){
+  const input = el('mobile-search-input');
+  if(!input || input.dataset.bound==='1') return;
+  input.dataset.bound='1';
+  input.addEventListener('input', renderMobileSearchResults);
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Escape') closeMobileSearchModal();
+  });
+}
 // ===== 検索 =====
 function getSeasonFilteredPokes() {
   const sel=el('global-season-filter'); const season=sel?sel.value:'';
@@ -2137,7 +2242,24 @@ function getSeasonFilteredPokes() {
 function setupSearch(inputId,dropId,onSelect) {
   const inp=el(inputId), drop=el(dropId); if(!inp || !drop) return;
   let timer;
+  const openMobile = (e)=>{
+    if(!isMobileSearchMode()) return;
+    e.preventDefault();
+    drop.classList.remove('show');
+    openMobileSearchModal({
+      inputId,
+      dropId,
+      kind:'pokemon',
+      title:'ポケモンを検索して選ぶ',
+      placeholder:'ポケモン名を入力...',
+      note:'下に候補を出さず、検索結果を見て選べます。'
+    });
+    inp.blur();
+  };
+  inp.addEventListener('focus', openMobile);
+  inp.addEventListener('click', openMobile);
   inp.addEventListener('input',()=>{
+    if(isMobileSearchMode()) return;
     clearTimeout(timer); const q=inp.value.trim();
     if(!q){drop.classList.remove('show');drop.innerHTML='';return;}
     timer=setTimeout(()=>{
@@ -2174,7 +2296,24 @@ function searchDropSelect(inputId,dropId,name) {
 function setupMoveSearch(inputId,dropId,onSelect) {
   const inp=el(inputId), drop=el(dropId); if(!inp || !drop) return;
   let timer;
+  const openMobile = (e)=>{
+    if(!isMobileSearchMode()) return;
+    e.preventDefault();
+    drop.classList.remove('show');
+    openMobileSearchModal({
+      inputId,
+      dropId,
+      kind:'move',
+      title:'技を検索して選ぶ',
+      placeholder:'技名を入力...',
+      note:'下に候補を出さず、検索結果を見て選べます。'
+    });
+    inp.blur();
+  };
+  inp.addEventListener('focus', openMobile);
+  inp.addEventListener('click', openMobile);
   inp.addEventListener('input',()=>{
+    if(isMobileSearchMode()) return;
     clearTimeout(timer); const q=inp.value.trim();
     if(!q){drop.classList.remove('show');drop.innerHTML='';return;}
     timer=setTimeout(()=>{
@@ -3809,6 +3948,7 @@ window.onload = async()=>{
   setupMoveSearch('atk-move-search','atk-move-drop');
   setupMoveSearch('atk1b-move-search','atk1b-move-drop');
   setupMoveSearch('atk2-move-search','atk2-move-drop');
+  bindMobileSearchInput();
   initSeasonFilter();
   setupEvents();
   bindAutoCalcEvents();
@@ -3817,6 +3957,7 @@ window.onload = async()=>{
   el('damage-setup-modal')?.addEventListener('click',e=>{ if(e.target===el('damage-setup-modal')) closeDamageSetupModal(); });
   el('poke-picker-search')?.addEventListener('input',renderPokemonPickerList);
   el('poke-picker-modal')?.addEventListener('click',e=>{ if(e.target===el('poke-picker-modal')) closePokemonPicker(); });
+  el('mobile-search-modal')?.addEventListener('click',e=>{ if(e.target===el('mobile-search-modal')) closeMobileSearchModal(); });
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   updateDamageSetupSummary();
