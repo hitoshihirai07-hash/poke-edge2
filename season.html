@@ -171,6 +171,21 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .rank-table tr:hover td{background:rgba(255,200,0,0.04);}
 .rank-cell-block{display:grid;gap:4px;}
 .rank-badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:2px 8px;border:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent3);}
+.history-wrap{overflow:auto;border:1px solid var(--border);}
+.history-table{width:100%;border-collapse:collapse;font-size:12px;min-width:760px;}
+.history-table th{position:sticky;top:0;background:var(--bg2);color:var(--text2);padding:8px;border-bottom:1px solid var(--border);text-align:left;font-size:10px;letter-spacing:1px;font-weight:400;}
+.history-table td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top;white-space:normal;line-height:1.7;}
+.history-table tr:hover td{background:rgba(0,200,240,0.04);}
+.rank-change{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;}
+.rank-change.up{color:var(--green);border-color:rgba(0,230,118,0.45);background:rgba(0,230,118,0.08);}
+.rank-change.down{color:var(--accent2);border-color:rgba(255,48,96,0.45);background:rgba(255,48,96,0.08);}
+.rank-change.stay{color:var(--text2);}
+.rank-change.new{color:var(--accent3);border-color:rgba(255,200,0,0.45);background:rgba(255,200,0,0.08);}
+.rank-change.out{color:var(--text2);border-style:dashed;}
+.rank-mini{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);}
+.rank-mini.muted{color:var(--text2);}
+.rank-history-line{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);}
+.rank-history-note{font-size:11px;color:var(--text2);margin-top:8px;line-height:1.7;}
 .detail-note{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.7;}
 .detail-ranking-grid{display:grid;gap:10px;}
 .detail-ranking-box{border:1px solid var(--border);background:var(--bg);padding:10px 12px;}
@@ -645,8 +660,11 @@ document.addEventListener('DOMContentLoaded',function(){
 
   let SINGLE_RANKINGS = {rows:[], updatedAt:''};
   let DOUBLE_RANKINGS = {rows:[], updatedAt:''};
+  let SINGLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
+  let DOUBLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
   let currentViewMode = 'list';
   let currentRankingBattle = 'single';
+  let currentHistoryBattle = 'single';
   let currentDetailMoves = [];
 
   function uniq(arr) {
@@ -756,6 +774,7 @@ document.addEventListener('DOMContentLoaded',function(){
     tabs.innerHTML = `
       <button class="view-tab active" type="button" data-view="list">使用可能ポケモン</button>
       <button class="view-tab" type="button" data-view="ranking">順位確認</button>
+      <button class="view-tab" type="button" data-view="history">順位推移</button>
     `;
     filterBar.insertAdjacentElement('afterend', tabs);
 
@@ -794,6 +813,24 @@ document.addEventListener('DOMContentLoaded',function(){
     `;
     listWrap.insertAdjacentElement('afterend', rankWrap);
 
+    const historyWrap = document.createElement('div');
+    historyWrap.id = 'season-history-view';
+    historyWrap.className = 'rank-panel';
+    historyWrap.innerHTML = `
+      <div class="rank-subtabs">
+        <button class="rank-subtab active" type="button" data-history-battle="single">シングル</button>
+        <button class="rank-subtab" type="button" data-history-battle="double">ダブル</button>
+      </div>
+      <div class="rank-meta" id="rank-history-meta">順位推移データを読み込み中...</div>
+      <div class="rank-wrap">
+        <table class="rank-table" id="rank-history-table">
+          <thead id="rank-history-head"></thead>
+          <tbody id="rank-history-tbody"></tbody>
+        </table>
+      </div>
+    `;
+    rankWrap.insertAdjacentElement('afterend', historyWrap);
+
     tabs.addEventListener('click', function(e) {
       const btn = e.target.closest('.view-tab');
       if(!btn) return;
@@ -806,6 +843,14 @@ document.addEventListener('DOMContentLoaded',function(){
       rankWrap.querySelectorAll('.rank-subtab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderRankings();
+    });
+    historyWrap.addEventListener('click', function(e) {
+      const btn = e.target.closest('.rank-subtab');
+      if(!btn) return;
+      currentHistoryBattle = btn.dataset.historyBattle || 'single';
+      historyWrap.querySelectorAll('.rank-subtab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRankingHistory();
     });
   }
 
@@ -823,13 +868,16 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   function setViewMode(mode) {
-    currentViewMode = mode === 'ranking' ? 'ranking' : 'list';
+    currentViewMode = mode === 'ranking' ? 'ranking' : mode === 'history' ? 'history' : 'list';
     const listView = document.getElementById('season-list-view');
     const rankView = document.getElementById('season-ranking-view');
+    const historyView = document.getElementById('season-history-view');
     document.querySelectorAll('.view-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.view === currentViewMode));
     if(listView) listView.style.display = currentViewMode === 'list' ? '' : 'none';
     if(rankView) rankView.classList.toggle('show', currentViewMode === 'ranking');
+    if(historyView) historyView.classList.toggle('show', currentViewMode === 'history');
     if(currentViewMode === 'ranking') renderRankings();
+    if(currentViewMode === 'history') renderRankingHistory();
   }
 
   function rankingRowsForCurrentView() {
@@ -961,6 +1009,60 @@ document.addEventListener('DOMContentLoaded',function(){
     </tr>`).join('');
   }
 
+  function getHistoryData() {
+    return currentHistoryBattle === 'double' ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY;
+  }
+
+  function rankHistoryRowsForCurrentView() {
+    const data = getHistoryData();
+    const source = Array.isArray(data.rows) ? data.rows : [];
+    const q = (document.getElementById('name-search')?.value || '').trim();
+    return source.filter(row => {
+      const siteNames = resolveSiteNames(row.name || row.siteName || '');
+      if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
+      if(q) {
+        const hay = [row.name, row.siteName].concat(siteNames).join(' ');
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    }).sort((a,b) => {
+      const av = a && a.ranks && a.ranks.current != null ? a.ranks.current : 999999;
+      const bv = b && b.ranks && b.ranks.current != null ? b.ranks.current : 999999;
+      return av - bv;
+    });
+  }
+
+  function formatHistoryRank(value) {
+    if(value == null || value === '') return '—';
+    return String(value);
+  }
+
+  function renderRankingHistory() {
+    const head = document.getElementById('rank-history-head');
+    const body = document.getElementById('rank-history-tbody');
+    const meta = document.getElementById('rank-history-meta');
+    if(!head || !body || !meta) return;
+    const data = getHistoryData();
+    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
+    const rows = rankHistoryRowsForCurrentView();
+    const updated = formatRankingDate(data.updatedAt) || '未取得';
+    meta.textContent = `${currentHistoryBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件 / 列数: ${columns.length}`;
+
+    head.innerHTML = `<tr><th>ポケモン</th>${columns.map(col => `<th>${escapeHtml(col.label || col.key || '')}</th>`).join('')}</tr>`;
+
+    if(!rows.length) {
+      body.innerHTML = `<tr><td colspan="${columns.length + 1}" class="detail-empty">順位推移データがありません</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map(row => `
+      <tr>
+        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
+        ${columns.map(col => `<td>${escapeHtml(formatHistoryRank(row.ranks ? row.ranks[col.key] : null))}</td>`).join('')}
+      </tr>
+    `).join('');
+  }
+
   const originalOpenPokemonDetail = window.openPokemonDetail;
   window.renderDetailMoves = renderDetailMovesPatched;
   window.openPokemonDetail = function(name) {
@@ -1017,21 +1119,29 @@ document.addEventListener('DOMContentLoaded',function(){
   window.render = function() {
     if(typeof originalRender === 'function') originalRender();
     renderRankings();
+    renderRankingHistory();
   };
 
   async function loadRankingJson() {
     try {
-      const [singleRes, doubleRes] = await Promise.all([
+      const [singleRes, doubleRes, singleHistoryRes, doubleHistoryRes] = await Promise.all([
         fetch('season_ranking_single.json?v=' + Date.now()).then(r => r.ok ? r.json() : {rows:[], updatedAt:''}).catch(() => ({rows:[], updatedAt:''})),
-        fetch('season_ranking_double.json?v=' + Date.now()).then(r => r.ok ? r.json() : {rows:[], updatedAt:''}).catch(() => ({rows:[], updatedAt:''}))
+        fetch('season_ranking_double.json?v=' + Date.now()).then(r => r.ok ? r.json() : {rows:[], updatedAt:''}).catch(() => ({rows:[], updatedAt:''})),
+        fetch('season_ranking_history_single.json?v=' + Date.now()).then(r => r.ok ? r.json() : {columns:[], rows:[], updatedAt:''}).catch(() => ({columns:[], rows:[], updatedAt:''})),
+        fetch('season_ranking_history_double.json?v=' + Date.now()).then(r => r.ok ? r.json() : {columns:[], rows:[], updatedAt:''}).catch(() => ({columns:[], rows:[], updatedAt:''}))
       ]);
       SINGLE_RANKINGS = singleRes && Array.isArray(singleRes.rows) ? singleRes : {rows:[], updatedAt:''};
       DOUBLE_RANKINGS = doubleRes && Array.isArray(doubleRes.rows) ? doubleRes : {rows:[], updatedAt:''};
+      SINGLE_RANKING_HISTORY = singleHistoryRes && Array.isArray(singleHistoryRes.rows) ? singleHistoryRes : {columns:[], rows:[], updatedAt:''};
+      DOUBLE_RANKING_HISTORY = doubleHistoryRes && Array.isArray(doubleHistoryRes.rows) ? doubleHistoryRes : {columns:[], rows:[], updatedAt:''};
     } catch(e) {
       SINGLE_RANKINGS = {rows:[], updatedAt:''};
       DOUBLE_RANKINGS = {rows:[], updatedAt:''};
+      SINGLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
+      DOUBLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
     }
     renderRankings();
+    renderRankingHistory();
   }
 
   document.addEventListener('DOMContentLoaded', function() {
