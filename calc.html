@@ -190,6 +190,29 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .picker-item:hover{border-color:var(--accent);transform:translateY(-1px);}
 .picker-item-name{font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);}
 .picker-item-no{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:4px;}
+.setup-entry{background:var(--panel);border:1px solid var(--border);padding:14px;margin-bottom:12px;}
+.setup-entry-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.setup-entry-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);}
+.setup-entry-summary{font-size:12px;color:var(--text);line-height:1.7;}
+.setup-entry-status{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--border2);font-size:10px;letter-spacing:1px;color:var(--text2);}
+.setup-entry-status.ready{border-color:var(--accent3);color:var(--accent3);}
+.setup-entry-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.setup-entry-help{font-size:10px;color:var(--text2);margin-top:8px;line-height:1.6;}
+.damage-setup-panel{width:min(1180px,100%);max-height:min(90vh,900px);}
+.damage-setup-body{padding:14px 16px 10px;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;}
+.damage-setup-col{background:var(--bg2);border:1px solid var(--border);display:flex;flex-direction:column;min-height:480px;}
+.damage-setup-col-head{padding:12px;border-bottom:1px solid var(--border);}
+.damage-setup-col-title{font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+.damage-setup-picked{font-size:11px;color:var(--text);line-height:1.7;padding:8px 10px;background:var(--panel);border:1px solid var(--border2);min-height:42px;}
+.damage-setup-picked.empty{color:var(--text2);}
+.damage-setup-list{padding:10px;overflow:auto;display:flex;flex-direction:column;gap:8px;}
+.damage-setup-item{background:var(--panel);border:1px solid var(--border);padding:10px;text-align:left;cursor:pointer;transition:all 0.18s;}
+.damage-setup-item:hover{border-color:var(--accent);transform:translateY(-1px);}
+.damage-setup-item.is-selected{border-color:var(--accent3);box-shadow:inset 0 0 0 1px var(--accent3);}
+.damage-setup-item-meta{font-size:10px;color:var(--text2);margin-top:4px;line-height:1.6;}
+.damage-setup-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.damage-setup-footer-note{font-size:11px;color:var(--text2);line-height:1.7;flex:1;min-width:220px;}
+.damage-setup-error{font-size:11px;color:var(--accent2);min-height:18px;}
 .quick-note{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.6;}
 .drop-item{padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:10px;transition:background 0.12s;border-bottom:1px solid var(--border);}
 .drop-item:hover{background:var(--bg2);}
@@ -237,6 +260,10 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .hp-bg{height:5px;background:var(--bg);overflow:hidden;}
 .hp-fg{height:100%;background:linear-gradient(90deg,var(--green),var(--accent3));}
 .move-judge-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:980px){
+  .damage-setup-body{grid-template-columns:1fr;}
+  .damage-setup-col{min-height:auto;}
+}
 @media(max-width:600px){.move-judge-grid{grid-template-columns:1fr;}}
 .move-result-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
 .party-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -428,6 +455,21 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 <div class="main-content">
   <!-- DAMAGE -->
   <div class="panel active" id="tab-damage">
+    <div class="setup-entry">
+      <div class="setup-entry-head">
+        <div style="flex:1;min-width:220px;">
+          <div class="setup-entry-title">初期選択</div>
+          <div class="setup-entry-summary" id="damage-setup-summary">攻撃側・防御側・技をまとめて選んでから決定すると、その後は調整を変えるたびにダメージが自動更新されます。</div>
+          <div class="setup-entry-help">最初に3つまとめて確定 → その後は努力値・性格・ランク・特性・持ち物などを触るたびに反映します。</div>
+        </div>
+        <div class="setup-entry-actions">
+          <div class="setup-entry-status" id="damage-setup-status">未確定</div>
+          <button type="button" class="quick-action-btn" onclick="openDamageSetupModal()">攻撃側・防御側・技を選ぶ</button>
+          <button type="button" class="quick-action-btn" onclick="clearDamageSetupSelection()">選択をリセット</button>
+        </div>
+      </div>
+    </div>
+
     <div class="calc-grid">
 
       <!-- 攻撃側 -->
@@ -917,7 +959,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
       </div>
     </div>
 
-    <button class="main-btn" onclick="calcDamage()">CALCULATE DAMAGE</button>
+    <button class="main-btn" onclick="calcDamage()">選択中の内容で再計算</button>
     <div style="display:flex;align-items:center;gap:10px;margin:-4px 0 8px;">
       <button id="add-toggle-btn" onclick="toggleAddMode()" style="background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 16px;cursor:pointer;font-size:11px;font-family:'Noto Sans JP',sans-serif;letter-spacing:1px;transition:all 0.18s;">＋ 加算計算を使う</button>
       <span style="font-size:10px;color:var(--text2);">2体・2技の合計ダメージで倒せるか判定</span>
@@ -1114,6 +1156,54 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 
 </div>
 
+<div class="picker-modal" id="damage-setup-modal">
+  <div class="picker-panel damage-setup-panel">
+    <div class="picker-head">
+      <div>
+        <div class="picker-title">攻撃側・防御側・技をまとめて選ぶ</div>
+        <div class="quick-note" style="margin-top:4px;">ここで3つを決定すると、以後は調整変更のたびにダメージが自動更新されます。</div>
+      </div>
+      <button type="button" class="picker-close" onclick="closeDamageSetupModal()">閉じる</button>
+    </div>
+    <div class="damage-setup-body">
+      <div class="damage-setup-col">
+        <div class="damage-setup-col-head">
+          <div class="damage-setup-col-title">攻撃側</div>
+          <input type="text" id="setup-atk-search" class="search-input" placeholder="攻撃側ポケモンを検索..." autocomplete="off">
+          <div class="damage-setup-picked empty" id="setup-atk-picked">未選択</div>
+        </div>
+        <div class="damage-setup-list" id="setup-atk-list"></div>
+      </div>
+      <div class="damage-setup-col">
+        <div class="damage-setup-col-head">
+          <div class="damage-setup-col-title">防御側</div>
+          <input type="text" id="setup-def-search" class="search-input" placeholder="防御側ポケモンを検索..." autocomplete="off">
+          <div class="damage-setup-picked empty" id="setup-def-picked">未選択</div>
+        </div>
+        <div class="damage-setup-list" id="setup-def-list"></div>
+      </div>
+      <div class="damage-setup-col">
+        <div class="damage-setup-col-head">
+          <div class="damage-setup-col-title">技</div>
+          <input type="text" id="setup-move-search" class="search-input" placeholder="技名を検索..." autocomplete="off">
+          <div class="damage-setup-picked empty" id="setup-move-picked">未選択</div>
+          <div class="quick-note" id="setup-move-note">攻撃側が決まっていると、判明している技を先に表示します。</div>
+        </div>
+        <div class="damage-setup-list" id="setup-move-list"></div>
+      </div>
+    </div>
+    <div class="damage-setup-footer">
+      <div style="flex:1;min-width:220px;">
+        <div class="damage-setup-error" id="damage-setup-error"></div>
+        <div class="damage-setup-footer-note" id="damage-setup-footer-note">3つそろえて決定すると、その場でダメージ計算まで実行します。</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="quick-action-btn" onclick="applyDamageSetupSelection()">決定して反映</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="picker-modal" id="poke-picker-modal">
   <div class="picker-panel">
     <div class="picker-head">
@@ -1145,6 +1235,9 @@ let pokeIndex = [];
 let moveIndex = [];
 let _dataLoaded = false;
 let _pickerSide = 'atk';
+let _autoCalcTimer = null;
+let _damageSelectionConfirmed = false;
+let _damageSetupState = { atkName:'', defName:'', moveName:'' };
 
 
 async function fetchTextWithRetry(url, retries=2){
@@ -1604,6 +1697,213 @@ function selectPickerPokemon(name){
   }
   closePokemonPicker();
 }
+
+function escapeHtml(str=''){
+  return String(str).replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s]||s));
+}
+function encodeJsArg(str=''){
+  return encodeURIComponent(String(str));
+}
+function decodeJsArg(str=''){
+  try{return decodeURIComponent(String(str));}catch(_){return String(str||'');}
+}
+function getCurrentDamageSetupSelection(){
+  return {
+    atkName: window._atkBase?.name || (el('atk-search')?.value||'').trim(),
+    defName: window._defBase?.name || (el('def-search')?.value||'').trim(),
+    moveName: (el('atk-move-search')?.value||'').trim(),
+  };
+}
+function updateDamageSetupSummary(){
+  const summary = el('damage-setup-summary');
+  const status = el('damage-setup-status');
+  if(!summary || !status) return;
+  const current = getCurrentDamageSetupSelection();
+  const atk = current.atkName || '未選択';
+  const def = current.defName || '未選択';
+  const move = current.moveName || '未選択';
+  summary.innerHTML = `<span style="color:var(--accent3);">攻撃側</span> ${escapeHtml(atk)} <span style="color:var(--text2);">/</span> <span style="color:var(--accent3);">防御側</span> ${escapeHtml(def)} <span style="color:var(--text2);">/</span> <span style="color:var(--accent3);">技</span> ${escapeHtml(move)}`;
+  if(_damageSelectionConfirmed && current.atkName && current.defName && current.moveName){
+    status.textContent = '決定済み / 自動更新ON';
+    status.classList.add('ready');
+  } else {
+    status.textContent = '未確定';
+    status.classList.remove('ready');
+  }
+}
+function syncDamageSetupStateFromCurrent(){
+  const current = getCurrentDamageSetupSelection();
+  _damageSetupState.atkName = current.atkName || _damageSetupState.atkName || '';
+  _damageSetupState.defName = current.defName || _damageSetupState.defName || '';
+  _damageSetupState.moveName = current.moveName || _damageSetupState.moveName || '';
+}
+function getSetupPokemonItems(kind){
+  const q = (el(`setup-${kind}-search`)?.value||'').trim();
+  let items = getSeasonFilteredPokes();
+  if(q) items = items.filter(p=>String(p.name||'').includes(q));
+  return items.slice(0, 120);
+}
+function getSetupMoveItems(){
+  const q = (el('setup-move-search')?.value||'').trim();
+  const attackerName = _damageSetupState.atkName || '';
+  const knownMoves = getPokemonKnownMoves(attackerName)
+    .map(normalizeMoveFromPokemonEntry)
+    .filter(Boolean);
+  const seen = new Set();
+  const items = [];
+  knownMoves.forEach(m=>{
+    if(!m?.name) return;
+    if(q && !m.name.includes(q)) return;
+    seen.add(m.name);
+    items.push(Object.assign({_known:true}, m));
+  });
+  moveIndex.forEach(m=>{
+    if(!m?.name || seen.has(m.name)) return;
+    if(q && !m.name.includes(q)) return;
+    items.push(m);
+  });
+  return items.slice(0, 160);
+}
+function renderDamageSetupPicked(kind){
+  const box = el(`setup-${kind}-picked`);
+  if(!box) return;
+  const name = kind==='move' ? _damageSetupState.moveName : _damageSetupState[`${kind}Name`];
+  if(!name){
+    box.textContent = '未選択';
+    box.classList.add('empty');
+    return;
+  }
+  box.classList.remove('empty');
+  if(kind==='move'){
+    const move = moveIndex.find(x=>x.name===name) || normalizeMoveFromPokemonEntry((getPokemonKnownMoves(_damageSetupState.atkName||'').find(m=>m.name===name)));
+    const type = move?.type || '—';
+    const cat = move?.category || '—';
+    const power = move?.power ?? '—';
+    box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(type)} / ${escapeHtml(cat)} / 威力 ${escapeHtml(String(power))}</div>`;
+    return;
+  }
+  const poke = pokeIndex.find(x=>x.name===name);
+  const types = [poke?.type1, poke?.type2].filter(Boolean).join(' / ') || 'タイプ不明';
+  box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(types)}</div>`;
+}
+function renderDamageSetupLists(){
+  ['atk','def'].forEach(kind=>{
+    const list = el(`setup-${kind}-list`);
+    if(!list) return;
+    const selectedName = _damageSetupState[`${kind}Name`];
+    const items = getSetupPokemonItems(kind);
+    list.innerHTML = items.map(p=>{
+      const selected = selectedName===p.name ? ' is-selected' : '';
+      const types = [p.type1,p.type2].filter(Boolean).join(' / ');
+      return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('${kind}','${encodeJsArg(p.name)}')"><div class="picker-item-no">#${String(p.no).padStart(3,'0')}</div><div class="picker-item-name">${escapeHtml(p.name)}</div><div class="damage-setup-item-meta">${escapeHtml(types||'タイプ不明')}</div></button>`;
+    }).join('') || '<div class="quick-note">該当するポケモンがありません。</div>';
+  });
+  const moveList = el('setup-move-list');
+  if(moveList){
+    const items = getSetupMoveItems();
+    moveList.innerHTML = items.map(m=>{
+      const selected = _damageSetupState.moveName===m.name ? ' is-selected' : '';
+      const extra = [m.type||'—', m.category||'—', `威力 ${m.power ?? '—'}`];
+      const known = m._known ? '判明技を優先表示' : '';
+      return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('move','${encodeJsArg(m.name)}')"><div class="picker-item-name">${escapeHtml(m.name)}</div><div class="damage-setup-item-meta">${escapeHtml(extra.join(' / '))}${known?`<br>${escapeHtml(known)}`:''}</div></button>`;
+    }).join('') || '<div class="quick-note">該当する技がありません。</div>';
+  }
+  renderDamageSetupPicked('atk');
+  renderDamageSetupPicked('def');
+  renderDamageSetupPicked('move');
+  const moveNote = el('setup-move-note');
+  if(moveNote){
+    moveNote.textContent = _damageSetupState.atkName
+      ? `${_damageSetupState.atkName} の判明技を先に表示しています。`
+      : '攻撃側が決まっていると、判明している技を先に表示します。';
+  }
+  const footer = el('damage-setup-footer-note');
+  if(footer){
+    footer.textContent = `攻撃側: ${_damageSetupState.atkName || '未選択'} / 防御側: ${_damageSetupState.defName || '未選択'} / 技: ${_damageSetupState.moveName || '未選択'}`;
+  }
+}
+function openDamageSetupModal(){
+  syncDamageSetupStateFromCurrent();
+  if(el('damage-setup-error')) el('damage-setup-error').textContent='';
+  ['atk','def','move'].forEach(kind=>{ const node = el(`setup-${kind}-search`); if(node) node.value=''; });
+  renderDamageSetupLists();
+  el('damage-setup-modal')?.classList.add('show');
+  setTimeout(()=>el('setup-atk-search')?.focus(),30);
+}
+function closeDamageSetupModal(){
+  el('damage-setup-modal')?.classList.remove('show');
+}
+function selectDamageSetupOption(kind, encodedName){
+  const name = decodeJsArg(encodedName);
+  if(kind==='move') _damageSetupState.moveName = name;
+  else _damageSetupState[`${kind}Name`] = name;
+  if(kind==='atk' && _damageSetupState.moveName){
+    const knownNames = new Set(getPokemonKnownMoves(name).map(m=>m.name));
+    if(knownNames.size && !knownNames.has(_damageSetupState.moveName)){
+      // move selection remains valid even if not in known moves; keep current choice
+    }
+  }
+  renderDamageSetupLists();
+}
+function scheduleAutoCalc(force=false){
+  if(!force && !_damageSelectionConfirmed) return;
+  clearTimeout(_autoCalcTimer);
+  _autoCalcTimer = setTimeout(()=>calcDamage({silent:true}),80);
+}
+function applyDamageSetupSelection(){
+  const atkName = _damageSetupState.atkName || '';
+  const defName = _damageSetupState.defName || '';
+  const moveName = _damageSetupState.moveName || '';
+  const error = el('damage-setup-error');
+  if(error) error.textContent='';
+  if(!atkName || !defName || !moveName){
+    if(error) error.textContent='攻撃側・防御側・技の3つを選んでから決定してください。';
+    return;
+  }
+  const atk = pokeIndex.find(x=>x.name===atkName);
+  const def = pokeIndex.find(x=>x.name===defName);
+  let move = moveIndex.find(x=>x.name===moveName);
+  if(!move){
+    const known = getPokemonKnownMoves(atkName).find(m=>m.name===moveName);
+    move = normalizeMoveFromPokemonEntry(known);
+  }
+  if(!atk || !def || !move){
+    if(error) error.textContent='選択内容の反映に失敗しました。もう一度選び直してください。';
+    return;
+  }
+  if(el('atk-search')) el('atk-search').value = atk.name;
+  if(el('def-search')) el('def-search').value = def.name;
+  initAtkPoke(atk);
+  initDefPoke(def);
+  setAtkMove(move);
+  _damageSelectionConfirmed = true;
+  updateDamageSetupSummary();
+  closeDamageSetupModal();
+  calcDamage({silent:true});
+}
+function clearDamageSetupSelection(){
+  _damageSelectionConfirmed = false;
+  _damageSetupState = { atkName:'', defName:'', moveName:'' };
+  if(el('atk-search')) el('atk-search').value='';
+  if(el('def-search')) el('def-search').value='';
+  if(el('atk-name')) el('atk-name').textContent='';
+  if(el('def-name')) el('def-name').textContent='';
+  if(el('atk-no')) el('atk-no').textContent='';
+  if(el('def-no')) el('def-no').textContent='';
+  if(el('atk-types')) el('atk-types').innerHTML='';
+  if(el('def-types')) el('def-types').innerHTML='';
+  if(el('atk-card')) el('atk-card').classList.remove('show');
+  if(el('def-card')) el('def-card').classList.remove('show');
+  window._atkBase = null;
+  window._defBase = null;
+  window._atkStats = null;
+  window._defStats = null;
+  clearSelectedMove();
+  if(el('result-box')) el('result-box').classList.remove('show');
+  renderQuickMoveChips('');
+  updateDamageSetupSummary();
+}
+
 function clearAbilitySide(side){
   if(el(side+'-ability-search')) el(side+'-ability-search').value='';
   if(el(side+'-ability')) el(side+'-ability').value='';
@@ -1802,6 +2102,7 @@ function selectAbility(side,name) {
   if(si) si.value=name; if(hi) hi.value=name; if(dr) dr.style.display='none';
   if(inf) inf.textContent=ab&&ab.effect?ab.effect.slice(0,60)+(ab.effect.length>60?'…':''):'';
   if(side==='def') updateDefHazardInfo();
+  scheduleAutoCalc();
 }
 document.addEventListener('click',function(e){
   ['atk','def'].forEach(function(side){
@@ -1853,6 +2154,7 @@ function initAtkPoke(p) {
   renderAbilityBadges('atk',p.name);
   renderQuickMoveChips(p.name);
   populateMoveSelect();
+  updateDamageSetupSummary();
 }
 
 // ===== 防御側初期化 =====
@@ -1867,6 +2169,7 @@ function initDefPoke(p) {
   renderBaseStats('def',p);
   recalcDef();
   renderAbilityBadges('def',p.name);
+  updateDamageSetupSummary();
 }
 
 // ===== 実数値再計算 =====
@@ -1891,6 +2194,7 @@ function recalcAtk() {
   if(el('atk-stat-atk')) el('atk-stat-atk').textContent=atkVal;
   if(el('atk-stat-def')) el('atk-stat-def').textContent=defVal;
   if(el('atk-stat-spa')) el('atk-stat-spa').textContent=spaVal;
+  scheduleAutoCalc();
 }
 function recalcDef() {
   const p=window._defBase; if(!p) return;
@@ -1912,6 +2216,7 @@ function recalcDef() {
   if(el('def-stat-def')) el('def-stat-def').textContent=defVal;
   if(el('def-stat-spd')) el('def-stat-spd').textContent=spdVal;
   updateDefHazardInfo();
+  scheduleAutoCalc();
 }
 
 function isGroundedForSpikes(defBase, defAbName=''){
@@ -1991,6 +2296,8 @@ function setAtkMove(m) {
   el('atk-move-crit').value=m.alwaysCrit||'';
   if(el('atk-move-pow-disp')) el('atk-move-pow-disp').textContent='威力'+m.power;
   renderSelectedMoveInfo('atk',m);
+  updateDamageSetupSummary();
+  scheduleAutoCalc();
 }
 function setAtk1bMove(m) {
   el('atk1b-move-search').value=m.name;
@@ -2013,10 +2320,11 @@ function populateMoveSelect() {
 }
 
 // ===== ダメージ計算 =====
-function calcDamage() {
-  if(!window._atkStats||!window._defStats){alert('ポケモンを両方選択してください');return;}
+function calcDamage(options={}) {
+  const silent = !!(options && options.silent);
+  if(!window._atkStats||!window._defStats){ if(!silent) alert('ポケモンを両方選択してください'); return false; }
   const moveName=el('atk-move-search').value.trim();
-  if(!moveName){alert('技を選択してください');return;}
+  if(!moveName){ if(!silent) alert('技を選択してください'); return false; }
   const notes=el('atk-move-notes').value||'';
   const alwaysCrit=el('atk-move-crit').value||'';
   const hitsRaw=el('atk-move-hits').value||'1';
@@ -2062,10 +2370,10 @@ function calcDamage() {
   if(notes==='体重依存') {
     const defW=window._defBase?.weight||0;
     const atkW=window._atkBase?.weight||0;
-    if(!defW){alert('相手ポケモンの体重データがありません');return;}
+    if(!defW){ if(!silent) alert('相手ポケモンの体重データがありません'); return false; }
     power=getWeightPower(moveName,atkW,defW);
     weightInfo='体重依存: '+defW+'kg → 威力'+power;
-    if(!power){alert('体重依存技の計算に失敗しました');return;}
+    if(!power){ if(!silent) alert('体重依存技の計算に失敗しました'); return false; }
   }
   if(isLowHpMove) {
     const hpPct=clampNumber(el('atk-current-hp-pct')?.value||100,0,100);
@@ -2086,7 +2394,7 @@ function calcDamage() {
   if(moveName==='シェルアームズ'){
     specialMoveInfo=[specialMoveInfo,'シェルアームズ: 相手により物理/特殊を自動選択'].filter(Boolean).join(' / ');
   }
-  if(!power){alert('この技はダメージ技ではありません（変化技）');return;}
+  if(!power){ if(!silent) alert('この技はダメージ技ではありません（変化技）'); return false; }
 
   // スキン特性（ノーマル技のタイプ変更＋威力1.2倍）
   const atkAbNamePre=el('atk-ability').value||'';
@@ -2276,7 +2584,7 @@ function calcDamage() {
 
   // 無効化
   if(defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype){
-    showResult0(defAbName); return;
+    showResult0(defAbName); return true;
   }
 
   let defStatMult=1;
@@ -2466,6 +2774,7 @@ function calcDamage() {
   else if(judgeMn*3>=100) {kt.innerHTML='<span class="ko-tag ko3">確定3発</span>';el('dmg-desc').textContent=judgePrefix+'3回で確実に倒せます';}
   else if(judgeMx*3>=100) {kt.innerHTML='<span class="ko-tag ko3">乱数3発</span>';el('dmg-desc').textContent=judgePrefix+'乱数次第で3発で倒せます';}
   else                {kt.innerHTML='<span class="ko-tag ko3">4発以上</span>';el('dmg-desc').textContent=judgePrefix+'4回以上必要です';}
+  return true;
 }
 function showResult0(abName){
   el('result-box').classList.add('show');
@@ -2938,9 +3247,23 @@ function initSeasonFilter(){
 }
 function onSeasonFilterChange(){
   document.querySelectorAll('input.search-input').forEach(inp=>inp.dispatchEvent(new Event('input')));
+  if(el('damage-setup-modal')?.classList.contains('show')) renderDamageSetupLists();
 }
 
 // ===== イベント設定 =====
+function bindAutoCalcEvents(){
+  const ids = [
+    'atk-item','atk-ally-ability','atk-burn','atk-current-hp-pct','atk-fainted-last-respects','atk-fainted-supreme','atk-other','atk-weather',
+    'def-item','def-wall','def-ally-ability','def-stealth-rock','def-spikes',
+    'atk-rank','atk-extra-rank-def','atk-extra-rank-spd','atk-extra-rank-spe','atk-extra-rank-acc','atk-extra-rank-eva',
+    'def-rank','def-atk-rank'
+  ];
+  ids.forEach(id=>{
+    const node = el(id);
+    if(!node) return;
+    ['input','change'].forEach(ev=>node.addEventListener(ev, ()=>scheduleAutoCalc()));
+  });
+}
 function setupEvents(){
   // スライダー同期（攻撃側）
   [['atk-iv-range','atk-iv','atk-iv-disp'],
@@ -2985,11 +3308,15 @@ window.onload = async()=>{
   setupMoveSearch('atk2-move-search','atk2-move-drop');
   initSeasonFilter();
   setupEvents();
+  bindAutoCalcEvents();
   updateDefHazardInfo();
+  ['atk','def','move'].forEach(kind=>el(`setup-${kind}-search`)?.addEventListener('input',renderDamageSetupLists));
+  el('damage-setup-modal')?.addEventListener('click',e=>{ if(e.target===el('damage-setup-modal')) closeDamageSetupModal(); });
   el('poke-picker-search')?.addEventListener('input',renderPokemonPickerList);
   el('poke-picker-modal')?.addEventListener('click',e=>{ if(e.target===el('poke-picker-modal')) closePokemonPicker(); });
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePokemonPicker(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
+  updateDamageSetupSummary();
 };
 </script>
 <script>
