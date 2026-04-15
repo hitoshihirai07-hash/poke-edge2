@@ -294,8 +294,16 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 @media(max-width:700px){.party-layout{grid-template-columns:1fr;}}
 .party-slot-list{display:flex;flex-direction:column;gap:6px;}
 .party-slot-btn{
-  padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;
-  transition:all 0.18s;position:relative;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  padding:10px 12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  transition:all 0.18s;
+  position:relative;
+}
 .party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);}
 .party-slot-btn.active{background:rgba(0,200,240,0.06);}
 .party-slot-btn.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
@@ -353,7 +361,7 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .add-breakdown{font-size:11px;color:var(--text3);margin-top:8px;line-height:2;}
 .add-ko-tag{display:inline-block;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:6px;}
 .add-ko1{background:var(--accent2);color:#fff;}.add-ko2{background:var(--accent3);color:#000;}.add-ko3{background:var(--text2);color:#fff;}
-footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 /* アクティブタブ不要なので非表示 */
 .tabs{ display:none; }
 
@@ -421,123 +429,24 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
   .card-title{font-size:11px;}
 }
 
+.mobile-result-bar{display:none;}
+.mobile-result-progress{height:4px;background:rgba(255,255,255,0.08);}
+.mobile-result-progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--accent3));transition:width .25s ease;}
+.mobile-result-summary{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:none;background:rgba(15,20,35,0.98);color:var(--text);cursor:pointer;text-align:left;}
+.mobile-result-summary-main{font-size:16px;font-weight:700;line-height:1.35;}
+.mobile-result-summary-sub{font-size:11px;color:var(--text2);line-height:1.5;margin-top:2px;}
+.mobile-result-summary-icon{font-size:18px;color:var(--accent3);flex-shrink:0;}
 @media(max-width:768px){
-  .layout{padding:10px 8px 88px;gap:10px;}
-  .setup-entry,
-  .card,
-  .corr-section,
-  .result-box,
-  .add-section,
-  .add-card,
-  .picker-search,
-  .picker-head,
-  .damage-setup-footer{padding:10px;}
-  .setup-entry-head,
-  .setup-entry-actions,
-  .quick-action-row,
-  .damage-setup-footer{
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    gap:8px;
-  }
-  .setup-entry-head > div[style*="min-width:220px"],
-  .damage-setup-footer > div[style*="min-width:220px"]{min-width:0 !important;}
-  .setup-entry-actions > *,
-  .quick-action-row > *{width:100%;}
-  .calc-grid{display:block;}
-  .calc-grid > .card,
-  .calc-grid > .vs-mid{margin-bottom:10px;}
-  .vs-mid{display:block;padding-top:0;}
-  .swap-btn{width:100%;writing-mode:horizontal-tb;padding:12px 14px;}
-  .poke-card{padding:10px;margin-top:10px;}
-  .poke-no{display:none;}
-  .poke-name{font-size:18px;line-height:1.25;}
-  .poke-types{margin-bottom:6px;flex-wrap:wrap;}
-  #atk-basestats,
-  #def-basestats,
-  #atk2-basestats{display:none;}
-  #atk-abilities,
-  #def-abilities,
-  #atk2-abilities{margin-top:6px !important;}
-  #atk-abilities span,
-  #def-abilities span,
-  #atk2-abilities span{font-size:10px !important;padding:3px 6px !important;}
-  label{font-size:11px;letter-spacing:.5px;margin-top:10px;}
-  input[type=text],
-  input[type=number],
-  select,
-  .search-input{font-size:16px;padding:12px 10px;min-height:48px;}
-  .search-wrap{margin-bottom:8px;}
-  .slider-row{margin-bottom:10px;}
-  .slider-header{margin-bottom:6px;}
-  .slider-inputs{grid-template-columns:minmax(0,1fr) 84px;gap:8px;}
-  input[type=range]{margin:8px 0;}
-  .real-stat-box{margin-top:10px;padding:0 10px;}
-  .real-stat-row{
-    display:grid;
-    grid-template-columns:72px minmax(0,1fr);
-    grid-template-areas:'label val' 'note note';
-    gap:2px 10px;
-    justify-content:stretch;
-    align-items:end;
-    margin:0;
-    padding:10px 0;
-    border-bottom:1px solid var(--border);
-  }
-  .real-stat-row:last-child{border-bottom:none;}
-  .real-stat-label{grid-area:label;width:auto;}
-  .real-stat-val{grid-area:val;justify-self:end;font-size:24px;line-height:1;}
-  .real-stat-note{grid-area:note;font-size:10px;line-height:1.5;}
-  .corr-section{padding:10px;}
-  .corr-grid,
-  .move-judge-grid,
-  .party-wrap,
-  .add-grid,
-  .party-grid{grid-template-columns:1fr !important;gap:8px;}
-  .quick-chip-wrap{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;margin-top:6px;}
-  .quick-chip{white-space:nowrap;flex:0 0 auto;padding:8px 10px;font-size:11px;}
-  .main-btn{font-size:16px;letter-spacing:2px;padding:12px;}
-  .dmg-num{font-size:36px;}
-  .dmg-pct{font-size:22px;}
-  .rolls-wrap{gap:4px;}
-  #add-toggle-btn{width:100%;}
-  .damage-setup-body{grid-template-columns:1fr;}
-  .damage-setup-col{min-height:auto;}
-  .damage-setup-picked{min-height:0;}
-  .damage-setup-list{max-height:38vh;}
-  .setup-entry-help,
-  .quick-note,
-  .damage-setup-footer-note{font-size:10px;line-height:1.6;}
-  .setup-entry-summary{line-height:1.7;}
-  #tab-damage > div[style*="display:flex;align-items:center;gap:10px;margin:-4px 0 8px;"]{
-    display:flex;
-    flex-direction:column;
-    align-items:stretch !important;
-    gap:8px !important;
-  }
-  #tab-damage > div[style*="display:flex;align-items:center;gap:10px;margin:-4px 0 8px;"] > span{font-size:10px;line-height:1.6;}
-  #tab-damage .card > div[style*="display:flex;gap:6px;margin-bottom:10px;align-items:center;"]{
-    display:flex !important;
-    flex-wrap:wrap;
-    gap:8px !important;
-    align-items:flex-start !important;
-  }
-  #tab-damage .card > div[style*="display:flex;gap:6px;margin-bottom:10px;align-items:center;"] > span{
-    width:100%;
-    font-size:11px !important;
-  }
-  #tab-damage .card > div[style*="display:flex;gap:6px;margin-bottom:10px;align-items:center;"] > label{
-    flex:1 1 calc(50% - 4px);
-    margin-top:0;
-    font-size:11px !important;
-  }
-  #tab-damage .card > div[style*="display:flex;gap:6px;margin-bottom:10px;align-items:center;"] > label span{
-    font-size:11px !important;
-    white-space:normal;
-  }
+  .damage-workspace{grid-template-columns:1fr !important;gap:12px;}
+  .damage-main-col,.damage-side-col,.calc-grid,.card,.setup-entry,.result-box,.add-section,.add-card{min-width:0;}
+  .result-placeholder{display:none !important;}
+  .mobile-result-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:140;border-top:1px solid var(--border2);box-shadow:0 -10px 24px rgba(0,0,0,0.35);}
+  .damage-side-col{order:2;}
+  .result-sticky{gap:0;}
+  .result-box{padding:12px;}
+  .result-box .sec{margin-bottom:8px;}
+  footer{padding-bottom:82px;}
 }
-
 /* ===== ライトモード ===== */
 </style>
 </head>
@@ -2020,6 +1929,7 @@ function clearDamageSetupSelection(){
   if(el('result-box')) el('result-box').classList.remove('show');
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  updateResultAreaState();
 }
 
 function clearAbilitySide(side){
@@ -2892,6 +2802,7 @@ function calcDamage(options={}) {
   else if(judgeMn*3>=100) {kt.innerHTML='<span class="ko-tag ko3">確定3発</span>';el('dmg-desc').textContent=judgePrefix+'3回で確実に倒せます';}
   else if(judgeMx*3>=100) {kt.innerHTML='<span class="ko-tag ko3">乱数3発</span>';el('dmg-desc').textContent=judgePrefix+'乱数次第で3発で倒せます';}
   else                {kt.innerHTML='<span class="ko-tag ko3">4発以上</span>';el('dmg-desc').textContent=judgePrefix+'4回以上必要です';}
+  updateResultAreaState();
   return true;
 }
 function showResult0(abName){
@@ -2903,6 +2814,7 @@ function showResult0(abName){
   el('ko-tag').innerHTML='<span class="ko-tag ko3">無効</span>';
   el('dmg-desc').textContent='特性により無効化されます';
   el('dmg-rolls').innerHTML='';
+  updateResultAreaState();
 }
 
 // ===== 加算計算 =====
@@ -3413,6 +3325,41 @@ function setupEvents(){
   });
 }
 
+
+function updateResultAreaState(){
+  const placeholder=el('result-placeholder');
+  const resultBox=el('result-box');
+  const hasResult=!!(resultBox && resultBox.classList.contains('show'));
+  if(placeholder) placeholder.classList.toggle('hide', hasResult);
+  updateMobileResultBar();
+}
+function updateMobileResultBar(){
+  const bar=el('mobile-result-bar');
+  if(!bar) return;
+  const resultBox=el('result-box');
+  const shown=!!(resultBox && resultBox.classList.contains('show'));
+  bar.hidden=false;
+  if(!shown){
+    if(el('mobile-result-summary-main')) el('mobile-result-summary-main').textContent='ダメージ結果はここに表示されます';
+    if(el('mobile-result-summary-sub')) el('mobile-result-summary-sub').textContent='攻撃側・防御側・技を決めると自動更新されます';
+    if(el('mobile-result-progress-fill')) el('mobile-result-progress-fill').style.width='0%';
+    return;
+  }
+  const main=el('mobile-result-summary-main');
+  const sub=el('mobile-result-summary-sub');
+  const dmg=(el('dmg-num')?el('dmg-num').textContent:'—').trim();
+  const pct=(el('dmg-pct')?el('dmg-pct').textContent:'').trim();
+  const ko=(el('ko-tag')?el('ko-tag').textContent:'').trim();
+  if(main) main.textContent=dmg + (pct ? '（'+pct+'）' : '');
+  if(sub) sub.textContent=ko || ((el('dmg-desc')?el('dmg-desc').textContent:'').trim()) || '詳細を確認';
+  const p=(el('dmg-bar')?el('dmg-bar').style.width:'0%') || '0%';
+  if(el('mobile-result-progress-fill')) el('mobile-result-progress-fill').style.width=p;
+}
+function scrollToResultBox(){
+  const box=el('result-box');
+  if(!box) return;
+  box.scrollIntoView({behavior:'smooth', block:'start'});
+}
 // ===== 初期化 =====
 window.onload = async()=>{
   await loadGameData();
@@ -3435,6 +3382,7 @@ window.onload = async()=>{
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  updateResultAreaState();
 };
 </script>
 <script>
