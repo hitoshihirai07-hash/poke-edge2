@@ -1882,15 +1882,14 @@ function renderDamageSetupPicked(kind){
   box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(types)}</div>`;
 }
 function renderDamageSetupLists(){
-  // スマホ幅では検索欄が空のときは一覧非表示（プレースホルダーのみ）。
-  // PCでは従来通り全件表示。
-  const isNarrow = window.matchMedia('(max-width:820px)').matches;
+  // 検索欄が空のときは一覧を出さず、プレースホルダーのみ表示（PC/スマホ共通）。
   ['atk','def'].forEach(kind=>{
     const list = el(`setup-${kind}-list`);
     if(!list) return;
     const q = (el(`setup-${kind}-search`)?.value||'').trim();
-    if(isNarrow && !q){
-      list.innerHTML = '<div class="quick-note" style="padding:14px 4px;line-height:1.7;">上の検索欄にポケモン名を入力すると候補が表示されます。</div>';
+    if(!q){
+      const label = kind==='atk' ? '攻撃側ポケモン名' : '防御側ポケモン名';
+      list.innerHTML = `<div class="quick-note" style="padding:14px 4px;line-height:1.7;">上の検索欄に${label}を入力すると候補が表示されます。</div>`;
       return;
     }
     const selectedName = _damageSetupState[`${kind}Name`];
@@ -1904,7 +1903,7 @@ function renderDamageSetupLists(){
   const moveList = el('setup-move-list');
   if(moveList){
     const q = (el('setup-move-search')?.value||'').trim();
-    if(isNarrow && !q){
+    if(!q){
       moveList.innerHTML = '<div class="quick-note" style="padding:14px 4px;line-height:1.7;">上の検索欄に技名を入力すると候補が表示されます。</div>';
     } else {
       const items = getSetupMoveItems();
@@ -2976,8 +2975,9 @@ function calcAddDamage(){
   const judgeMn=Math.round(totalMn/judgeHp*100), judgeMx=Math.round(totalMx/judgeHp*100);
   const bar1w=Math.min(Math.round((r1.mx+(r1b?r1b.mx:0))/hp*100),100);
   const bar2w=Math.min(Math.round(r2.mx/hp*100),100);
-  const addBox=el('add-result-box');
+  const addBox=el('add-result');
   if(addBox){
+    addBox.style.display='block';
     addBox.classList.add('show');
     const totalNum=el('add-total-num'); if(totalNum) totalNum.textContent=`${totalMn} 〜 ${totalMx}`;
     const totalPct=el('add-total-pct'); if(totalPct) totalPct.textContent=hazardInfo.total>0?`${pctMn}〜${pctMx}%（場ダメ後残HP ${remainingHp}）`:`${pctMn}〜${pctMx}%`;
@@ -3475,13 +3475,7 @@ function applyMobileResultMode(){
 }
 function initMobileResultUI(){
   applyMobileResultMode();
-  window.addEventListener('resize', ()=>{
-    applyMobileResultMode();
-    // セットアップモーダルが開いているときはリストの表示粒度(スマホ/PC)を更新
-    if(document.getElementById('damage-setup-modal')?.classList.contains('show')){
-      try { renderDamageSetupLists(); } catch(e){}
-    }
-  });
+  window.addEventListener('resize', applyMobileResultMode);
   updateMobileResultSummary();
   // 結果ボックス内のDOM変化を監視してサマリーを更新
   const box=document.getElementById('result-box');
