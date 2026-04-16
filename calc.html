@@ -1416,6 +1416,8 @@ function normalizeMoveEntry(raw){
     hits: String(raw.hits ?? raw.hitCount ?? raw['回数'] ?? '1').trim(),
     notes: String(raw.notes ?? raw.note ?? raw.description ?? raw['説明'] ?? '').trim(),
     alwaysCrit: String(raw.alwaysCrit ?? raw.always_crit ?? raw['急所固定'] ?? '').trim(),
+    contact: raw.contact===true || raw.contact==='true' || raw.contact===1,
+    effect: String(raw.effect ?? raw['効果'] ?? '').trim(),
   };
   if(!out.name) return null;
   return out;
@@ -2175,6 +2177,20 @@ function abilityHasListedMove(abilityName,moveName){
   if(!abilityName||!moveName) return false;
   return getAbilityMoveNameSet(abilityName).has(moveName);
 }
+// ===== 技情報ヘルパー（moves.json の contact / effect を活用） =====
+function getMoveData(moveName){
+  if(!moveName) return null;
+  return moveIndex.find(m=>m.name===moveName) || null;
+}
+function isContactMove(moveName){
+  const m=getMoveData(moveName);
+  return !!(m && m.contact===true);
+}
+// 「わるあがき」のような攻撃扱い例外にも配慮。contact フラグ未設定の救済として既知のリストで補う。
+const CONTACT_FALLBACK=new Set(['わるあがき']);
+function resolveContactMove(moveName){
+  return isContactMove(moveName) || CONTACT_FALLBACK.has(moveName);
+}
 function renderAbilityBadges(side,pokeName) {
   const abs=ABILITY_MAP[pokeName]||[], el2=el(side+'-abilities');
   if(!el2) return;
@@ -2625,6 +2641,29 @@ function calcDamage(options={}) {
     powerMult*=1.3;
     abilityExtraInfo.push('パンクロック: 音技×1.3');
   }
+  // かたいツメ: 直接攻撃(contact=true)の技を 1.3 倍
+  if(atkAbName==='かたいツメ'&&resolveContactMove(moveName)){
+    powerMult*=1.3;
+    abilityExtraInfo.push('かたいツメ: 直接攻撃×1.3');
+  }
+  // ブレインフォース: 効果抜群(eff>=2)の技を 1.25 倍
+  if(atkAbName==='ブレインフォース'&&eff>=2){
+    powerMult*=1.25;
+    abilityExtraInfo.push('ブレインフォース: 効果抜群×1.25');
+  }
+  // すいほう(攻撃側): みずタイプ技を 2 倍
+  if(atkAbName==='すいほう'&&mtype==='みず'){
+    powerMult*=2;
+    abilityExtraInfo.push('すいほう: みず技×2.0');
+  }
+  // ノーマル/タイプスキン系: ノーマル→該当タイプ化 + 1.2倍（タイプ変化は既存ロジックで扱われていれば威力のみ加算）
+  // ただしタイプ自体の差し替えは別関数 getEffectiveAtkTypes で行われている前提。威力補正のみここで反映。
+  if(mtype!=='ノーマル'){
+    if(atkAbName==='エレキスキン'&&mtype==='でんき'){ powerMult*=1.2; abilityExtraInfo.push('エレキスキン: 変換技×1.2'); }
+    if(atkAbName==='スカイスキン'&&mtype==='ひこう'){ powerMult*=1.2; abilityExtraInfo.push('スカイスキン: 変換技×1.2'); }
+    if(atkAbName==='フェアリースキン'&&mtype==='フェアリー'){ powerMult*=1.2; abilityExtraInfo.push('フェアリースキン: 変換技×1.2'); }
+    if(atkAbName==='フリーズスキン'&&mtype==='こおり'){ powerMult*=1.2; abilityExtraInfo.push('フリーズスキン: 変換技×1.2'); }
+  }
   if(atkAbName==='いわはこび'&&mtype==='いわ'){
     powerMult*=1.5;
     abilityExtraInfo.push('いわはこび: いわ技×1.5');
@@ -2718,6 +2757,27 @@ function calcDamage(options={}) {
   if(defAbName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)){
     dmgMult*=0.5;
     abilityExtraInfo.push('相手パンクロック: 音技半減');
+  }
+  // もふもふ(防御側): 直接攻撃を 0.5 倍 / ほのおタイプを 2 倍（両立し得る）
+  if(defAbName==='もふもふ'){
+    if(resolveContactMove(moveName)){
+      dmgMult*=0.5;
+      abilityExtraInfo.push('相手もふもふ: 直接攻撃×0.5');
+    }
+    if(mtype==='ほのお'){
+      dmgMult*=2;
+      abilityExtraInfo.push('相手もふもふ: ほのお技×2.0');
+    }
+  }
+  // かんそうはだ(防御側): ほのお技を 1.25 倍被弾（みず無効は既存の immuneType で扱う想定）
+  if(defAbName==='かんそうはだ'&&mtype==='ほのお'){
+    dmgMult*=1.25;
+    abilityExtraInfo.push('相手かんそうはだ: ほのお技×1.25');
+  }
+  // ハードロック/フィルター/プリズムアーマー: 効果抜群を 0.75 倍（プリズムアーマーを追加）
+  if(defAbName==='プリズムアーマー'&&eff>=2){
+    defStatMult*=0.75;
+    abilityExtraInfo.push('相手プリズムアーマー: 効果抜群×0.75');
   }
   if(defItem==='def_1.5_kiseki') defStatMult*=1.5;
   if(defItem==='def_2_metaba'&&defenseCategory==='物理') defStatMult*=2;
@@ -3028,19 +3088,88 @@ function calcOneDamage(atkSt,atkBase,defSt,defBase,lv,mtype,mcat,hits,power,item
   else if(itemKey==='inochi') itemMult=1.3;
 
   let abilityDmgMult=1;
+  let abilityPowerMult=1;
+  let abilityAtkMult=1;
+  let abilityDefMult=1;
+
+  // ===== 攻撃側・特性による威力補正 =====
+  if(abilityName==='てつのこぶし'&&abilityHasListedMove('てつのこぶし',moveName)) abilityPowerMult*=1.2;
+  if(abilityName==='すてみ'&&abilityHasListedMove('すてみ',moveName)) abilityPowerMult*=1.2;
+  if(abilityName==='がんじょうあご'&&abilityHasListedMove('がんじょうあご',moveName)) abilityPowerMult*=1.5;
+  if(abilityName==='きれあじ'&&abilityHasListedMove('きれあじ',moveName)) abilityPowerMult*=1.5;
+  if(abilityName==='メガランチャー'&&abilityHasListedMove('メガランチャー',moveName)) abilityPowerMult*=1.5;
+  if(abilityName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)) abilityPowerMult*=1.3;
+  if(abilityName==='かたいツメ'&&resolveContactMove(moveName)) abilityPowerMult*=1.3;
+  if(abilityName==='ブレインフォース'&&eff>=2) abilityPowerMult*=1.25;
+  if(abilityName==='すいほう'&&mtype==='みず') abilityPowerMult*=2;
+  if(abilityName==='いわはこび'&&mtype==='いわ') abilityPowerMult*=1.5;
+  if(abilityName==='りゅうのあぎと'&&mtype==='ドラゴン') abilityPowerMult*=1.5;
+  if(abilityName==='はがねつかい'&&mtype==='はがね') abilityPowerMult*=1.5;
+  if(abilityName==='トランジスタ'&&mtype==='でんき') abilityPowerMult*=1.3;
+  if(abilityName==='テクニシャン'&&power<=60) abilityPowerMult*=1.5;
+  if(mtype!=='ノーマル'){
+    if(abilityName==='エレキスキン'&&mtype==='でんき') abilityPowerMult*=1.2;
+    if(abilityName==='スカイスキン'&&mtype==='ひこう') abilityPowerMult*=1.2;
+    if(abilityName==='フェアリースキン'&&mtype==='フェアリー') abilityPowerMult*=1.2;
+    if(abilityName==='フリーズスキン'&&mtype==='こおり') abilityPowerMult*=1.2;
+  }
+
+  // ===== 攻撃側・こうげき/とくこう補正 =====
+  if(['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(abilityName)){
+    const tmap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
+    if(tmap[abilityName]===mtype) abilityAtkMult*=1.5;
+  }
+  if(['ちからもち','ヨガパワー'].includes(abilityName)&&moveCategory==='物理'&&!isBodyPress) abilityAtkMult*=2;
+  if(abilityName==='ごりむちゅう'&&moveCategory==='物理') abilityAtkMult*=1.5;
+  if(abilityName==='はりきり'&&moveCategory==='物理') abilityAtkMult*=1.5;
+  if(['クォークチャージ','こだいかっせい'].includes(abilityName)) abilityAtkMult*=1.3;
+
+  // ===== ダメージ倍率（最終） =====
+  if(abilityName==='スナイパー') abilityDmgMult*=1.5;
+  if(abilityName==='ちからずく') abilityDmgMult*=1.3;
+  if(abilityName==='いろめがね'&&eff<1) abilityDmgMult*=2;
   if(abilityName==='そうだいしょう'){
     const fainted=Math.min(5, Math.max(0, parseInt(el('atk-fainted-supreme')?.value||'0')||0));
     abilityDmgMult*=1 + 0.1 * fainted;
   }
+  // てきおうりょく: STAB×2（後段で stab を差し替える必要があるため、先に使用）
+  let stabActual = stab;
+  if(stabActual>1&&abilityName==='てきおうりょく') stabActual=2.0;
+
+  // ===== 防御側の特性 =====
+  const defAbName=el('def-ability')?.value||'';
+  const defAbData=getAbilityByName(defAbName);
+  if(defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype){
+    return {mn:0,mx:0};
+  }
+  if(['マルチスケイル','ファントムガード'].includes(defAbName)) abilityDefMult*=0.5;
+  if(['フィルター','ハードロック','プリズムアーマー'].includes(defAbName)&&eff>=2) abilityDefMult*=0.75;
+  if(defAbName==='ファーコート'&&defenseCategory==='物理') abilityDefMult*=2;
+  if(defAbName==='もふもふ'){
+    if(resolveContactMove(moveName)) abilityDmgMult*=0.5;
+    if(mtype==='ほのお') abilityDmgMult*=2;
+  }
+  if(defAbName==='かんそうはだ'&&mtype==='ほのお') abilityDmgMult*=1.25;
+  if(defAbName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)) abilityDmgMult*=0.5;
+
+  // ===== 持ち物（攻撃側のみ。防御側道具までは現行加算計算では持たない） =====
+  // 既存の itemMult に加えて、eff 連動系などを補完
+  if(itemKey==='tatsujin'&&eff>1) itemMult*=1.2;
+  if(itemKey==='juel') itemMult*=1.3;
+  if(itemKey==='pangro') itemMult*=1.2;
+  if(itemKey==='hone'&&!isBodyPress) itemMult*=2.0;
 
   const rankTable=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
   const atkRankVal = isBodyPress ? getStageValue('atk-extra-rank-def') : (isFoulPlay ? (parseInt(el('def-atk-rank')?.value||'0')||0) : getStageValue('atk-rank'));
-  const effAtk=Math.floor(atkStat*rankTable[atkRankVal+6]);
-  const firstHit = calcBaseDamageRolls(lv, hitsPower, effAtk, defStat, stab, eff, itemMult, abilityDmgMult, 1);
+  let effAtk=Math.floor(atkStat*rankTable[atkRankVal+6]);
+  effAtk = Math.floor(effAtk * abilityAtkMult);
+  const effDef = Math.floor(defStat * abilityDefMult);
+  const effPow = Math.max(1, Math.floor(hitsPower * abilityPowerMult));
+  const firstHit = calcBaseDamageRolls(lv, effPow, effAtk, effDef, stabActual, eff, itemMult, abilityDmgMult, 1);
   const parentalBondActive = abilityName==='おやこあい' && !isParentalBondBlocked(moveName, hitsInfo);
   if(parentalBondActive){
-    const secondPower = Math.max(1, Math.floor(hitsPower * 0.25));
-    const secondHit = calcBaseDamageRolls(lv, secondPower, effAtk, defStat, stab, eff, itemMult, abilityDmgMult, 1);
+    const secondPower = Math.max(1, Math.floor(effPow * 0.25));
+    const secondHit = calcBaseDamageRolls(lv, secondPower, effAtk, effDef, stabActual, eff, itemMult, abilityDmgMult, 1);
     return {
       mn:(firstHit.mn + secondHit.mn) * hitsInfo.min,
       mx:(firstHit.mx + secondHit.mx) * hitsInfo.max
