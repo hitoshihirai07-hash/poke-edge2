@@ -142,6 +142,65 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .gen-btn.isnew::after{content:'NEW';position:absolute;top:-7px;right:-3px;background:var(--accent2);color:#fff;font-size:7px;font-weight:700;padding:1px 4px;}
 .layout{position:relative;z-index:1;display:grid;grid-template-columns:1fr;max-width:1100px;margin:0 auto;padding:18px 14px;gap:16px;align-items:start;}
 @media(max-width:820px){.layout{grid-template-columns:1fr;}}
+/* ===== 2-column layout: input (left) + result (right) for PC ===== */
+.calc-body{display:grid;grid-template-columns:1fr;gap:16px;align-items:start;}
+.calc-input-col{min-width:0;}
+.calc-result-col{min-width:0;}
+@media(min-width:1080px){
+  .calc-body{grid-template-columns:minmax(0,1fr) 360px;}
+  .calc-result-col{position:sticky;top:66px;max-height:calc(100vh - 80px);overflow-y:auto;padding-right:2px;}
+  /* Firefox / Chromium scrollbar styling */
+  .calc-result-col::-webkit-scrollbar{width:6px;}
+  .calc-result-col::-webkit-scrollbar-thumb{background:var(--border2);}
+  .calc-result-col::-webkit-scrollbar-track{background:transparent;}
+  /* Reset any margins that made sense in single-column */
+  .calc-result-col .result-box,
+  .calc-result-col .add-section{margin-top:0;}
+  /* Collapsed mobile-bottom UI is unused on PC */
+  .mobile-result-handle{display:none !important;}
+}
+/* ===== Mobile: fixed bottom, collapsible ===== */
+@media(max-width:1079px){
+  .calc-result-col.mobile-floating{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    z-index:80;
+    background:var(--panel);
+    border-top:1px solid var(--accent);
+    box-shadow:0 -4px 14px rgba(0,0,0,0.45);
+    max-height:72vh;
+    display:flex;
+    flex-direction:column;
+    transform:translateY(calc(100% - 62px));
+    transition:transform 0.25s ease;
+    padding:0;
+  }
+  .calc-result-col.mobile-floating.open{transform:translateY(0);}
+  .mobile-result-handle{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 14px;
+    cursor:pointer;
+    user-select:none;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,rgba(0,200,240,0.06),transparent);
+    min-height:42px;
+  }
+  .mobile-result-handle-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+  .mobile-result-handle-grip{width:34px;height:3px;background:var(--border2);border-radius:2px;flex-shrink:0;}
+  .mobile-result-handle-summary{font-size:11px;color:var(--text);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mobile-result-handle-summary .mrh-pct{color:var(--accent);font-family:'Bebas Neue',monospace;font-size:14px;margin-right:6px;}
+  .mobile-result-handle-summary .mrh-ko{color:var(--accent3);font-size:10px;margin-left:6px;}
+  .mobile-result-handle-caret{font-size:14px;color:var(--text2);flex-shrink:0;transition:transform 0.25s ease;}
+  .calc-result-col.mobile-floating.open .mobile-result-handle-caret{transform:rotate(180deg);}
+  .mobile-result-scroll{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px 16px;flex:1;}
+  .mobile-result-scroll .result-box{border:none;padding:0;background:transparent;}
+  .mobile-result-scroll .add-section{margin-top:14px;}
+  /* Bottom spacer so page content can scroll above the collapsed bar */
+  body.has-mobile-result{padding-bottom:72px;}
+}
 .sidebar{display:flex;flex-direction:column;gap:10px;position:sticky;top:66px;}
 .affili-card{display:block;background:var(--panel);border:1px solid var(--border);padding:12px;text-decoration:none;transition:border-color 0.18s;}
 .affili-name{font-size:11px;color:var(--text);font-weight:700;line-height:1.5;}
@@ -489,6 +548,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
       </div>
     </div>
 
+    <div class="calc-body">
+    <div class="calc-input-col">
     <div class="calc-grid">
 
       <!-- 攻撃側 -->
@@ -983,6 +1044,17 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
       <button id="add-toggle-btn" onclick="toggleAddMode()" style="background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 16px;cursor:pointer;font-size:11px;font-family:'Noto Sans JP',sans-serif;letter-spacing:1px;transition:all 0.18s;">＋ 加算計算を使う</button>
       <span style="font-size:10px;color:var(--text2);">2体・2技の合計ダメージで倒せるか判定</span>
     </div>
+    </div><!-- /.calc-input-col -->
+
+    <div class="calc-result-col" id="calc-result-col">
+      <div class="mobile-result-handle" id="mobile-result-handle" onclick="toggleMobileResult()">
+        <div class="mobile-result-handle-left">
+          <div class="mobile-result-handle-grip"></div>
+          <div class="mobile-result-handle-summary" id="mobile-result-handle-summary">ダメージ計算結果</div>
+        </div>
+        <div class="mobile-result-handle-caret">▲</div>
+      </div>
+      <div class="mobile-result-scroll">
 
     <div class="result-box" id="result-box">
       <div class="sec">計算結果</div>
@@ -1167,6 +1239,10 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="add-breakdown" id="add-breakdown"></div>
       </div>
     </div>
+
+      </div><!-- /.mobile-result-scroll -->
+    </div><!-- /.calc-result-col -->
+    </div><!-- /.calc-body -->
   </div>
 
 
@@ -1806,9 +1882,17 @@ function renderDamageSetupPicked(kind){
   box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(types)}</div>`;
 }
 function renderDamageSetupLists(){
+  // スマホ幅では検索欄が空のときは一覧非表示（プレースホルダーのみ）。
+  // PCでは従来通り全件表示。
+  const isNarrow = window.matchMedia('(max-width:820px)').matches;
   ['atk','def'].forEach(kind=>{
     const list = el(`setup-${kind}-list`);
     if(!list) return;
+    const q = (el(`setup-${kind}-search`)?.value||'').trim();
+    if(isNarrow && !q){
+      list.innerHTML = '<div class="quick-note" style="padding:14px 4px;line-height:1.7;">上の検索欄にポケモン名を入力すると候補が表示されます。</div>';
+      return;
+    }
     const selectedName = _damageSetupState[`${kind}Name`];
     const items = getSetupPokemonItems(kind);
     list.innerHTML = items.map(p=>{
@@ -1819,13 +1903,18 @@ function renderDamageSetupLists(){
   });
   const moveList = el('setup-move-list');
   if(moveList){
-    const items = getSetupMoveItems();
-    moveList.innerHTML = items.map(m=>{
-      const selected = _damageSetupState.moveName===m.name ? ' is-selected' : '';
-      const extra = [m.type||'—', m.category||'—', `威力 ${m.power ?? '—'}`];
-      const known = m._known ? '判明技を優先表示' : '';
-      return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('move','${encodeJsArg(m.name)}')"><div class="picker-item-name">${escapeHtml(m.name)}</div><div class="damage-setup-item-meta">${escapeHtml(extra.join(' / '))}${known?`<br>${escapeHtml(known)}`:''}</div></button>`;
-    }).join('') || '<div class="quick-note">該当する技がありません。</div>';
+    const q = (el('setup-move-search')?.value||'').trim();
+    if(isNarrow && !q){
+      moveList.innerHTML = '<div class="quick-note" style="padding:14px 4px;line-height:1.7;">上の検索欄に技名を入力すると候補が表示されます。</div>';
+    } else {
+      const items = getSetupMoveItems();
+      moveList.innerHTML = items.map(m=>{
+        const selected = _damageSetupState.moveName===m.name ? ' is-selected' : '';
+        const extra = [m.type||'—', m.category||'—', `威力 ${m.power ?? '—'}`];
+        const known = m._known ? '判明技を優先表示' : '';
+        return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('move','${encodeJsArg(m.name)}')"><div class="picker-item-name">${escapeHtml(m.name)}</div><div class="damage-setup-item-meta">${escapeHtml(extra.join(' / '))}${known?`<br>${escapeHtml(known)}`:''}</div></button>`;
+      }).join('') || '<div class="quick-note">該当する技がありません。</div>';
+    }
   }
   renderDamageSetupPicked('atk');
   renderDamageSetupPicked('def');
@@ -3346,7 +3435,61 @@ window.onload = async()=>{
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  initMobileResultUI();
 };
+
+// ===== モバイル下部固定の結果UI =====
+function toggleMobileResult(){
+  const col=document.getElementById('calc-result-col');
+  if(!col) return;
+  // PCレイアウト中(mobile-floating未付与)は無視
+  if(!col.classList.contains('mobile-floating')) return;
+  col.classList.toggle('open');
+}
+function updateMobileResultSummary(){
+  const sumEl=document.getElementById('mobile-result-handle-summary');
+  if(!sumEl) return;
+  const pct=(document.getElementById('dmg-pct')?.textContent||'').trim();
+  const koRaw=(document.getElementById('ko-tag')?.textContent||'').trim();
+  const ko=koRaw.replace(/\s+/g,' ');
+  const box=document.getElementById('result-box');
+  const shown=box && box.classList.contains('show');
+  if(!shown || !pct || pct==='0%'){
+    sumEl.innerHTML='<span style="color:var(--text2);">ダメージ計算結果</span>';
+    return;
+  }
+  const koHtml=ko?`<span class="mrh-ko">${ko}</span>`:'';
+  sumEl.innerHTML=`<span class="mrh-pct">${pct}</span>${koHtml}`;
+}
+function applyMobileResultMode(){
+  const col=document.getElementById('calc-result-col');
+  if(!col) return;
+  const isMobile=window.matchMedia('(max-width:1079px)').matches;
+  if(isMobile){
+    col.classList.add('mobile-floating');
+    document.body.classList.add('has-mobile-result');
+  } else {
+    col.classList.remove('mobile-floating','open');
+    document.body.classList.remove('has-mobile-result');
+  }
+}
+function initMobileResultUI(){
+  applyMobileResultMode();
+  window.addEventListener('resize', ()=>{
+    applyMobileResultMode();
+    // セットアップモーダルが開いているときはリストの表示粒度(スマホ/PC)を更新
+    if(document.getElementById('damage-setup-modal')?.classList.contains('show')){
+      try { renderDamageSetupLists(); } catch(e){}
+    }
+  });
+  updateMobileResultSummary();
+  // 結果ボックス内のDOM変化を監視してサマリーを更新
+  const box=document.getElementById('result-box');
+  if(box && 'MutationObserver' in window){
+    const mo=new MutationObserver(()=>updateMobileResultSummary());
+    mo.observe(box,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','style']});
+  }
+}
 </script>
 <script>
 // ===== テーマ切替 =====
