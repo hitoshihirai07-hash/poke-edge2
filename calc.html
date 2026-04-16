@@ -389,44 +389,271 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 }
 
 /* ダメージ計算 レイアウト */
-.damage-setup-bar{background:var(--panel);border:1px solid var(--border);padding:18px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
-.damage-setup-bar-main{flex:1;min-width:260px;}
-.damage-setup-bar-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;}
-.damage-setup-bar-summary{font-size:14px;line-height:1.8;color:var(--text);}
-.damage-setup-bar-summary .label{color:var(--accent3);}
-.damage-setup-bar-help{font-size:11px;color:var(--text2);line-height:1.7;margin-top:8px;}
-.damage-setup-bar-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;}
-.damage-setup-status{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:1px solid var(--accent3);color:var(--accent3);font-size:12px;letter-spacing:1px;}
-.damage-desktop-layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:24px;align-items:start;}
-.damage-main-col{min-width:0;}
-.damage-side-col{min-width:0;}
-.damage-desktop-layout > .add-section{grid-column:1;}
-.damage-side-col .result-box{display:block;position:sticky;top:72px;min-height:220px;}
-.damage-side-col .result-box:not(.show) .dmg-num{font-size:34px;color:var(--text2);text-shadow:none;}
-.damage-side-col .result-box:not(.show) .dmg-pct{color:var(--text2);font-size:18px;}
-.damage-side-col .result-box:not(.show) #dmg-range,
-.damage-side-col .result-box:not(.show) #hazard-summary,
-.damage-side-col .result-box:not(.show) #ko-tag,
-.damage-side-col .result-box:not(.show) #dmg-desc,
-.damage-side-col .result-box:not(.show) #dmg-rolls,
-.damage-side-col .result-box:not(.show) #export-dmg-btn,
-.damage-side-col .result-box:not(.show) #export-dmg-status{display:none !important;}
-.damage-side-col .result-box:not(.show) .dmg-bar-fill{width:0 !important;}
-.damage-add-toggle-row{display:flex;align-items:center;gap:10px;margin:-4px 0 8px;}
-@media(max-width:1180px){.damage-desktop-layout{grid-template-columns:minmax(0,1fr) 350px;gap:18px;}}
+.setup-entry{background:var(--panel);border:1px solid var(--border);padding:14px;margin-bottom:12px;}
+.setup-entry-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.setup-entry-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);}
+.setup-entry-summary{font-size:12px;color:var(--text);line-height:1.7;}
+.setup-entry-status{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--border2);font-size:10px;letter-spacing:1px;color:var(--text2);}
+.setup-entry-status.ready{border-color:var(--accent3);color:var(--accent3);}
+.setup-entry-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.setup-entry-help{font-size:10px;color:var(--text2);margin-top:8px;line-height:1.6;}
+.damage-setup-panel{width:min(1180px,100%);max-height:min(90vh,900px);}
+.damage-setup-body{padding:14px 16px 10px;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;}
+.damage-setup-col{background:var(--bg2);border:1px solid var(--border);display:flex;flex-direction:column;min-height:480px;}
+.damage-setup-col-head{padding:12px;border-bottom:1px solid var(--border);}
+.damage-setup-col-title{font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+.damage-setup-picked{font-size:11px;color:var(--text);line-height:1.7;padding:8px 10px;background:var(--panel);border:1px solid var(--border2);min-height:42px;}
+.damage-setup-picked.empty{color:var(--text2);}
+.damage-setup-list{padding:10px;overflow:auto;display:flex;flex-direction:column;gap:8px;}
+.damage-setup-item{background:var(--panel);border:1px solid var(--border);padding:10px;text-align:left;cursor:pointer;transition:all 0.18s;}
+.damage-setup-item:hover{border-color:var(--accent);transform:translateY(-1px);}
+.damage-setup-item.is-selected{border-color:var(--accent3);box-shadow:inset 0 0 0 1px var(--accent3);}
+.damage-setup-item-meta{font-size:10px;color:var(--text2);margin-top:4px;line-height:1.6;}
+.damage-setup-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.damage-setup-footer-note{font-size:11px;color:var(--text2);line-height:1.7;flex:1;min-width:220px;}
+.damage-setup-error{font-size:11px;color:var(--accent2);min-height:18px;}
+.quick-note{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.6;}
+.drop-item{padding:8px 12px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:10px;transition:background 0.12s;border-bottom:1px solid var(--border);}
+.drop-item:hover{background:var(--bg2);}
+.drop-name{font-weight:700;}
+.drop-types{display:flex;gap:3px;}
+.poke-card{background:var(--bg2);border:1px solid var(--border);padding:12px;margin-top:8px;display:none;}
+.poke-card.show{display:block;}
+.poke-no{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;}
+.poke-name{font-size:16px;font-weight:700;margin:2px 0;}
+.poke-types{display:flex;gap:4px;margin-bottom:8px;}
+.type-pill{display:inline-block;padding:2px 7px;font-size:9px;font-weight:700;letter-spacing:1px;}
+.stat-row{display:grid;grid-template-columns:36px 1fr 28px;align-items:center;gap:5px;margin-bottom:4px;}
+.stat-label{font-size:9px;color:var(--text2);}
+.stat-bar-bg{height:4px;background:var(--bg);overflow:hidden;}
+.stat-bar-fg{height:100%;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+.stat-val{font-size:9px;font-family:'JetBrains Mono',monospace;text-align:right;}
+/* 実数値表示ボックス */
+.real-stat-box{background:var(--bg);border:1px solid var(--border2);padding:10px;margin-top:8px;}
+.real-stat-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.real-stat-label{font-size:10px;color:var(--text2);width:60px;}
+.real-stat-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);}
+.real-stat-note{font-size:9px;color:var(--text3);}
+/* スライダー行 */
+.slider-row{margin-bottom:6px;}
+.slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+.slider-label{font-size:10px;color:var(--text2);}
+.slider-val{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--accent3);}
+.slider-inputs{display:grid;grid-template-columns:1fr 56px;gap:6px;align-items:center;}
+/* calc grid */
+.calc-grid{display:grid;grid-template-columns:1fr 44px 1fr;gap:10px;align-items:start;}
+.vs-mid{display:flex;align-items:center;justify-content:center;padding-top:50px;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent2);}
+.main-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#007a99);border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.15s;margin:12px 0;}
+.main-btn:hover{opacity:0.85;transform:translateY(-1px);}
+.result-box{background:var(--bg2);border:1px solid var(--border);padding:16px;display:none;}
+.result-box.show{display:block;}
+.damage-workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start;}
+.damage-main-col,.damage-side-col{min-width:0;}
+.damage-side-col{display:block;}
+.result-sticky{position:sticky;top:66px;display:flex;flex-direction:column;gap:12px;}
+.result-placeholder{background:var(--panel);border:1px solid var(--border);padding:14px;}
+.result-placeholder.hide{display:none;}
+#inline-result-anchor{display:none;}
+.dmg-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1;text-shadow:0 0 20px rgba(0,200,240,0.3);}
+.dmg-pct{font-family:'JetBrains Mono',monospace;font-size:26px;color:var(--accent);margin-top:4px;}
+.dmg-bar-wrap{height:8px;background:var(--bg);overflow:hidden;margin:8px 0;}
+.dmg-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.7s cubic-bezier(.4,0,.2,1);}
+.ko-tag{display:inline-block;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:5px;}
+.ko1{background:var(--accent2);color:#fff;}.ko2{background:var(--accent3);color:#000;}.ko3{background:var(--text2);color:#fff;}
+.rolls-wrap{margin-top:10px;display:flex;flex-wrap:wrap;gap:3px;}
+.hp-wrap{margin-top:6px;}
+.hp-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-bottom:2px;}
+.hp-bg{height:5px;background:var(--bg);overflow:hidden;}
+.hp-fg{height:100%;background:linear-gradient(90deg,var(--green),var(--accent3));}
+.move-judge-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:980px){
-  .damage-desktop-layout{grid-template-columns:1fr;}
-  .damage-side-col .result-box{position:static;min-height:0;}
+  .damage-setup-body{grid-template-columns:1fr;}
+  .damage-setup-col{min-height:auto;}
 }
+@media(max-width:600px){.move-judge-grid{grid-template-columns:1fr;}}
+.move-result-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.party-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.party-wrap{grid-template-columns:1fr;}}
+.party-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+.pm-slot{background:var(--panel);border:1px solid var(--border);padding:10px 6px;text-align:center;cursor:pointer;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:border-color 0.2s;position:relative;}
+.pm-slot.empty{border-style:dashed;}.pm-slot:hover{border-color:var(--accent);}
+.pm-name{font-size:11px;font-weight:700;}
+.pm-types{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px;}
+.pm-remove{position:absolute;top:3px;right:3px;background:var(--accent2);color:#fff;border:none;font-size:9px;width:14px;height:14px;cursor:pointer;line-height:14px;}
+.add-icon{font-size:18px;color:var(--border2);}
+.cov-wrap{background:var(--panel);border:1px solid var(--border);padding:14px;}
+.cov-row{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.cov-label{width:60px;font-size:10px;color:var(--text3);}
+.cov-bar-bg{flex:1;height:5px;background:var(--bg);overflow:hidden;}
+.cov-bar-fg{height:100%;transition:width 0.5s;}
+.cov-pct{width:26px;font-size:10px;color:var(--accent);text-align:right;font-family:'JetBrains Mono',monospace;}
+.save-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;letter-spacing:2px;transition:all 0.2s;margin-top:8px;}
+.save-btn:hover{background:rgba(0,200,240,0.07);}
+.tp-ノーマル{background:#9e9e9e;color:#fff;}.tp-ほのお,.tp-炎{background:#c62828;color:#fff;}.tp-みず,.tp-水{background:#1565c0;color:#fff;}
+.tp-でんき,.tp-電気{background:#f9a825;color:#000;}.tp-くさ,.tp-草{background:#2e7d32;color:#fff;}.tp-こおり,.tp-氷{background:#00838f;color:#fff;}
+.tp-かくとう,.tp-格闘{background:#b71c1c;color:#fff;}.tp-どく,.tp-毒{background:#6a1b9a;color:#fff;}.tp-じめん,.tp-地面{background:#6d4c41;color:#fff;}
+.tp-ひこう,.tp-飛行{background:#0277bd;color:#fff;}.tp-エスパー{background:#ad1457;color:#fff;}.tp-むし,.tp-虫{background:#558b2f;color:#fff;}
+.tp-いわ,.tp-岩{background:#4e342e;color:#fff;}.tp-ゴースト{background:#4a148c;color:#fff;}.tp-ドラゴン{background:#4527a0;color:#fff;}
+.tp-あく,.tp-悪{background:#212121;color:#fff;}.tp-はがね,.tp-鋼{background:#455a64;color:#fff;}.tp-フェアリー{background:#880e4f;color:#fff;}
+/* パーティ管理 新CSS */
+.party-layout{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start;}
+@media(max-width:700px){.party-layout{grid-template-columns:1fr;}}
+.party-slot-list{display:flex;flex-direction:column;gap:6px;}
+.party-slot-btn{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  padding:10px 12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  transition:all 0.18s;
+  position:relative;
+}
+.party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);}
+.party-slot-btn.active{background:rgba(0,200,240,0.06);}
+.party-slot-btn.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
+.party-slot-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--text2);width:16px;flex-shrink:0;}
+.party-slot-info{flex:1;min-width:0;}
+.party-slot-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.party-slot-types{display:flex;gap:3px;margin-top:2px;flex-wrap:wrap;}
+.party-slot-empty{font-size:11px;color:var(--text2);}
+.party-slot-remove{background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0;}
+.party-slot-remove:hover{color:var(--accent2);}
+.party-editor{background:var(--panel);border:1px solid var(--border);padding:18px;}
+.party-editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.party-editor-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);}
+.party-editor-pokename{font-size:18px;font-weight:700;color:var(--accent);}
+.ev-total-disp{font-size:10px;color:var(--text2);margin-top:4px;}
+.ev-over{color:var(--accent2)!important;}
+.real-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0;}
+.rs-item{background:var(--bg2);border:1px solid var(--border);padding:7px 8px;text-align:center;}
+.rs-label{font-size:9px;color:var(--text2);}
+.rs-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);line-height:1.1;}
+.moves-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+.move-input-item{background:var(--bg2);border:1px solid var(--border);padding:8px;position:relative;}
+.move-input-label{font-size:9px;color:var(--text2);margin-bottom:4px;}
+.move-filled{font-size:11px;font-weight:700;color:var(--text);}
+.move-filled-type{display:inline-block;padding:1px 5px;font-size:8px;font-weight:700;margin-left:4px;}
+.move-clear-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:10px;position:absolute;top:6px;right:6px;}
+.party-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.party-action-btn{padding:8px 16px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px;transition:all 0.18s;}
+.party-action-btn:hover{border-color:var(--accent);color:var(--accent);}
+.party-action-btn.primary{border-color:var(--accent);color:var(--accent);}
+.party-action-btn.danger{border-color:var(--accent2);color:var(--accent2);}
+.party-save-btn{padding:9px 20px;background:linear-gradient(135deg,var(--green),#007a40);border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.18s;}
+.party-save-btn:hover{opacity:0.85;}
+.saved-parties-section{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
+.saved-parties-title{font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:8px;}
+.saved-party-list{display:flex;flex-direction:column;gap:4px;}
+.saved-party-item{background:var(--bg2);border:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.18s;}
+.saved-party-item:hover{border-color:var(--accent);}
+.saved-party-name{font-size:12px;font-weight:700;flex:1;}
+.saved-party-pokes{font-size:10px;color:var(--text2);}
+.saved-party-del{background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;}
+.saved-party-del:hover{color:var(--accent2);}
+.add-section{margin-top:16px;border:1px solid var(--border2);background:var(--bg2);padding:16px;}
+.add-section-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent3);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.add-section-title::after{content:'';flex:1;height:1px;background:var(--border2);}
+.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.add-card{background:var(--panel);border:1px solid var(--border);padding:12px;}
+.add-card-label{font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:8px;}
+.add-total-box{background:var(--bg);border:1px solid var(--border2);padding:14px;margin-top:12px;}
+.add-total-num{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--accent3);line-height:1;}
+.add-total-pct{font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--accent3);margin-top:4px;}
+.add-bar-wrap{height:8px;background:var(--bg);overflow:hidden;margin:8px 0;display:flex;gap:2px;}
+.add-bar-1{height:100%;background:var(--accent);transition:width 0.5s;}
+.add-bar-2{height:100%;background:var(--accent2);transition:width 0.5s;}
+.add-breakdown{font-size:11px;color:var(--text3);margin-top:8px;line-height:2;}
+.add-ko-tag{display:inline-block;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:6px;}
+.add-ko1{background:var(--accent2);color:#fff;}.add-ko2{background:var(--accent3);color:#000;}.add-ko3{background:var(--text2);color:#fff;}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+/* アクティブタブ不要なので非表示 */
+.tabs{ display:none; }
+
+/* 補正セレクト */
+.corr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+.corr-item label{font-size:9px;color:var(--text2);margin-bottom:2px;margin-top:4px;letter-spacing:1px;}
+.corr-select{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-family:'Noto Sans JP',sans-serif;font-size:10px;outline:none;}
+.corr-select:focus{border-color:var(--accent);}
+.corr-section{background:var(--bg2);border:1px solid var(--border2);padding:10px;margin-top:8px;}
+.corr-section-title{font-size:9px;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+
+/* ハンバーガーメニュー（スマホ） */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
 @media(max-width:768px){
-  .damage-setup-bar{padding:12px;gap:10px;}
-  .damage-setup-bar-actions{justify-content:stretch;}
-  .damage-setup-bar-actions > *{width:100%;}
-  .damage-setup-status{text-align:center;justify-content:center;}
-  .damage-add-toggle-row{flex-direction:column;align-items:stretch;}
-  .damage-add-toggle-row > span{font-size:10px;line-height:1.6;}
+  .header-nav{
+    display:none;
+    position:fixed;
+    top:52px;right:0;
+    width:220px;
+    height:calc(100vh - 52px);
+    background:rgba(7,9,15,0.98);
+    border-left:1px solid var(--border);
+    flex-direction:column;
+    gap:0;
+    padding:12px 0;
+    z-index:99;
+    overflow-y:auto;
+    backdrop-filter:blur(20px);
+  }
+  .header-nav.open{display:flex;}
+  .nav-btn{
+    padding:14px 22px;
+    font-size:13px;
+    border:none;
+    border-bottom:1px solid var(--border);
+    width:100%;
+    text-align:left;
+    letter-spacing:1px;
+  }
+  .nav-btn:last-child{border-bottom:none;}
+  .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);}
+  .hamburger{display:flex;}
 }
 
+@media(max-width:900px){
+  .calc-grid{grid-template-columns:1fr;}
+  .vs-mid{padding-top:0;justify-content:flex-start;}
+  .swap-btn{writing-mode:horizontal-tb;width:100%;padding:12px 14px;}
+}
+@media(max-width:768px){
+  .layout{padding:12px 10px;gap:12px;}
+  .card{padding:14px;}
+  input[type=text],input[type=number],select,.search-input{font-size:16px;padding:10px 12px;}
+  .dropdown{max-height:44vh;}
+  .quick-chip-wrap{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;}
+  .quick-chip{white-space:nowrap;flex:0 0 auto;}
+  .picker-list{grid-template-columns:1fr;}
+  .main-btn{font-size:17px;letter-spacing:3px;}
+  .card-title{font-size:11px;}
+}
+
+.mobile-result-bar{display:none;}
+.mobile-result-progress{height:4px;background:rgba(255,255,255,0.08);}
+.mobile-result-progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--accent3));transition:width .25s ease;}
+.mobile-result-summary{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:none;background:rgba(15,20,35,0.98);color:var(--text);cursor:pointer;text-align:left;}
+.mobile-result-summary-main{font-size:16px;font-weight:700;line-height:1.35;}
+.mobile-result-summary-sub{font-size:11px;color:var(--text2);line-height:1.5;margin-top:2px;}
+.mobile-result-summary-icon{font-size:18px;color:var(--accent3);flex-shrink:0;}
+@media(max-width:768px){
+  .damage-workspace{display:block;gap:12px;}
+  .damage-main-col,.damage-side-col,.calc-grid,.card,.setup-entry,.result-box,.add-section,.add-card{min-width:0;}
+  .result-placeholder{display:none !important;}
+  .mobile-result-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:140;border-top:1px solid var(--border2);box-shadow:0 -10px 24px rgba(0,0,0,0.35);}
+  .damage-side-col{display:none;}
+  .result-sticky{gap:0;}
+  #inline-result-anchor{display:block;}
+  .result-box{padding:12px;}
+  .result-box .sec{margin-bottom:8px;}
+  footer{padding-bottom:82px;}
+}
 /* ===== ライトモード ===== */
 </style>
 </head>
@@ -462,21 +689,21 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <div class="main-content">
   <!-- DAMAGE -->
   <div class="panel active" id="tab-damage">
-    <div class="damage-setup-bar">
-      <div class="damage-setup-bar-main">
-        <div class="damage-setup-bar-title">初期選択</div>
-        <div class="damage-setup-bar-summary" id="damage-setup-summary"><span class="label">攻撃側</span> 未選択 / <span class="label">防御側</span> 未選択 / <span class="label">技</span> 未選択</div>
-        <div class="damage-setup-bar-help">最初に3つまとめて確認 → その後は努力値・性格・ランク・特性・持ち物などを触るたびに反映します。</div>
-      </div>
-      <div class="damage-setup-bar-actions">
-        <div class="damage-setup-status" id="damage-setup-status">未確定</div>
-        <button type="button" class="quick-action-btn" onclick="focusDamageSetup()">攻撃側・防御側・技を選ぶ</button>
-        <button type="button" class="quick-action-btn" onclick="clearDamageSetupSelection()">選択をリセット</button>
+    <div class="setup-entry">
+      <div class="setup-entry-head">
+        <div style="flex:1;min-width:220px;">
+          <div class="setup-entry-title">初期選択</div>
+          <div class="setup-entry-summary" id="damage-setup-summary">攻撃側・防御側・技をまとめて選んでから決定すると、その後は調整を変えるたびにダメージが自動更新されます。</div>
+          <div class="setup-entry-help">最初に3つまとめて確定 → その後は努力値・性格・ランク・特性・持ち物などを触るたびに反映します。</div>
+        </div>
+        <div class="setup-entry-actions">
+          <div class="setup-entry-status" id="damage-setup-status">未確定</div>
+          <button type="button" class="quick-action-btn" onclick="openDamageSetupModal()">攻撃側・防御側・技を選ぶ</button>
+          <button type="button" class="quick-action-btn" onclick="clearDamageSetupSelection()">選択をリセット</button>
+        </div>
       </div>
     </div>
 
-    <div class="damage-desktop-layout">
-    <div class="damage-main-col">
     <div class="calc-grid">
 
       <!-- 攻撃側 -->
@@ -998,15 +1225,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       </div>
     </div>
 
-    <button class="main-btn" onclick="calcDamage()">CALCULATE DAMAGE</button>
+    <button class="main-btn" onclick="calcDamage()">選択中の内容で再計算</button>
     <div class="damage-add-toggle-row" style="display:flex;align-items:center;gap:10px;margin:-4px 0 8px;">
       <button id="add-toggle-btn" onclick="toggleAddMode()" style="background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 16px;cursor:pointer;font-size:11px;font-family:'Noto Sans JP',sans-serif;letter-spacing:1px;transition:all 0.18s;">＋ 加算計算を使う</button>
       <span style="font-size:10px;color:var(--text2);">2体・2技の合計ダメージで倒せるか判定</span>
     </div>
 
-    </div>
-
-    <div class="damage-side-col">
     <div class="result-box" id="result-box">
       <div class="sec">計算結果</div>
       <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;">
@@ -1032,7 +1256,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <button class="save-btn" id="export-dmg-btn" type="button" onclick="exportDamageResultImage()" style="width:auto;margin-top:0;white-space:nowrap;">📷 投稿用画像を保存</button>
       </div>
       <div id="export-dmg-status" style="font-size:10px;color:var(--text2);margin-top:8px;min-height:16px;"></div>
-    </div>
     </div>
 
     <div class="add-section" id="add-section" style="display:none;">
@@ -1190,13 +1413,71 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="add-breakdown" id="add-breakdown"></div>
       </div>
     </div>
-    </div>
   </div>
 
 
 </div>
 
 
+</div>
+
+<div class="picker-modal" id="damage-setup-modal">
+  <div class="picker-panel damage-setup-panel">
+    <div class="picker-head">
+      <div>
+        <div class="picker-title">攻撃側・防御側・技をまとめて選ぶ</div>
+        <div class="quick-note" style="margin-top:4px;">ここで3つを決定すると、以後は調整変更のたびにダメージが自動更新されます。</div>
+      </div>
+      <button type="button" class="picker-close" onclick="closeDamageSetupModal()">閉じる</button>
+    </div>
+    <div class="damage-setup-body">
+      <div class="damage-setup-col">
+        <div class="damage-setup-col-head">
+          <div class="damage-setup-col-title">攻撃側</div>
+          <input type="text" id="setup-atk-search" class="search-input" placeholder="攻撃側ポケモンを検索..." autocomplete="off">
+          <div class="damage-setup-picked empty" id="setup-atk-picked">未選択</div>
+        </div>
+        <div class="damage-setup-list" id="setup-atk-list"></div>
+      </div>
+      <div class="damage-setup-col">
+        <div class="damage-setup-col-head">
+          <div class="damage-setup-col-title">防御側</div>
+          <input type="text" id="setup-def-search" class="search-input" placeholder="防御側ポケモンを検索..." autocomplete="off">
+          <div class="damage-setup-picked empty" id="setup-def-picked">未選択</div>
+        </div>
+        <div class="damage-setup-list" id="setup-def-list"></div>
+      </div>
+      <div class="damage-setup-col">
+        <div class="damage-setup-col-head">
+          <div class="damage-setup-col-title">技</div>
+          <input type="text" id="setup-move-search" class="search-input" placeholder="技名を検索..." autocomplete="off">
+          <div class="damage-setup-picked empty" id="setup-move-picked">未選択</div>
+          <div class="quick-note" id="setup-move-note">攻撃側が決まっていると、判明している技を先に表示します。</div>
+        </div>
+        <div class="damage-setup-list" id="setup-move-list"></div>
+      </div>
+    </div>
+    <div class="damage-setup-footer">
+      <div style="flex:1;min-width:220px;">
+        <div class="damage-setup-error" id="damage-setup-error"></div>
+        <div class="damage-setup-footer-note" id="damage-setup-footer-note">3つそろえて決定すると、その場でダメージ計算まで実行します。</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="quick-action-btn" onclick="applyDamageSetupSelection()">決定して反映</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-result-bar" id="mobile-result-bar" hidden>
+  <div class="mobile-result-progress"><div class="mobile-result-progress-fill" id="mobile-result-progress-fill"></div></div>
+  <button type="button" class="mobile-result-summary" onclick="scrollToResultBox()">
+    <span>
+      <span class="mobile-result-summary-main" id="mobile-result-summary-main">ダメージ結果はここに表示されます</span>
+      <span class="mobile-result-summary-sub" id="mobile-result-summary-sub">攻撃側・防御側・技を決めると自動更新されます</span>
+    </span>
+    <span class="mobile-result-summary-icon">⌃</span>
+  </button>
 </div>
 
 <div class="picker-modal" id="poke-picker-modal">
@@ -1230,6 +1511,9 @@ let pokeIndex = [];
 let moveIndex = [];
 let _dataLoaded = false;
 let _pickerSide = 'atk';
+let _autoCalcTimer = null;
+let _damageSelectionConfirmed = false;
+let _damageSetupState = { atkName:'', defName:'', moveName:'' };
 
 
 async function fetchTextWithRetry(url, retries=2){
@@ -1601,52 +1885,220 @@ function calcBaseDamageRolls(lv, effPow, effAtk, effDef, stab, eff, itemMult, dm
 
 
 
+function escapeHtml(str=''){
+  return String(str).replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s]||s));
+}
+function encodeJsArg(str=''){
+  return encodeURIComponent(String(str));
+}
+function decodeJsArg(str=''){
+  try{return decodeURIComponent(String(str));}catch(_){return String(str||'');}
+}
+function getCurrentDamageSetupSelection(){
+  return {
+    atkName: window._atkBase?.name || (el('atk-search')?.value||'').trim(),
+    defName: window._defBase?.name || (el('def-search')?.value||'').trim(),
+    moveName: (el('atk-move-search')?.value||'').trim(),
+  };
+}
 function updateDamageSetupSummary(){
   const summary = el('damage-setup-summary');
   const status = el('damage-setup-status');
   if(!summary || !status) return;
-  const atk = (window._atkBase?.name || el('atk-search')?.value || '').trim() || '未選択';
-  const def = (window._defBase?.name || el('def-search')?.value || '').trim() || '未選択';
-  const move = (el('atk-move-search')?.value || '').trim() || '未選択';
-  summary.innerHTML = `<span class="label">攻撃側</span> ${escapeHtml(atk)} / <span class="label">防御側</span> ${escapeHtml(def)} / <span class="label">技</span> ${escapeHtml(move)}`;
-  const ready = atk !== '未選択' && def !== '未選択' && move !== '未選択';
-  status.textContent = ready ? '決定済み / 自動更新ON' : '未確定';
-}
-function scheduleAutoCalc(){
-  clearTimeout(window.__damageAutoTimer);
-  window.__damageAutoTimer = setTimeout(()=>{
-    const atk = (window._atkBase?.name || '').trim();
-    const def = (window._defBase?.name || '').trim();
-    const move = (el('atk-move-search')?.value || '').trim();
-    updateDamageSetupSummary();
-    if(atk && def && move){
-      try{ calcDamage(); }catch(_e){}
-    }
-  }, 80);
-}
-function focusDamageSetup(){
-  const target = el('atk-search') || el('def-search') || el('atk-move-search');
-  if(target){
-    target.scrollIntoView({behavior:'smooth', block:'center'});
-    setTimeout(()=>target.focus(), 180);
+  const current = getCurrentDamageSetupSelection();
+  const atk = current.atkName || '未選択';
+  const def = current.defName || '未選択';
+  const move = current.moveName || '未選択';
+  summary.innerHTML = `<span style="color:var(--accent3);">攻撃側</span> ${escapeHtml(atk)} <span style="color:var(--text2);">/</span> <span style="color:var(--accent3);">防御側</span> ${escapeHtml(def)} <span style="color:var(--text2);">/</span> <span style="color:var(--accent3);">技</span> ${escapeHtml(move)}`;
+  if(_damageSelectionConfirmed && current.atkName && current.defName && current.moveName){
+    status.textContent = '決定済み / 自動更新ON';
+    status.classList.add('ready');
+  } else {
+    status.textContent = '未確定';
+    status.classList.remove('ready');
   }
 }
+function syncDamageSetupStateFromCurrent(){
+  const current = getCurrentDamageSetupSelection();
+  _damageSetupState.atkName = current.atkName || _damageSetupState.atkName || '';
+  _damageSetupState.defName = current.defName || _damageSetupState.defName || '';
+  _damageSetupState.moveName = current.moveName || _damageSetupState.moveName || '';
+}
+function getSetupPokemonItems(kind){
+  const q = (el(`setup-${kind}-search`)?.value||'').trim();
+  let items = getSeasonFilteredPokes();
+  if(q) items = items.filter(p=>String(p.name||'').includes(q));
+  return items.slice(0, 120);
+}
+function getSetupMoveItems(){
+  const q = (el('setup-move-search')?.value||'').trim();
+  const attackerName = _damageSetupState.atkName || '';
+  const knownMoves = getPokemonKnownMoves(attackerName)
+    .map(normalizeMoveFromPokemonEntry)
+    .filter(Boolean);
+  const seen = new Set();
+  const items = [];
+  knownMoves.forEach(m=>{
+    if(!m?.name) return;
+    if(q && !m.name.includes(q)) return;
+    seen.add(m.name);
+    items.push(Object.assign({_known:true}, m));
+  });
+  moveIndex.forEach(m=>{
+    if(!m?.name || seen.has(m.name)) return;
+    if(q && !m.name.includes(q)) return;
+    items.push(m);
+  });
+  return items.slice(0, 160);
+}
+function renderDamageSetupPicked(kind){
+  const box = el(`setup-${kind}-picked`);
+  if(!box) return;
+  const name = kind==='move' ? _damageSetupState.moveName : _damageSetupState[`${kind}Name`];
+  if(!name){
+    box.textContent = '未選択';
+    box.classList.add('empty');
+    return;
+  }
+  box.classList.remove('empty');
+  if(kind==='move'){
+    const move = moveIndex.find(x=>x.name===name) || normalizeMoveFromPokemonEntry((getPokemonKnownMoves(_damageSetupState.atkName||'').find(m=>m.name===name)));
+    const type = move?.type || '—';
+    const cat = move?.category || '—';
+    const power = move?.power ?? '—';
+    box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(type)} / ${escapeHtml(cat)} / 威力 ${escapeHtml(String(power))}</div>`;
+    return;
+  }
+  const poke = pokeIndex.find(x=>x.name===name);
+  const types = [poke?.type1, poke?.type2].filter(Boolean).join(' / ') || 'タイプ不明';
+  box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(types)}</div>`;
+}
+function renderDamageSetupLists(){
+  const isMobileSetup = window.innerWidth <= 768;
+  ['atk','def'].forEach(kind=>{
+    const list = el(`setup-${kind}-list`);
+    if(!list) return;
+    const selectedName = _damageSetupState[`${kind}Name`];
+    const q = (el(`setup-${kind}-search`)?.value||'').trim();
+    const items = (isMobileSetup && !q) ? [] : getSetupPokemonItems(kind);
+    list.innerHTML = items.map(p=>{
+      const selected = selectedName===p.name ? ' is-selected' : '';
+      const types = [p.type1,p.type2].filter(Boolean).join(' / ');
+      return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('${kind}','${encodeJsArg(p.name)}')"><div class="picker-item-no">#${String(p.no).padStart(3,'0')}</div><div class="picker-item-name">${escapeHtml(p.name)}</div><div class="damage-setup-item-meta">${escapeHtml(types||'タイプ不明')}</div></button>`;
+    }).join('') || `<div class="quick-note">${isMobileSetup && !q ? '検索して候補を表示します。' : '該当するポケモンがありません。'}</div>`;
+  });
+  const moveList = el('setup-move-list');
+  if(moveList){
+    const q = (el('setup-move-search')?.value||'').trim();
+    const items = (isMobileSetup && !q) ? [] : getSetupMoveItems();
+    moveList.innerHTML = items.map(m=>{
+      const selected = _damageSetupState.moveName===m.name ? ' is-selected' : '';
+      const extra = [m.type||'—', m.category||'—', `威力 ${m.power ?? '—'}`];
+      const known = m._known ? '判明技を優先表示' : '';
+      return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('move','${encodeJsArg(m.name)}')"><div class="picker-item-name">${escapeHtml(m.name)}</div><div class="damage-setup-item-meta">${escapeHtml(extra.join(' / '))}${known?`<br>${escapeHtml(known)}`:''}</div></button>`;
+    }).join('') || `<div class="quick-note">${isMobileSetup && !q ? '技名を入れると候補を表示します。' : '該当する技がありません。'}</div>`;
+  }
+  renderDamageSetupPicked('atk');
+  renderDamageSetupPicked('def');
+  renderDamageSetupPicked('move');
+  const moveNote = el('setup-move-note');
+  if(moveNote){
+    moveNote.textContent = _damageSetupState.atkName
+      ? `${_damageSetupState.atkName} の判明技を先に表示しています。`
+      : '攻撃側が決まっていると、判明している技を先に表示します。';
+  }
+  const footer = el('damage-setup-footer-note');
+  if(footer){
+    footer.textContent = `攻撃側: ${_damageSetupState.atkName || '未選択'} / 防御側: ${_damageSetupState.defName || '未選択'} / 技: ${_damageSetupState.moveName || '未選択'}`;
+  }
+}
+function openDamageSetupModal(){
+  syncDamageSetupStateFromCurrent();
+  if(el('damage-setup-error')) el('damage-setup-error').textContent='';
+  ['atk','def','move'].forEach(kind=>{ const node = el(`setup-${kind}-search`); if(node) node.value=''; });
+  renderDamageSetupLists();
+  el('damage-setup-modal')?.classList.add('show');
+  setTimeout(()=>el('setup-atk-search')?.focus(),30);
+}
+function closeDamageSetupModal(){
+  el('damage-setup-modal')?.classList.remove('show');
+}
+function selectDamageSetupOption(kind, encodedName){
+  const name = decodeJsArg(encodedName);
+  if(kind==='move') _damageSetupState.moveName = name;
+  else _damageSetupState[`${kind}Name`] = name;
+  if(kind==='atk' && _damageSetupState.moveName){
+    const knownNames = new Set(getPokemonKnownMoves(name).map(m=>m.name));
+    if(knownNames.size && !knownNames.has(_damageSetupState.moveName)){
+      // move selection remains valid even if not in known moves; keep current choice
+    }
+  }
+  renderDamageSetupLists();
+}
+function scheduleAutoCalc(force=false){
+  if(!force && !_damageSelectionConfirmed) return;
+  clearTimeout(_autoCalcTimer);
+  _autoCalcTimer = setTimeout(()=>calcDamage({silent:true}),80);
+}
+function applyDamageSetupSelection(){
+  const atkName = _damageSetupState.atkName || '';
+  const defName = _damageSetupState.defName || '';
+  const moveName = _damageSetupState.moveName || '';
+  const error = el('damage-setup-error');
+  if(error) error.textContent='';
+  if(!atkName || !defName || !moveName){
+    if(error) error.textContent='攻撃側・防御側・技の3つを選んでから決定してください。';
+    return;
+  }
+  const atk = pokeIndex.find(x=>x.name===atkName);
+  const def = pokeIndex.find(x=>x.name===defName);
+  let move = moveIndex.find(x=>x.name===moveName);
+  if(!move){
+    const known = getPokemonKnownMoves(atkName).find(m=>m.name===moveName);
+    move = normalizeMoveFromPokemonEntry(known);
+  }
+  if(!atk || !def || !move){
+    if(error) error.textContent='選択内容の反映に失敗しました。もう一度選び直してください。';
+    return;
+  }
+  if(el('atk-search')) el('atk-search').value = atk.name;
+  if(el('def-search')) el('def-search').value = def.name;
+  initAtkPoke(atk);
+  initDefPoke(def);
+  setAtkMove(move);
+  syncAtkStatusToBurn();
+  updateDamageContextUI();
+  _damageSelectionConfirmed = true;
+  updateDamageSetupSummary();
+  closeDamageSetupModal();
+  calcDamage({silent:true});
+}
 function clearDamageSetupSelection(){
-  ['atk-search','def-search','atk-move-search'].forEach(id=>{ if(el(id)) el(id).value=''; });
-  ['atk-drop','def-drop','atk-move-drop'].forEach(id=>{ if(el(id)){ el(id).innerHTML=''; el(id).classList.remove('show'); } });
-  ['atk-card','def-card'].forEach(id=>el(id)?.classList.remove('show'));
-  if(el('atk-types')) el('atk-types').innerHTML='';
-  if(el('def-types')) el('def-types').innerHTML='';
+  _damageSelectionConfirmed = false;
+  _damageSetupState = { atkName:'', defName:'', moveName:'' };
+  if(el('atk-search')) el('atk-search').value='';
+  if(el('def-search')) el('def-search').value='';
   if(el('atk-name')) el('atk-name').textContent='';
   if(el('def-name')) el('def-name').textContent='';
   if(el('atk-no')) el('atk-no').textContent='';
   if(el('def-no')) el('def-no').textContent='';
-  window._atkBase = null; window._defBase = null; window._atkStats = null; window._defStats = null;
+  if(el('atk-types')) el('atk-types').innerHTML='';
+  if(el('def-types')) el('def-types').innerHTML='';
+  if(el('atk-card')) el('atk-card').classList.remove('show');
+  if(el('def-card')) el('def-card').classList.remove('show');
+  window._atkBase = null;
+  window._defBase = null;
+  window._atkStats = null;
+  window._defStats = null;
   clearSelectedMove();
+  renderQuickMoveChips('');
+  syncAtkStatusToBurn();
+  updateDamageContextUI();
   if(el('result-box')) el('result-box').classList.remove('show');
+  renderQuickMoveChips('');
   updateDamageSetupSummary();
+  updateResultAreaState();
 }
-function escapeHtml(str=''){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
 
 function getMoveMetaByPrefix(prefix){
   return {
@@ -2737,6 +3189,7 @@ function calcDamage() {
   else if(judgeMn*3>=100) {kt.innerHTML='<span class="ko-tag ko3">確定3発</span>';el('dmg-desc').textContent=judgePrefix+'3回で確実に倒せます';}
   else if(judgeMx*3>=100) {kt.innerHTML='<span class="ko-tag ko3">乱数3発</span>';el('dmg-desc').textContent=judgePrefix+'乱数次第で3発で倒せます';}
   else                {kt.innerHTML='<span class="ko-tag ko3">4発以上</span>';el('dmg-desc').textContent=judgePrefix+'4回以上必要です';}
+  updateResultAreaState();
 }
 function showResult0(abName){
   el('result-box').classList.add('show');
@@ -2747,6 +3200,7 @@ function showResult0(abName){
   el('ko-tag').innerHTML='<span class="ko-tag ko3">無効</span>';
   el('dmg-desc').textContent='特性により無効化されます';
   el('dmg-rolls').innerHTML='';
+  updateResultAreaState();
 }
 
 // ===== 加算計算 =====
@@ -3250,6 +3704,100 @@ function setupEvents(){
 }
 
 
+function ensureDamageWorkspace(){
+  const tab=el('tab-damage');
+  const setup=tab?.querySelector('.setup-entry');
+  const resultBox=el('result-box');
+  if(!tab || !setup || !resultBox) return;
+  if(!el('damage-workspace')){
+    const workspace=document.createElement('div');
+    workspace.className='damage-workspace';
+    workspace.id='damage-workspace';
+    const main=document.createElement('div');
+    main.className='damage-main-col';
+    main.id='damage-main-col';
+    const inlineAnchor=document.createElement('div');
+    inlineAnchor.id='inline-result-anchor';
+    const side=document.createElement('aside');
+    side.className='damage-side-col';
+    side.id='damage-side-col';
+    const sticky=document.createElement('div');
+    sticky.className='result-sticky';
+    sticky.id='result-sticky';
+    const placeholder=document.createElement('div');
+    placeholder.className='result-placeholder card';
+    placeholder.id='result-placeholder';
+    placeholder.innerHTML='<div class="card-title">計算結果</div><div style="font-size:12px;color:var(--text3);line-height:1.8;">ここにダメージ結果を表示します。攻撃側・防御側・技を決めたあと、努力値や性格、ランクを変えるたびに更新されます。</div>';
+    sticky.appendChild(placeholder);
+    side.appendChild(sticky);
+
+    const moving=[];
+    let node=setup.nextElementSibling;
+    while(node){
+      const next=node.nextElementSibling;
+      if(node.id==='damage-workspace' || node.id==='mobile-result-bar') break;
+      moving.push(node);
+      node=next;
+    }
+    moving.forEach(child=>{
+      if(child===resultBox) return;
+      if(child.id==='add-section') main.appendChild(inlineAnchor);
+      main.appendChild(child);
+    });
+    if(!inlineAnchor.parentNode) main.appendChild(inlineAnchor);
+    workspace.appendChild(main);
+    workspace.appendChild(side);
+    setup.insertAdjacentElement('afterend', workspace);
+  }
+  placeResultBoxForViewport();
+}
+function placeResultBoxForViewport(){
+  const box=el('result-box');
+  const inlineAnchor=el('inline-result-anchor');
+  const sticky=el('result-sticky');
+  if(!box || !inlineAnchor || !sticky) return;
+  if(window.innerWidth<=768){
+    if(box.parentElement!==inlineAnchor) inlineAnchor.appendChild(box);
+  }else{
+    if(box.parentElement!==sticky) sticky.appendChild(box);
+  }
+}
+
+function updateResultAreaState(){
+  placeResultBoxForViewport();
+  const placeholder=el('result-placeholder');
+  const resultBox=el('result-box');
+  const hasResult=!!(resultBox && resultBox.classList.contains('show'));
+  if(placeholder) placeholder.classList.toggle('hide', hasResult);
+  updateMobileResultBar();
+}
+function updateMobileResultBar(){
+  const bar=el('mobile-result-bar');
+  if(!bar) return;
+  const resultBox=el('result-box');
+  const shown=!!(resultBox && resultBox.classList.contains('show'));
+  bar.hidden=false;
+  if(!shown){
+    if(el('mobile-result-summary-main')) el('mobile-result-summary-main').textContent='ダメージ結果はここに表示されます';
+    if(el('mobile-result-summary-sub')) el('mobile-result-summary-sub').textContent='攻撃側・防御側・技を決めると自動更新されます';
+    if(el('mobile-result-progress-fill')) el('mobile-result-progress-fill').style.width='0%';
+    return;
+  }
+  const main=el('mobile-result-summary-main');
+  const sub=el('mobile-result-summary-sub');
+  const dmg=(el('dmg-num')?el('dmg-num').textContent:'—').trim();
+  const pct=(el('dmg-pct')?el('dmg-pct').textContent:'').trim();
+  const ko=(el('ko-tag')?el('ko-tag').textContent:'').trim();
+  if(main) main.textContent=dmg + (pct ? '（'+pct+'）' : '');
+  if(sub) sub.textContent=ko || ((el('dmg-desc')?el('dmg-desc').textContent:'').trim()) || '詳細を確認';
+  const p=(el('dmg-bar')?el('dmg-bar').style.width:'0%') || '0%';
+  if(el('mobile-result-progress-fill')) el('mobile-result-progress-fill').style.width=p;
+}
+function scrollToResultBox(){
+  const box=el('result-box');
+  if(!box) return;
+  box.scrollIntoView({behavior:'smooth', block:'start'});
+}
 // ===== 初期化 =====
 window.onload = async()=>{
   await loadGameData();
@@ -3264,13 +3812,19 @@ window.onload = async()=>{
   initSeasonFilter();
   setupEvents();
   updateDefHazardInfo();
+  ['atk','def','move'].forEach(kind=>el(`setup-${kind}-search`)?.addEventListener('input',renderDamageSetupLists));
+  el('damage-setup-modal')?.addEventListener('click',e=>{ if(e.target===el('damage-setup-modal')) closeDamageSetupModal(); });
   el('poke-picker-search')?.addEventListener('input',renderPokemonPickerList);
   el('poke-picker-modal')?.addEventListener('click',e=>{ if(e.target===el('poke-picker-modal')) closePokemonPicker(); });
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePokemonPicker(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   syncAtkStatusToBurn();
   updateDamageContextUI();
   updateDamageSetupSummary();
+  ensureDamageWorkspace();
+  renderDamageSetupLists();
+  updateResultAreaState();
+  window.addEventListener('resize', ()=>{ placeResultBoxForViewport(); renderDamageSetupLists(); updateMobileResultBar(); });
 };
 </script>
 <script>
