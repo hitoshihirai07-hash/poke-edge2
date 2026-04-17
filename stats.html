@@ -297,6 +297,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 @media(max-width:640px){.opp-moves-grid{grid-template-columns:1fr;}}
 .empty-note{font-size:11px;color:var(--text2);}
 
+
+.page-tabs{display:flex;gap:10px;flex-wrap:wrap;max-width:900px;margin:0 auto 16px;}
+.page-tab-btn{background:var(--panel);border:1px solid var(--border);color:var(--text2);padding:10px 16px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:12px;letter-spacing:1px;transition:all 0.18s;}
+.page-tab-btn:hover{border-color:var(--accent);color:var(--accent);}
+.page-tab-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+.tab-panel{display:none;max-width:900px;margin:0 auto;}
+.tab-panel.active{display:block;}
+.form-panel,.stats-panel,.history-panel{width:100%;}
+.records-wrap{display:flex;flex-direction:column;gap:16px;}
+
 </style>
 </head>
 <body>
@@ -328,8 +338,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 </header>
 
 <div class="main">
-  <div class="page-grid">
+  <div class="page-tabs">
+    <button type="button" class="page-tab-btn active" id="tab-btn-input" onclick="setStatsTab('input')">入力画面</button>
+    <button type="button" class="page-tab-btn" id="tab-btn-records" onclick="setStatsTab('records')">選出率の記録</button>
+  </div>
 
+  <div class="tab-panel active" id="stats-tab-input">
     <div class="form-panel">
 
       <div class="block">
@@ -480,8 +494,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
       <button class="record-btn" onclick="recordBattle()">📝 記録する</button>
     </div>
+  </div>
 
-    <div>
+  <div class="tab-panel" id="stats-tab-records">
+    <div class="records-wrap">
       <div class="stats-panel">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
           <span style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent3);">集計</span>
@@ -526,6 +542,7 @@ let belongingsIndex = [];
 
 const LS_REG = 'pokeedge_pokemon_v1';
 const LS_PARTY_FALLBACK = 'pokeedge_parties';
+const LS_STATS_TAB = 'pokeedge_stats_tab';
 
 let myParty6 = Array(6).fill(null);
 let mySelect3 = Array(3).fill(null);
@@ -535,6 +552,19 @@ let oppSelect3 = Array(3).fill(null);
 let oppLead = null;
 let result = null;
 let oppPokemonMode = 'naitei';
+
+function setStatsTab(tab){
+  const inputPanel = document.getElementById('stats-tab-input');
+  const recordsPanel = document.getElementById('stats-tab-records');
+  const inputBtn = document.getElementById('tab-btn-input');
+  const recordsBtn = document.getElementById('tab-btn-records');
+  const isInput = tab !== 'records';
+  if(inputPanel) inputPanel.classList.toggle('active', isInput);
+  if(recordsPanel) recordsPanel.classList.toggle('active', !isInput);
+  if(inputBtn) inputBtn.classList.toggle('active', isInput);
+  if(recordsBtn) recordsBtn.classList.toggle('active', !isInput);
+  try{ localStorage.setItem(LS_STATS_TAB, isInput ? 'input' : 'records'); }catch(e){}
+}
 
 function fetchJsonSafe(path, fallback){
   return fetch(path + '?v=' + Date.now()).then(r=>r.json()).catch(()=>fallback);
@@ -968,6 +998,7 @@ async function recordBattle(){
   await renderStats();
   await renderHistory();
   resetForm();
+  setStatsTab('records');
   alert('記録しました！');
 }
 
@@ -1147,6 +1178,7 @@ window.onload = async ()=>{
   setOppPokemonMode('naitei');
   await renderStats();
   await renderHistory();
+  setStatsTab(localStorage.getItem(LS_STATS_TAB) || 'input');
 };
 </script>
 
