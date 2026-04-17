@@ -422,27 +422,6 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 .corr-select{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-family:'Noto Sans JP',sans-serif;font-size:10px;outline:none;}
 .corr-select:focus{border-color:var(--accent);}
 .corr-section{background:var(--bg2);border:1px solid var(--border2);padding:10px;margin-top:8px;}
-
-/* ===== コンテキスト表示セクション（折りたたみ / 条件表示） ===== */
-.ctx-section{display:none;margin-top:8px;transition:opacity 0.15s ease;}
-.ctx-section.ctx-visible{display:block;}
-/* 折りたたみ可能な見出しトグル */
-.ctx-toggle{
-  display:flex;align-items:center;gap:8px;
-  padding:8px 10px;margin-top:8px;cursor:pointer;user-select:none;
-  background:var(--bg2);border:1px solid var(--border2);
-  transition:border-color 0.18s;
-}
-.ctx-toggle:hover{border-color:var(--accent);}
-.ctx-toggle-label{font-size:10px;letter-spacing:2px;color:var(--text2);flex:1;text-transform:uppercase;}
-.ctx-toggle-summary{font-size:10px;color:var(--accent3);margin-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
-.ctx-toggle-caret{font-size:8px;color:var(--text2);transition:transform 0.2s ease;flex-shrink:0;}
-.ctx-toggle.open .ctx-toggle-caret{transform:rotate(90deg);}
-.ctx-body{display:none;padding:10px;background:var(--bg2);border:1px solid var(--border2);border-top:none;}
-.ctx-toggle.open+.ctx-body{display:block;}
-/* 条件合致アニメーション（自動展開時のハイライト） */
-@keyframes ctxFlash{0%{border-color:var(--accent3);}100%{border-color:var(--border2);}}
-.ctx-section.ctx-flash{animation:ctxFlash 0.6s ease;}
 .corr-section-title{font-size:9px;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
 
 /* ハンバーガーメニュー（スマホ） */
@@ -594,20 +573,10 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <div id="atk-abilities" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
         </div>
 
-        <!-- ===== ポケモン選択後に表示されるセクション群 ===== -->
-        <div class="ctx-section" id="atk-after-poke">
-
-        <!-- ステータス調整（折りたたみ） -->
-        <div class="ctx-toggle" id="atk-stats-toggle" onclick="ctxToggle(this)">
-          <span class="ctx-toggle-label">ステータス調整</span>
-          <span class="ctx-toggle-summary" id="atk-stats-summary"></span>
-          <span class="ctx-toggle-caret">▶</span>
-        </div>
-        <div class="ctx-body" id="atk-stats-body">
-        <label>レベル</label>
+        <label id="atk-label-lv">レベル</label>
         <input type="number" id="atk-lv" value="50" min="1" max="100">
 
-        <label>性格</label>
+        <label id="atk-label-nature">性格</label>
         <select id="atk-nature">
             <option value="がんばりや">がんばりや（補正なし）</option>
             <option value="さみしがり">さみしがり（攻↑防↓）</option>
@@ -632,7 +601,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             <option value="むじゃき">むじゃき（素早↑特防↓）</option>
           </select>
 
-        <label>個体値（0〜31）</label>
+        <label id="atk-label-iv">個体値（0〜31）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">個体値</span><span class="slider-val" id="atk-iv-disp">31</span></div>
           <div class="slider-inputs">
@@ -642,7 +611,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         </div>
 
         <!-- ゲームモード選択 -->
-        <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
+        <div id="atk-gamemode-wrap" style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
           <span style="font-size:10px;color:var(--text2);letter-spacing:1px;">ゲームモード:</span>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
             <input type="radio" name="atk-game-mode" id="atk-mode-classic" value="classic" checked onchange="onAtkModeChange()">
@@ -653,7 +622,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             <span style="font-size:11px;color:var(--accent3);">Champions（最大32）</span>
           </label>
         </div>
-        <label>努力値（こうげき）</label>
+        <label id="atk-label-ev-atk">努力値（こうげき）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk-ev-atk-disp">0</span></div>
           <div class="slider-inputs">
@@ -662,7 +631,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        <label>努力値（ぼうぎょ）</label>
+        <label id="atk-label-ev-def">努力値（ぼうぎょ）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk-ev-def-disp">0</span></div>
           <div class="slider-inputs">
@@ -671,7 +640,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        <label>努力値（とくこう）</label>
+        <label id="atk-label-ev-spa">努力値（とくこう）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk-ev-spa-disp">0</span></div>
           <div class="slider-inputs">
@@ -698,11 +667,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        </div><!-- /.ctx-body #atk-stats-body -->
-
-        <!-- 残HP%（きしかいせい / じたばた選択時のみ表示） -->
-        <div class="ctx-section" id="atk-hp-pct-section">
-        <div class="corr-section" style="margin-top:8px;">
+        <div class="corr-section" id="atk-corr-hp-pct" style="margin-top:8px;">
           <div class="corr-section-title">攻撃側 残HP（きしかいせい / じたばた用）</div>
           <div class="slider-row">
             <div class="slider-header"><span class="slider-label">残HP%</span><span class="slider-val" id="atk-current-hp-pct-disp">100</span></div>
@@ -712,16 +677,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             </div>
           </div>
         </div>
-        </div><!-- /.ctx-section #atk-hp-pct-section -->
 
-        <!-- ランク補正（折りたたみ） -->
-        <div class="ctx-toggle" id="atk-rank-toggle" onclick="ctxToggle(this)">
-          <span class="ctx-toggle-label">ランク補正</span>
-          <span class="ctx-toggle-summary" id="atk-rank-summary"></span>
-          <span class="ctx-toggle-caret">▶</span>
-        </div>
-        <div class="ctx-body" id="atk-rank-body">
-        <div class="corr-section" style="margin-top:0;">
+        <div class="corr-section" id="atk-corr-rank" style="margin-top:8px;">
           <div class="corr-section-title">攻撃 / 特攻ランク補正</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="font-size:10px;color:var(--text2);flex-shrink:0;">ランク</span>
@@ -732,9 +689,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        <!-- 追加ランク（アシストパワー / つけあがる / ボディプレス選択時のみ表示） -->
-        <div class="ctx-section" id="atk-extra-rank-section">
-        <div class="corr-section" style="margin-top:8px;">
+        <div class="corr-section" id="atk-corr-extra-rank" style="margin-top:8px;">
           <div class="corr-section-title">追加ランク（アシストパワー / つけあがる / ボディプレス用）</div>
           <div class="corr-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));">
             <div>
@@ -760,10 +715,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
           <div style="font-size:10px;color:var(--text2);margin-top:6px;">※ アシストパワー / つけあがる は、攻撃/特攻ランク + ここで入力した正のランクを合計して威力を計算します。ボディプレスは防御ランクを使用します。</div>
         </div>
-        </div><!-- /.ctx-section #atk-extra-rank-section -->
-        </div><!-- /.ctx-body #atk-rank-body -->
 
-        <label style="margin-top:10px;">技検索</label>
+        <label id="atk-label-move" style="margin-top:10px;">技検索</label>
         <div class="search-wrap">
           <input class="search-input" id="atk-move-search" type="text" placeholder="技名を入力..." autocomplete="off">
           <div class="dropdown" id="atk-move-drop"></div>
@@ -778,7 +731,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <input type="hidden" id="atk-move-crit" value="">
         <div id="atk-move-info" style="display:none;background:var(--bg2);border:1px solid var(--border2);padding:8px 10px;margin-top:4px;font-size:11px;color:var(--text3);line-height:1.7;"></div>
 
-        <label>持ち物</label>
+        <label id="atk-label-item">持ち物</label>
         <select id="atk-item">
           <option value="none">なし</option>
           <option value="hachimaki">こだわりハチマキ ×1.5（物理）</option>
@@ -791,10 +744,10 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <option value="none">なし</option>
         </select>
 
-        <div class="corr-section">
-          <div class="corr-section-title">攻撃側 特性</div>
+        <div class="corr-section" id="atk-corr-main">
+          <div class="corr-section-title">攻撃側 補正</div>
           <div class="corr-grid">
-            <div style="grid-column:1/-1;">
+            <div>
               <label class="corr-item">特性（攻撃側）</label>
               <div style="position:relative;">
                 <input type="text" id="atk-ability-search" placeholder="特性名を検索..." autocomplete="off"
@@ -805,17 +758,6 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <input type="hidden" id="atk-ability" value="">
               <div id="atk-ability-info" style="font-size:10px;color:var(--accent3);margin-top:3px;min-height:14px;"></div>
             </div>
-          </div>
-        </div>
-
-        <!-- 攻撃側 詳細補正（折りたたみ） -->
-        <div class="ctx-toggle" id="atk-corr-toggle" onclick="ctxToggle(this)">
-          <span class="ctx-toggle-label">詳細補正</span>
-          <span class="ctx-toggle-summary" id="atk-corr-summary"></span>
-          <span class="ctx-toggle-caret">▶</span>
-        </div>
-        <div class="ctx-body" id="atk-corr-body">
-        <div class="corr-grid">
             <div>
               <label class="corr-item">味方特性</label>
               <select class="corr-select" id="atk-ally-ability">
@@ -852,11 +794,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="0.5">火傷あり ×0.5（物理技）</option>
               </select>
             </div>
-        </div>
-        <!-- おはかまいり（技選択時のみ表示） -->
-        <div class="ctx-section" id="atk-fainted-last-section">
-        <div class="corr-grid" style="margin-top:6px;">
-            <div style="grid-column:1/-1;">
+            <div>
               <label class="corr-item">味方の倒れた数（おはかまいり用）</label>
               <select class="corr-select" id="atk-fainted-last-respects">
                 <option value="0">0体（威力50）</option>
@@ -867,12 +805,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="5">5体（威力300）</option>
               </select>
             </div>
-        </div>
-        </div><!-- /.ctx-section #atk-fainted-last-section -->
-        <!-- そうだいしょう（特性選択時のみ表示） -->
-        <div class="ctx-section" id="atk-fainted-supreme-section">
-        <div class="corr-grid" style="margin-top:6px;">
-            <div style="grid-column:1/-1;">
+            <div>
               <label class="corr-item">味方の倒れた数（そうだいしょう用）</label>
               <select class="corr-select" id="atk-fainted-supreme">
                 <option value="0">0体（×1.0）</option>
@@ -883,11 +816,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="5">5体（×1.5）</option>
               </select>
             </div>
+          </div>
         </div>
-        </div><!-- /.ctx-section #atk-fainted-supreme-section -->
-        </div><!-- /.ctx-body #atk-corr-body -->
-
-        </div><!-- /.ctx-section #atk-after-poke -->
       </div>
 
       <div class="vs-mid"><button type="button" class="swap-btn" onclick="smartSwapSides()">⇄ 攻防を入れ替え</button></div>
@@ -911,21 +841,10 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <div id="def-abilities" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
         </div>
 
-        <!-- ===== ポケモン選択後に表示されるセクション群 ===== -->
-        <div class="ctx-section" id="def-after-poke">
-
-        <!-- ステータス調整（折りたたみ） -->
-        <div class="ctx-toggle" id="def-stats-toggle" onclick="ctxToggle(this)">
-          <span class="ctx-toggle-label">ステータス調整</span>
-          <span class="ctx-toggle-summary" id="def-stats-summary"></span>
-          <span class="ctx-toggle-caret">▶</span>
-        </div>
-        <div class="ctx-body" id="def-stats-body">
-
-        <label>レベル</label>
+        <label id="def-label-lv">レベル</label>
         <input type="number" id="def-lv" value="50" min="1" max="100">
 
-        <label>性格</label>
+        <label id="def-label-nature">性格</label>
         <select id="def-nature">
             <option value="がんばりや">がんばりや（補正なし）</option>
             <option value="さみしがり">さみしがり（攻↑防↓）</option>
@@ -960,7 +879,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         </div>
 
         <!-- ゲームモード選択 -->
-        <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
+        <div id="def-gamemode-wrap" style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
           <span style="font-size:10px;color:var(--text2);letter-spacing:1px;">ゲームモード:</span>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
             <input type="radio" name="def-game-mode" id="def-mode-classic" value="classic" checked onchange="onDefModeChange()">
@@ -971,7 +890,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             <span style="font-size:11px;color:var(--accent3);">Champions（最大32）</span>
           </label>
         </div>
-        <label>努力値（HP）</label>
+        <label id="def-label-ev-hp">努力値（HP）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-hp-disp">0</span></div>
           <div class="slider-inputs">
@@ -980,7 +899,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        <label>努力値（こうげき・イカサマ用）</label>
+        <label id="def-label-ev-atk">努力値（こうげき・イカサマ用）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-atk-disp">0</span></div>
           <div class="slider-inputs">
@@ -989,7 +908,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        <label>努力値（ぼうぎょ）</label>
+        <label id="def-label-ev-def">努力値（ぼうぎょ）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-def-disp">0</span></div>
           <div class="slider-inputs">
@@ -998,7 +917,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        <label>努力値（とくぼう）</label>
+        <label id="def-label-ev-spd">努力値（とくぼう）</label>
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-spd-disp">0</span></div>
           <div class="slider-inputs">
@@ -1030,16 +949,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        </div><!-- /.ctx-body #def-stats-body -->
-
-        <!-- ランク補正（折りたたみ） -->
-        <div class="ctx-toggle" id="def-rank-toggle" onclick="ctxToggle(this)">
-          <span class="ctx-toggle-label">ランク補正</span>
-          <span class="ctx-toggle-summary" id="def-rank-summary"></span>
-          <span class="ctx-toggle-caret">▶</span>
-        </div>
-        <div class="ctx-body" id="def-rank-body">
-        <div class="corr-section" style="margin-top:0;">
+        <div class="corr-section" id="def-corr-rank" style="margin-top:8px;">
           <div class="corr-section-title">防御側 ランク補正</div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <span style="font-size:10px;color:var(--text2);flex-shrink:0;">防御/特防</span>
@@ -1056,17 +966,16 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             <span id="def-atk-rank-disp" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent2);width:28px;text-align:right;">±0</span>
           </div>
         </div>
-        </div><!-- /.ctx-body #def-rank-body -->
 
         <div class="hp-wrap" style="margin-top:10px;">
           <div class="hp-labels"><span>HP</span><span id="hp-disp">—</span></div>
           <div class="hp-bg"><div class="hp-fg" id="hp-fg" style="width:100%"></div></div>
         </div>
 
-        <div class="corr-section">
-          <div class="corr-section-title">防御側 特性</div>
+        <div class="corr-section" id="def-corr-main">
+          <div class="corr-section-title">防御側 補正</div>
           <div class="corr-grid">
-            <div style="grid-column:1/-1;">
+            <div>
               <label class="corr-item">特性（防御側）</label>
               <div style="position:relative;">
                 <input type="text" id="def-ability-search" placeholder="特性名を検索..." autocomplete="off"
@@ -1077,17 +986,6 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <input type="hidden" id="def-ability" value="">
               <div id="def-ability-info" style="font-size:10px;color:var(--accent2);margin-top:3px;min-height:14px;"></div>
             </div>
-          </div>
-        </div>
-
-        <!-- 防御側 詳細補正（折りたたみ） -->
-        <div class="ctx-toggle" id="def-corr-toggle" onclick="ctxToggle(this)">
-          <span class="ctx-toggle-label">詳細補正</span>
-          <span class="ctx-toggle-summary" id="def-corr-summary"></span>
-          <span class="ctx-toggle-caret">▶</span>
-        </div>
-        <div class="ctx-body" id="def-corr-body">
-        <div class="corr-grid">
             <div>
               <label class="corr-item">持ち物</label>
               <select class="corr-select" id="def-item">
@@ -1113,8 +1011,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="def_0.75_waza2">わざわいのうつわ ×0.75</option>
               </select>
             </div>
-        </div>
-        <div class="corr-grid" style="margin-top:10px;">
+          </div>
+
+          <div class="corr-grid" style="margin-top:10px;">
             <div>
               <label class="corr-item">ステルスロック</label>
               <select class="corr-select" id="def-stealth-rock">
@@ -1135,10 +1034,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <label class="corr-item">場ダメ込みの残HP目安</label>
               <div id="def-hazard-info" style="background:var(--bg2);border:1px solid var(--border);padding:8px 10px;font-size:11px;color:var(--accent3);min-height:36px;line-height:1.6;">場ダメなし</div>
             </div>
+          </div>
         </div>
-        </div><!-- /.ctx-body #def-corr-body -->
-
-        </div><!-- /.ctx-section #def-after-poke -->
       </div>
     </div>
 
@@ -1231,7 +1128,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             <option value="ようき">ようき（素早↑特攻↓）</option>
             <option value="むじゃき">むじゃき（素早↑特防↓）</option>
           </select>
-          <label>個体値（0〜31）</label>
+          <label id="def-label-iv">個体値（0〜31）</label>
           <div class="slider-row">
             <div class="slider-header"><span class="slider-label">個体値</span><span class="slider-val" id="atk2-iv-disp">31</span></div>
             <div class="slider-inputs">
@@ -1251,7 +1148,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <span style="color:var(--accent3);">Champions</span>
             </label>
           </div>
-          <label>努力値（こうげき）</label>
+          <label id="atk-label-ev-atk">努力値（こうげき）</label>
           <div class="slider-row">
             <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk2-ev-atk-disp">0</span></div>
             <div class="slider-inputs">
@@ -1259,7 +1156,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <input type="number" id="atk2-ev-atk" min="0" max="252" value="0" oninput="syncSlider('atk2-ev-atk-range','atk2-ev-atk','atk2-ev-atk-disp');recalcAtk2()">
             </div>
           </div>
-          <label>努力値（とくこう）</label>
+          <label id="atk-label-ev-spa">努力値（とくこう）</label>
           <div class="slider-row">
             <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk2-ev-spa-disp">0</span></div>
             <div class="slider-inputs">
@@ -2114,6 +2011,7 @@ function clearDamageSetupSelection(){
   updateDamageSetupSummary();
   updateContextSections();
 }
+
 function clearAbilitySide(side){
   if(el(side+'-ability-search')) el(side+'-ability-search').value='';
   if(el(side+'-ability')) el(side+'-ability').value='';
@@ -2419,7 +2317,6 @@ function recalcAtk() {
   if(el('atk-stat-def')) el('atk-stat-def').textContent=defVal;
   if(el('atk-stat-spa')) el('atk-stat-spa').textContent=spaVal;
   scheduleAutoCalc();
-  if(typeof updateCtxSummaries==='function') updateCtxSummaries();
 }
 function recalcDef() {
   const p=window._defBase; if(!p) return;
@@ -2442,7 +2339,6 @@ function recalcDef() {
   if(el('def-stat-spd')) el('def-stat-spd').textContent=spdVal;
   updateDefHazardInfo();
   scheduleAutoCalc();
-  if(typeof updateCtxSummaries==='function') updateCtxSummaries();
 }
 
 function isGroundedForSpikes(defBase, defAbName=''){
@@ -3549,109 +3445,112 @@ window.onload = async()=>{
   initMobileResultUI();
 };
 
-// ===== コンテキスト表示UI =====
-function ctxToggle(btn){
-  btn.classList.toggle('open');
+// ===== コンテキスト表示制御（選択に応じた表示/非表示） =====
+// 対象要素を集めて一括で display 制御するだけ。HTMLのdiv構造は変更しない。
+function ctxVis(elOrId, show){
+  const e = typeof elOrId==='string' ? document.getElementById(elOrId) : elOrId;
+  if(!e) return;
+  e.style.display = show ? '' : 'none';
 }
-function ctxShow(id, flash){
-  const s=document.getElementById(id);
-  if(!s) return;
-  const wasHidden = !s.classList.contains('ctx-visible');
-  s.classList.add('ctx-visible');
-  if(flash && wasHidden){
-    s.classList.remove('ctx-flash');
-    void s.offsetWidth;
-    s.classList.add('ctx-flash');
+// label + 直後の兄弟（input/select/div）をまとめて表示/非表示
+function ctxVisLabel(labelId, show){
+  const lbl = document.getElementById(labelId);
+  if(!lbl) return;
+  lbl.style.display = show ? '' : 'none';
+  // label直後の兄弟要素1つだけ（input, select, div.slider-row等）を対象
+  const sib = lbl.nextElementSibling;
+  if(sib && sib.tagName!=='LABEL'){
+    sib.style.display = show ? '' : 'none';
   }
 }
-function ctxHide(id){
-  const s=document.getElementById(id);
-  if(s) s.classList.remove('ctx-visible');
+// real-stat-box 表示制御
+function ctxVisStatBox(side, show){
+  const boxes = document.querySelectorAll('#'+side+'-card ~ .real-stat-box, .card .real-stat-box');
+  // IDで特定: atk-stat-atk / def-stat-hp の親の親
+  const statEl = document.getElementById(side+'-stat-'+(side==='atk'?'atk':'hp'));
+  if(!statEl) return;
+  const box = statEl.closest('.real-stat-box');
+  if(box) box.style.display = show ? '' : 'none';
 }
-function ctxOpen(toggleId){
-  const t=document.getElementById(toggleId);
-  if(t && !t.classList.contains('open')) t.classList.add('open');
-}
+
 function updateContextSections(){
-  // ポケモン選択状態
   const atkPoke = !!window._atkBase;
   const defPoke = !!window._defBase;
-  if(atkPoke) ctxShow('atk-after-poke'); else ctxHide('atk-after-poke');
-  if(defPoke) ctxShow('def-after-poke'); else ctxHide('def-after-poke');
-
-  // 攻撃側: 技名に基づく条件セクション
   const moveName = (el('atk-move-search')?.value||'').trim();
-  const isLowHp = moveName==='きしかいせい' || moveName==='じたばた';
-  const isExtraRankMove = moveName==='アシストパワー' || moveName==='つけあがる' || moveName==='ボディプレス';
-  const isOhaka = moveName==='おはかまいり';
-
-  if(isLowHp){ ctxShow('atk-hp-pct-section', true); }
-  else { ctxHide('atk-hp-pct-section'); }
-
-  if(isExtraRankMove){ ctxShow('atk-extra-rank-section', true); ctxOpen('atk-rank-toggle'); }
-  else { ctxHide('atk-extra-rank-section'); }
-
-  if(isOhaka){ ctxShow('atk-fainted-last-section', true); ctxOpen('atk-corr-toggle'); }
-  else { ctxHide('atk-fainted-last-section'); }
-
-  // 攻撃側: 特性に基づく条件セクション
   const atkAbility = (el('atk-ability')?.value||'');
-  if(atkAbility==='そうだいしょう'){ ctxShow('atk-fainted-supreme-section', true); ctxOpen('atk-corr-toggle'); }
-  else { ctxHide('atk-fainted-supreme-section'); }
 
-  // サマリーテキストの更新
-  updateCtxSummaries();
+  // ===== 攻撃側 =====
+  // ステータス調整群（ポケモン選択後のみ表示）
+  ctxVisLabel('atk-label-lv', atkPoke);
+  ctxVisLabel('atk-label-nature', atkPoke);
+  ctxVisLabel('atk-label-iv', atkPoke);
+  ctxVis('atk-gamemode-wrap', atkPoke);
+  ctxVisLabel('atk-label-ev-atk', atkPoke);
+  ctxVisLabel('atk-label-ev-def', atkPoke);
+  ctxVisLabel('atk-label-ev-spa', atkPoke);
+  ctxVisStatBox('atk', atkPoke);
+
+  // 残HP%（きしかいせい/じたばた時のみ）
+  const isLowHp = moveName==='きしかいせい' || moveName==='じたばた';
+  ctxVis('atk-corr-hp-pct', isLowHp);
+
+  // ランク補正（ポケモン選択後のみ）
+  ctxVis('atk-corr-rank', atkPoke);
+
+  // 追加ランク（アシパ/ボディプレス時のみ）
+  const isExtraRank = moveName==='アシストパワー' || moveName==='つけあがる' || moveName==='ボディプレス';
+  ctxVis('atk-corr-extra-rank', isExtraRank);
+
+  // 技検索・持ち物（ポケモン選択後のみ）
+  ctxVisLabel('atk-label-move', atkPoke);
+  ctxVisLabel('atk-label-item', atkPoke);
+  // quick-chip-wrap と quick-note
+  const quickChip = document.getElementById('atk-move-quick');
+  if(quickChip) quickChip.style.display = atkPoke ? '' : 'none';
+  const quickNote = document.getElementById('atk-move-quick-note');
+  if(quickNote) quickNote.style.display = atkPoke ? '' : 'none';
+  // move-info
+  const moveInfo = document.getElementById('atk-move-info');
+  if(moveInfo && !atkPoke) moveInfo.style.display = 'none';
+
+  // 攻撃側補正セクション全体（ポケモン選択後のみ）
+  ctxVis('atk-corr-main', atkPoke);
+
+  // おはかまいり（技選択時のみ）
+  const isOhaka = moveName==='おはかまいり';
+  const faintedLastWrap = document.getElementById('atk-fainted-last-respects')?.closest('.corr-grid > div') || document.getElementById('atk-fainted-last-respects')?.parentElement;
+  if(faintedLastWrap) faintedLastWrap.style.display = isOhaka ? '' : 'none';
+
+  // そうだいしょう（特性選択時のみ）
+  const isSupreme = atkAbility==='そうだいしょう';
+  const supremeWrap = document.getElementById('atk-fainted-supreme')?.closest('.corr-grid > div') || document.getElementById('atk-fainted-supreme')?.parentElement;
+  if(supremeWrap) supremeWrap.style.display = isSupreme ? '' : 'none';
+
+  // ===== 防御側 =====
+  // ステータス調整群
+  ctxVisLabel('def-label-lv', defPoke);
+  ctxVisLabel('def-label-nature', defPoke);
+  ctxVisLabel('def-label-iv', defPoke);
+  ctxVis('def-gamemode-wrap', defPoke);
+  ctxVisLabel('def-label-ev-hp', defPoke);
+  ctxVisLabel('def-label-ev-atk', defPoke);
+  ctxVisLabel('def-label-ev-def', defPoke);
+  ctxVisLabel('def-label-ev-spd', defPoke);
+  ctxVisStatBox('def', defPoke);
+
+  // ランク補正（ポケモン選択後のみ）
+  ctxVis('def-corr-rank', defPoke);
+
+  // HPバー（ポケモン選択後のみ）
+  const hpWrap = document.querySelector('.hp-wrap');
+  if(hpWrap) hpWrap.style.display = defPoke ? '' : 'none';
+
+  // 防御側補正セクション全体（ポケモン選択後のみ）
+  ctxVis('def-corr-main', defPoke);
 }
-function updateCtxSummaries(){
-  // 攻撃側ステータスサマリー
-  const atkSum = document.getElementById('atk-stats-summary');
-  if(atkSum && window._atkStats){
-    atkSum.textContent = 'A'+window._atkStats.atk+' C'+window._atkStats.spa;
-  }
-  // 防御側ステータスサマリー
-  const defSum = document.getElementById('def-stats-summary');
-  if(defSum && window._defStats){
-    defSum.textContent = 'H'+window._defStats.hp+' B'+window._defStats.def+' D'+window._defStats.spd;
-  }
-  // ランクサマリー
-  const atkRankV = parseInt(el('atk-rank')?.value||'0');
-  const atkRankSum = document.getElementById('atk-rank-summary');
-  if(atkRankSum) atkRankSum.textContent = atkRankV!==0 ? (atkRankV>0?'+':'')+atkRankV : '';
 
-  const defRankV = parseInt(el('def-rank')?.value||'0');
-  const defRankSum = document.getElementById('def-rank-summary');
-  if(defRankSum) defRankSum.textContent = defRankV!==0 ? (defRankV>0?'+':'')+defRankV : '';
-
-  // 攻撃側詳細補正サマリー
-  const atkCorrSum = document.getElementById('atk-corr-summary');
-  if(atkCorrSum){
-    const parts = [];
-    const w = el('atk-weather')?.value; if(w) parts.push(el('atk-weather').options[el('atk-weather').selectedIndex]?.textContent?.split('（')[0]||'');
-    const b = el('atk-burn')?.value; if(b==='0.5') parts.push('火傷');
-    const o = el('atk-other')?.value; if(o && o!=='1') parts.push(el('atk-other').options[el('atk-other').selectedIndex]?.textContent?.split('×')[0]?.trim()||'');
-    atkCorrSum.textContent = parts.filter(Boolean).join(' / ');
-  }
-  // 防御側詳細補正サマリー
-  const defCorrSum = document.getElementById('def-corr-summary');
-  if(defCorrSum){
-    const parts = [];
-    const di = el('def-item')?.value; if(di && di!=='1') parts.push(el('def-item').options[el('def-item').selectedIndex]?.textContent?.split('×')[0]?.trim()||'');
-    const dw = el('def-wall')?.value; if(dw && dw!=='1') parts.push(el('def-wall').options[el('def-wall').selectedIndex]?.textContent?.split('×')[0]?.trim()||'');
-    defCorrSum.textContent = parts.filter(Boolean).join(' / ');
-  }
-}
 function initContextUI(){
   updateContextSections();
-  // ランクスライダーの変更時にサマリー更新
-  ['atk-rank','def-rank'].forEach(id=>{
-    const r=el(id); if(!r) return;
-    r.addEventListener('input', updateCtxSummaries);
-  });
-  // 補正セレクトの変更時にサマリー更新
-  ['atk-weather','atk-burn','atk-other','def-item','def-wall'].forEach(id=>{
-    const s=el(id); if(!s) return;
-    s.addEventListener('change', updateCtxSummaries);
-  });
 }
 
 // ===== モバイル下部固定の結果UI =====
