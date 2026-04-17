@@ -196,6 +196,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .opp-input:focus,.opp-sub-input:focus{border-color:var(--accent);}
 .opp-sub-fields{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
 .opp-sub-label{font-size:10px;color:var(--text2);margin-bottom:3px;}
+.sub-search-row{position:relative;}
 .dropdown{display:none;position:absolute;top:100%;left:0;right:0;z-index:300;background:var(--panel);border:1px solid var(--border2);max-height:180px;overflow-y:auto;}
 .dropdown.show{display:block;}
 .drop-item{padding:7px 10px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);transition:background 0.12s;}
@@ -356,7 +357,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div class="dropdown" id="opp6-drop-0"></div>
             </div>
             <div class="opp-sub-fields">
-              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-0" type="text" placeholder="例: こだわりスカーフ" oninput="updateOppNote(0,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">持ち物</div><div class="sub-search-row"><input class="opp-sub-input" id="opp6-item-0" type="text" placeholder="例: こだわりスカーフ" autocomplete="off" oninput="updateOppNote(0,'itemNote',this.value)" onblur="syncOppManualItem(0)"><div class="dropdown" id="opp6-item-drop-0"></div></div></div>
               <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-0" type="text" placeholder="例: りゅうせいぐん / かえんほうしゃ" oninput="updateOppNote(0,'movesNote',this.value)"></div>
             </div>
           </div><div class="opp-slot">
@@ -365,7 +366,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div class="dropdown" id="opp6-drop-1"></div>
             </div>
             <div class="opp-sub-fields">
-              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-1" type="text" placeholder="例: オボンのみ" oninput="updateOppNote(1,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">持ち物</div><div class="sub-search-row"><input class="opp-sub-input" id="opp6-item-1" type="text" placeholder="例: オボンのみ" autocomplete="off" oninput="updateOppNote(1,'itemNote',this.value)" onblur="syncOppManualItem(1)"><div class="dropdown" id="opp6-item-drop-1"></div></div></div>
               <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-1" type="text" placeholder="例: まもる / ねっぷう" oninput="updateOppNote(1,'movesNote',this.value)"></div>
             </div>
           </div><div class="opp-slot">
@@ -374,7 +375,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div class="dropdown" id="opp6-drop-2"></div>
             </div>
             <div class="opp-sub-fields">
-              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-2" type="text" placeholder="例: きあいのタスキ" oninput="updateOppNote(2,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">持ち物</div><div class="sub-search-row"><input class="opp-sub-input" id="opp6-item-2" type="text" placeholder="例: きあいのタスキ" autocomplete="off" oninput="updateOppNote(2,'itemNote',this.value)" onblur="syncOppManualItem(2)"><div class="dropdown" id="opp6-item-drop-2"></div></div></div>
               <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-2" type="text" placeholder="例: アンコール / ちょうはつ" oninput="updateOppNote(2,'movesNote',this.value)"></div>
             </div>
           </div><div class="opp-slot">
@@ -383,7 +384,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div class="dropdown" id="opp6-drop-3"></div>
             </div>
             <div class="opp-sub-fields">
-              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-3" type="text" placeholder="例: とつげきチョッキ" oninput="updateOppNote(3,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">持ち物</div><div class="sub-search-row"><input class="opp-sub-input" id="opp6-item-3" type="text" placeholder="例: とつげきチョッキ" autocomplete="off" oninput="updateOppNote(3,'itemNote',this.value)" onblur="syncOppManualItem(3)"><div class="dropdown" id="opp6-item-drop-3"></div></div></div>
               <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-3" type="text" placeholder="例: ボディプレス / てっぺき" oninput="updateOppNote(3,'movesNote',this.value)"></div>
             </div>
           </div><div class="opp-slot">
@@ -392,7 +393,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div class="dropdown" id="opp6-drop-4"></div>
             </div>
             <div class="opp-sub-fields">
-              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-4" type="text" placeholder="例: いのちのたま" oninput="updateOppNote(4,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">持ち物</div><div class="sub-search-row"><input class="opp-sub-input" id="opp6-item-4" type="text" placeholder="例: いのちのたま" autocomplete="off" oninput="updateOppNote(4,'itemNote',this.value)" onblur="syncOppManualItem(4)"><div class="dropdown" id="opp6-item-drop-4"></div></div></div>
               <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-4" type="text" placeholder="例: しんそく / じしん" oninput="updateOppNote(4,'movesNote',this.value)"></div>
             </div>
           </div><div class="opp-slot">
@@ -401,7 +402,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div class="dropdown" id="opp6-drop-5"></div>
             </div>
             <div class="opp-sub-fields">
-              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-5" type="text" placeholder="例: たべのこし" oninput="updateOppNote(5,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">持ち物</div><div class="sub-search-row"><input class="opp-sub-input" id="opp6-item-5" type="text" placeholder="例: たべのこし" autocomplete="off" oninput="updateOppNote(5,'itemNote',this.value)" onblur="syncOppManualItem(5)"><div class="dropdown" id="opp6-item-drop-5"></div></div></div>
               <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-5" type="text" placeholder="例: どくどく / まもる" oninput="updateOppNote(5,'movesNote',this.value)"></div>
             </div>
           </div>
@@ -463,25 +464,30 @@ let POKEMON_DATA = [];
 let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
+let ITEMS_DATA   = [];
 let pokeIndex    = [];
 let moveIndex    = [];
+let itemIndex    = [];
 let _dataLoaded  = false;
 
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd] = await Promise.all([
+    const [pd, md, ad, sd, id] = await Promise.all([
       fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
       fetch('moves.json?v='+Date.now()).then(r=>r.json()),
       fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
       fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
+      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
     ]);
     POKEMON_DATA = pd;
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
+    ITEMS_DATA   = Array.isArray(id) ? id : [];
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
+    itemIndex    = ITEMS_DATA.filter(item=>item && item.name).map((item,i)=>Object.assign({_i:i},item));
     _dataLoaded  = true;
   } catch(e) {
     console.error('データ読み込みエラー:', e);
@@ -554,6 +560,45 @@ function dropSelect(inputId, dropId, name){
   inp.value = name;
   const p = pokeIndex.find(x=>x.name===name);
   if(inp._onSelect && p) inp._onSelect(p);
+}
+
+function setupItemSearch(inputId, dropId, onSelect){
+  const inp = document.getElementById(inputId);
+  const drop = document.getElementById(dropId);
+  if(!inp) return;
+  let timer;
+  inp.addEventListener('input',()=>{
+    clearTimeout(timer);
+    const q = inp.value.trim();
+    if(!q){ drop.classList.remove('show'); return; }
+    timer = setTimeout(()=>{
+      const seen = new Set();
+      const res = itemIndex.filter(item=>{
+        if(!item.name || seen.has(item.name)) return false;
+        if(!item.name.includes(q)) return false;
+        seen.add(item.name);
+        return true;
+      }).slice(0,10);
+      if(!res.length){ drop.classList.remove('show'); return; }
+      drop.innerHTML = res.map(item=>{
+        const category = item.category ? `<span style="font-size:10px;color:var(--text2);margin-left:auto;">${item.category}</span>` : '';
+        return `<div class="drop-item" onclick="dropSelectItem('${inputId}','${dropId}','${encodeURIComponent(item.name)}')">`
+          + `<span class="drop-name">${item.name}</span>${category}</div>`;
+      }).join('');
+      drop.classList.add('show');
+    },150);
+  });
+  inp._onSelectItem = onSelect;
+  document.addEventListener('click',e=>{
+    if(!inp.contains(e.target)&&!drop.contains(e.target)) drop.classList.remove('show');
+  });
+}
+function dropSelectItem(inputId, dropId, encodedName){
+  const inp = document.getElementById(inputId);
+  document.getElementById(dropId).classList.remove('show');
+  const name = decodeURIComponent(encodedName || '');
+  inp.value = name;
+  if(inp._onSelectItem) inp._onSelectItem(name);
 }
 
 async function refreshSavedPartyPicker(){
@@ -715,6 +760,10 @@ function setupOppSearches(){
       syncOppInputsFromState(i);
       renderOppSelect();
     });
+    setupItemSearch(`opp6-item-${i}`,`opp6-item-drop-${i}`, name=>{
+      updateOppNote(i,'itemNote',name);
+      syncOppInputsFromState(i);
+    });
   }
 }
 
@@ -759,6 +808,12 @@ function syncOppManualName(i){
   slot.itemNote = itemVal;
   slot.movesNote = moveVal;
   renderOppSelect();
+}
+
+function syncOppManualItem(i){
+  const inp = document.getElementById(`opp6-item-${i}`);
+  if(!inp) return;
+  updateOppNote(i, 'itemNote', inp.value.trim());
 }
 
 function updateOppNote(i, field, value){
