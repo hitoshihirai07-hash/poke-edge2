@@ -422,6 +422,27 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 .corr-select{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-family:'Noto Sans JP',sans-serif;font-size:10px;outline:none;}
 .corr-select:focus{border-color:var(--accent);}
 .corr-section{background:var(--bg2);border:1px solid var(--border2);padding:10px;margin-top:8px;}
+
+/* ===== コンテキスト表示セクション（折りたたみ / 条件表示） ===== */
+.ctx-section{display:none;margin-top:8px;transition:opacity 0.15s ease;}
+.ctx-section.ctx-visible{display:block;}
+/* 折りたたみ可能な見出しトグル */
+.ctx-toggle{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;margin-top:8px;cursor:pointer;user-select:none;
+  background:var(--bg2);border:1px solid var(--border2);
+  transition:border-color 0.18s;
+}
+.ctx-toggle:hover{border-color:var(--accent);}
+.ctx-toggle-label{font-size:10px;letter-spacing:2px;color:var(--text2);flex:1;text-transform:uppercase;}
+.ctx-toggle-summary{font-size:10px;color:var(--accent3);margin-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+.ctx-toggle-caret{font-size:8px;color:var(--text2);transition:transform 0.2s ease;flex-shrink:0;}
+.ctx-toggle.open .ctx-toggle-caret{transform:rotate(90deg);}
+.ctx-body{display:none;padding:10px;background:var(--bg2);border:1px solid var(--border2);border-top:none;}
+.ctx-toggle.open+.ctx-body{display:block;}
+/* 条件合致アニメーション（自動展開時のハイライト） */
+@keyframes ctxFlash{0%{border-color:var(--accent3);}100%{border-color:var(--border2);}}
+.ctx-section.ctx-flash{animation:ctxFlash 0.6s ease;}
 .corr-section-title{font-size:9px;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
 
 /* ハンバーガーメニュー（スマホ） */
@@ -573,6 +594,16 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <div id="atk-abilities" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
         </div>
 
+        <!-- ===== ポケモン選択後に表示されるセクション群 ===== -->
+        <div class="ctx-section" id="atk-after-poke">
+
+        <!-- ステータス調整（折りたたみ） -->
+        <div class="ctx-toggle" id="atk-stats-toggle" onclick="ctxToggle(this)">
+          <span class="ctx-toggle-label">ステータス調整</span>
+          <span class="ctx-toggle-summary" id="atk-stats-summary"></span>
+          <span class="ctx-toggle-caret">▶</span>
+        </div>
+        <div class="ctx-body" id="atk-stats-body">
         <label>レベル</label>
         <input type="number" id="atk-lv" value="50" min="1" max="100">
 
@@ -667,6 +698,10 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
+        </div><!-- /.ctx-body #atk-stats-body -->
+
+        <!-- 残HP%（きしかいせい / じたばた選択時のみ表示） -->
+        <div class="ctx-section" id="atk-hp-pct-section">
         <div class="corr-section" style="margin-top:8px;">
           <div class="corr-section-title">攻撃側 残HP（きしかいせい / じたばた用）</div>
           <div class="slider-row">
@@ -677,8 +712,16 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             </div>
           </div>
         </div>
+        </div><!-- /.ctx-section #atk-hp-pct-section -->
 
-        <div class="corr-section" style="margin-top:8px;">
+        <!-- ランク補正（折りたたみ） -->
+        <div class="ctx-toggle" id="atk-rank-toggle" onclick="ctxToggle(this)">
+          <span class="ctx-toggle-label">ランク補正</span>
+          <span class="ctx-toggle-summary" id="atk-rank-summary"></span>
+          <span class="ctx-toggle-caret">▶</span>
+        </div>
+        <div class="ctx-body" id="atk-rank-body">
+        <div class="corr-section" style="margin-top:0;">
           <div class="corr-section-title">攻撃 / 特攻ランク補正</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="font-size:10px;color:var(--text2);flex-shrink:0;">ランク</span>
@@ -689,6 +732,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
+        <!-- 追加ランク（アシストパワー / つけあがる / ボディプレス選択時のみ表示） -->
+        <div class="ctx-section" id="atk-extra-rank-section">
         <div class="corr-section" style="margin-top:8px;">
           <div class="corr-section-title">追加ランク（アシストパワー / つけあがる / ボディプレス用）</div>
           <div class="corr-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));">
@@ -715,6 +760,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
           <div style="font-size:10px;color:var(--text2);margin-top:6px;">※ アシストパワー / つけあがる は、攻撃/特攻ランク + ここで入力した正のランクを合計して威力を計算します。ボディプレスは防御ランクを使用します。</div>
         </div>
+        </div><!-- /.ctx-section #atk-extra-rank-section -->
+        </div><!-- /.ctx-body #atk-rank-body -->
 
         <label style="margin-top:10px;">技検索</label>
         <div class="search-wrap">
@@ -745,9 +792,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         </select>
 
         <div class="corr-section">
-          <div class="corr-section-title">攻撃側 補正</div>
+          <div class="corr-section-title">攻撃側 特性</div>
           <div class="corr-grid">
-            <div>
+            <div style="grid-column:1/-1;">
               <label class="corr-item">特性（攻撃側）</label>
               <div style="position:relative;">
                 <input type="text" id="atk-ability-search" placeholder="特性名を検索..." autocomplete="off"
@@ -758,6 +805,17 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <input type="hidden" id="atk-ability" value="">
               <div id="atk-ability-info" style="font-size:10px;color:var(--accent3);margin-top:3px;min-height:14px;"></div>
             </div>
+          </div>
+        </div>
+
+        <!-- 攻撃側 詳細補正（折りたたみ） -->
+        <div class="ctx-toggle" id="atk-corr-toggle" onclick="ctxToggle(this)">
+          <span class="ctx-toggle-label">詳細補正</span>
+          <span class="ctx-toggle-summary" id="atk-corr-summary"></span>
+          <span class="ctx-toggle-caret">▶</span>
+        </div>
+        <div class="ctx-body" id="atk-corr-body">
+        <div class="corr-grid">
             <div>
               <label class="corr-item">味方特性</label>
               <select class="corr-select" id="atk-ally-ability">
@@ -794,7 +852,11 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="0.5">火傷あり ×0.5（物理技）</option>
               </select>
             </div>
-            <div>
+        </div>
+        <!-- おはかまいり（技選択時のみ表示） -->
+        <div class="ctx-section" id="atk-fainted-last-section">
+        <div class="corr-grid" style="margin-top:6px;">
+            <div style="grid-column:1/-1;">
               <label class="corr-item">味方の倒れた数（おはかまいり用）</label>
               <select class="corr-select" id="atk-fainted-last-respects">
                 <option value="0">0体（威力50）</option>
@@ -805,7 +867,12 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="5">5体（威力300）</option>
               </select>
             </div>
-            <div>
+        </div>
+        </div><!-- /.ctx-section #atk-fainted-last-section -->
+        <!-- そうだいしょう（特性選択時のみ表示） -->
+        <div class="ctx-section" id="atk-fainted-supreme-section">
+        <div class="corr-grid" style="margin-top:6px;">
+            <div style="grid-column:1/-1;">
               <label class="corr-item">味方の倒れた数（そうだいしょう用）</label>
               <select class="corr-select" id="atk-fainted-supreme">
                 <option value="0">0体（×1.0）</option>
@@ -816,8 +883,11 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="5">5体（×1.5）</option>
               </select>
             </div>
-          </div>
         </div>
+        </div><!-- /.ctx-section #atk-fainted-supreme-section -->
+        </div><!-- /.ctx-body #atk-corr-body -->
+
+        </div><!-- /.ctx-section #atk-after-poke -->
       </div>
 
       <div class="vs-mid"><button type="button" class="swap-btn" onclick="smartSwapSides()">⇄ 攻防を入れ替え</button></div>
@@ -840,6 +910,17 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <div id="def-basestats"></div>
           <div id="def-abilities" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
         </div>
+
+        <!-- ===== ポケモン選択後に表示されるセクション群 ===== -->
+        <div class="ctx-section" id="def-after-poke">
+
+        <!-- ステータス調整（折りたたみ） -->
+        <div class="ctx-toggle" id="def-stats-toggle" onclick="ctxToggle(this)">
+          <span class="ctx-toggle-label">ステータス調整</span>
+          <span class="ctx-toggle-summary" id="def-stats-summary"></span>
+          <span class="ctx-toggle-caret">▶</span>
+        </div>
+        <div class="ctx-body" id="def-stats-body">
 
         <label>レベル</label>
         <input type="number" id="def-lv" value="50" min="1" max="100">
@@ -949,7 +1030,16 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           </div>
         </div>
 
-        <div class="corr-section" style="margin-top:8px;">
+        </div><!-- /.ctx-body #def-stats-body -->
+
+        <!-- ランク補正（折りたたみ） -->
+        <div class="ctx-toggle" id="def-rank-toggle" onclick="ctxToggle(this)">
+          <span class="ctx-toggle-label">ランク補正</span>
+          <span class="ctx-toggle-summary" id="def-rank-summary"></span>
+          <span class="ctx-toggle-caret">▶</span>
+        </div>
+        <div class="ctx-body" id="def-rank-body">
+        <div class="corr-section" style="margin-top:0;">
           <div class="corr-section-title">防御側 ランク補正</div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <span style="font-size:10px;color:var(--text2);flex-shrink:0;">防御/特防</span>
@@ -966,6 +1056,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
             <span id="def-atk-rank-disp" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent2);width:28px;text-align:right;">±0</span>
           </div>
         </div>
+        </div><!-- /.ctx-body #def-rank-body -->
 
         <div class="hp-wrap" style="margin-top:10px;">
           <div class="hp-labels"><span>HP</span><span id="hp-disp">—</span></div>
@@ -973,9 +1064,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         </div>
 
         <div class="corr-section">
-          <div class="corr-section-title">防御側 補正</div>
+          <div class="corr-section-title">防御側 特性</div>
           <div class="corr-grid">
-            <div>
+            <div style="grid-column:1/-1;">
               <label class="corr-item">特性（防御側）</label>
               <div style="position:relative;">
                 <input type="text" id="def-ability-search" placeholder="特性名を検索..." autocomplete="off"
@@ -986,6 +1077,17 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <input type="hidden" id="def-ability" value="">
               <div id="def-ability-info" style="font-size:10px;color:var(--accent2);margin-top:3px;min-height:14px;"></div>
             </div>
+          </div>
+        </div>
+
+        <!-- 防御側 詳細補正（折りたたみ） -->
+        <div class="ctx-toggle" id="def-corr-toggle" onclick="ctxToggle(this)">
+          <span class="ctx-toggle-label">詳細補正</span>
+          <span class="ctx-toggle-summary" id="def-corr-summary"></span>
+          <span class="ctx-toggle-caret">▶</span>
+        </div>
+        <div class="ctx-body" id="def-corr-body">
+        <div class="corr-grid">
             <div>
               <label class="corr-item">持ち物</label>
               <select class="corr-select" id="def-item">
@@ -1011,9 +1113,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
                 <option value="def_0.75_waza2">わざわいのうつわ ×0.75</option>
               </select>
             </div>
-          </div>
-
-          <div class="corr-grid" style="margin-top:10px;">
+        </div>
+        <div class="corr-grid" style="margin-top:10px;">
             <div>
               <label class="corr-item">ステルスロック</label>
               <select class="corr-select" id="def-stealth-rock">
@@ -1034,8 +1135,10 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               <label class="corr-item">場ダメ込みの残HP目安</label>
               <div id="def-hazard-info" style="background:var(--bg2);border:1px solid var(--border);padding:8px 10px;font-size:11px;color:var(--accent3);min-height:36px;line-height:1.6;">場ダメなし</div>
             </div>
-          </div>
         </div>
+        </div><!-- /.ctx-body #def-corr-body -->
+
+        </div><!-- /.ctx-section #def-after-poke -->
       </div>
     </div>
 
@@ -1416,8 +1519,6 @@ function normalizeMoveEntry(raw){
     hits: String(raw.hits ?? raw.hitCount ?? raw['回数'] ?? '1').trim(),
     notes: String(raw.notes ?? raw.note ?? raw.description ?? raw['説明'] ?? '').trim(),
     alwaysCrit: String(raw.alwaysCrit ?? raw.always_crit ?? raw['急所固定'] ?? '').trim(),
-    contact: raw.contact===true || raw.contact==='true' || raw.contact===1,
-    effect: String(raw.effect ?? raw['効果'] ?? '').trim(),
   };
   if(!out.name) return null;
   return out;
@@ -2011,8 +2112,8 @@ function clearDamageSetupSelection(){
   if(el('result-box')) el('result-box').classList.remove('show');
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  updateContextSections();
 }
-
 function clearAbilitySide(side){
   if(el(side+'-ability-search')) el(side+'-ability-search').value='';
   if(el(side+'-ability')) el(side+'-ability').value='';
@@ -2124,6 +2225,7 @@ function moveDrop(inputId,dropId,name) {
   if(inputId==='atk-move-search') setAtkMove(m);
   else if(inputId==='atk1b-move-search') setAtk1bMove(m);
   else if(inputId==='atk2-move-search') setAtk2Move(m);
+  updateContextSections();
 }
 
 // ===== 種族値バー =====
@@ -2177,20 +2279,6 @@ function abilityHasListedMove(abilityName,moveName){
   if(!abilityName||!moveName) return false;
   return getAbilityMoveNameSet(abilityName).has(moveName);
 }
-// ===== 技情報ヘルパー（moves.json の contact / effect を活用） =====
-function getMoveData(moveName){
-  if(!moveName) return null;
-  return moveIndex.find(m=>m.name===moveName) || null;
-}
-function isContactMove(moveName){
-  const m=getMoveData(moveName);
-  return !!(m && m.contact===true);
-}
-// 「わるあがき」のような攻撃扱い例外にも配慮。contact フラグ未設定の救済として既知のリストで補う。
-const CONTACT_FALLBACK=new Set(['わるあがき']);
-function resolveContactMove(moveName){
-  return isContactMove(moveName) || CONTACT_FALLBACK.has(moveName);
-}
 function renderAbilityBadges(side,pokeName) {
   const abs=ABILITY_MAP[pokeName]||[], el2=el(side+'-abilities');
   if(!el2) return;
@@ -2236,6 +2324,7 @@ function selectAbility(side,name) {
   if(inf) inf.textContent=ab&&ab.effect?ab.effect.slice(0,60)+(ab.effect.length>60?'…':''):'';
   if(side==='def') updateDefHazardInfo();
   scheduleAutoCalc();
+  updateContextSections();
 }
 document.addEventListener('click',function(e){
   ['atk','def'].forEach(function(side){
@@ -2288,6 +2377,7 @@ function initAtkPoke(p) {
   renderQuickMoveChips(p.name);
   populateMoveSelect();
   updateDamageSetupSummary();
+  updateContextSections();
 }
 
 // ===== 防御側初期化 =====
@@ -2303,6 +2393,7 @@ function initDefPoke(p) {
   recalcDef();
   renderAbilityBadges('def',p.name);
   updateDamageSetupSummary();
+  updateContextSections();
 }
 
 // ===== 実数値再計算 =====
@@ -2328,6 +2419,7 @@ function recalcAtk() {
   if(el('atk-stat-def')) el('atk-stat-def').textContent=defVal;
   if(el('atk-stat-spa')) el('atk-stat-spa').textContent=spaVal;
   scheduleAutoCalc();
+  if(typeof updateCtxSummaries==='function') updateCtxSummaries();
 }
 function recalcDef() {
   const p=window._defBase; if(!p) return;
@@ -2350,6 +2442,7 @@ function recalcDef() {
   if(el('def-stat-spd')) el('def-stat-spd').textContent=spdVal;
   updateDefHazardInfo();
   scheduleAutoCalc();
+  if(typeof updateCtxSummaries==='function') updateCtxSummaries();
 }
 
 function isGroundedForSpikes(defBase, defAbName=''){
@@ -2431,6 +2524,7 @@ function setAtkMove(m) {
   renderSelectedMoveInfo('atk',m);
   updateDamageSetupSummary();
   scheduleAutoCalc();
+  updateContextSections();
 }
 function setAtk1bMove(m) {
   el('atk1b-move-search').value=m.name;
@@ -2641,29 +2735,6 @@ function calcDamage(options={}) {
     powerMult*=1.3;
     abilityExtraInfo.push('パンクロック: 音技×1.3');
   }
-  // かたいツメ: 直接攻撃(contact=true)の技を 1.3 倍
-  if(atkAbName==='かたいツメ'&&resolveContactMove(moveName)){
-    powerMult*=1.3;
-    abilityExtraInfo.push('かたいツメ: 直接攻撃×1.3');
-  }
-  // ブレインフォース: 効果抜群(eff>=2)の技を 1.25 倍
-  if(atkAbName==='ブレインフォース'&&eff>=2){
-    powerMult*=1.25;
-    abilityExtraInfo.push('ブレインフォース: 効果抜群×1.25');
-  }
-  // すいほう(攻撃側): みずタイプ技を 2 倍
-  if(atkAbName==='すいほう'&&mtype==='みず'){
-    powerMult*=2;
-    abilityExtraInfo.push('すいほう: みず技×2.0');
-  }
-  // ノーマル/タイプスキン系: ノーマル→該当タイプ化 + 1.2倍（タイプ変化は既存ロジックで扱われていれば威力のみ加算）
-  // ただしタイプ自体の差し替えは別関数 getEffectiveAtkTypes で行われている前提。威力補正のみここで反映。
-  if(mtype!=='ノーマル'){
-    if(atkAbName==='エレキスキン'&&mtype==='でんき'){ powerMult*=1.2; abilityExtraInfo.push('エレキスキン: 変換技×1.2'); }
-    if(atkAbName==='スカイスキン'&&mtype==='ひこう'){ powerMult*=1.2; abilityExtraInfo.push('スカイスキン: 変換技×1.2'); }
-    if(atkAbName==='フェアリースキン'&&mtype==='フェアリー'){ powerMult*=1.2; abilityExtraInfo.push('フェアリースキン: 変換技×1.2'); }
-    if(atkAbName==='フリーズスキン'&&mtype==='こおり'){ powerMult*=1.2; abilityExtraInfo.push('フリーズスキン: 変換技×1.2'); }
-  }
   if(atkAbName==='いわはこび'&&mtype==='いわ'){
     powerMult*=1.5;
     abilityExtraInfo.push('いわはこび: いわ技×1.5');
@@ -2757,27 +2828,6 @@ function calcDamage(options={}) {
   if(defAbName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)){
     dmgMult*=0.5;
     abilityExtraInfo.push('相手パンクロック: 音技半減');
-  }
-  // もふもふ(防御側): 直接攻撃を 0.5 倍 / ほのおタイプを 2 倍（両立し得る）
-  if(defAbName==='もふもふ'){
-    if(resolveContactMove(moveName)){
-      dmgMult*=0.5;
-      abilityExtraInfo.push('相手もふもふ: 直接攻撃×0.5');
-    }
-    if(mtype==='ほのお'){
-      dmgMult*=2;
-      abilityExtraInfo.push('相手もふもふ: ほのお技×2.0');
-    }
-  }
-  // かんそうはだ(防御側): ほのお技を 1.25 倍被弾（みず無効は既存の immuneType で扱う想定）
-  if(defAbName==='かんそうはだ'&&mtype==='ほのお'){
-    dmgMult*=1.25;
-    abilityExtraInfo.push('相手かんそうはだ: ほのお技×1.25');
-  }
-  // ハードロック/フィルター/プリズムアーマー: 効果抜群を 0.75 倍（プリズムアーマーを追加）
-  if(defAbName==='プリズムアーマー'&&eff>=2){
-    defStatMult*=0.75;
-    abilityExtraInfo.push('相手プリズムアーマー: 効果抜群×0.75');
   }
   if(defItem==='def_1.5_kiseki') defStatMult*=1.5;
   if(defItem==='def_2_metaba'&&defenseCategory==='物理') defStatMult*=2;
@@ -3088,88 +3138,19 @@ function calcOneDamage(atkSt,atkBase,defSt,defBase,lv,mtype,mcat,hits,power,item
   else if(itemKey==='inochi') itemMult=1.3;
 
   let abilityDmgMult=1;
-  let abilityPowerMult=1;
-  let abilityAtkMult=1;
-  let abilityDefMult=1;
-
-  // ===== 攻撃側・特性による威力補正 =====
-  if(abilityName==='てつのこぶし'&&abilityHasListedMove('てつのこぶし',moveName)) abilityPowerMult*=1.2;
-  if(abilityName==='すてみ'&&abilityHasListedMove('すてみ',moveName)) abilityPowerMult*=1.2;
-  if(abilityName==='がんじょうあご'&&abilityHasListedMove('がんじょうあご',moveName)) abilityPowerMult*=1.5;
-  if(abilityName==='きれあじ'&&abilityHasListedMove('きれあじ',moveName)) abilityPowerMult*=1.5;
-  if(abilityName==='メガランチャー'&&abilityHasListedMove('メガランチャー',moveName)) abilityPowerMult*=1.5;
-  if(abilityName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)) abilityPowerMult*=1.3;
-  if(abilityName==='かたいツメ'&&resolveContactMove(moveName)) abilityPowerMult*=1.3;
-  if(abilityName==='ブレインフォース'&&eff>=2) abilityPowerMult*=1.25;
-  if(abilityName==='すいほう'&&mtype==='みず') abilityPowerMult*=2;
-  if(abilityName==='いわはこび'&&mtype==='いわ') abilityPowerMult*=1.5;
-  if(abilityName==='りゅうのあぎと'&&mtype==='ドラゴン') abilityPowerMult*=1.5;
-  if(abilityName==='はがねつかい'&&mtype==='はがね') abilityPowerMult*=1.5;
-  if(abilityName==='トランジスタ'&&mtype==='でんき') abilityPowerMult*=1.3;
-  if(abilityName==='テクニシャン'&&power<=60) abilityPowerMult*=1.5;
-  if(mtype!=='ノーマル'){
-    if(abilityName==='エレキスキン'&&mtype==='でんき') abilityPowerMult*=1.2;
-    if(abilityName==='スカイスキン'&&mtype==='ひこう') abilityPowerMult*=1.2;
-    if(abilityName==='フェアリースキン'&&mtype==='フェアリー') abilityPowerMult*=1.2;
-    if(abilityName==='フリーズスキン'&&mtype==='こおり') abilityPowerMult*=1.2;
-  }
-
-  // ===== 攻撃側・こうげき/とくこう補正 =====
-  if(['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(abilityName)){
-    const tmap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
-    if(tmap[abilityName]===mtype) abilityAtkMult*=1.5;
-  }
-  if(['ちからもち','ヨガパワー'].includes(abilityName)&&moveCategory==='物理'&&!isBodyPress) abilityAtkMult*=2;
-  if(abilityName==='ごりむちゅう'&&moveCategory==='物理') abilityAtkMult*=1.5;
-  if(abilityName==='はりきり'&&moveCategory==='物理') abilityAtkMult*=1.5;
-  if(['クォークチャージ','こだいかっせい'].includes(abilityName)) abilityAtkMult*=1.3;
-
-  // ===== ダメージ倍率（最終） =====
-  if(abilityName==='スナイパー') abilityDmgMult*=1.5;
-  if(abilityName==='ちからずく') abilityDmgMult*=1.3;
-  if(abilityName==='いろめがね'&&eff<1) abilityDmgMult*=2;
   if(abilityName==='そうだいしょう'){
     const fainted=Math.min(5, Math.max(0, parseInt(el('atk-fainted-supreme')?.value||'0')||0));
     abilityDmgMult*=1 + 0.1 * fainted;
   }
-  // てきおうりょく: STAB×2（後段で stab を差し替える必要があるため、先に使用）
-  let stabActual = stab;
-  if(stabActual>1&&abilityName==='てきおうりょく') stabActual=2.0;
-
-  // ===== 防御側の特性 =====
-  const defAbName=el('def-ability')?.value||'';
-  const defAbData=getAbilityByName(defAbName);
-  if(defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype){
-    return {mn:0,mx:0};
-  }
-  if(['マルチスケイル','ファントムガード'].includes(defAbName)) abilityDefMult*=0.5;
-  if(['フィルター','ハードロック','プリズムアーマー'].includes(defAbName)&&eff>=2) abilityDefMult*=0.75;
-  if(defAbName==='ファーコート'&&defenseCategory==='物理') abilityDefMult*=2;
-  if(defAbName==='もふもふ'){
-    if(resolveContactMove(moveName)) abilityDmgMult*=0.5;
-    if(mtype==='ほのお') abilityDmgMult*=2;
-  }
-  if(defAbName==='かんそうはだ'&&mtype==='ほのお') abilityDmgMult*=1.25;
-  if(defAbName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)) abilityDmgMult*=0.5;
-
-  // ===== 持ち物（攻撃側のみ。防御側道具までは現行加算計算では持たない） =====
-  // 既存の itemMult に加えて、eff 連動系などを補完
-  if(itemKey==='tatsujin'&&eff>1) itemMult*=1.2;
-  if(itemKey==='juel') itemMult*=1.3;
-  if(itemKey==='pangro') itemMult*=1.2;
-  if(itemKey==='hone'&&!isBodyPress) itemMult*=2.0;
 
   const rankTable=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
   const atkRankVal = isBodyPress ? getStageValue('atk-extra-rank-def') : (isFoulPlay ? (parseInt(el('def-atk-rank')?.value||'0')||0) : getStageValue('atk-rank'));
-  let effAtk=Math.floor(atkStat*rankTable[atkRankVal+6]);
-  effAtk = Math.floor(effAtk * abilityAtkMult);
-  const effDef = Math.floor(defStat * abilityDefMult);
-  const effPow = Math.max(1, Math.floor(hitsPower * abilityPowerMult));
-  const firstHit = calcBaseDamageRolls(lv, effPow, effAtk, effDef, stabActual, eff, itemMult, abilityDmgMult, 1);
+  const effAtk=Math.floor(atkStat*rankTable[atkRankVal+6]);
+  const firstHit = calcBaseDamageRolls(lv, hitsPower, effAtk, defStat, stab, eff, itemMult, abilityDmgMult, 1);
   const parentalBondActive = abilityName==='おやこあい' && !isParentalBondBlocked(moveName, hitsInfo);
   if(parentalBondActive){
-    const secondPower = Math.max(1, Math.floor(effPow * 0.25));
-    const secondHit = calcBaseDamageRolls(lv, secondPower, effAtk, effDef, stabActual, eff, itemMult, abilityDmgMult, 1);
+    const secondPower = Math.max(1, Math.floor(hitsPower * 0.25));
+    const secondHit = calcBaseDamageRolls(lv, secondPower, effAtk, defStat, stab, eff, itemMult, abilityDmgMult, 1);
     return {
       mn:(firstHit.mn + secondHit.mn) * hitsInfo.min,
       mx:(firstHit.mx + secondHit.mx) * hitsInfo.max
@@ -3564,8 +3545,114 @@ window.onload = async()=>{
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  initContextUI();
   initMobileResultUI();
 };
+
+// ===== コンテキスト表示UI =====
+function ctxToggle(btn){
+  btn.classList.toggle('open');
+}
+function ctxShow(id, flash){
+  const s=document.getElementById(id);
+  if(!s) return;
+  const wasHidden = !s.classList.contains('ctx-visible');
+  s.classList.add('ctx-visible');
+  if(flash && wasHidden){
+    s.classList.remove('ctx-flash');
+    void s.offsetWidth;
+    s.classList.add('ctx-flash');
+  }
+}
+function ctxHide(id){
+  const s=document.getElementById(id);
+  if(s) s.classList.remove('ctx-visible');
+}
+function ctxOpen(toggleId){
+  const t=document.getElementById(toggleId);
+  if(t && !t.classList.contains('open')) t.classList.add('open');
+}
+function updateContextSections(){
+  // ポケモン選択状態
+  const atkPoke = !!window._atkBase;
+  const defPoke = !!window._defBase;
+  if(atkPoke) ctxShow('atk-after-poke'); else ctxHide('atk-after-poke');
+  if(defPoke) ctxShow('def-after-poke'); else ctxHide('def-after-poke');
+
+  // 攻撃側: 技名に基づく条件セクション
+  const moveName = (el('atk-move-search')?.value||'').trim();
+  const isLowHp = moveName==='きしかいせい' || moveName==='じたばた';
+  const isExtraRankMove = moveName==='アシストパワー' || moveName==='つけあがる' || moveName==='ボディプレス';
+  const isOhaka = moveName==='おはかまいり';
+
+  if(isLowHp){ ctxShow('atk-hp-pct-section', true); }
+  else { ctxHide('atk-hp-pct-section'); }
+
+  if(isExtraRankMove){ ctxShow('atk-extra-rank-section', true); ctxOpen('atk-rank-toggle'); }
+  else { ctxHide('atk-extra-rank-section'); }
+
+  if(isOhaka){ ctxShow('atk-fainted-last-section', true); ctxOpen('atk-corr-toggle'); }
+  else { ctxHide('atk-fainted-last-section'); }
+
+  // 攻撃側: 特性に基づく条件セクション
+  const atkAbility = (el('atk-ability')?.value||'');
+  if(atkAbility==='そうだいしょう'){ ctxShow('atk-fainted-supreme-section', true); ctxOpen('atk-corr-toggle'); }
+  else { ctxHide('atk-fainted-supreme-section'); }
+
+  // サマリーテキストの更新
+  updateCtxSummaries();
+}
+function updateCtxSummaries(){
+  // 攻撃側ステータスサマリー
+  const atkSum = document.getElementById('atk-stats-summary');
+  if(atkSum && window._atkStats){
+    atkSum.textContent = 'A'+window._atkStats.atk+' C'+window._atkStats.spa;
+  }
+  // 防御側ステータスサマリー
+  const defSum = document.getElementById('def-stats-summary');
+  if(defSum && window._defStats){
+    defSum.textContent = 'H'+window._defStats.hp+' B'+window._defStats.def+' D'+window._defStats.spd;
+  }
+  // ランクサマリー
+  const atkRankV = parseInt(el('atk-rank')?.value||'0');
+  const atkRankSum = document.getElementById('atk-rank-summary');
+  if(atkRankSum) atkRankSum.textContent = atkRankV!==0 ? (atkRankV>0?'+':'')+atkRankV : '';
+
+  const defRankV = parseInt(el('def-rank')?.value||'0');
+  const defRankSum = document.getElementById('def-rank-summary');
+  if(defRankSum) defRankSum.textContent = defRankV!==0 ? (defRankV>0?'+':'')+defRankV : '';
+
+  // 攻撃側詳細補正サマリー
+  const atkCorrSum = document.getElementById('atk-corr-summary');
+  if(atkCorrSum){
+    const parts = [];
+    const w = el('atk-weather')?.value; if(w) parts.push(el('atk-weather').options[el('atk-weather').selectedIndex]?.textContent?.split('（')[0]||'');
+    const b = el('atk-burn')?.value; if(b==='0.5') parts.push('火傷');
+    const o = el('atk-other')?.value; if(o && o!=='1') parts.push(el('atk-other').options[el('atk-other').selectedIndex]?.textContent?.split('×')[0]?.trim()||'');
+    atkCorrSum.textContent = parts.filter(Boolean).join(' / ');
+  }
+  // 防御側詳細補正サマリー
+  const defCorrSum = document.getElementById('def-corr-summary');
+  if(defCorrSum){
+    const parts = [];
+    const di = el('def-item')?.value; if(di && di!=='1') parts.push(el('def-item').options[el('def-item').selectedIndex]?.textContent?.split('×')[0]?.trim()||'');
+    const dw = el('def-wall')?.value; if(dw && dw!=='1') parts.push(el('def-wall').options[el('def-wall').selectedIndex]?.textContent?.split('×')[0]?.trim()||'');
+    defCorrSum.textContent = parts.filter(Boolean).join(' / ');
+  }
+}
+function initContextUI(){
+  updateContextSections();
+  // ランクスライダーの変更時にサマリー更新
+  ['atk-rank','def-rank'].forEach(id=>{
+    const r=el(id); if(!r) return;
+    r.addEventListener('input', updateCtxSummaries);
+  });
+  // 補正セレクトの変更時にサマリー更新
+  ['atk-weather','atk-burn','atk-other','def-item','def-wall'].forEach(id=>{
+    const s=el(id); if(!s) return;
+    s.addEventListener('change', updateCtxSummaries);
+  });
+}
 
 // ===== モバイル下部固定の結果UI =====
 function toggleMobileResult(){
