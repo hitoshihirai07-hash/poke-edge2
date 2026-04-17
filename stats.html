@@ -175,6 +175,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .reg-pick{display:flex;align-items:center;gap:6px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);cursor:pointer;font-size:12px;transition:all 0.15s;flex-wrap:wrap;}
 .reg-pick:hover{border-color:var(--accent);}
 .reg-pick.in-party{border-color:var(--accent);background:rgba(0,200,240,0.06);}
+.saved-party-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.saved-party-select{flex:1;min-width:220px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;}
+.saved-party-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:8px 12px;font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all 0.18s;}
+.saved-party-btn:hover{border-color:var(--accent);color:var(--accent);}
+.saved-party-help{font-size:10px;color:var(--text2);margin-bottom:8px;line-height:1.7;}
 /* 選出チップ */
 .select-chips{display:flex;flex-wrap:wrap;gap:6px;}
 .select-chip{display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--bg2);border:1px solid var(--border);cursor:pointer;font-size:12px;transition:all 0.15s;}
@@ -184,10 +189,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .lead-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:1px 6px;font-size:9px;cursor:pointer;letter-spacing:1px;font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;}
 .lead-btn.on{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.1);}
 /* 相手入力 */
-.opp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
-.opp-slot{position:relative;}
-.opp-input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color 0.2s;}
-.opp-input:focus{border-color:var(--accent);}
+.opp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+.opp-slot{position:relative;background:var(--bg2);border:1px solid var(--border);padding:8px;}
+.opp-main-row{position:relative;}
+.opp-input,.opp-sub-input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color 0.2s;}
+.opp-input:focus,.opp-sub-input:focus{border-color:var(--accent);}
+.opp-sub-fields{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+.opp-sub-label{font-size:10px;color:var(--text2);margin-bottom:3px;}
 .dropdown{display:none;position:absolute;top:100%;left:0;right:0;z-index:300;background:var(--panel);border:1px solid var(--border2);max-height:180px;overflow-y:auto;}
 .dropdown.show{display:block;}
 .drop-item{padding:7px 10px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);transition:background 0.12s;}
@@ -318,6 +326,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <!-- 自パーティ6匹 -->
       <div class="block">
         <div class="sec">自パーティ 6匹</div>
+        <div class="saved-party-help">パーティ管理で保存した6匹をそのまま読み込めます。下の登録済み一覧から個別に選ぶこともできます。</div>
+        <div class="saved-party-inline">
+          <select id="my-saved-party-select" class="saved-party-select">
+            <option value="">保存済みパーティを選択</option>
+          </select>
+          <button type="button" class="saved-party-btn" onclick="applySelectedSavedParty()">読込</button>
+          <button type="button" class="saved-party-btn" onclick="refreshSavedPartyPicker()">更新</button>
+        </div>
         <div class="reg-pick-list" id="my-reg-list"></div>
         <div class="party6-grid" id="my-party6"></div>
       </div>
@@ -332,25 +348,62 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <!-- 相手パーティ6匹 -->
       <div class="block">
         <div class="sec">相手パーティ 6匹</div>
+        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;line-height:1.7;">ポケモン名に加えて、わかっている持ち物や技メモも残せます。</div>
         <div class="opp-grid">
           <div class="opp-slot">
-            <input class="opp-input" id="opp6-0" type="text" placeholder="相手1匹目" autocomplete="off">
-            <div class="dropdown" id="opp6-drop-0"></div>
+            <div class="opp-main-row">
+              <input class="opp-input" id="opp6-0" type="text" placeholder="相手1匹目" autocomplete="off" onblur="syncOppManualName(0)">
+              <div class="dropdown" id="opp6-drop-0"></div>
+            </div>
+            <div class="opp-sub-fields">
+              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-0" type="text" placeholder="例: こだわりスカーフ" oninput="updateOppNote(0,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-0" type="text" placeholder="例: りゅうせいぐん / かえんほうしゃ" oninput="updateOppNote(0,'movesNote',this.value)"></div>
+            </div>
           </div><div class="opp-slot">
-            <input class="opp-input" id="opp6-1" type="text" placeholder="相手2匹目" autocomplete="off">
-            <div class="dropdown" id="opp6-drop-1"></div>
+            <div class="opp-main-row">
+              <input class="opp-input" id="opp6-1" type="text" placeholder="相手2匹目" autocomplete="off" onblur="syncOppManualName(1)">
+              <div class="dropdown" id="opp6-drop-1"></div>
+            </div>
+            <div class="opp-sub-fields">
+              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-1" type="text" placeholder="例: オボンのみ" oninput="updateOppNote(1,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-1" type="text" placeholder="例: まもる / ねっぷう" oninput="updateOppNote(1,'movesNote',this.value)"></div>
+            </div>
           </div><div class="opp-slot">
-            <input class="opp-input" id="opp6-2" type="text" placeholder="相手3匹目" autocomplete="off">
-            <div class="dropdown" id="opp6-drop-2"></div>
+            <div class="opp-main-row">
+              <input class="opp-input" id="opp6-2" type="text" placeholder="相手3匹目" autocomplete="off" onblur="syncOppManualName(2)">
+              <div class="dropdown" id="opp6-drop-2"></div>
+            </div>
+            <div class="opp-sub-fields">
+              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-2" type="text" placeholder="例: きあいのタスキ" oninput="updateOppNote(2,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-2" type="text" placeholder="例: アンコール / ちょうはつ" oninput="updateOppNote(2,'movesNote',this.value)"></div>
+            </div>
           </div><div class="opp-slot">
-            <input class="opp-input" id="opp6-3" type="text" placeholder="相手4匹目" autocomplete="off">
-            <div class="dropdown" id="opp6-drop-3"></div>
+            <div class="opp-main-row">
+              <input class="opp-input" id="opp6-3" type="text" placeholder="相手4匹目" autocomplete="off" onblur="syncOppManualName(3)">
+              <div class="dropdown" id="opp6-drop-3"></div>
+            </div>
+            <div class="opp-sub-fields">
+              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-3" type="text" placeholder="例: とつげきチョッキ" oninput="updateOppNote(3,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-3" type="text" placeholder="例: ボディプレス / てっぺき" oninput="updateOppNote(3,'movesNote',this.value)"></div>
+            </div>
           </div><div class="opp-slot">
-            <input class="opp-input" id="opp6-4" type="text" placeholder="相手5匹目" autocomplete="off">
-            <div class="dropdown" id="opp6-drop-4"></div>
+            <div class="opp-main-row">
+              <input class="opp-input" id="opp6-4" type="text" placeholder="相手5匹目" autocomplete="off" onblur="syncOppManualName(4)">
+              <div class="dropdown" id="opp6-drop-4"></div>
+            </div>
+            <div class="opp-sub-fields">
+              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-4" type="text" placeholder="例: いのちのたま" oninput="updateOppNote(4,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-4" type="text" placeholder="例: しんそく / じしん" oninput="updateOppNote(4,'movesNote',this.value)"></div>
+            </div>
           </div><div class="opp-slot">
-            <input class="opp-input" id="opp6-5" type="text" placeholder="相手6匹目" autocomplete="off">
-            <div class="dropdown" id="opp6-drop-5"></div>
+            <div class="opp-main-row">
+              <input class="opp-input" id="opp6-5" type="text" placeholder="相手6匹目" autocomplete="off" onblur="syncOppManualName(5)">
+              <div class="dropdown" id="opp6-drop-5"></div>
+            </div>
+            <div class="opp-sub-fields">
+              <div><div class="opp-sub-label">持ち物</div><input class="opp-sub-input" id="opp6-item-5" type="text" placeholder="例: たべのこし" oninput="updateOppNote(5,'itemNote',this.value)"></div>
+              <div><div class="opp-sub-label">技メモ</div><input class="opp-sub-input" id="opp6-moves-5" type="text" placeholder="例: どくどく / まもる" oninput="updateOppNote(5,'movesNote',this.value)"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -454,6 +507,19 @@ let oppParty6  = Array(6).fill(null);  // 相手6匹
 let oppSelect3 = Array(3).fill(null);  // 相手選出3匹
 let oppLead    = null;                 // 相手初手
 let result     = null;                 // 勝敗
+let savedPartyCache = [];
+
+function ensureOppSlot(i){
+  if(!oppParty6[i]) oppParty6[i] = {name:'', type1:'', type2:'', itemNote:'', movesNote:''};
+  if(typeof oppParty6[i].itemNote !== 'string') oppParty6[i].itemNote = oppParty6[i].itemNote || '';
+  if(typeof oppParty6[i].movesNote !== 'string') oppParty6[i].movesNote = oppParty6[i].movesNote || '';
+  return oppParty6[i];
+}
+
+function createMyPartyMemberFromSaved(member){
+  const p = pokeIndex.find(x=>x.name===member.pokeName) || {name:member.pokeName, type1:member.type1, type2:member.type2};
+  return {...p, displayName: member.pokeName, item: member.item||'', moves: member.moves||[]};
+}
 
 // ===== 検索 =====
 function setupSearch(inputId, dropId, onSelect){
@@ -488,6 +554,46 @@ function dropSelect(inputId, dropId, name){
   inp.value = name;
   const p = pokeIndex.find(x=>x.name===name);
   if(inp._onSelect && p) inp._onSelect(p);
+}
+
+async function refreshSavedPartyPicker(){
+  const sel = document.getElementById('my-saved-party-select');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">読み込み中...</option>';
+  try{
+    const saved = await loadParties();
+    savedPartyCache = saved || [];
+    if(!savedPartyCache.length){
+      sel.innerHTML = '<option value="">保存済みパーティはありません</option>';
+      return;
+    }
+    sel.innerHTML = '<option value="">保存済みパーティを選択</option>' + savedPartyCache.map((s,i)=>{
+      const d = s.data || s || {};
+      const members = (d.members||[]).map(m=>m.pokeName).slice(0,6);
+      const label = `${s.name||d.name||('パーティ'+(i+1))} (${members.join(' / ')})`;
+      return `<option value="${s.id||i}">${label}</option>`;
+    }).join('');
+  }catch(e){
+    console.error('保存済みパーティ取得エラー:', e);
+    sel.innerHTML = '<option value="">保存済みパーティを取得できませんでした</option>';
+  }
+}
+
+function applySelectedSavedParty(){
+  const sel = document.getElementById('my-saved-party-select');
+  if(!sel || !sel.value){ alert('読み込むパーティを選択してください'); return; }
+  const s = savedPartyCache.find((p,idx)=>(p.id||idx).toString()===sel.value.toString());
+  if(!s){ alert('選択したパーティが見つかりません'); return; }
+  const d = s.data || s || {};
+  const members = (d.members || []).slice(0,6).map(createMyPartyMemberFromSaved);
+  if(!members.length){ alert('このパーティにはポケモンが入っていません'); return; }
+  myParty6 = Array(6).fill(null);
+  members.forEach((m,idx)=>{ myParty6[idx] = m; });
+  mySelect3 = Array(3).fill(null);
+  myLead = null;
+  renderMyParty6();
+  initMyPartyFromReg();
+  renderMySelect();
 }
 
 // ===== 自パーティ: 登録済みから選択 or 直接検索 =====
@@ -546,11 +652,10 @@ function renderMyParty6(){
 }
 
 function removeMyParty(i){
-  myParty6[i]=null;
-  // 選出・初手からも外す
-  const name = myParty6[i]?.name;
-  mySelect3 = mySelect3.map(m=>m&&m===myParty6[i]?null:m);
-  if(myLead===myParty6[i]) myLead=null;
+  const target = myParty6[i];
+  if(!target) return;
+  mySelect3 = mySelect3.map(m=>m===target?null:m);
+  if(myLead===target) myLead=null;
   myParty6[i]=null;
   renderMyParty6();
   initMyPartyFromReg();
@@ -603,29 +708,72 @@ function toggleMyLead(name){
 function setupOppSearches(){
   for(let i=0;i<6;i++){
     setupSearch(`opp6-${i}`,`opp6-drop-${i}`, p=>{
-      oppParty6[i]=p;
-      renderOppParty6();
+      const slot = ensureOppSlot(i);
+      slot.name = p.name;
+      slot.type1 = p.type1 || '';
+      slot.type2 = p.type2 || '';
+      syncOppInputsFromState(i);
       renderOppSelect();
     });
   }
 }
 
-function renderOppParty6(){
-  // 入力済みのものを表示
-  for(let i=0;i<6;i++){
-    const m=oppParty6[i];
-    const el=document.getElementById(`opp6-name-${i}`);
-    if(el && m){
-      el.textContent=m.name;
-      el.style.display='block';
+function syncOppInputsFromState(i){
+  const slot = oppParty6[i];
+  const nameInput = document.getElementById(`opp6-${i}`);
+  const itemInput = document.getElementById(`opp6-item-${i}`);
+  const moveInput = document.getElementById(`opp6-moves-${i}`);
+  if(nameInput) nameInput.value = slot?.name || '';
+  if(itemInput) itemInput.value = slot?.itemNote || '';
+  if(moveInput) moveInput.value = slot?.movesNote || '';
+}
+
+function syncOppManualName(i){
+  const inp = document.getElementById(`opp6-${i}`);
+  if(!inp) return;
+  const name = inp.value.trim();
+  const itemVal = document.getElementById(`opp6-item-${i}`)?.value || '';
+  const moveVal = document.getElementById(`opp6-moves-${i}`)?.value || '';
+  if(!name){
+    if(itemVal || moveVal){
+      const slot = ensureOppSlot(i);
+      slot.name = '';
+      slot.type1 = '';
+      slot.type2 = '';
+      slot.itemNote = itemVal;
+      slot.movesNote = moveVal;
+    } else {
+      const target = oppParty6[i];
+      oppSelect3 = oppSelect3.map(m=>m===target?null:m);
+      if(oppLead===target) oppLead=null;
+      oppParty6[i] = null;
     }
+    renderOppSelect();
+    return;
   }
+  const found = pokeIndex.find(x=>x.name===name);
+  const slot = ensureOppSlot(i);
+  slot.name = name;
+  slot.type1 = found?.type1 || '';
+  slot.type2 = found?.type2 || '';
+  slot.itemNote = itemVal;
+  slot.movesNote = moveVal;
+  renderOppSelect();
+}
+
+function updateOppNote(i, field, value){
+  const slot = ensureOppSlot(i);
+  slot[field] = value;
+}
+
+function renderOppParty6(){
+  for(let i=0;i<6;i++) syncOppInputsFromState(i);
 }
 
 // ===== 相手選出3匹 =====
 function renderOppSelect(){
   const el = document.getElementById('opp-select3');
-  const available = oppParty6.filter(Boolean);
+  const available = oppParty6.filter(m=>m&&m.name);
   if(!available.length){
     el.innerHTML='<div style="font-size:11px;color:var(--text2);">相手パーティを先に入力してください</div>';
     return;
@@ -681,9 +829,9 @@ async function recordBattle(){
       lead: myLead ? {name:myLead.displayName||myLead.name, type1:myLead.type1, type2:myLead.type2} : null,
     },
     opp: {
-      party6: oppParty6.filter(Boolean).map(m=>({name:m.name, type1:m.type1, type2:m.type2})),
-      select3: oppSel.map(m=>({name:m.name, type1:m.type1, type2:m.type2})),
-      lead: oppLead ? {name:oppLead.name, type1:oppLead.type1, type2:oppLead.type2} : null,
+      party6: oppParty6.filter(m=>m&&m.name).map(m=>({name:m.name, type1:m.type1, type2:m.type2, itemNote:m.itemNote||'', movesNote:m.movesNote||''})),
+      select3: oppSel.map(m=>({name:m.name, type1:m.type1, type2:m.type2, itemNote:m.itemNote||'', movesNote:m.movesNote||''})),
+      lead: oppLead ? {name:oppLead.name, type1:oppLead.type1, type2:oppLead.type2, itemNote:oppLead.itemNote||'', movesNote:oppLead.movesNote||''} : null,
     },
   };
 
@@ -705,9 +853,11 @@ function resetForm(){
   document.querySelectorAll('.result-btn').forEach(b=>b.classList.remove('on'));
   for(let i=0;i<6;i++){
     const inp=document.getElementById(`opp6-${i}`);
+    const itemInp=document.getElementById(`opp6-item-${i}`);
+    const moveInp=document.getElementById(`opp6-moves-${i}`);
     if(inp) inp.value='';
-    const nm=document.getElementById(`opp6-name-${i}`);
-    if(nm){ nm.textContent=''; nm.style.display='none'; }
+    if(itemInp) itemInp.value='';
+    if(moveInp) moveInp.value='';
   }
   renderMyParty6();
   initMyPartyFromReg();
@@ -799,6 +949,19 @@ async function renderStats(){
     </div>`;
 }
 
+function escapeHtml(str){
+  return String(str||'').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+function renderOppKnownNotes(entries){
+  const lines = (entries||[]).filter(m=>m && (m.itemNote || m.movesNote)).map(m=>{
+    const notes = [m.itemNote, m.movesNote].filter(Boolean).join(' / ');
+    return `<div style="font-size:10px;color:var(--text2);line-height:1.6;">${escapeHtml(m.name)}：${escapeHtml(notes)}</div>`;
+  });
+  if(!lines.length) return '';
+  return `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);"><div style="font-size:9px;color:var(--text2);margin-bottom:4px;">相手メモ</div>${lines.join('')}</div>`;
+}
+
 // ===== 履歴 =====
 async function renderHistory(){
   const battles = await loadBattleRecords();
@@ -824,6 +987,7 @@ async function renderHistory(){
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
             ${b.opp.select3.map(m=>`<span class="poke-tag opp-tag ${m.name===b.opp.lead?.name?'lead-tag':''}">${m.name}</span>`).join('')}
           </div>
+          ${renderOppKnownNotes(b.opp.party6||[])}
         </div>
       </div>
     </div>`).join('');
@@ -831,8 +995,12 @@ async function renderHistory(){
 
 async function deleteBattle(id){
   if(!confirm('この記録を削除しますか？')) return;
-  const battles = loadBattles().filter(b=>b.id!==id);
-  saveBattles(battles);
+  const battles = await loadBattleRecords();
+  const next = battles.filter(b=>b.id!==id);
+  localStorage.setItem('pokeedge_battles_v1', JSON.stringify(next));
+  if(typeof syncBattleRecords === 'function' && isLoggedIn()){
+    try{ await syncBattleRecords(); }catch(e){ console.error(e); }
+  }
   renderStats();
   renderHistory();
 }
@@ -846,6 +1014,7 @@ function setResult(r){
 window.onload = async ()=>{
   await loadGameData();
   await initAuth();
+  await refreshSavedPartyPicker();
   renderMyParty6();
   initMyPartyFromReg();
   renderMySelect();
