@@ -422,6 +422,15 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 .corr-select{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-family:'Noto Sans JP',sans-serif;font-size:10px;outline:none;}
 .corr-select:focus{border-color:var(--accent);}
 .corr-section{background:var(--bg2);border:1px solid var(--border2);padding:10px;margin-top:8px;}
+/* ランク ＋/− ボタン */
+.rank-ctrl{display:flex;align-items:center;gap:6px;}
+.rank-btn{width:28px;height:28px;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:16px;font-family:'JetBrains Mono',monospace;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color 0.15s;padding:0;line-height:1;flex-shrink:0;}
+.rank-btn:hover{border-color:var(--accent);}
+.rank-val{font-family:'JetBrains Mono',monospace;font-size:15px;min-width:32px;text-align:center;}
+/* 努力値 0/MAX ボタン */
+.ev-quick-btns{display:flex;gap:4px;margin-left:6px;flex-shrink:0;}
+.ev-quick-btn{padding:2px 8px;font-size:9px;font-family:'Noto Sans JP',sans-serif;background:var(--bg);border:1px solid var(--border2);color:var(--text2);cursor:pointer;letter-spacing:1px;transition:border-color 0.15s;}
+.ev-quick-btn:hover{border-color:var(--accent);color:var(--accent);}
 .corr-section-title{font-size:9px;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
 
 /* ハンバーガーメニュー（スマホ） */
@@ -579,26 +588,26 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <label id="atk-label-nature">性格</label>
         <select id="atk-nature">
             <option value="がんばりや">がんばりや（補正なし）</option>
-            <option value="さみしがり">さみしがり（攻↑防↓）</option>
-            <option value="いじっぱり">いじっぱり（攻↑特攻↓）</option>
-            <option value="やんちゃ">やんちゃ（攻↑特防↓）</option>
-            <option value="ゆうかん">ゆうかん（攻↑素早↓）</option>
-            <option value="ずぶとい">ずぶとい（防↑攻↓）</option>
-            <option value="わんぱく">わんぱく（防↑特攻↓）</option>
-            <option value="のうてんき">のうてんき（防↑特防↓）</option>
-            <option value="のんき">のんき（防↑素早↓）</option>
-            <option value="ひかえめ">ひかえめ（特攻↑攻↓）</option>
-            <option value="おっとり">おっとり（特攻↑防↓）</option>
-            <option value="うっかりや">うっかりや（特攻↑特防↓）</option>
-            <option value="れいせい">れいせい（特攻↑素早↓）</option>
-            <option value="おだやか">おだやか（特防↑攻↓）</option>
-            <option value="おとなしい">おとなしい（特防↑特攻↓）</option>
-            <option value="しんちょう">しんちょう（特防↑特攻↓）</option>
-            <option value="なまいき">なまいき（特防↑素早↓）</option>
-            <option value="おくびょう">おくびょう（素早↑特防↓）</option>
-            <option value="せっかち">せっかち（素早↑防↓）</option>
-            <option value="ようき">ようき（素早↑特攻↓）</option>
-            <option value="むじゃき">むじゃき（素早↑特防↓）</option>
+            <option value="さみしがり">さみしがり（攻撃↑ 防御↓）</option>
+            <option value="いじっぱり">いじっぱり（攻撃↑ 特攻↓）</option>
+            <option value="やんちゃ">やんちゃ（攻撃↑ 特防↓）</option>
+            <option value="ゆうかん">ゆうかん（攻撃↑ 素早↓）</option>
+            <option value="ずぶとい">ずぶとい（防御↑ 攻撃↓）</option>
+            <option value="わんぱく">わんぱく（防御↑ 特攻↓）</option>
+            <option value="のうてんき">のうてんき（防御↑ 特防↓）</option>
+            <option value="のんき">のんき（防御↑ 素早↓）</option>
+            <option value="ひかえめ">ひかえめ（特攻↑ 攻撃↓）</option>
+            <option value="おっとり">おっとり（特攻↑ 防御↓）</option>
+            <option value="うっかりや">うっかりや（特攻↑ 特防↓）</option>
+            <option value="れいせい">れいせい（特攻↑ 素早↓）</option>
+            <option value="おだやか">おだやか（特防↑ 攻撃↓）</option>
+            <option value="おとなしい">おとなしい（特防↑ 防御↓）</option>
+            <option value="しんちょう">しんちょう（特防↑ 特攻↓）</option>
+            <option value="なまいき">なまいき（特防↑ 素早↓）</option>
+            <option value="おくびょう">おくびょう（素早↑ 攻撃↓）</option>
+            <option value="せっかち">せっかち（素早↑ 防御↓）</option>
+            <option value="ようき">ようき（素早↑ 特攻↓）</option>
+            <option value="むじゃき">むじゃき（素早↑ 特防↓）</option>
           </select>
 
         <label id="atk-label-iv">個体値（0〜31）</label>
@@ -614,11 +623,11 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div id="atk-gamemode-wrap" style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
           <span style="font-size:10px;color:var(--text2);letter-spacing:1px;">ゲームモード:</span>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
-            <input type="radio" name="atk-game-mode" id="atk-mode-classic" value="classic" checked onchange="onAtkModeChange()">
+            <input type="radio" name="atk-game-mode" id="atk-mode-classic" value="classic" onchange="onAtkModeChange()">
             <span style="font-size:11px;color:var(--text);">従来作（最大252）</span>
           </label>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
-            <input type="radio" name="atk-game-mode" id="atk-mode-champions" value="champions" onchange="onAtkModeChange()">
+            <input type="radio" name="atk-game-mode" id="atk-mode-champions" value="champions" checked onchange="onAtkModeChange()">
             <span style="font-size:11px;color:var(--accent3);">Champions（最大32）</span>
           </label>
         </div>
@@ -626,8 +635,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk-ev-atk-disp">0</span></div>
           <div class="slider-inputs">
-            <input type="range" id="atk-ev-atk-range" min="0" max="252" step="4" value="0">
-            <input type="number" id="atk-ev-atk" min="0" max="252" value="0">
+            <input type="range" id="atk-ev-atk-range" min="0" max="32" step="1" value="0">
+            <input type="number" id="atk-ev-atk" min="0" max="32" value="0">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('atk-ev-atk',0)">0</button><button type="button" class="ev-quick-btn" onclick="setEV('atk-ev-atk','max')">MAX</button></div>
           </div>
         </div>
 
@@ -635,8 +645,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk-ev-def-disp">0</span></div>
           <div class="slider-inputs">
-            <input type="range" id="atk-ev-def-range" min="0" max="252" step="4" value="0">
-            <input type="number" id="atk-ev-def" min="0" max="252" value="0">
+            <input type="range" id="atk-ev-def-range" min="0" max="32" step="1" value="0">
+            <input type="number" id="atk-ev-def" min="0" max="32" value="0">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('atk-ev-def',0)">0</button><button type="button" class="ev-quick-btn" onclick="setEV('atk-ev-def','max')">MAX</button></div>
           </div>
         </div>
 
@@ -644,8 +655,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk-ev-spa-disp">0</span></div>
           <div class="slider-inputs">
-            <input type="range" id="atk-ev-spa-range" min="0" max="252" step="4" value="0">
-            <input type="number" id="atk-ev-spa" min="0" max="252" value="0">
+            <input type="range" id="atk-ev-spa-range" min="0" max="32" step="1" value="0">
+            <input type="number" id="atk-ev-spa" min="0" max="32" value="0">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('atk-ev-spa',0)">0</button><button type="button" class="ev-quick-btn" onclick="setEV('atk-ev-spa','max')">MAX</button></div>
           </div>
         </div>
 
@@ -680,12 +692,12 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 
         <div class="corr-section" id="atk-corr-rank" style="margin-top:8px;">
           <div class="corr-section-title">攻撃 / 特攻ランク補正</div>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div class="rank-ctrl">
             <span style="font-size:10px;color:var(--text2);flex-shrink:0;">ランク</span>
-            <input type="range" id="atk-rank" min="-6" max="6" value="0" step="1"
-              style="flex:1;accent-color:var(--accent);"
-              oninput="document.getElementById('atk-rank-disp').textContent=this.value<0?this.value:this.value>0?'+'+this.value:'±0'">
-            <span id="atk-rank-disp" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent3);width:28px;text-align:right;">±0</span>
+            <button type="button" class="rank-btn" onclick="changeRank('atk-rank',-1)">−</button>
+            <span class="rank-val" id="atk-rank-disp" style="color:var(--accent3);">±0</span>
+            <button type="button" class="rank-btn" onclick="changeRank('atk-rank',1)">＋</button>
+            <input type="hidden" id="atk-rank" value="0">
           </div>
         </div>
 
@@ -847,26 +859,26 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <label id="def-label-nature">性格</label>
         <select id="def-nature">
             <option value="がんばりや">がんばりや（補正なし）</option>
-            <option value="さみしがり">さみしがり（攻↑防↓）</option>
-            <option value="いじっぱり">いじっぱり（攻↑特攻↓）</option>
-            <option value="やんちゃ">やんちゃ（攻↑特防↓）</option>
-            <option value="ゆうかん">ゆうかん（攻↑素早↓）</option>
-            <option value="ずぶとい">ずぶとい（防↑攻↓）</option>
-            <option value="わんぱく">わんぱく（防↑特攻↓）</option>
-            <option value="のうてんき">のうてんき（防↑特防↓）</option>
-            <option value="のんき">のんき（防↑素早↓）</option>
-            <option value="ひかえめ">ひかえめ（特攻↑攻↓）</option>
-            <option value="おっとり">おっとり（特攻↑防↓）</option>
-            <option value="うっかりや">うっかりや（特攻↑特防↓）</option>
-            <option value="れいせい">れいせい（特攻↑素早↓）</option>
-            <option value="おだやか">おだやか（特防↑攻↓）</option>
-            <option value="おとなしい">おとなしい（特防↑特攻↓）</option>
-            <option value="しんちょう">しんちょう（特防↑特攻↓）</option>
-            <option value="なまいき">なまいき（特防↑素早↓）</option>
-            <option value="おくびょう">おくびょう（素早↑特防↓）</option>
-            <option value="せっかち">せっかち（素早↑防↓）</option>
-            <option value="ようき">ようき（素早↑特攻↓）</option>
-            <option value="むじゃき">むじゃき（素早↑特防↓）</option>
+            <option value="さみしがり">さみしがり（攻撃↑ 防御↓）</option>
+            <option value="いじっぱり">いじっぱり（攻撃↑ 特攻↓）</option>
+            <option value="やんちゃ">やんちゃ（攻撃↑ 特防↓）</option>
+            <option value="ゆうかん">ゆうかん（攻撃↑ 素早↓）</option>
+            <option value="ずぶとい">ずぶとい（防御↑ 攻撃↓）</option>
+            <option value="わんぱく">わんぱく（防御↑ 特攻↓）</option>
+            <option value="のうてんき">のうてんき（防御↑ 特防↓）</option>
+            <option value="のんき">のんき（防御↑ 素早↓）</option>
+            <option value="ひかえめ">ひかえめ（特攻↑ 攻撃↓）</option>
+            <option value="おっとり">おっとり（特攻↑ 防御↓）</option>
+            <option value="うっかりや">うっかりや（特攻↑ 特防↓）</option>
+            <option value="れいせい">れいせい（特攻↑ 素早↓）</option>
+            <option value="おだやか">おだやか（特防↑ 攻撃↓）</option>
+            <option value="おとなしい">おとなしい（特防↑ 防御↓）</option>
+            <option value="しんちょう">しんちょう（特防↑ 特攻↓）</option>
+            <option value="なまいき">なまいき（特防↑ 素早↓）</option>
+            <option value="おくびょう">おくびょう（素早↑ 攻撃↓）</option>
+            <option value="せっかち">せっかち（素早↑ 防御↓）</option>
+            <option value="ようき">ようき（素早↑ 特攻↓）</option>
+            <option value="むじゃき">むじゃき（素早↑ 特防↓）</option>
           </select>
 
         <label>個体値（0〜31）</label>
@@ -882,11 +894,11 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div id="def-gamemode-wrap" style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
           <span style="font-size:10px;color:var(--text2);letter-spacing:1px;">ゲームモード:</span>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
-            <input type="radio" name="def-game-mode" id="def-mode-classic" value="classic" checked onchange="onDefModeChange()">
+            <input type="radio" name="def-game-mode" id="def-mode-classic" value="classic" onchange="onDefModeChange()">
             <span style="font-size:11px;color:var(--text);">従来作（最大252）</span>
           </label>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
-            <input type="radio" name="def-game-mode" id="def-mode-champions" value="champions" onchange="onDefModeChange()">
+            <input type="radio" name="def-game-mode" id="def-mode-champions" value="champions" checked onchange="onDefModeChange()">
             <span style="font-size:11px;color:var(--accent3);">Champions（最大32）</span>
           </label>
         </div>
@@ -894,8 +906,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-hp-disp">0</span></div>
           <div class="slider-inputs">
-            <input type="range" id="def-ev-hp-range" min="0" max="252" step="4" value="0">
-            <input type="number" id="def-ev-hp" min="0" max="252" value="0">
+            <input type="range" id="def-ev-hp-range" min="0" max="32" step="1" value="0">
+            <input type="number" id="def-ev-hp" min="0" max="32" value="0">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-hp',0)">0</button><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-hp','max')">MAX</button></div>
           </div>
         </div>
 
@@ -903,8 +916,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-atk-disp">0</span></div>
           <div class="slider-inputs">
-            <input type="range" id="def-ev-atk-range" min="0" max="252" step="4" value="0">
-            <input type="number" id="def-ev-atk" min="0" max="252" value="0">
+            <input type="range" id="def-ev-atk-range" min="0" max="32" step="1" value="0">
+            <input type="number" id="def-ev-atk" min="0" max="32" value="0">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-atk',0)">0</button><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-atk','max')">MAX</button></div>
           </div>
         </div>
 
@@ -912,8 +926,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-def-disp">0</span></div>
           <div class="slider-inputs">
-            <input type="range" id="def-ev-def-range" min="0" max="252" step="4" value="0">
-            <input type="number" id="def-ev-def" min="0" max="252" value="0">
+            <input type="range" id="def-ev-def-range" min="0" max="32" step="1" value="0">
+            <input type="number" id="def-ev-def" min="0" max="32" value="0">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-def',0)">0</button><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-def','max')">MAX</button></div>
           </div>
         </div>
 
@@ -921,8 +936,9 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="slider-row">
           <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="def-ev-spd-disp">0</span></div>
           <div class="slider-inputs">
-            <input type="range" id="def-ev-spd-range" min="0" max="252" step="4" value="0">
-            <input type="number" id="def-ev-spd" min="0" max="252" value="0">
+            <input type="range" id="def-ev-spd-range" min="0" max="32" step="1" value="0">
+            <input type="number" id="def-ev-spd" min="0" max="32" value="0">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-spd',0)">0</button><button type="button" class="ev-quick-btn" onclick="setEV('def-ev-spd','max')">MAX</button></div>
           </div>
         </div>
 
@@ -951,19 +967,19 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 
         <div class="corr-section" id="def-corr-rank" style="margin-top:8px;">
           <div class="corr-section-title">防御側 ランク補正</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div class="rank-ctrl" style="margin-bottom:8px;">
             <span style="font-size:10px;color:var(--text2);flex-shrink:0;">防御/特防</span>
-            <input type="range" id="def-rank" min="-6" max="6" value="0" step="1"
-              style="flex:1;accent-color:var(--accent2);"
-              oninput="document.getElementById('def-rank-disp').textContent=this.value<0?this.value:this.value>0?'+'+this.value:'±0'">
-            <span id="def-rank-disp" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent2);width:28px;text-align:right;">±0</span>
+            <button type="button" class="rank-btn" onclick="changeRank('def-rank',-1)">−</button>
+            <span class="rank-val" id="def-rank-disp" style="color:var(--accent2);">±0</span>
+            <button type="button" class="rank-btn" onclick="changeRank('def-rank',1)">＋</button>
+            <input type="hidden" id="def-rank" value="0">
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div class="rank-ctrl">
             <span style="font-size:10px;color:var(--text2);flex-shrink:0;">攻撃（イカサマ）</span>
-            <input type="range" id="def-atk-rank" min="-6" max="6" value="0" step="1"
-              style="flex:1;accent-color:var(--accent2);"
-              oninput="document.getElementById('def-atk-rank-disp').textContent=this.value<0?this.value:this.value>0?'+'+this.value:'±0'">
-            <span id="def-atk-rank-disp" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent2);width:28px;text-align:right;">±0</span>
+            <button type="button" class="rank-btn" onclick="changeRank('def-atk-rank',-1)">−</button>
+            <span class="rank-val" id="def-atk-rank-disp" style="color:var(--accent2);">±0</span>
+            <button type="button" class="rank-btn" onclick="changeRank('def-atk-rank',1)">＋</button>
+            <input type="hidden" id="def-atk-rank" value="0">
           </div>
         </div>
 
@@ -1107,26 +1123,26 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <label>性格</label>
           <select id="atk2-nature" onchange="recalcAtk2()">
             <option value="がんばりや">がんばりや（補正なし）</option>
-            <option value="さみしがり">さみしがり（攻↑防↓）</option>
-            <option value="いじっぱり">いじっぱり（攻↑特攻↓）</option>
-            <option value="やんちゃ">やんちゃ（攻↑特防↓）</option>
-            <option value="ゆうかん">ゆうかん（攻↑素早↓）</option>
-            <option value="ずぶとい">ずぶとい（防↑攻↓）</option>
-            <option value="わんぱく">わんぱく（防↑特攻↓）</option>
-            <option value="のうてんき">のうてんき（防↑特防↓）</option>
-            <option value="のんき">のんき（防↑素早↓）</option>
-            <option value="ひかえめ">ひかえめ（特攻↑攻↓）</option>
-            <option value="おっとり">おっとり（特攻↑防↓）</option>
-            <option value="うっかりや">うっかりや（特攻↑特防↓）</option>
-            <option value="れいせい">れいせい（特攻↑素早↓）</option>
-            <option value="おだやか">おだやか（特防↑攻↓）</option>
-            <option value="おとなしい">おとなしい（特防↑特攻↓）</option>
-            <option value="しんちょう">しんちょう（特防↑特攻↓）</option>
-            <option value="なまいき">なまいき（特防↑素早↓）</option>
-            <option value="おくびょう">おくびょう（素早↑特防↓）</option>
-            <option value="せっかち">せっかち（素早↑防↓）</option>
-            <option value="ようき">ようき（素早↑特攻↓）</option>
-            <option value="むじゃき">むじゃき（素早↑特防↓）</option>
+            <option value="さみしがり">さみしがり（攻撃↑ 防御↓）</option>
+            <option value="いじっぱり">いじっぱり（攻撃↑ 特攻↓）</option>
+            <option value="やんちゃ">やんちゃ（攻撃↑ 特防↓）</option>
+            <option value="ゆうかん">ゆうかん（攻撃↑ 素早↓）</option>
+            <option value="ずぶとい">ずぶとい（防御↑ 攻撃↓）</option>
+            <option value="わんぱく">わんぱく（防御↑ 特攻↓）</option>
+            <option value="のうてんき">のうてんき（防御↑ 特防↓）</option>
+            <option value="のんき">のんき（防御↑ 素早↓）</option>
+            <option value="ひかえめ">ひかえめ（特攻↑ 攻撃↓）</option>
+            <option value="おっとり">おっとり（特攻↑ 防御↓）</option>
+            <option value="うっかりや">うっかりや（特攻↑ 特防↓）</option>
+            <option value="れいせい">れいせい（特攻↑ 素早↓）</option>
+            <option value="おだやか">おだやか（特防↑ 攻撃↓）</option>
+            <option value="おとなしい">おとなしい（特防↑ 防御↓）</option>
+            <option value="しんちょう">しんちょう（特防↑ 特攻↓）</option>
+            <option value="なまいき">なまいき（特防↑ 素早↓）</option>
+            <option value="おくびょう">おくびょう（素早↑ 攻撃↓）</option>
+            <option value="せっかち">せっかち（素早↑ 防御↓）</option>
+            <option value="ようき">ようき（素早↑ 特攻↓）</option>
+            <option value="むじゃき">むじゃき（素早↑ 特防↓）</option>
           </select>
           <label id="def-label-iv">個体値（0〜31）</label>
           <div class="slider-row">
@@ -1140,11 +1156,11 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
             <span style="font-size:10px;color:var(--text2);">ゲーム:</span>
             <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:11px;">
-              <input type="radio" name="atk2-mode" id="atk2-mode-classic" value="classic" checked onchange="onAtk2ModeChange()">
+              <input type="radio" name="atk2-mode" id="atk2-mode-classic" value="classic" onchange="onAtk2ModeChange()">
               <span>従来作</span>
             </label>
             <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:11px;">
-              <input type="radio" name="atk2-mode" id="atk2-mode-champ" value="champions" onchange="onAtk2ModeChange()">
+              <input type="radio" name="atk2-mode" id="atk2-mode-champ" value="champions" checked onchange="onAtk2ModeChange()">
               <span style="color:var(--accent3);">Champions</span>
             </label>
           </div>
@@ -1152,16 +1168,18 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
           <div class="slider-row">
             <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk2-ev-atk-disp">0</span></div>
             <div class="slider-inputs">
-              <input type="range" id="atk2-ev-atk-range" min="0" max="252" step="4" value="0" oninput="syncSlider('atk2-ev-atk-range','atk2-ev-atk','atk2-ev-atk-disp');recalcAtk2()">
-              <input type="number" id="atk2-ev-atk" min="0" max="252" value="0" oninput="syncSlider('atk2-ev-atk-range','atk2-ev-atk','atk2-ev-atk-disp');recalcAtk2()">
+              <input type="range" id="atk2-ev-atk-range" min="0" max="32" step="1" value="0" oninput="syncSlider('atk2-ev-atk-range','atk2-ev-atk','atk2-ev-atk-disp');recalcAtk2()">
+              <input type="number" id="atk2-ev-atk" min="0" max="32" value="0" oninput="syncSlider('atk2-ev-atk-range','atk2-ev-atk','atk2-ev-atk-disp');recalcAtk2()">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('atk2-ev-atk',0);recalcAtk2()">0</button><button type="button" class="ev-quick-btn" onclick="setEV('atk2-ev-atk','max');recalcAtk2()">MAX</button></div>
             </div>
           </div>
           <label id="atk-label-ev-spa">努力値（とくこう）</label>
           <div class="slider-row">
             <div class="slider-header"><span class="slider-label">努力値</span><span class="slider-val" id="atk2-ev-spa-disp">0</span></div>
             <div class="slider-inputs">
-              <input type="range" id="atk2-ev-spa-range" min="0" max="252" step="4" value="0" oninput="syncSlider('atk2-ev-spa-range','atk2-ev-spa','atk2-ev-spa-disp');recalcAtk2()">
-              <input type="number" id="atk2-ev-spa" min="0" max="252" value="0" oninput="syncSlider('atk2-ev-spa-range','atk2-ev-spa','atk2-ev-spa-disp');recalcAtk2()">
+              <input type="range" id="atk2-ev-spa-range" min="0" max="32" step="1" value="0" oninput="syncSlider('atk2-ev-spa-range','atk2-ev-spa','atk2-ev-spa-disp');recalcAtk2()">
+              <input type="number" id="atk2-ev-spa" min="0" max="32" value="0" oninput="syncSlider('atk2-ev-spa-range','atk2-ev-spa','atk2-ev-spa-disp');recalcAtk2()">
+              <div class="ev-quick-btns"><button type="button" class="ev-quick-btn" onclick="setEV('atk2-ev-spa',0);recalcAtk2()">0</button><button type="button" class="ev-quick-btn" onclick="setEV('atk2-ev-spa','max');recalcAtk2()">MAX</button></div>
             </div>
           </div>
           <div class="real-stat-box">
@@ -3444,6 +3462,33 @@ window.onload = async()=>{
   initContextUI();
   initMobileResultUI();
 };
+
+// ===== ランク ＋/− ボタン制御 =====
+function changeRank(inputId, delta){
+  const inp = el(inputId);
+  if(!inp) return;
+  let v = parseInt(inp.value)||0;
+  v = Math.max(-6, Math.min(6, v + delta));
+  inp.value = v;
+  const disp = el(inputId+'-disp');
+  if(disp) disp.textContent = v<0 ? String(v) : v>0 ? '+'+v : '±0';
+  scheduleAutoCalc();
+}
+// ===== 努力値 0/MAX ボタン =====
+function setEV(numId, val){
+  const num = el(numId);
+  const range = el(numId+'-range');
+  const disp = el(numId+'-disp');
+  if(!num) return;
+  const max = parseInt(num.max)||252;
+  const v = val==='max' ? max : 0;
+  num.value = v;
+  if(range) range.value = v;
+  if(disp) disp.textContent = v;
+  // trigger recalc
+  if(numId.startsWith('atk-ev')) recalcAtk();
+  else if(numId.startsWith('def-ev')) recalcDef();
+}
 
 // ===== コンテキスト表示制御（選択に応じた表示/非表示） =====
 // 対象要素を集めて一括で display 制御するだけ。HTMLのdiv構造は変更しない。
