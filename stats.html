@@ -288,8 +288,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
 .filter-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 12px;font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all 0.18s;}
 .filter-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
-.opp-stack{display:flex;flex-direction:column;gap:10px;}
-.opp-card{background:var(--bg2);border:1px solid var(--border);padding:10px;}
+.opp-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+.opp-card{background:var(--bg2);border:1px solid var(--border);padding:10px;min-width:0;}
+@media(max-width:640px){.opp-stack{grid-template-columns:1fr 1fr;gap:8px;}}
 .opp-card-head{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent2);margin-bottom:8px;}
 .opp-field{position:relative;margin-bottom:8px;}
 .opp-label{display:block;font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:1px;}
