@@ -307,6 +307,37 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .form-panel,.stats-panel,.history-panel{width:100%;}
 .records-wrap{display:flex;flex-direction:column;gap:16px;}
 
+
+.input-shell{display:flex;flex-direction:column;gap:14px;}
+.input-summary-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+@media(max-width:640px){.input-summary-row{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.input-summary-box{background:var(--bg2);border:1px solid var(--border);padding:10px 12px;}
+.input-summary-label{font-size:9px;color:var(--text2);letter-spacing:2px;margin-bottom:4px;}
+.input-summary-value{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);line-height:1;}
+.input-step-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+@media(max-width:640px){.input-step-tabs{grid-template-columns:1fr;}}
+.input-step-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:12px 14px;text-align:left;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all 0.18s;}
+.input-step-btn:hover{border-color:var(--accent);color:var(--accent);}
+.input-step-btn.active{border-color:var(--accent);background:rgba(0,200,240,0.08);color:var(--text);}
+.input-step-btn strong{display:block;font-size:13px;font-weight:700;margin-bottom:3px;color:inherit;}
+.input-step-btn span{font-size:10px;color:var(--text2);line-height:1.7;}
+.input-step-panel{display:none;background:var(--bg2);border:1px solid var(--border);padding:14px;}
+.input-step-panel.active{display:block;}
+.step-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.step-actions.end{justify-content:flex-end;}
+.step-nav-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:10px 14px;font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all 0.18s;}
+.step-nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.compact-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.compact-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:760px){.review-grid{grid-template-columns:1fr;}}
+.review-card{background:var(--panel);border:1px solid var(--border);padding:12px;}
+.review-title{font-size:10px;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.review-tags{display:flex;flex-wrap:wrap;gap:5px;min-height:26px;}
+.review-empty{font-size:11px;color:var(--text2);line-height:1.8;}
+.record-area{display:flex;flex-direction:column;gap:14px;}
+@media(max-width:640px){.result-btns{flex-direction:column;}}
+
 </style>
 </head>
 <body>
@@ -343,158 +374,193 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <button type="button" class="page-tab-btn" id="tab-btn-records" onclick="setStatsTab('records')">選出率の記録</button>
   </div>
 
+
   <div class="tab-panel active" id="stats-tab-input">
     <div class="form-panel">
-
-      <div class="block">
-        <div class="sec">自パーティ 6匹</div>
-        <div class="party-source-wrap">
-          <select id="my-party-select" class="party-source-select">
-            <option value="">保存済みパーティを選択</option>
-          </select>
-          <button class="mini-btn" type="button" onclick="applySelectedParty()">パーティ反映</button>
+      <div class="input-shell">
+        <div class="input-summary-row">
+          <div class="input-summary-box"><div class="input-summary-label">自パーティ</div><div class="input-summary-value" id="summary-my-party">0/6</div></div>
+          <div class="input-summary-box"><div class="input-summary-label">自選出</div><div class="input-summary-value" id="summary-my-select">0/3</div></div>
+          <div class="input-summary-box"><div class="input-summary-label">相手パーティ</div><div class="input-summary-value" id="summary-opp-party">0/6</div></div>
+          <div class="input-summary-box"><div class="input-summary-label">相手選出</div><div class="input-summary-value" id="summary-opp-select">0/3</div></div>
         </div>
-        <div class="helper-text">パーティ管理の保存済みパーティを反映できます。登録済みポケモンからの追加もそのまま使えます。</div>
-        <div class="reg-pick-list" id="my-reg-list"></div>
-        <div class="party6-grid" id="my-party6"></div>
-      </div>
 
-      <div class="block">
-        <div class="sec">自選出 <span class="sec-count" id="my-sel-count">0/3</span></div>
-        <div class="helper-text">クリックで選出、選出後に「初手」で先発指定できます。</div>
-        <div class="select-chips" id="my-select3"></div>
-      </div>
-
-      <div class="block">
-        <div class="sec">相手パーティ 6匹</div>
-        <div class="filter-row">
-          <span style="font-size:10px;color:var(--text2);">候補表示</span>
-          <button class="filter-btn on" type="button" id="opp-filter-naitei" onclick="setOppPokemonMode('naitei')">内定</button>
-          <button class="filter-btn" type="button" id="opp-filter-all" onclick="setOppPokemonMode('all')">全て</button>
+        <div class="input-step-tabs">
+          <button type="button" class="input-step-btn active" id="input-step-btn-my" onclick="setInputStep('my')"><strong>自分入力</strong><span>自パーティと自選出だけを表示します。</span></button>
+          <button type="button" class="input-step-btn" id="input-step-btn-opp" onclick="setInputStep('opp')"><strong>相手入力</strong><span>相手6匹と相手選出だけを表示します。</span></button>
+          <button type="button" class="input-step-btn" id="input-step-btn-finish" onclick="setInputStep('finish')"><strong>記録</strong><span>最後に確認して勝敗を記録します。</span></button>
         </div>
-        <div class="opp-stack">
-          <div class="opp-card">
-      <div class="opp-card-head">相手1</div>
-      <div class="opp-field">
-        <label class="opp-label">ポケモン</label>
-        <input class="opp-input" id="opp6-0" type="text" autocomplete="off">
-        <div class="dropdown" id="opp6-drop-0"></div>
-      </div>
-      <div class="opp-field">
-        <label class="opp-label">持ち物</label>
-        <input class="opp-input" id="opp-item-0" type="text" autocomplete="off">
-        <div class="dropdown" id="opp-item-drop-0"></div>
-      </div>
-      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-0-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-0"></div></div>
-<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-0-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-1"></div></div>
-<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-0-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-2"></div></div>
-<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-0-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-3"></div></div></div>
-    </div>
-<div class="opp-card">
-      <div class="opp-card-head">相手2</div>
-      <div class="opp-field">
-        <label class="opp-label">ポケモン</label>
-        <input class="opp-input" id="opp6-1" type="text" autocomplete="off">
-        <div class="dropdown" id="opp6-drop-1"></div>
-      </div>
-      <div class="opp-field">
-        <label class="opp-label">持ち物</label>
-        <input class="opp-input" id="opp-item-1" type="text" autocomplete="off">
-        <div class="dropdown" id="opp-item-drop-1"></div>
-      </div>
-      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-1-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-0"></div></div>
-<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-1-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-1"></div></div>
-<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-1-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-2"></div></div>
-<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-1-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-3"></div></div></div>
-    </div>
-<div class="opp-card">
-      <div class="opp-card-head">相手3</div>
-      <div class="opp-field">
-        <label class="opp-label">ポケモン</label>
-        <input class="opp-input" id="opp6-2" type="text" autocomplete="off">
-        <div class="dropdown" id="opp6-drop-2"></div>
-      </div>
-      <div class="opp-field">
-        <label class="opp-label">持ち物</label>
-        <input class="opp-input" id="opp-item-2" type="text" autocomplete="off">
-        <div class="dropdown" id="opp-item-drop-2"></div>
-      </div>
-      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-2-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-0"></div></div>
-<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-2-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-1"></div></div>
-<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-2-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-2"></div></div>
-<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-2-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-3"></div></div></div>
-    </div>
-<div class="opp-card">
-      <div class="opp-card-head">相手4</div>
-      <div class="opp-field">
-        <label class="opp-label">ポケモン</label>
-        <input class="opp-input" id="opp6-3" type="text" autocomplete="off">
-        <div class="dropdown" id="opp6-drop-3"></div>
-      </div>
-      <div class="opp-field">
-        <label class="opp-label">持ち物</label>
-        <input class="opp-input" id="opp-item-3" type="text" autocomplete="off">
-        <div class="dropdown" id="opp-item-drop-3"></div>
-      </div>
-      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-3-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-0"></div></div>
-<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-3-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-1"></div></div>
-<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-3-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-2"></div></div>
-<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-3-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-3"></div></div></div>
-    </div>
-<div class="opp-card">
-      <div class="opp-card-head">相手5</div>
-      <div class="opp-field">
-        <label class="opp-label">ポケモン</label>
-        <input class="opp-input" id="opp6-4" type="text" autocomplete="off">
-        <div class="dropdown" id="opp6-drop-4"></div>
-      </div>
-      <div class="opp-field">
-        <label class="opp-label">持ち物</label>
-        <input class="opp-input" id="opp-item-4" type="text" autocomplete="off">
-        <div class="dropdown" id="opp-item-drop-4"></div>
-      </div>
-      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-4-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-0"></div></div>
-<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-4-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-1"></div></div>
-<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-4-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-2"></div></div>
-<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-4-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-3"></div></div></div>
-    </div>
-<div class="opp-card">
-      <div class="opp-card-head">相手6</div>
-      <div class="opp-field">
-        <label class="opp-label">ポケモン</label>
-        <input class="opp-input" id="opp6-5" type="text" autocomplete="off">
-        <div class="dropdown" id="opp6-drop-5"></div>
-      </div>
-      <div class="opp-field">
-        <label class="opp-label">持ち物</label>
-        <input class="opp-input" id="opp-item-5" type="text" autocomplete="off">
-        <div class="dropdown" id="opp-item-drop-5"></div>
-      </div>
-      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-5-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-0"></div></div>
-<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-5-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-1"></div></div>
-<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-5-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-2"></div></div>
-<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-5-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-3"></div></div></div>
-    </div>
+
+        <div class="input-step-panel active" id="input-step-my-panel">
+          <div class="compact-block">
+            <div class="sec">自パーティ 6匹</div>
+            <div class="party-source-wrap">
+              <select id="my-party-select" class="party-source-select">
+                <option value="">保存済みパーティを選択</option>
+              </select>
+              <button class="mini-btn" type="button" onclick="applySelectedParty()">パーティ反映</button>
+            </div>
+            <div class="helper-text">パーティ管理の保存済みパーティを反映できます。登録済みポケモンからの追加もそのまま使えます。</div>
+            <div class="reg-pick-list" id="my-reg-list"></div>
+            <div class="party6-grid" id="my-party6"></div>
+          </div>
+
+          <div class="compact-block">
+            <div class="sec">自選出 <span class="sec-count" id="my-sel-count">0/3</span></div>
+            <div class="helper-text">クリックで選出、選出後に「初手」で先発指定できます。</div>
+            <div class="select-chips" id="my-select3"></div>
+          </div>
+
+          <div class="step-actions end">
+            <button type="button" class="step-nav-btn" onclick="setInputStep('opp')">相手入力へ</button>
+          </div>
+        </div>
+
+        <div class="input-step-panel" id="input-step-opp-panel">
+          <div class="compact-block">
+            <div class="sec">相手パーティ 6匹</div>
+            <div class="filter-row">
+              <span style="font-size:10px;color:var(--text2);">候補表示</span>
+              <button class="filter-btn on" type="button" id="opp-filter-naitei" onclick="setOppPokemonMode('naitei')">内定</button>
+              <button class="filter-btn" type="button" id="opp-filter-all" onclick="setOppPokemonMode('all')">全て</button>
+            </div>
+            <div class="opp-stack">
+              <div class="opp-card">
+                <div class="opp-card-head">相手1</div>
+                <div class="opp-field">
+                  <label class="opp-label">ポケモン</label>
+                  <input class="opp-input" id="opp6-0" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp6-drop-0"></div>
+                </div>
+                <div class="opp-field">
+                  <label class="opp-label">持ち物</label>
+                  <input class="opp-input" id="opp-item-0" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp-item-drop-0"></div>
+                </div>
+                <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-0-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-0"></div></div><div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-0-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-1"></div></div><div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-0-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-2"></div></div><div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-0-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-3"></div></div></div>
+              </div>
+              <div class="opp-card">
+                <div class="opp-card-head">相手2</div>
+                <div class="opp-field">
+                  <label class="opp-label">ポケモン</label>
+                  <input class="opp-input" id="opp6-1" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp6-drop-1"></div>
+                </div>
+                <div class="opp-field">
+                  <label class="opp-label">持ち物</label>
+                  <input class="opp-input" id="opp-item-1" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp-item-drop-1"></div>
+                </div>
+                <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-1-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-0"></div></div><div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-1-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-1"></div></div><div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-1-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-2"></div></div><div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-1-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-3"></div></div></div>
+              </div>
+              <div class="opp-card">
+                <div class="opp-card-head">相手3</div>
+                <div class="opp-field">
+                  <label class="opp-label">ポケモン</label>
+                  <input class="opp-input" id="opp6-2" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp6-drop-2"></div>
+                </div>
+                <div class="opp-field">
+                  <label class="opp-label">持ち物</label>
+                  <input class="opp-input" id="opp-item-2" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp-item-drop-2"></div>
+                </div>
+                <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-2-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-0"></div></div><div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-2-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-1"></div></div><div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-2-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-2"></div></div><div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-2-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-3"></div></div></div>
+              </div>
+              <div class="opp-card">
+                <div class="opp-card-head">相手4</div>
+                <div class="opp-field">
+                  <label class="opp-label">ポケモン</label>
+                  <input class="opp-input" id="opp6-3" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp6-drop-3"></div>
+                </div>
+                <div class="opp-field">
+                  <label class="opp-label">持ち物</label>
+                  <input class="opp-input" id="opp-item-3" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp-item-drop-3"></div>
+                </div>
+                <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-3-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-0"></div></div><div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-3-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-1"></div></div><div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-3-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-2"></div></div><div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-3-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-3"></div></div></div>
+              </div>
+              <div class="opp-card">
+                <div class="opp-card-head">相手5</div>
+                <div class="opp-field">
+                  <label class="opp-label">ポケモン</label>
+                  <input class="opp-input" id="opp6-4" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp6-drop-4"></div>
+                </div>
+                <div class="opp-field">
+                  <label class="opp-label">持ち物</label>
+                  <input class="opp-input" id="opp-item-4" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp-item-drop-4"></div>
+                </div>
+                <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-4-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-0"></div></div><div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-4-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-1"></div></div><div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-4-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-2"></div></div><div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-4-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-3"></div></div></div>
+              </div>
+              <div class="opp-card">
+                <div class="opp-card-head">相手6</div>
+                <div class="opp-field">
+                  <label class="opp-label">ポケモン</label>
+                  <input class="opp-input" id="opp6-5" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp6-drop-5"></div>
+                </div>
+                <div class="opp-field">
+                  <label class="opp-label">持ち物</label>
+                  <input class="opp-input" id="opp-item-5" type="text" autocomplete="off">
+                  <div class="dropdown" id="opp-item-drop-5"></div>
+                </div>
+                <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-5-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-0"></div></div><div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-5-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-1"></div></div><div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-5-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-2"></div></div><div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-5-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-3"></div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="compact-block">
+            <div class="sec">相手選出 <span class="sec-count" id="opp-sel-count">0/3</span></div>
+            <div class="helper-text">相手パーティから選出した3匹を選択してください。</div>
+            <div class="select-chips" id="opp-select3"></div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="step-nav-btn" onclick="setInputStep('my')">自分入力へ戻る</button>
+            <button type="button" class="step-nav-btn" onclick="setInputStep('finish')">記録へ</button>
+          </div>
+        </div>
+
+        <div class="input-step-panel" id="input-step-finish-panel">
+          <div class="record-area">
+            <div class="review-grid">
+              <div class="review-card">
+                <div class="review-title">自分の確認</div>
+                <div class="review-tags" id="review-my-party"></div>
+                <div style="height:8px"></div>
+                <div class="review-title">自分の選出</div>
+                <div class="review-tags" id="review-my-select"></div>
+              </div>
+              <div class="review-card">
+                <div class="review-title">相手の確認</div>
+                <div class="review-tags" id="review-opp-party"></div>
+                <div style="height:8px"></div>
+                <div class="review-title">相手の選出</div>
+                <div class="review-tags" id="review-opp-select"></div>
+              </div>
+            </div>
+
+            <div class="review-card">
+              <div class="review-title">勝敗</div>
+              <div class="result-btns">
+                <button class="result-btn" data-r="win" onclick="setResult('win')">WIN</button>
+                <button class="result-btn" data-r="lose" onclick="setResult('lose')">LOSE</button>
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button type="button" class="step-nav-btn" onclick="setInputStep('opp')">相手入力へ戻る</button>
+              <button class="record-btn" onclick="recordBattle()">📝 記録する</button>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="block">
-        <div class="sec">相手選出 <span class="sec-count" id="opp-sel-count">0/3</span></div>
-        <div class="helper-text">相手パーティから選出した3匹を選択してください。</div>
-        <div class="select-chips" id="opp-select3"></div>
-      </div>
-
-      <div class="block">
-        <div class="sec">勝敗</div>
-        <div class="result-btns">
-          <button class="result-btn" data-r="win" onclick="setResult('win')">WIN</button>
-          <button class="result-btn" data-r="lose" onclick="setResult('lose')">LOSE</button>
-        </div>
-      </div>
-
-      <button class="record-btn" onclick="recordBattle()">📝 記録する</button>
     </div>
   </div>
+
 
   <div class="tab-panel" id="stats-tab-records">
     <div class="records-wrap">
@@ -543,6 +609,49 @@ let belongingsIndex = [];
 const LS_REG = 'pokeedge_pokemon_v1';
 const LS_PARTY_FALLBACK = 'pokeedge_parties';
 const LS_STATS_TAB = 'pokeedge_stats_tab';
+
+const LS_STATS_INPUT_STEP = 'pokeedge_stats_input_step';
+
+function setInputStep(step){
+  const current = step === 'opp' || step === 'finish' ? step : 'my';
+  ['my','opp','finish'].forEach(key=>{
+    document.getElementById(`input-step-btn-${key}`)?.classList.toggle('active', key===current);
+    document.getElementById(`input-step-${key}-panel`)?.classList.toggle('active', key===current);
+  });
+  try{ localStorage.setItem(LS_STATS_INPUT_STEP, current); }catch(e){}
+  refreshInputSummary();
+}
+
+function renderReviewTags(targetId, items, leadName){
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  const list = (Array.isArray(items) ? items : []).filter(Boolean);
+  if(!list.length){
+    el.innerHTML = '<div class="review-empty">まだ入力されていません</div>';
+    return;
+  }
+  el.innerHTML = list.map(item=>{
+    const name = String(item?.displayName || item?.name || '').trim();
+    return `<span class="poke-tag ${leadName && name===leadName ? 'lead-tag' : ''}">${escapeHtml(name)}</span>`;
+  }).join('');
+}
+
+function refreshInputSummary(){
+  const myPartyCount = myParty6.filter(Boolean).length;
+  const mySelectCount = mySelect3.filter(Boolean).length;
+  const oppPartyCount = oppParty6.filter(v=>v && String(v.name||'').trim()).length;
+  const oppSelectCount = oppSelect3.filter(Boolean).length;
+  const put = (id, value)=>{ const el = document.getElementById(id); if(el) el.textContent = value; };
+  put('summary-my-party', `${myPartyCount}/6`);
+  put('summary-my-select', `${mySelectCount}/3`);
+  put('summary-opp-party', `${oppPartyCount}/6`);
+  put('summary-opp-select', `${oppSelectCount}/3`);
+  renderReviewTags('review-my-party', myParty6, '');
+  renderReviewTags('review-my-select', mySelect3, myLead?.displayName || myLead?.name || '');
+  renderReviewTags('review-opp-party', oppParty6.filter(v=>v && String(v.name||'').trim()), '');
+  renderReviewTags('review-opp-select', oppSelect3, oppLead?.name || '');
+}
+
 
 let myParty6 = Array(6).fill(null);
 let mySelect3 = Array(3).fill(null);
@@ -751,6 +860,7 @@ function renderMySelect(){
     </div>`;
   }).join('');
   document.getElementById('my-sel-count').textContent = mySelect3.filter(Boolean).length + '/3';
+  refreshInputSummary();
 }
 
 function findMyPartyByLabel(label){ return myParty6.find(x=>x && (x.displayName || x.name)===label) || null; }
@@ -943,6 +1053,7 @@ function renderOppSelect(){
     </div>`;
   }).join('');
   document.getElementById('opp-sel-count').textContent = oppSelect3.filter(Boolean).length + '/3';
+  refreshInputSummary();
 }
 
 function findOppByName(name){ return oppParty6.find(x=>x && x.name===name) || null; }
@@ -1020,6 +1131,7 @@ function resetForm(){
   initMyPartyFromReg();
   renderMySelect();
   renderOppSelect();
+  refreshInputSummary();
 }
 
 async function clearAllBattles(){
@@ -1178,6 +1290,8 @@ window.onload = async ()=>{
   setOppPokemonMode('naitei');
   await renderStats();
   await renderHistory();
+  refreshInputSummary();
+  setInputStep(localStorage.getItem(LS_STATS_INPUT_STEP) || 'my');
   setStatsTab(localStorage.getItem(LS_STATS_TAB) || 'input');
 };
 </script>
