@@ -184,21 +184,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .lead-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:1px 6px;font-size:9px;cursor:pointer;letter-spacing:1px;font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;}
 .lead-btn.on{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.1);}
 /* 相手入力 */
-.opp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
-@media(max-width:900px){.opp-grid{grid-template-columns:1fr;}}
-.opp-slot{display:flex;flex-direction:column;gap:8px;min-width:0;}
-.opp-field{position:relative;}
-.opp-input,.opp-sub-input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color 0.2s;}
-.opp-input:focus,.opp-sub-input:focus{border-color:var(--accent);}
-.opp-sub-label{font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;}
-.opp-sub-block{display:flex;flex-direction:column;gap:4px;}
-.opp-moves-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.opp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.opp-slot{position:relative;}
+.opp-input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color 0.2s;}
+.opp-input:focus{border-color:var(--accent);}
 .dropdown{display:none;position:absolute;top:100%;left:0;right:0;z-index:300;background:var(--panel);border:1px solid var(--border2);max-height:180px;overflow-y:auto;}
 .dropdown.show{display:block;}
 .drop-item{padding:7px 10px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);transition:background 0.12s;}
 .drop-item:hover{background:var(--bg2);}
 .drop-name{font-weight:700;}
-.drop-hint{margin-left:auto;font-size:9px;color:var(--text2);letter-spacing:1px;}
 /* 勝敗 */
 .result-btns{display:flex;gap:8px;}
 .result-btn{flex:1;padding:10px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;transition:all 0.18s;}
@@ -285,6 +279,24 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 }
 
 /* ===== ライトモード ===== */
+
+.party-source-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.party-source-select{flex:1;min-width:190px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;}
+.mini-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:8px 12px;font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all 0.18s;}
+.mini-btn:hover{border-color:var(--accent);color:var(--accent);}
+.helper-text{font-size:10px;color:var(--text2);margin-bottom:8px;line-height:1.8;}
+.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.filter-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 12px;font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all 0.18s;}
+.filter-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+.opp-stack{display:flex;flex-direction:column;gap:10px;}
+.opp-card{background:var(--bg2);border:1px solid var(--border);padding:10px;}
+.opp-card-head{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent2);margin-bottom:8px;}
+.opp-field{position:relative;margin-bottom:8px;}
+.opp-label{display:block;font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:1px;}
+.opp-moves-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:640px){.opp-moves-grid{grid-template-columns:1fr;}}
+.empty-note{font-size:11px;color:var(--text2);}
+
 </style>
 </head>
 <body>
@@ -318,37 +330,146 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <div class="main">
   <div class="page-grid">
 
-    <!-- 左: 入力フォーム -->
     <div class="form-panel">
 
-      <!-- 自パーティ6匹 -->
       <div class="block">
         <div class="sec">自パーティ 6匹</div>
+        <div class="party-source-wrap">
+          <select id="my-party-select" class="party-source-select">
+            <option value="">保存済みパーティを選択</option>
+          </select>
+          <button class="mini-btn" type="button" onclick="applySelectedParty()">パーティ反映</button>
+        </div>
+        <div class="helper-text">パーティ管理の保存済みパーティを反映できます。登録済みポケモンからの追加もそのまま使えます。</div>
         <div class="reg-pick-list" id="my-reg-list"></div>
         <div class="party6-grid" id="my-party6"></div>
       </div>
 
-      <!-- 自選出3匹 -->
       <div class="block">
         <div class="sec">自選出 <span class="sec-count" id="my-sel-count">0/3</span></div>
-        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">クリックで選出 → 「初手」ボタンで初手指定</div>
+        <div class="helper-text">クリックで選出、選出後に「初手」で先発指定できます。</div>
         <div class="select-chips" id="my-select3"></div>
       </div>
 
-      <!-- 相手パーティ6匹 -->
       <div class="block">
         <div class="sec">相手パーティ 6匹</div>
-        <div class="opp-grid" id="opp-grid"></div>
+        <div class="filter-row">
+          <span style="font-size:10px;color:var(--text2);">候補表示</span>
+          <button class="filter-btn on" type="button" id="opp-filter-naitei" onclick="setOppPokemonMode('naitei')">内定</button>
+          <button class="filter-btn" type="button" id="opp-filter-all" onclick="setOppPokemonMode('all')">全て</button>
+        </div>
+        <div class="opp-stack">
+          <div class="opp-card">
+      <div class="opp-card-head">相手1</div>
+      <div class="opp-field">
+        <label class="opp-label">ポケモン</label>
+        <input class="opp-input" id="opp6-0" type="text" autocomplete="off">
+        <div class="dropdown" id="opp6-drop-0"></div>
+      </div>
+      <div class="opp-field">
+        <label class="opp-label">持ち物</label>
+        <input class="opp-input" id="opp-item-0" type="text" autocomplete="off">
+        <div class="dropdown" id="opp-item-drop-0"></div>
+      </div>
+      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-0-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-0"></div></div>
+<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-0-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-1"></div></div>
+<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-0-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-2"></div></div>
+<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-0-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-0-3"></div></div></div>
+    </div>
+<div class="opp-card">
+      <div class="opp-card-head">相手2</div>
+      <div class="opp-field">
+        <label class="opp-label">ポケモン</label>
+        <input class="opp-input" id="opp6-1" type="text" autocomplete="off">
+        <div class="dropdown" id="opp6-drop-1"></div>
+      </div>
+      <div class="opp-field">
+        <label class="opp-label">持ち物</label>
+        <input class="opp-input" id="opp-item-1" type="text" autocomplete="off">
+        <div class="dropdown" id="opp-item-drop-1"></div>
+      </div>
+      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-1-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-0"></div></div>
+<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-1-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-1"></div></div>
+<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-1-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-2"></div></div>
+<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-1-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-1-3"></div></div></div>
+    </div>
+<div class="opp-card">
+      <div class="opp-card-head">相手3</div>
+      <div class="opp-field">
+        <label class="opp-label">ポケモン</label>
+        <input class="opp-input" id="opp6-2" type="text" autocomplete="off">
+        <div class="dropdown" id="opp6-drop-2"></div>
+      </div>
+      <div class="opp-field">
+        <label class="opp-label">持ち物</label>
+        <input class="opp-input" id="opp-item-2" type="text" autocomplete="off">
+        <div class="dropdown" id="opp-item-drop-2"></div>
+      </div>
+      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-2-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-0"></div></div>
+<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-2-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-1"></div></div>
+<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-2-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-2"></div></div>
+<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-2-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-2-3"></div></div></div>
+    </div>
+<div class="opp-card">
+      <div class="opp-card-head">相手4</div>
+      <div class="opp-field">
+        <label class="opp-label">ポケモン</label>
+        <input class="opp-input" id="opp6-3" type="text" autocomplete="off">
+        <div class="dropdown" id="opp6-drop-3"></div>
+      </div>
+      <div class="opp-field">
+        <label class="opp-label">持ち物</label>
+        <input class="opp-input" id="opp-item-3" type="text" autocomplete="off">
+        <div class="dropdown" id="opp-item-drop-3"></div>
+      </div>
+      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-3-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-0"></div></div>
+<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-3-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-1"></div></div>
+<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-3-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-2"></div></div>
+<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-3-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-3-3"></div></div></div>
+    </div>
+<div class="opp-card">
+      <div class="opp-card-head">相手5</div>
+      <div class="opp-field">
+        <label class="opp-label">ポケモン</label>
+        <input class="opp-input" id="opp6-4" type="text" autocomplete="off">
+        <div class="dropdown" id="opp6-drop-4"></div>
+      </div>
+      <div class="opp-field">
+        <label class="opp-label">持ち物</label>
+        <input class="opp-input" id="opp-item-4" type="text" autocomplete="off">
+        <div class="dropdown" id="opp-item-drop-4"></div>
+      </div>
+      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-4-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-0"></div></div>
+<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-4-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-1"></div></div>
+<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-4-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-2"></div></div>
+<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-4-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-4-3"></div></div></div>
+    </div>
+<div class="opp-card">
+      <div class="opp-card-head">相手6</div>
+      <div class="opp-field">
+        <label class="opp-label">ポケモン</label>
+        <input class="opp-input" id="opp6-5" type="text" autocomplete="off">
+        <div class="dropdown" id="opp6-drop-5"></div>
+      </div>
+      <div class="opp-field">
+        <label class="opp-label">持ち物</label>
+        <input class="opp-input" id="opp-item-5" type="text" autocomplete="off">
+        <div class="dropdown" id="opp-item-drop-5"></div>
+      </div>
+      <div class="opp-moves-grid"><div class="opp-field"><label class="opp-label">技1</label><input class="opp-input" id="opp-move-5-0" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-0"></div></div>
+<div class="opp-field"><label class="opp-label">技2</label><input class="opp-input" id="opp-move-5-1" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-1"></div></div>
+<div class="opp-field"><label class="opp-label">技3</label><input class="opp-input" id="opp-move-5-2" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-2"></div></div>
+<div class="opp-field"><label class="opp-label">技4</label><input class="opp-input" id="opp-move-5-3" type="text" autocomplete="off"><div class="dropdown" id="opp-move-drop-5-3"></div></div></div>
+    </div>
+        </div>
       </div>
 
-      <!-- 相手選出3匹 -->
       <div class="block">
         <div class="sec">相手選出 <span class="sec-count" id="opp-sel-count">0/3</span></div>
-        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">相手パーティから選出した3匹を選択</div>
+        <div class="helper-text">相手パーティから選出した3匹を選択してください。</div>
         <div class="select-chips" id="opp-select3"></div>
       </div>
 
-      <!-- 勝敗 -->
       <div class="block">
         <div class="sec">勝敗</div>
         <div class="result-btns">
@@ -360,12 +481,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <button class="record-btn" onclick="recordBattle()">📝 記録する</button>
     </div>
 
-    <!-- 右: 集計 + 履歴 -->
     <div>
       <div class="stats-panel">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
           <span style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent3);">集計</span>
-          <button onclick="if(confirm('全記録を削除しますか？')){localStorage.removeItem('pokeedge_battles_v1');renderStats();renderHistory();}" style="background:none;border:1px solid var(--border);color:var(--text2);font-size:10px;padding:3px 10px;cursor:pointer;">全消去</button>
+          <button onclick="clearAllBattles()" style="background:none;border:1px solid var(--border);color:var(--text2);font-size:10px;padding:3px 10px;cursor:pointer;">全消去</button>
         </div>
         <div class="summary-row">
           <div class="summary-item"><div class="summary-label">試合数</div><div class="summary-val" id="total-count">0</div></div>
@@ -389,307 +509,166 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 
+
 <script>
-
-// ===== 外部JSONデータ読み込み =====
 let POKEMON_DATA = [];
-let MOVES_DATA   = [];
-let ITEMS_DATA   = [];
-let POKEMON_MOVES_DATA = {pokemon:{}};
-let ABILITY_MAP  = {};
-let SEASON_DATA  = {seasons:[]};
-let pokeIndex    = [];
-let moveIndex    = [];
-let itemIndex    = [];
-let _dataLoaded  = false;
+let MOVES_DATA = [];
+let ABILITY_MAP = {};
+let SEASON_DATA = {seasons:[]};
+let BELONGINGS = [];
+let POKEMON_MOVES = {};
+let pokeIndex = [];
+let moveIndex = [];
+let savedParties = [];
+let _dataLoaded = false;
+let naiteiSet = new Set();
+let belongingsIndex = [];
 
-async function loadGameData() {
+const LS_REG = 'pokeedge_pokemon_v1';
+const LS_PARTY_FALLBACK = 'pokeedge_parties';
+
+let myParty6 = Array(6).fill(null);
+let mySelect3 = Array(3).fill(null);
+let myLead = null;
+let oppParty6 = Array(6).fill(null);
+let oppSelect3 = Array(3).fill(null);
+let oppLead = null;
+let result = null;
+let oppPokemonMode = 'naitei';
+
+function fetchJsonSafe(path, fallback){
+  return fetch(path + '?v=' + Date.now()).then(r=>r.json()).catch(()=>fallback);
+}
+
+async function loadGameData(){
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata, pmdata] = await Promise.all([
-      fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
-      fetch('moves.json?v='+Date.now()).then(r=>r.json()),
-      fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
-      fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
-      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
-      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
+    const [pd, md, ad, sd, bd, pmd] = await Promise.all([
+      fetchJsonSafe('pokemon.json', []),
+      fetchJsonSafe('moves.json', []),
+      fetchJsonSafe('abilities.json', {}),
+      fetchJsonSafe('season.json', {seasons:[]}),
+      fetchJsonSafe('belongings.json', []),
+      fetchJsonSafe('pokemon_moves.json', {}),
     ]);
-    POKEMON_DATA = pd;
-    MOVES_DATA   = md;
-    ITEMS_DATA   = Array.isArray(idata) ? idata : [];
-    POKEMON_MOVES_DATA = pmdata && typeof pmdata==='object' ? pmdata : {pokemon:{}};
-    ABILITY_MAP  = ad;
-    SEASON_DATA  = sd;
-    pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
-    moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
-    itemIndex    = ITEMS_DATA.map((it,i)=>Object.assign({_i:i},it));
-    _dataLoaded  = true;
-  } catch(e) {
+    POKEMON_DATA = Array.isArray(pd) ? pd : [];
+    MOVES_DATA = Array.isArray(md) ? md : [];
+    ABILITY_MAP = ad && typeof ad==='object' ? ad : {};
+    SEASON_DATA = sd && typeof sd==='object' ? sd : {seasons:[]};
+    BELONGINGS = Array.isArray(bd) ? bd : (Array.isArray(bd?.items) ? bd.items : []);
+    POKEMON_MOVES = pmd?.pokemon && typeof pmd.pokemon==='object' ? pmd.pokemon : (pmd && typeof pmd==='object' ? pmd : {});
+    pokeIndex = POKEMON_DATA.map((p,i)=>Object.assign({_i:i}, p));
+    moveIndex = MOVES_DATA.map((m,i)=>Object.assign({_i:i}, m));
+    naiteiSet = new Set(Array.isArray(SEASON_DATA['内定']) ? SEASON_DATA['内定'].map(v=>String(v).trim()) : []);
+    belongingsIndex = Array.from(new Set(BELONGINGS.map(getItemName).filter(Boolean)));
+    _dataLoaded = true;
+  } catch(e){
     console.error('データ読み込みエラー:', e);
     alert('データの読み込みに失敗しました。ページを再読み込みしてください。');
   }
 }
 
-
-// POKEMON_DATA: 外部JSONから読み込み (loadGameData)
-// LS_KEY: supabase-sync.jsで定義済み
-const LS_REG = 'pokeedge_pokemon_v1';
-
-// ===== ストレージ =====
-// loadBattles: supabase-sync.jsのloadBattleRecordsを使用
-// saveBattles: supabase-sync.jsのsaveBattleRecordを使用
+function getItemName(item){ return String(item?.name || item?.item || item?.displayName || item?.title || '').trim(); }
 function loadMyReg(){ try{ return JSON.parse(localStorage.getItem(LS_REG)||'[]'); }catch(e){ return []; } }
+function safeLoadLocalParties(){ try{ return JSON.parse(localStorage.getItem(LS_PARTY_FALLBACK)||'[]'); }catch(e){ return []; } }
+function normalizeSavedParty(raw){ return raw?.data || raw || {}; }
+function toDisplayName(obj){ return obj?.displayName || obj?.pokeName || obj?.name || ''; }
+function cloneMoves(arr){ return Array.isArray(arr) ? arr.slice(0,4).concat(Array(Math.max(0,4-arr.length)).fill('')).slice(0,4) : ['','','','']; }
 
-// ===== 状態 =====
-let myParty6   = Array(6).fill(null);  // 自パーティ6匹
-let mySelect3  = Array(3).fill(null);  // 自選出3匹
-let myLead     = null;                 // 自初手
-let oppParty6  = Array(6).fill(null);  // 相手6匹
-let oppSelect3 = Array(3).fill(null);  // 相手選出3匹
-let oppLead    = null;                 // 相手初手
-let result     = null;                 // 勝敗
-
-// ===== 相手入力用データ =====
-function getAvailablePokemonList(){
-  const naitei = SEASON_DATA && Array.isArray(SEASON_DATA['内定']) ? SEASON_DATA['内定'] : [];
-  if(!naitei.length) return pokeIndex;
-  const set = new Set(naitei.map(x=>String(x||'').trim()));
-  const filtered = pokeIndex.filter(p=>set.has(String(p.name||'').trim()));
-  return filtered.length ? filtered : pokeIndex;
-}
-function searchOpponentPokemonCandidates(q){
-  const query = String(q||'').trim();
-  if(!query) return [];
-  const available = getAvailablePokemonList().filter(p=>String(p.name||'').includes(query));
-  const used = new Set(available.map(p=>String(p.name||'')));
-  const others = pokeIndex.filter(p=>String(p.name||'').includes(query) && !used.has(String(p.name||'')));
-  return available.concat(others).slice(0,12);
-}
-function getOppEntryBase(slot){
-  const prev = oppParty6[slot] || {};
-  const moves = Array.isArray(prev.moves) ? prev.moves.slice(0,4) : [];
-  while(moves.length < 4) moves.push('');
+function buildPartyMember(member, meta){
+  const name = String(member?.pokeName || member?.name || '').trim();
+  const exact = pokeIndex.find(p=>p.name===name) || null;
   return {
-    name: prev.name || '',
-    type1: prev.type1 || '',
-    type2: prev.type2 || '',
-    heldItem: prev.heldItem || '',
-    moves,
+    name: exact?.name || name,
+    displayName: member?.displayName || name,
+    type1: member?.type1 || exact?.type1 || '',
+    type2: member?.type2 || exact?.type2 || '',
+    _regId: member?.id || '',
+    _source: meta || ''
   };
-}
-function setOppPokemon(slot, pokemon){
-  const prev = getOppEntryBase(slot);
-  const changed = prev.name && prev.name !== pokemon.name;
-  oppParty6[slot] = {
-    ...pokemon,
-    heldItem: prev.heldItem || '',
-    moves: changed ? ['', '', '', ''] : prev.moves.slice(0,4),
-  };
-  document.getElementById(`opp6-${slot}`).value = pokemon.name || '';
-  syncOppDetailInputs(slot);
-  renderOppSelect();
-}
-function commitFreeOpponentPokemon(slot){
-  const inp = document.getElementById(`opp6-${slot}`);
-  if(!inp) return;
-  const q = inp.value.trim();
-  if(!q){
-    oppParty6[slot] = null;
-    syncOppDetailInputs(slot);
-    renderOppSelect();
-    return;
-  }
-  const exact = pokeIndex.find(p=>String(p.name||'').trim()===q);
-  if(exact){
-    setOppPokemon(slot, exact);
-    return;
-  }
-  const prev = getOppEntryBase(slot);
-  oppParty6[slot] = {
-    ...prev,
-    name: q,
-    type1: prev.type1 || '',
-    type2: prev.type2 || '',
-    heldItem: prev.heldItem || '',
-    moves: prev.moves.slice(0,4),
-  };
-  renderOppSelect();
-}
-function getItemCandidates(q){
-  const query = String(q||'').trim();
-  if(!query) return [];
-  return itemIndex.filter(it=>String(it.name||'').includes(query)).slice(0,12);
-}
-function getKnownMovesForSlot(slot){
-  const name = String(oppParty6[slot]?.name || '').trim();
-  const map = POKEMON_MOVES_DATA && POKEMON_MOVES_DATA.pokemon ? POKEMON_MOVES_DATA.pokemon : {};
-  const entry = map[name];
-  if(entry && Array.isArray(entry.moves) && entry.moves.length){
-    const seen = new Set();
-    return entry.moves.filter(m=>{
-      const n = String(m && m.name || '').trim();
-      if(!n || seen.has(n)) return false;
-      seen.add(n);
-      return true;
-    });
-  }
-  return moveIndex.map(m=>({name:m.name,type:m.type,category:m.category}));
-}
-function getMoveCandidates(slot, q){
-  const query = String(q||'').trim();
-  if(!query) return [];
-  const preferred = getKnownMovesForSlot(slot).filter(m=>String(m.name||'').includes(query));
-  const used = new Set(preferred.map(m=>String(m.name||'')));
-  const others = moveIndex.filter(m=>String(m.name||'').includes(query) && !used.has(String(m.name||'')));
-  return preferred.concat(others).slice(0,12);
-}
-function syncOppDetailInputs(slot){
-  const base = getOppEntryBase(slot);
-  const itemInp = document.getElementById(`opp6-item-${slot}`);
-  if(itemInp) itemInp.value = base.heldItem || '';
-  for(let j=0;j<4;j++){
-    const moveInp = document.getElementById(`opp6-move-${slot}-${j}`);
-    if(moveInp) moveInp.value = base.moves[j] || '';
-  }
-}
-function updateOppHeldItem(slot, value){
-  const base = getOppEntryBase(slot);
-  oppParty6[slot] = { ...base, heldItem: value || '' };
-}
-function updateOppMove(slot, moveIdx, value){
-  const base = getOppEntryBase(slot);
-  const moves = base.moves.slice(0,4);
-  moves[moveIdx] = value || '';
-  oppParty6[slot] = { ...base, moves };
-}
-function renderOppInputs(){
-  const el = document.getElementById('opp-grid');
-  if(!el) return;
-  el.innerHTML = Array.from({length:6}, (_,i)=>`
-    <div class="opp-slot">
-      <div class="opp-field">
-        <input class="opp-input" id="opp6-${i}" type="text" placeholder="相手${i+1}匹目" autocomplete="off">
-        <div class="dropdown" id="opp6-drop-${i}"></div>
-      </div>
-      <div class="opp-sub-block">
-        <div class="opp-sub-label">持ち物</div>
-        <div class="opp-field">
-          <input class="opp-sub-input" id="opp6-item-${i}" type="text" autocomplete="off">
-          <div class="dropdown" id="opp6-item-drop-${i}"></div>
-        </div>
-      </div>
-      <div class="opp-sub-block">
-        <div class="opp-sub-label">技</div>
-        <div class="opp-moves-grid">
-          ${Array.from({length:4}, (_,j)=>`
-            <div class="opp-field">
-              <input class="opp-sub-input" id="opp6-move-${i}-${j}" type="text" autocomplete="off">
-              <div class="dropdown" id="opp6-move-drop-${i}-${j}"></div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-function renderPokemonDrop(drop, list, slot){
-  if(!list.length){ drop.classList.remove('show'); return; }
-  const availableSet = new Set(getAvailablePokemonList().map(x=>x.name));
-  drop.innerHTML = list.map(p=>{
-    const t1 = p.type1 ? `<span class="tp tp-${p.type1}">${p.type1}</span>` : '';
-    const t2 = p.type2 ? `<span class="tp tp-${p.type2}">${p.type2}</span>` : '';
-    const hint = availableSet.has(p.name) ? '<span class="drop-hint">内定</span>' : '';
-    return `<div class="drop-item" data-kind="pokemon" data-slot="${slot}" data-name="${p.name}"><span class="drop-name">${p.name}</span>${t1}${t2}${hint}</div>`;
-  }).join('');
-  drop.classList.add('show');
-}
-function renderSimpleDrop(drop, list, kind, slot, extra){
-  if(!list.length){ drop.classList.remove('show'); return; }
-  drop.innerHTML = list.map(obj=>{
-    const name = String(obj && obj.name || obj || '');
-    const hint = kind==='move' && obj && obj.type ? `<span class="drop-hint">${obj.type}</span>` : '';
-    return `<div class="drop-item" data-kind="${kind}" data-slot="${slot}" data-extra="${extra}" data-name="${name}"><span class="drop-name">${name}</span>${hint}</div>`;
-  }).join('');
-  drop.classList.add('show');
-}
-function bindDropSelection(drop, handler){
-  if(!drop) return;
-  drop.addEventListener('mousedown', e=>{
-    const item = e.target.closest('.drop-item');
-    if(!item) return;
-    e.preventDefault();
-    handler(item);
-    drop.classList.remove('show');
-  });
 }
 
-// ===== 検索 =====
-function setupSearch(inputId, dropId, onSelect){
-  const inp = document.getElementById(inputId);
-  const drop = document.getElementById(dropId);
-  if(!inp) return;
-  let timer;
-  inp.addEventListener('input',()=>{
-    clearTimeout(timer);
-    const q = inp.value.trim();
-    if(!q){ drop.classList.remove('show'); return; }
-    timer = setTimeout(()=>{
-      const res = pokeIndex.filter(p=>p.name.includes(q)).slice(0,10);
-      if(!res.length){ drop.classList.remove('show'); return; }
-      drop.innerHTML = res.map(p=>{
-        const t1=p.type1?`<span class="tp tp-${p.type1}">${p.type1}</span>`:'';
-        const t2=p.type2?`<span class="tp tp-${p.type2}">${p.type2}</span>`:'';
-        return `<div class="drop-item" onclick="dropSelect('${inputId}','${dropId}','${p.name}')">`
-          +`<span class="drop-name">${p.name}</span>${t1}${t2}</div>`;
-      }).join('');
-      drop.classList.add('show');
-    },150);
-  });
-  inp._onSelect = onSelect;
-  document.addEventListener('click',e=>{
-    if(!inp.contains(e.target)&&!drop.contains(e.target)) drop.classList.remove('show');
-  });
-}
-function dropSelect(inputId, dropId, name){
-  const inp = document.getElementById(inputId);
-  document.getElementById(dropId).classList.remove('show');
-  inp.value = name;
-  const p = pokeIndex.find(x=>x.name===name);
-  if(inp._onSelect && p) inp._onSelect(p);
+function ensureOppEntry(i){
+  if(!oppParty6[i]) oppParty6[i] = {name:'', type1:'', type2:'', item:'', moves:['','','','']};
+  if(!Array.isArray(oppParty6[i].moves)) oppParty6[i].moves = ['','','',''];
+  return oppParty6[i];
 }
 
-// ===== 自パーティ: 登録済みから選択 or 直接検索 =====
+function compactOppEntry(i){
+  const slot = oppParty6[i];
+  if(!slot) return;
+  const hasName = !!String(slot.name||'').trim();
+  const hasItem = !!String(slot.item||'').trim();
+  const hasMoves = Array.isArray(slot.moves) && slot.moves.some(v=>String(v||'').trim());
+  if(!hasName && !hasItem && !hasMoves) oppParty6[i] = null;
+}
+
+function renderSavedPartySelector(){
+  const sel = document.getElementById('my-party-select');
+  if(!sel) return;
+  if(!savedParties.length){
+    sel.innerHTML = '<option value="">保存済みパーティなし</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">保存済みパーティを選択</option>' + savedParties.map((s,i)=>{
+    const d = normalizeSavedParty(s);
+    const members = (d.members || []).map(m=>m.pokeName || m.name).filter(Boolean).join(' / ');
+    return `<option value="${i}">${escapeHtml(s.name || d.name || 'パーティ')}｜${escapeHtml(members)}</option>`;
+  }).join('');
+}
+
+async function loadSavedPartiesForStats(){
+  try{
+    savedParties = typeof loadParties === 'function' ? await loadParties() : safeLoadLocalParties();
+  }catch(e){
+    savedParties = safeLoadLocalParties();
+  }
+  renderSavedPartySelector();
+}
+
+function applySelectedParty(){
+  const sel = document.getElementById('my-party-select');
+  const idx = parseInt(sel?.value || '', 10);
+  if(Number.isNaN(idx) || !savedParties[idx]) return;
+  const src = savedParties[idx];
+  const d = normalizeSavedParty(src);
+  const members = Array.isArray(d.members) ? d.members.slice(0,6) : [];
+  myParty6 = Array(6).fill(null);
+  members.forEach((m,i)=>{ myParty6[i] = buildPartyMember(m, src.name || d.name || '保存済みパーティ'); });
+  mySelect3 = Array(3).fill(null);
+  myLead = null;
+  renderMyParty6();
+  initMyPartyFromReg();
+  renderMySelect();
+}
+
 function initMyPartyFromReg(){
   const regs = loadMyReg();
   const el = document.getElementById('my-reg-list');
   if(!regs.length){
-    el.innerHTML='<div style="font-size:11px;color:var(--text2);">登録済みポケモンがいません。<a href="pokemon.html" style="color:var(--accent);">ポケモン登録</a>から追加してください。</div>';
+    el.innerHTML='<div class="empty-note">登録済みポケモンがいません。<a href="pokemon.html" style="color:var(--accent);">ポケモン登録</a>から追加してください。</div>';
     return;
   }
   el.innerHTML = regs.map(r=>{
-    const inP = myParty6.some(m=>m&&m._regId===r.id);
-    const t1=r.type1?`<span class="tp tp-${r.type1}" style="font-size:8px;">${r.type1}</span>`:'';
-    const t2=r.type2?`<span class="tp tp-${r.type2}" style="font-size:8px;">${r.type2}</span>`:'';
-    return `<div class="reg-pick ${inP?'in-party':''}" onclick="toggleMyParty('${r.id}')" data-id="${r.id}">
-      <span style="font-size:12px;font-weight:700;">${r.displayName}</span>${t1}${t2}
+    const inP = myParty6.some(m=>m && (m._regId && m._regId===r.id || (m.displayName===r.displayName && m.name===r.pokeName)));
+    const t1 = r.type1 ? `<span class="tp tp-${escapeAttr(r.type1)}" style="font-size:8px;">${escapeHtml(r.type1)}</span>` : '';
+    const t2 = r.type2 ? `<span class="tp tp-${escapeAttr(r.type2)}" style="font-size:8px;">${escapeHtml(r.type2)}</span>` : '';
+    return `<div class="reg-pick ${inP?'in-party':''}" onclick="toggleMyParty('${escapeJs(r.id || '')}','${escapeJs(r.displayName || '')}','${escapeJs(r.pokeName || '')}','${escapeJs(r.type1 || '')}','${escapeJs(r.type2 || '')}')">
+      <span style="font-size:12px;font-weight:700;">${escapeHtml(r.displayName || r.pokeName || '名称未設定')}</span>${t1}${t2}
       ${inP?'<span style="font-size:9px;color:var(--accent);margin-left:auto;">✓</span>':''}
     </div>`;
   }).join('');
 }
 
-function toggleMyParty(id){
-  const regs = loadMyReg();
-  const rec = regs.find(r=>r.id===id);
-  if(!rec) return;
-  const idx = myParty6.findIndex(m=>m&&m._regId===id);
+function toggleMyParty(id, displayName, pokeName, type1, type2){
+  const idx = myParty6.findIndex(m=>m && ((id && m._regId===id) || (m.displayName===displayName && m.name===pokeName)));
   if(idx>=0){
-    myParty6[idx]=null;
-  } else {
-    const empty = myParty6.findIndex(m=>m===null);
-    if(empty<0){ alert('自パーティは6匹までです'); return; }
-    const p = pokeIndex.find(x=>x.name===rec.pokeName)||{name:rec.pokeName,type1:rec.type1,type2:rec.type2};
-    myParty6[empty] = {...p, _regId:rec.id, displayName:rec.displayName};
+    removeMyParty(idx);
+    return;
   }
+  const empty = myParty6.findIndex(m=>m===null);
+  if(empty<0){ alert('自パーティは6匹までです'); return; }
+  myParty6[empty] = buildPartyMember({id, displayName, pokeName, type1, type2}, '登録済み');
   renderMyParty6();
   initMyPartyFromReg();
   renderMySelect();
@@ -697,14 +676,14 @@ function toggleMyParty(id){
 
 function renderMyParty6(){
   const el = document.getElementById('my-party6');
-  el.innerHTML = Array(6).fill(null).map((_,i)=>{
+  el.innerHTML = Array.from({length:6}).map((_,i)=>{
     const m = myParty6[i];
     if(m){
-      const t1=m.type1?`<span class="tp tp-${m.type1}" style="font-size:7px;">${m.type1}</span>`:'';
-      const t2=m.type2?`<span class="tp tp-${m.type2}" style="font-size:7px;">${m.type2}</span>`:'';
+      const t1 = m.type1 ? `<span class="tp tp-${escapeAttr(m.type1)}" style="font-size:7px;">${escapeHtml(m.type1)}</span>` : '';
+      const t2 = m.type2 ? `<span class="tp tp-${escapeAttr(m.type2)}" style="font-size:7px;">${escapeHtml(m.type2)}</span>` : '';
       return `<div class="poke-chip filled" onclick="removeMyParty(${i})">
         <span class="chip-num">${i+1}</span>
-        <span class="chip-name">${m.displayName||m.name}</span>
+        <span class="chip-name">${escapeHtml(m.displayName || m.name)}</span>
         ${t1}${t2}
         <span class="chip-del">×</span>
       </div>`;
@@ -714,188 +693,259 @@ function renderMyParty6(){
 }
 
 function removeMyParty(i){
-  myParty6[i]=null;
-  // 選出・初手からも外す
-  const name = myParty6[i]?.name;
-  mySelect3 = mySelect3.map(m=>m&&m===myParty6[i]?null:m);
-  if(myLead===myParty6[i]) myLead=null;
-  myParty6[i]=null;
+  const target = myParty6[i];
+  if(!target) return;
+  mySelect3 = mySelect3.map(m=>m===target ? null : m);
+  if(myLead===target) myLead = null;
+  myParty6[i] = null;
   renderMyParty6();
   initMyPartyFromReg();
   renderMySelect();
 }
 
-// ===== 自選出3匹 =====
 function renderMySelect(){
   const el = document.getElementById('my-select3');
   const available = myParty6.filter(Boolean);
   if(!available.length){
-    el.innerHTML='<div style="font-size:11px;color:var(--text2);">自パーティを先に設定してください</div>';
+    el.innerHTML='<div class="empty-note">自パーティを先に設定してください</div>';
+    document.getElementById('my-sel-count').textContent = '0/3';
     return;
   }
   el.innerHTML = available.map(m=>{
     const inSel = mySelect3.includes(m);
     const isLead = myLead===m;
-    const t1=m.type1?`<span class="tp tp-${m.type1}" style="font-size:7px;">${m.type1}</span>`:'';
-    return `<div class="select-chip ${inSel?'selected':''} ${isLead?'is-lead':''}" onclick="toggleMySelect('${m.name}')">
-      <span class="chip-name">${m.displayName||m.name}</span>${t1}
-      ${inSel?`<button class="lead-btn ${isLead?'on':''}" onclick="event.stopPropagation();toggleMyLead('${m.name}')">初手</button>`:''}
+    const t1 = m.type1 ? `<span class="tp tp-${escapeAttr(m.type1)}" style="font-size:7px;">${escapeHtml(m.type1)}</span>` : '';
+    return `<div class="select-chip ${inSel?'selected':''} ${isLead?'is-lead':''}" onclick="toggleMySelect('${escapeJs(m.displayName || m.name)}')">
+      <span class="chip-name">${escapeHtml(m.displayName || m.name)}</span>${t1}
+      ${inSel?`<button class="lead-btn ${isLead?'on':''}" onclick="event.stopPropagation();toggleMyLead('${escapeJs(m.displayName || m.name)}')">初手</button>`:''}
     </div>`;
   }).join('');
   document.getElementById('my-sel-count').textContent = mySelect3.filter(Boolean).length + '/3';
 }
 
-function toggleMySelect(name){
-  const m = myParty6.find(x=>x&&x.name===name);
+function findMyPartyByLabel(label){ return myParty6.find(x=>x && (x.displayName || x.name)===label) || null; }
+function toggleMySelect(label){
+  const m = findMyPartyByLabel(label);
   if(!m) return;
   const idx = mySelect3.indexOf(m);
   if(idx>=0){
-    mySelect3[idx]=null;
-    if(myLead===m) myLead=null;
+    mySelect3[idx] = null;
+    if(myLead===m) myLead = null;
   } else {
     const empty = mySelect3.findIndex(x=>x===null);
     if(empty<0){ alert('選出は3匹までです'); return; }
-    mySelect3[empty]=m;
+    mySelect3[empty] = m;
   }
   renderMySelect();
 }
-
-function toggleMyLead(name){
-  const m = myParty6.find(x=>x&&x.name===name);
+function toggleMyLead(label){
+  const m = findMyPartyByLabel(label);
   if(!m) return;
-  myLead = (myLead===m) ? null : m;
+  myLead = myLead===m ? null : m;
   renderMySelect();
 }
 
-// ===== 相手パーティ =====
-function setupOppSearches(){
+function setOppPokemonMode(mode){
+  oppPokemonMode = mode==='all' ? 'all' : 'naitei';
+  document.getElementById('opp-filter-naitei')?.classList.toggle('on', oppPokemonMode==='naitei');
+  document.getElementById('opp-filter-all')?.classList.toggle('on', oppPokemonMode==='all');
+}
+
+function getPokemonCandidates(q){
+  const source = (oppPokemonMode==='naitei' && naiteiSet.size) ? pokeIndex.filter(p=>naiteiSet.has(String(p.name||'').trim())) : pokeIndex;
+  const query = String(q || '').trim();
+  if(!query) return source.slice(0, 12);
+  const starts = [];
+  const contains = [];
+  source.forEach(p=>{
+    const name = String(p.name || '');
+    if(name.startsWith(query)) starts.push(p);
+    else if(name.includes(query)) contains.push(p);
+  });
+  return starts.concat(contains).slice(0, 12);
+}
+
+function getItemCandidates(q){
+  const query = String(q || '').trim();
+  if(!query) return belongingsIndex.slice(0, 12);
+  const starts = belongingsIndex.filter(n=>n.startsWith(query));
+  const contains = belongingsIndex.filter(n=>!n.startsWith(query) && n.includes(query));
+  return starts.concat(contains).slice(0,12);
+}
+
+function getMoveCandidates(i, q){
+  const query = String(q || '').trim();
+  const slot = oppParty6[i];
+  const preferred = slot?.name && POKEMON_MOVES[slot.name] && Array.isArray(POKEMON_MOVES[slot.name].moves)
+    ? POKEMON_MOVES[slot.name].moves.map(m=>String(m.name||'').trim()).filter(Boolean)
+    : [];
+  const others = moveIndex.map(m=>String(m.name||'').trim()).filter(Boolean);
+  const merged = Array.from(new Set(preferred.concat(others)));
+  if(!query) return merged.slice(0, 12);
+  const starts = merged.filter(n=>n.startsWith(query));
+  const contains = merged.filter(n=>!n.startsWith(query) && n.includes(query));
+  return starts.concat(contains).slice(0,12);
+}
+
+function renderDropdown(drop, items, onPick, renderHtml){
+  if(!drop) return;
+  if(!items.length){ drop.classList.remove('show'); drop.innerHTML=''; return; }
+  drop.innerHTML='';
+  items.forEach(item=>{
+    const node = document.createElement('div');
+    node.className = 'drop-item';
+    node.innerHTML = renderHtml(item);
+    node.addEventListener('click', ()=>{ onPick(item); drop.classList.remove('show'); });
+    drop.appendChild(node);
+  });
+  drop.classList.add('show');
+}
+
+function setupOppInputs(){
   for(let i=0;i<6;i++){
-    const pokeInp = document.getElementById(`opp6-${i}`);
+    const pokeInput = document.getElementById(`opp6-${i}`);
     const pokeDrop = document.getElementById(`opp6-drop-${i}`);
-    const itemInp = document.getElementById(`opp6-item-${i}`);
-    const itemDrop = document.getElementById(`opp6-item-drop-${i}`);
-
-    bindDropSelection(pokeDrop, item=>{
-      const name = item.dataset.name || '';
-      const found = pokeIndex.find(p=>String(p.name||'')===name);
-      if(found) setOppPokemon(i, found);
-      else commitFreeOpponentPokemon(i);
+    pokeInput.addEventListener('input', ()=>{
+      const q = pokeInput.value.trim();
+      if(q || oppParty6[i]){
+        const slot = ensureOppEntry(i);
+        slot.name = q;
+        const exact = pokeIndex.find(p=>p.name===q);
+        slot.type1 = exact?.type1 || '';
+        slot.type2 = exact?.type2 || '';
+        compactOppEntry(i);
+      }
+      renderOppSelect();
+      renderDropdown(pokeDrop, getPokemonCandidates(q), item=>{
+        const slot = ensureOppEntry(i);
+        slot.name = item.name;
+        slot.type1 = item.type1 || '';
+        slot.type2 = item.type2 || '';
+        pokeInput.value = item.name;
+        renderOppSelect();
+      }, item=>{
+        const t1 = item.type1 ? `<span class="tp tp-${escapeAttr(item.type1)}">${escapeHtml(item.type1)}</span>` : '';
+        const t2 = item.type2 ? `<span class="tp tp-${escapeAttr(item.type2)}">${escapeHtml(item.type2)}</span>` : '';
+        return `<span class="drop-name">${escapeHtml(item.name)}</span>${t1}${t2}`;
+      });
     });
-    bindDropSelection(itemDrop, item=>{
-      const name = item.dataset.name || '';
-      if(itemInp) itemInp.value = name;
-      updateOppHeldItem(i, name);
+    pokeInput.addEventListener('focus', ()=>{
+      renderDropdown(pokeDrop, getPokemonCandidates(pokeInput.value.trim()), item=>{
+        const slot = ensureOppEntry(i);
+        slot.name = item.name;
+        slot.type1 = item.type1 || '';
+        slot.type2 = item.type2 || '';
+        pokeInput.value = item.name;
+        renderOppSelect();
+      }, item=>{
+        const t1 = item.type1 ? `<span class="tp tp-${escapeAttr(item.type1)}">${escapeHtml(item.type1)}</span>` : '';
+        const t2 = item.type2 ? `<span class="tp tp-${escapeAttr(item.type2)}">${escapeHtml(item.type2)}</span>` : '';
+        return `<span class="drop-name">${escapeHtml(item.name)}</span>${t1}${t2}`;
+      });
     });
 
-    if(pokeInp){
-      let timer;
-      pokeInp.addEventListener('input', ()=>{
-        clearTimeout(timer);
-        const q = pokeInp.value.trim();
-        if(!q){
-          pokeDrop.classList.remove('show');
-          oppParty6[i] = null;
-          syncOppDetailInputs(i);
-          renderOppSelect();
-          return;
-        }
-        timer = setTimeout(()=>{
-          renderPokemonDrop(pokeDrop, searchOpponentPokemonCandidates(q), i);
-        }, 120);
-      });
-      pokeInp.addEventListener('blur', ()=>setTimeout(()=>{ pokeDrop.classList.remove('show'); commitFreeOpponentPokemon(i); }, 120));
-      pokeInp.addEventListener('keydown', e=>{
-        if(e.key==='Enter'){ e.preventDefault(); commitFreeOpponentPokemon(i); pokeDrop.classList.remove('show'); }
-      });
-    }
-
-    if(itemInp){
-      let timer;
-      itemInp.addEventListener('input', ()=>{
-        clearTimeout(timer);
-        const q = itemInp.value.trim();
-        updateOppHeldItem(i, q);
-        if(!q){ itemDrop.classList.remove('show'); return; }
-        timer = setTimeout(()=>{ renderSimpleDrop(itemDrop, getItemCandidates(q), 'item', i, 0); }, 120);
-      });
-      itemInp.addEventListener('blur', ()=>setTimeout(()=>{ updateOppHeldItem(i, itemInp.value.trim()); itemDrop.classList.remove('show'); }, 120));
-    }
+    const itemInput = document.getElementById(`opp-item-${i}`);
+    const itemDrop = document.getElementById(`opp-item-drop-${i}`);
+    itemInput.addEventListener('input', ()=>{
+      const slot = ensureOppEntry(i);
+      slot.item = itemInput.value.trim();
+      compactOppEntry(i);
+      renderDropdown(itemDrop, getItemCandidates(itemInput.value.trim()), item=>{
+        const target = ensureOppEntry(i);
+        target.item = item;
+        itemInput.value = item;
+      }, item=>`<span class="drop-name">${escapeHtml(item)}</span>`);
+    });
+    itemInput.addEventListener('focus', ()=>{
+      renderDropdown(itemDrop, getItemCandidates(itemInput.value.trim()), item=>{
+        const target = ensureOppEntry(i);
+        target.item = item;
+        itemInput.value = item;
+      }, item=>`<span class="drop-name">${escapeHtml(item)}</span>`);
+    });
 
     for(let j=0;j<4;j++){
-      const moveInp = document.getElementById(`opp6-move-${i}-${j}`);
-      const moveDrop = document.getElementById(`opp6-move-drop-${i}-${j}`);
-      bindDropSelection(moveDrop, item=>{
-        const name = item.dataset.name || '';
-        if(moveInp) moveInp.value = name;
-        updateOppMove(i, j, name);
+      const moveInput = document.getElementById(`opp-move-${i}-${j}`);
+      const moveDrop = document.getElementById(`opp-move-drop-${i}-${j}`);
+      moveInput.addEventListener('input', ()=>{
+        const slot = ensureOppEntry(i);
+        slot.moves[j] = moveInput.value.trim();
+        compactOppEntry(i);
+        renderDropdown(moveDrop, getMoveCandidates(i, moveInput.value.trim()), item=>{
+          const target = ensureOppEntry(i);
+          target.moves[j] = item;
+          moveInput.value = item;
+        }, item=>`<span class="drop-name">${escapeHtml(item)}</span>`);
       });
-      if(moveInp){
-        let timer;
-        moveInp.addEventListener('input', ()=>{
-          clearTimeout(timer);
-          const q = moveInp.value.trim();
-          updateOppMove(i, j, q);
-          if(!q){ moveDrop.classList.remove('show'); return; }
-          timer = setTimeout(()=>{ renderSimpleDrop(moveDrop, getMoveCandidates(i, q), 'move', i, j); }, 120);
-        });
-        moveInp.addEventListener('blur', ()=>setTimeout(()=>{ updateOppMove(i, j, moveInp.value.trim()); moveDrop.classList.remove('show'); }, 120));
-      }
+      moveInput.addEventListener('focus', ()=>{
+        renderDropdown(moveDrop, getMoveCandidates(i, moveInput.value.trim()), item=>{
+          const target = ensureOppEntry(i);
+          target.moves[j] = item;
+          moveInput.value = item;
+        }, item=>`<span class="drop-name">${escapeHtml(item)}</span>`);
+      });
     }
   }
+
+  document.addEventListener('click', e=>{
+    document.querySelectorAll('.dropdown.show').forEach(drop=>{
+      const input = drop.previousElementSibling;
+      if(input && !input.contains(e.target) && !drop.contains(e.target)) drop.classList.remove('show');
+    });
+  });
 }
 
-function renderOppParty6(){
-  for(let i=0;i<6;i++) syncOppDetailInputs(i);
-}
-
-
-// ===== 相手選出3匹 =====
 function renderOppSelect(){
   const el = document.getElementById('opp-select3');
-  const available = oppParty6.filter(Boolean);
+  const available = oppParty6.filter(m=>m && String(m.name||'').trim());
   if(!available.length){
-    el.innerHTML='<div style="font-size:11px;color:var(--text2);">相手パーティを先に入力してください</div>';
+    el.innerHTML='<div class="empty-note">相手パーティを先に入力してください</div>';
+    document.getElementById('opp-sel-count').textContent = '0/3';
     return;
   }
   el.innerHTML = available.map(m=>{
     const inSel = oppSelect3.includes(m);
     const isLead = oppLead===m;
-    const t1=m.type1?`<span class="tp tp-${m.type1}" style="font-size:7px;">${m.type1}</span>`:'';
-    return `<div class="select-chip ${inSel?'selected':''} ${isLead?'is-lead':''}" onclick="toggleOppSelect('${m.name}')">
-      <span class="chip-name">${m.name}</span>${t1}
-      ${inSel?`<button class="lead-btn ${isLead?'on':''}" onclick="event.stopPropagation();toggleOppLead('${m.name}')">初手</button>`:''}
+    const t1 = m.type1 ? `<span class="tp tp-${escapeAttr(m.type1)}" style="font-size:7px;">${escapeHtml(m.type1)}</span>` : '';
+    return `<div class="select-chip ${inSel?'selected':''} ${isLead?'is-lead':''}" onclick="toggleOppSelect('${escapeJs(m.name)}')">
+      <span class="chip-name">${escapeHtml(m.name)}</span>${t1}
+      ${inSel?`<button class="lead-btn ${isLead?'on':''}" onclick="event.stopPropagation();toggleOppLead('${escapeJs(m.name)}')">初手</button>`:''}
     </div>`;
   }).join('');
   document.getElementById('opp-sel-count').textContent = oppSelect3.filter(Boolean).length + '/3';
 }
 
+function findOppByName(name){ return oppParty6.find(x=>x && x.name===name) || null; }
 function toggleOppSelect(name){
-  const m = oppParty6.find(x=>x&&x.name===name);
+  const m = findOppByName(name);
   if(!m) return;
   const idx = oppSelect3.indexOf(m);
   if(idx>=0){
-    oppSelect3[idx]=null;
-    if(oppLead===m) oppLead=null;
+    oppSelect3[idx] = null;
+    if(oppLead===m) oppLead = null;
   } else {
     const empty = oppSelect3.findIndex(x=>x===null);
     if(empty<0){ alert('選出は3匹までです'); return; }
-    oppSelect3[empty]=m;
+    oppSelect3[empty] = m;
   }
   renderOppSelect();
 }
-
 function toggleOppLead(name){
-  const m = oppParty6.find(x=>x&&x.name===name);
+  const m = findOppByName(name);
   if(!m) return;
-  oppLead = (oppLead===m) ? null : m;
+  oppLead = oppLead===m ? null : m;
   renderOppSelect();
 }
 
-// ===== 記録 =====
+function setResult(r){
+  result = r;
+  document.querySelectorAll('.result-btn').forEach(b=>b.classList.toggle('on', b.dataset.r===r));
+}
+
 async function recordBattle(){
   const mySel = mySelect3.filter(Boolean);
   const oppSel = oppSelect3.filter(Boolean);
-  if(mySel.length<1){ alert('自分の選出を最低1匹選択してください'); return; }
+  if(mySel.length < 1){ alert('自分の選出を最低1匹選択してください'); return; }
   if(!result){ alert('勝敗を選択してください'); return; }
 
   const battle = {
@@ -903,48 +953,37 @@ async function recordBattle(){
     date: new Date().toLocaleDateString('ja-JP'),
     result,
     my: {
-      party6: myParty6.filter(Boolean).map(m=>({name:m.displayName||m.name, type1:m.type1, type2:m.type2})),
-      select3: mySel.map(m=>({name:m.displayName||m.name, type1:m.type1, type2:m.type2})),
-      lead: myLead ? {name:myLead.displayName||myLead.name, type1:myLead.type1, type2:myLead.type2} : null,
+      party6: myParty6.filter(Boolean).map(m=>({name:m.displayName || m.name, type1:m.type1, type2:m.type2})),
+      select3: mySel.map(m=>({name:m.displayName || m.name, type1:m.type1, type2:m.type2})),
+      lead: myLead ? {name:myLead.displayName || myLead.name, type1:myLead.type1, type2:myLead.type2} : null,
     },
     opp: {
-      party6: oppParty6.filter(Boolean).map(m=>({name:m.name, type1:m.type1, type2:m.type2, heldItem:m.heldItem||'', moves:Array.isArray(m.moves)?m.moves.filter(Boolean):[]})),
-      select3: oppSel.map(m=>({name:m.name, type1:m.type1, type2:m.type2, heldItem:m.heldItem||'', moves:Array.isArray(m.moves)?m.moves.filter(Boolean):[]})),
-      lead: oppLead ? {name:oppLead.name, type1:oppLead.type1, type2:oppLead.type2, heldItem:oppLead.heldItem||'', moves:Array.isArray(oppLead.moves)?oppLead.moves.filter(Boolean):[]} : null,
+      party6: oppParty6.filter(m=>m && String(m.name||'').trim()).map(m=>({name:m.name, type1:m.type1, type2:m.type2, item:m.item || '', moves:cloneMoves(m.moves)})),
+      select3: oppSel.map(m=>({name:m.name, type1:m.type1, type2:m.type2, item:m.item || '', moves:cloneMoves(m.moves)})),
+      lead: oppLead ? {name:oppLead.name, type1:oppLead.type1, type2:oppLead.type2, item:oppLead.item || '', moves:cloneMoves(oppLead.moves)} : null,
     },
   };
 
   await saveBattleRecord(battle);
-  renderStats();
-  renderHistory();
+  await renderStats();
+  await renderHistory();
   resetForm();
   alert('記録しました！');
 }
 
 function resetForm(){
-  myParty6=Array(6).fill(null);
-  mySelect3=Array(3).fill(null);
-  myLead=null;
-  oppParty6=Array(6).fill(null);
-  oppSelect3=Array(3).fill(null);
-  oppLead=null;
-  result=null;
+  myParty6 = Array(6).fill(null);
+  mySelect3 = Array(3).fill(null);
+  myLead = null;
+  oppParty6 = Array(6).fill(null);
+  oppSelect3 = Array(3).fill(null);
+  oppLead = null;
+  result = null;
   document.querySelectorAll('.result-btn').forEach(b=>b.classList.remove('on'));
   for(let i=0;i<6;i++){
-    const inp=document.getElementById(`opp6-${i}`);
-    if(inp) inp.value='';
-    const itemInp=document.getElementById(`opp6-item-${i}`);
-    if(itemInp) itemInp.value='';
-    const pokeDrop=document.getElementById(`opp6-drop-${i}`);
-    const itemDrop=document.getElementById(`opp6-item-drop-${i}`);
-    if(pokeDrop) pokeDrop.classList.remove('show');
-    if(itemDrop) itemDrop.classList.remove('show');
-    for(let j=0;j<4;j++){
-      const moveInp=document.getElementById(`opp6-move-${i}-${j}`);
-      const moveDrop=document.getElementById(`opp6-move-drop-${i}-${j}`);
-      if(moveInp) moveInp.value='';
-      if(moveDrop) moveDrop.classList.remove('show');
-    }
+    document.getElementById(`opp6-${i}`).value = '';
+    document.getElementById(`opp-item-${i}`).value = '';
+    for(let j=0;j<4;j++) document.getElementById(`opp-move-${i}-${j}`).value = '';
   }
   renderMyParty6();
   initMyPartyFromReg();
@@ -952,43 +991,56 @@ function resetForm(){
   renderOppSelect();
 }
 
-// ===== 集計 =====
+async function clearAllBattles(){
+  if(!confirm('全記録を削除しますか？')) return;
+  if(typeof getCurrentUser === 'function' && getCurrentUser()){
+    try {
+      const sb = getSB();
+      await sb.from('battle_records').delete().eq('user_id', getCurrentUser().id);
+    } catch(e) {}
+  } else {
+    localStorage.removeItem('pokeedge_battles_v1');
+  }
+  await renderStats();
+  await renderHistory();
+}
+
 async function renderStats(){
   const battles = await loadBattleRecords();
   const total = battles.length;
+  document.getElementById('total-count').textContent = total;
   if(!total){
-    document.getElementById('stats-area').innerHTML='<div style="font-size:12px;color:var(--text2);padding:12px 0;">まだ記録がありません</div>';
+    document.getElementById('win-rate').textContent = '—';
+    document.getElementById('win-count').textContent = '—';
+    document.getElementById('stats-area').innerHTML='<div class="empty-note" style="padding:12px 0;">まだ記録がありません</div>';
     return;
   }
 
   const wins = battles.filter(b=>b.result==='win').length;
-  document.getElementById('total-count').textContent = total;
   document.getElementById('win-rate').textContent = Math.round(wins/total*100) + '%';
   document.getElementById('win-count').textContent = wins + '勝' + (total-wins) + '敗';
 
-  // 自分の選出率集計
   const myMap = {};
   battles.forEach(b=>{
-    b.my.select3.forEach(m=>{
-      if(!myMap[m.name]) myMap[m.name]={sel:0,lead:0,win:0,type1:m.type1,type2:m.type2};
+    (b.my?.select3 || []).forEach(m=>{
+      if(!myMap[m.name]) myMap[m.name] = {sel:0, lead:0, win:0, type1:m.type1, type2:m.type2};
       myMap[m.name].sel++;
       if(b.result==='win') myMap[m.name].win++;
     });
-    if(b.my.lead){
-      if(!myMap[b.my.lead.name]) myMap[b.my.lead.name]={sel:0,lead:0,win:0,type1:b.my.lead.type1,type2:b.my.lead.type2};
+    if(b.my?.lead){
+      if(!myMap[b.my.lead.name]) myMap[b.my.lead.name] = {sel:0, lead:0, win:0, type1:b.my.lead.type1, type2:b.my.lead.type2};
       myMap[b.my.lead.name].lead++;
     }
   });
 
-  // 相手の選出率集計
   const oppMap = {};
   battles.forEach(b=>{
-    b.opp.select3.forEach(m=>{
-      if(!oppMap[m.name]) oppMap[m.name]={sel:0,lead:0,type1:m.type1,type2:m.type2};
+    (b.opp?.select3 || []).forEach(m=>{
+      if(!oppMap[m.name]) oppMap[m.name] = {sel:0, lead:0, type1:m.type1, type2:m.type2};
       oppMap[m.name].sel++;
     });
-    if(b.opp.lead){
-      if(!oppMap[b.opp.lead.name]) oppMap[b.opp.lead.name]={sel:0,lead:0,type1:b.opp.lead.type1,type2:b.opp.lead.type2};
+    if(b.opp?.lead){
+      if(!oppMap[b.opp.lead.name]) oppMap[b.opp.lead.name] = {sel:0, lead:0, type1:b.opp.lead.type1, type2:b.opp.lead.type2};
       oppMap[b.opp.lead.name].lead++;
     }
   });
@@ -1004,14 +1056,14 @@ async function renderStats(){
           <thead><tr><th>ポケモン</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead>
           <tbody>${myRows.map(([name,d])=>`
             <tr>
-              <td><span class="poke-cell">${name}</span>
-                ${d.type1?`<span class="tp tp-${d.type1}" style="font-size:7px;">${d.type1}</span>`:''}
+              <td><span class="poke-cell">${escapeHtml(name)}</span>
+                ${d.type1?`<span class="tp tp-${escapeAttr(d.type1)}" style="font-size:7px;">${escapeHtml(d.type1)}</span>`:''}
               </td>
               <td class="num">${d.sel}/${total}</td>
               <td><div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(d.sel/total*100)}%;background:var(--accent);"></div></div><span class="num">${Math.round(d.sel/total*100)}%</span></td>
               <td class="num">${d.lead}</td>
               <td><div class="bar-wrap"><div class="bar-fill" style="width:${d.lead?Math.round(d.lead/total*100):0}%;background:var(--accent3);"></div></div><span class="num">${d.lead?Math.round(d.lead/total*100):0}%</span></td>
-              <td class="num" style="color:${d.sel?Math.round(d.win/d.sel*100)>=50?'var(--green)':'var(--accent2)':'var(--text2)'}">${d.sel?Math.round(d.win/d.sel*100):0}%</td>
+              <td class="num" style="color:${d.sel && Math.round(d.win/d.sel*100)>=50?'var(--green)':'var(--accent2)'}">${d.sel?Math.round(d.win/d.sel*100):0}%</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -1022,8 +1074,8 @@ async function renderStats(){
           <thead><tr><th>ポケモン</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead>
           <tbody>${oppRows.map(([name,d])=>`
             <tr>
-              <td><span class="poke-cell">${name}</span>
-                ${d.type1?`<span class="tp tp-${d.type1}" style="font-size:7px;">${d.type1}</span>`:''}
+              <td><span class="poke-cell">${escapeHtml(name)}</span>
+                ${d.type1?`<span class="tp tp-${escapeAttr(d.type1)}" style="font-size:7px;">${escapeHtml(d.type1)}</span>`:''}
               </td>
               <td class="num">${d.sel}/${total}</td>
               <td><div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(d.sel/total*100)}%;background:var(--accent2);"></div></div><span class="num">${Math.round(d.sel/total*100)}%</span></td>
@@ -1036,65 +1088,68 @@ async function renderStats(){
     </div>`;
 }
 
-// ===== 履歴 =====
 async function renderHistory(){
   const battles = await loadBattleRecords();
   const el = document.getElementById('history-list');
-  if(!battles.length){ el.innerHTML='<div style="font-size:11px;color:var(--text2);">記録がありません</div>'; return; }
-  el.innerHTML = battles.slice(0,30).map((b,i)=>`
+  if(!battles.length){ el.innerHTML='<div class="empty-note">記録がありません</div>'; return; }
+  el.innerHTML = battles.slice(0,30).map(b=>`
     <div class="history-item ${b.result}">
       <div class="history-header">
         <span class="history-result ${b.result}">${b.result==='win'?'WIN':'LOSE'}</span>
-        <span style="font-size:11px;color:var(--text2);">${b.date}</span>
-        <button class="del-btn" onclick="deleteBattle(${b.id})">削除</button>
+        <span style="font-size:11px;color:var(--text2);">${escapeHtml(b.date || '')}</span>
+        <button class="del-btn" onclick="deleteBattleById('${escapeJs((b._id ?? b.id ?? ''))}')">削除</button>
       </div>
       <div class="history-body">
         <div>
-          <div style="font-size:9px;color:var(--text2);margin-bottom:3px;">自分の選出 ${b.my.lead?'/ 初手: '+b.my.lead.name:''}</div>
+          <div style="font-size:9px;color:var(--text2);margin-bottom:3px;">自分の選出 ${b.my?.lead?'/ 初手: '+escapeHtml(b.my.lead.name):''}</div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            ${b.my.select3.map(m=>`<span class="poke-tag ${m.name===b.my.lead?.name?'lead-tag':''}">${m.name}</span>`).join('')}
+            ${(b.my?.select3 || []).map(m=>`<span class="poke-tag ${m.name===b.my?.lead?.name?'lead-tag':''}">${escapeHtml(m.name)}</span>`).join('')}
           </div>
         </div>
         <div style="font-size:18px;color:var(--border2);align-self:center;">vs</div>
         <div>
-          <div style="font-size:9px;color:var(--text2);margin-bottom:3px;">相手の選出 ${b.opp.lead?'/ 初手: '+b.opp.lead.name:''}</div>
+          <div style="font-size:9px;color:var(--text2);margin-bottom:3px;">相手の選出 ${b.opp?.lead?'/ 初手: '+escapeHtml(b.opp.lead.name):''}</div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            ${b.opp.select3.map(m=>`<span class="poke-tag opp-tag ${m.name===b.opp.lead?.name?'lead-tag':''}">${m.name}${m.heldItem?` / ${m.heldItem}`:''}${Array.isArray(m.moves)&&m.moves.length?` / ${m.moves.join('・')}`:''}</span>`).join('')}
+            ${(b.opp?.select3 || []).map(m=>`<span class="poke-tag opp-tag ${m.name===b.opp?.lead?.name?'lead-tag':''}">${escapeHtml(m.name)}</span>`).join('')}
           </div>
         </div>
       </div>
     </div>`).join('');
 }
 
-async function deleteBattle(id){
+async function deleteBattleById(id){
   if(!confirm('この記録を削除しますか？')) return;
-  const battles = loadBattles().filter(b=>b.id!==id);
-  saveBattles(battles);
-  renderStats();
-  renderHistory();
+  if(typeof getCurrentUser === 'function' && getCurrentUser() && id && String(id).match(/^[0-9a-f-]{8,}$/i)){
+    await deleteBattleRecord(id);
+  } else {
+    const keep = (await loadBattleRecords()).filter(b=>String(b.id)!==String(id));
+    localStorage.setItem('pokeedge_battles_v1', JSON.stringify(keep));
+  }
+  await renderStats();
+  await renderHistory();
 }
 
-function setResult(r){
-  result = r;
-  document.querySelectorAll('.result-btn').forEach(b=>b.classList.toggle('on', b.dataset.r===r));
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
+function escapeAttr(str){ return escapeHtml(str).replace(/`/g,'&#96;'); }
+function escapeJs(str){ return String(str ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
-// ===== 初期化 =====
 window.onload = async ()=>{
   await loadGameData();
-  renderOppInputs();
-  setupOppSearches();
   await initAuth();
+  await loadSavedPartiesForStats();
   renderMyParty6();
   initMyPartyFromReg();
   renderMySelect();
-  renderOppParty6();
   renderOppSelect();
-  renderStats();
-  renderHistory();
+  setupOppInputs();
+  setOppPokemonMode('naitei');
+  await renderStats();
+  await renderHistory();
 };
-
 </script>
+
 <script>
 
 
