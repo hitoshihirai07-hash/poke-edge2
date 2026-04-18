@@ -1141,7 +1141,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
       </div>
       <div class="result-subpanel">
         <div class="result-subpanel-title">内定ポケモンの主要技チェック</div>
-        <div id="inner-ko-summary" style="font-size:10px;color:var(--text2);line-height:1.7;">ボタンを押すと、現在の防御側に対して内定ポケモンの主要技から確定1発 / 乱数1発だけを表示します。</div>
+        <div id="inner-ko-summary" style="font-size:10px;color:var(--text2);line-height:1.7;">ボタンを押すと、現在の防御側に対して内定ポケモンの主要技から確定1発 / 乱数1発だけを表示します。特性・持ち物は登録済み、またはポケモン別に判明している候補だけを使います。</div>
         <div id="inner-ko-list" class="inner-ko-list"></div>
       </div>
     </div>
@@ -1389,6 +1389,8 @@ let POKEMON_DATA = [];
 let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
+let SEASON_RANKING = {rows:[]};
+let BELONGINGS_DATA = [];
 let ABILITIES_DATA = [];
 let POKEMON_MOVES = {};
 let REGISTERED_CALC_POKES = [];
@@ -1504,6 +1506,15 @@ function normalizeSeasonData(raw){
   if(raw && typeof raw === 'object' && !Array.isArray(raw)) return raw;
   return {seasons:[]};
 }
+function normalizeSeasonRanking(raw){
+  if(raw && typeof raw === 'object' && !Array.isArray(raw)) return raw;
+  return {rows:[]};
+}
+function normalizeBelongingsData(raw){
+  if(Array.isArray(raw)) return raw;
+  if(raw && Array.isArray(raw.items)) return raw.items;
+  return [];
+}
 function normalizePokemonMoves(raw){
   if(raw && raw.pokemon && typeof raw.pokemon === 'object') return raw.pokemon;
   if(raw && typeof raw === 'object' && !Array.isArray(raw)) return raw;
@@ -1546,17 +1557,21 @@ function bindPokemonSearchFinalize(inputId){
 }
 async function loadGameData() {
   if(_dataLoaded) return;
-  const [pd,md,ad,sd,pm] = await Promise.all([
+  const [pd,md,ad,sd,sr,bd,pm] = await Promise.all([
     fetchJsonFlexible('pokemon.json', [], true),
     fetchJsonFlexible('moves.json', [], true),
     fetchJsonFlexible('abilities.json', {}, false),
     fetchJsonFlexible('season.json', {seasons:[]}, false),
+    fetchJsonFlexible('season_ranking_single.json', {rows:[]}, false),
+    fetchJsonFlexible('belongings.json', [], false),
     fetchJsonFlexible('pokemon_moves.json', {pokemon:{}}, false),
   ]);
   POKEMON_DATA = normalizePokemonDataset(pd);
   MOVES_DATA = normalizeMovesDataset(md);
   ABILITY_MAP = normalizeAbilityMap(ad);
   SEASON_DATA = normalizeSeasonData(sd);
+  SEASON_RANKING = normalizeSeasonRanking(sr);
+  BELONGINGS_DATA = normalizeBelongingsData(bd);
   POKEMON_MOVES = normalizePokemonMoves(pm);
   if(!POKEMON_DATA.length || !MOVES_DATA.length) throw new Error('data_empty');
   pokeIndex = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
@@ -2150,6 +2165,64 @@ function getSeasonFilteredPokes() {
   const sel=el('global-season-filter'); const season=sel?sel.value:'';
   if(!season||!SEASON_DATA||!SEASON_DATA[season]) return pokeIndex;
   return pokeIndex.filter(p=>SEASON_DATA[season].includes(p.name));
+}
+function getCurrentSeasonKey(){
+  const season=(el('global-season-filter')?.value||'').trim();
+  if(season && SEASON_DATA && Array.isArray(SEASON_DATA[season])) return season;
+  if(SEASON_DATA && Array.isArray(SEASON_DATA['内定'])) return '内定';
+  return '';
+}
+function parseRateEntryForCalc(s){
+  const m=String(s||'').match(/^(.+?)\s*\(([\d.]+)%\)$/);
+  return m ? {name:m[1], rate:parseFloat(m[2])||0} : {name:String(s||'').trim(), rate:0};
+}
+function getCalcSeasonRankingRow(pokeName){
+  return (SEASON_RANKING?.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName) || null;
+}
+function getBelongingsNameSet(){
+  return new Set((BELONGINGS_DATA||[]).map(item=>String(item?.name||'').trim()).filter(Boolean));
+}
+function getPokemonAbilityCandidates(pokeName){
+  return [...new Set((ABILITY_MAP[pokeName]||[]).map(v=>String(v||'').trim()).filter(Boolean))];
+}
+function getInnerScanSourceRecords(){
+  const season=getCurrentSeasonKey();
+  const allowSet=season && Array.isArray(SEASON_DATA?.[season]) ? new Set(SEASON_DATA[season]) : null;
+  return (REGISTERED_CALC_POKES||[]).filter(rec=>{
+    const baseName=String(rec?.pokeName || rec?.displayName || '').trim();
+    if(!baseName) return false;
+    if(allowSet && !allowSet.has(baseName)) return false;
+    return true;
+  });
+}
+function getInnerScanCandidateAbilities(rec, poke){
+  const out=[];
+  const add=(name)=>{
+    const n=String(name||'').trim();
+    if(!n || out.includes(n)) return;
+    out.push(n);
+  };
+  if(rec?.ability) add(rec.ability);
+  const sr=getCalcSeasonRankingRow(rec?.pokeName || poke?.name || '');
+  (sr?.abilities||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  getPokemonAbilityCandidates(poke?.name || rec?.pokeName || '').forEach(add);
+  if(!out.length) add('');
+  return out.slice(0,4);
+}
+function getInnerScanCandidateItems(rec, poke){
+  const allowed=getBelongingsNameSet();
+  const out=[];
+  const add=(name)=>{
+    const n=String(name||'').trim();
+    if(!n || out.includes(n)) return;
+    if(allowed.size && !allowed.has(n)) return;
+    out.push(n);
+  };
+  if(rec?.item) add(rec.item);
+  const sr=getCalcSeasonRankingRow(rec?.pokeName || poke?.name || '');
+  (sr?.items||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  if(!out.length) out.push('');
+  return out.slice(0,8);
 }
 function setupSearch(inputId,dropId,onSelect) {
   const inp=el(inputId), drop=el(dropId); if(!inp || !drop) return;
@@ -3449,6 +3522,14 @@ function getRecordMajorMoves(rec){
   };
   if(rec && Array.isArray(rec.moves)) rec.moves.forEach(pushMove);
   if(result.length) return result.slice(0,4);
+  const sr = getCalcSeasonRankingRow(rec?.pokeName||'');
+  if(sr && Array.isArray(sr.moves)){
+    sr.moves.map(parseRateEntryForCalc).forEach(entry=>{
+      const exact = moveIndex.find(m=>m.name===entry.name);
+      if(exact) pushMove(exact);
+    });
+  }
+  if(result.length) return result.slice(0,4);
   const known = getPokemonKnownMoves(rec?.pokeName||'');
   known.forEach(pushMove);
   return result.slice(0,4);
@@ -3595,13 +3676,13 @@ function renderInnerKoResults(results, targetName){
   const list=el('inner-ko-list');
   if(!summary || !list) return;
   if(!results.length){
-    summary.textContent=`${targetName}に対して、内定ポケモンの主要技から確定1発 / 乱数1発は見つかりませんでした。`;
+    summary.textContent=`${targetName}に対して、内定ポケモンの主要技から確定1発 / 乱数1発は見つかりませんでした。`; 
     list.innerHTML='';
     return;
   }
   const confirmList=results.filter(r=>r.ko==='確定1発');
   const rollList=results.filter(r=>r.ko==='乱数1発');
-  summary.textContent=`${targetName}に対して、確定1発 ${confirmList.length}件 / 乱数1発 ${rollList.length}件を表示しています。`;
+  summary.textContent=`${targetName}に対して、確定1発 ${confirmList.length}件 / 乱数1発 ${rollList.length}件を表示しています。特性・持ち物は登録済み、またはポケモン別に判明している候補だけを使っています。`;
   const renderGroup=(title, arr, cls)=>{
     if(!arr.length) return '';
     return `<div class="inner-ko-group"><div class="inner-ko-group-title">${title}</div>${arr.map(r=>`<div class="inner-ko-item"><div><div class="inner-ko-main">${r.displayName} / ${r.moveName}</div><div class="inner-ko-sub">${r.adjustment}</div></div><div><div class="inner-ko-sub">${r.damage}</div><div class="inner-ko-sub">${r.percent}</div></div><div class="inner-ko-right"><span class="inner-ko-tag ${cls}">${r.ko}</span></div></div>`).join('')}</div>`;
@@ -3616,35 +3697,48 @@ async function checkRegisteredMajorKOs(){
     if(list) list.innerHTML='';
     return;
   }
-  if(!REGISTERED_CALC_POKES || !REGISTERED_CALC_POKES.length){
-    if(summary) summary.textContent='ポケモン登録に内定ポケモンがありません。';
+  const sourceRecords=getInnerScanSourceRecords();
+  if(!sourceRecords.length){
+    if(summary) summary.textContent='ポケモン登録の中に、現在の内定ポケモンがありません。';
     if(list) list.innerHTML='';
     return;
   }
   const rows=[];
-  for(const rec of REGISTERED_CALC_POKES){
+  for(const rec of sourceRecords){
     const poke = pokeIndex.find(p=>p.name===rec.pokeName);
     if(!poke) continue;
     const stats = getRecordCalcStats(rec, poke);
     stats.lv = Math.max(1, parseInt(rec?.lv)||50);
-    const ability = rec.ability || '';
     const moves = getRecordMajorMoves(rec);
+    if(!moves.length) continue;
+    const abilityCandidates = getInnerScanCandidateAbilities(rec, poke);
+    const itemCandidates = getInnerScanCandidateItems(rec, poke);
     for(const move of moves){
-      const dmg = calcInnerScanDamage(poke, stats, move, ability, mapRecordItemToCalcKey(rec.item, move.type));
-      if(!dmg) continue;
-      rows.push({
-        displayName: rec.displayName || rec.pokeName,
-        moveName: move.name,
-        adjustment: `Lv${stats.lv} / ${rec.nature||'がんばりや'} / ${formatSpreadText(rec.ev||{})} / 特性 ${ability||'なし'} / 持ち物 ${rec.item||'なし'}`,
-        damage: `${dmg.mn}〜${dmg.mx}`,
-        percent: `${dmg.pctMn}〜${dmg.pctMx}%`,
-        ko: dmg.ko,
-        sortKey: dmg.ko==='確定1発' ? 0 : 1,
-        pctSort: dmg.pctMx
-      });
+      let best=null;
+      for(const ability of abilityCandidates){
+        for(const itemName of itemCandidates){
+          const dmg = calcInnerScanDamage(poke, stats, move, ability, mapRecordItemToCalcKey(itemName, move.type));
+          if(!dmg) continue;
+          const candidate={
+            displayName: rec.displayName || rec.pokeName,
+            moveName: move.name,
+            adjustment: `Lv${stats.lv} / ${rec.nature||'がんばりや'} / ${formatSpreadText(rec.ev||{})} / 特性 ${ability||'なし'} / 持ち物 ${itemName||'なし'}`,
+            damage: `${dmg.mn}〜${dmg.mx}`,
+            percent: `${dmg.pctMn}〜${dmg.pctMx}%`,
+            ko: dmg.ko,
+            sortKey: dmg.ko==='確定1発' ? 0 : 1,
+            pctSort: dmg.pctMx,
+            pctMin: dmg.pctMn
+          };
+          if(!best || candidate.sortKey < best.sortKey || (candidate.sortKey===best.sortKey && candidate.pctSort > best.pctSort) || (candidate.sortKey===best.sortKey && candidate.pctSort===best.pctSort && candidate.pctMin > best.pctMin)){
+            best=candidate;
+          }
+        }
+      }
+      if(best) rows.push(best);
     }
   }
-  rows.sort((a,b)=>a.sortKey-b.sortKey || b.pctSort-a.pctSort || a.displayName.localeCompare(b.displayName,'ja'));
+  rows.sort((a,b)=>a.sortKey-b.sortKey || b.pctSort-a.pctSort || b.pctMin-a.pctMin || a.displayName.localeCompare(b.displayName,'ja'));
   renderInnerKoResults(rows, window._defBase.name||'このポケモン');
 }
 function drawRoundedRect(ctx,x,y,w,h,r,fill,stroke){
