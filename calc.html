@@ -527,6 +527,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
     <a class="nav-btn" href="scope.html">バトルアナライザー</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
     <a class="nav-btn" href="speed.html">素早さライン</a>
@@ -577,6 +578,13 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 <div class="search-wrap">
           <input class="search-input" id="atk-search" type="text" placeholder="名前を入力..." autocomplete="off">
           <div class="dropdown" id="atk-drop"></div>
+        </div>
+        <div class="quick-action-row">
+          <button type="button" class="quick-action-btn" onclick="openPokemonPicker('atk')">一覧から選ぶ</button>
+        </div>
+        <div class="corr-section" id="atk-reg-select-wrap" style="margin-bottom:10px;">
+          <div class="corr-section-title">ポケモン登録から選ぶ</div>
+          <div id="atk-reg-buttons" class="quick-chip-wrap"></div>
         </div>
         <div class="poke-card" id="atk-card">
           <div class="poke-no" id="atk-no"></div>
@@ -849,6 +857,10 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         </div>
         <div class="quick-action-row">
           <button type="button" class="quick-action-btn" onclick="openPokemonPicker('def')">一覧から選ぶ</button>
+        </div>
+        <div class="corr-section" id="def-reg-select-wrap" style="margin-bottom:10px;">
+          <div class="corr-section-title">ポケモン登録から選ぶ</div>
+          <div id="def-reg-buttons" class="quick-chip-wrap"></div>
         </div>
         <div class="poke-card" id="def-card">
           <div class="poke-no" id="def-no"></div>
@@ -1350,6 +1362,9 @@ let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
 let ABILITIES_DATA = [];
 let POKEMON_MOVES = {};
+let REGISTERED_CALC_POKES = [];
+let CURRENT_ATK_REGISTERED_RECORD = null;
+let CURRENT_DEF_REGISTERED_RECORD = null;
 let pokeIndex = [];
 let moveIndex = [];
 let _dataLoaded = false;
@@ -1745,12 +1760,20 @@ function renderQuickMoveChips(pokeName){
   const wrap = el('atk-move-quick');
   const note = el('atk-move-quick-note');
   if(!wrap || !note) return;
-  const moves = getPokemonKnownMoves(pokeName);
+  const regMoves = (CURRENT_ATK_REGISTERED_RECORD && CURRENT_ATK_REGISTERED_RECORD.pokeName===pokeName && Array.isArray(CURRENT_ATK_REGISTERED_RECORD.moves))
+    ? CURRENT_ATK_REGISTERED_RECORD.moves.filter(m=>m&&m.name)
+    : [];
   if(!pokeName){
     wrap.innerHTML='';
-    note.textContent='ポケモンを選ぶと、判明している技をここからすぐ選べます。';
+    note.textContent='ポケモンを選ぶと、登録技や判明している技をここからすぐ選べます。';
     return;
   }
+  if(regMoves.length){
+    note.textContent='ポケモン登録の技からワンタップで選べます。';
+    wrap.innerHTML = regMoves.slice(0,4).map(move=>`<button type="button" class="quick-chip" onclick="pickRegisteredMove(${JSON.stringify(pokeName).replace(/"/g,'&quot;')}, ${JSON.stringify(move.name).replace(/"/g,'&quot;')})">${move.name}</button>`).join('');
+    return;
+  }
+  const moves = getPokemonKnownMoves(pokeName);
   if(!moves.length){
     wrap.innerHTML='<button type="button" class="quick-chip subtle" disabled>技データなし</button>';
     note.textContent='このポケモンの技データはまだありません。通常の技検索を使ってください。';
@@ -1764,6 +1787,21 @@ function pickKnownMove(pokeName, moveName){
   const entry = moves.find(m=>m.name===moveName);
   const normalized = normalizeMoveFromPokemonEntry(entry);
   if(normalized) setAtkMove(normalized);
+}
+function pickRegisteredMove(pokeName, moveName){
+  const moves = (CURRENT_ATK_REGISTERED_RECORD && CURRENT_ATK_REGISTERED_RECORD.pokeName===pokeName && Array.isArray(CURRENT_ATK_REGISTERED_RECORD.moves))
+    ? CURRENT_ATK_REGISTERED_RECORD.moves
+    : [];
+  const entry = moves.find(m=>m && m.name===moveName);
+  if(entry) setAtkMove({
+    name: entry.name,
+    type: entry.type || '',
+    power: parseInt(entry.power)||0,
+    category: entry.category || '',
+    notes: entry.notes || '',
+    hits: entry.hits || '1',
+    alwaysCrit: entry.alwaysCrit || ''
+  });
 }
 function renderSelectedMoveInfo(prefix, m){
   const box = el(prefix+'-move-info');
@@ -2290,6 +2328,7 @@ function onAtk2ModeChange() {
 
 // ===== 攻撃側初期化 =====
 function initAtkPoke(p) {
+  if(!CURRENT_ATK_REGISTERED_RECORD || CURRENT_ATK_REGISTERED_RECORD.pokeName!==p.name) CURRENT_ATK_REGISTERED_RECORD=null;
   window._atkBase=p;
   el('atk-no').textContent='#'+String(p.no).padStart(3,'0');
   el('atk-name').textContent=p.name;
@@ -2309,6 +2348,7 @@ function initAtkPoke(p) {
 
 // ===== 防御側初期化 =====
 function initDefPoke(p) {
+  if(!CURRENT_DEF_REGISTERED_RECORD || CURRENT_DEF_REGISTERED_RECORD.pokeName!==p.name) CURRENT_DEF_REGISTERED_RECORD=null;
   window._defBase=p;
   el('def-no').textContent='#'+String(p.no).padStart(3,'0');
   el('def-name').textContent=p.name;
@@ -2470,6 +2510,106 @@ function setAtk2Move(m) {
 }
 function populateMoveSelect() {
   // 攻撃側に登録ポケモンから自動入力（任意）
+}
+
+function getCalcRegisteredFiltered(side){
+  const q = ((el(side+'-search')?.value)||'').trim();
+  const season = (el('global-season-filter')?.value)||'';
+  return (REGISTERED_CALC_POKES||[]).filter(rec=>{
+    const baseName = rec.pokeName || rec.displayName || '';
+    if(season && SEASON_DATA[season] && !SEASON_DATA[season].includes(baseName)) return false;
+    if(!q) return true;
+    return (rec.displayName||'').includes(q) || (rec.pokeName||'').includes(q) || (rec.nickname||'').includes(q);
+  });
+}
+function renderRegisteredCalcButtons(side){
+  const wrap = el(side+'-reg-buttons');
+  if(!wrap) return;
+  const list = getCalcRegisteredFiltered(side).slice(0,24);
+  if(!REGISTERED_CALC_POKES || !REGISTERED_CALC_POKES.length){
+    wrap.innerHTML = '<button type="button" class="quick-chip subtle" disabled>登録ポケモンなし</button>';
+    return;
+  }
+  if(!list.length){
+    wrap.innerHTML = '<button type="button" class="quick-chip subtle" disabled>条件に合う登録ポケモンなし</button>';
+    return;
+  }
+  const label = side==='atk' ? '攻撃側へ選ぶ' : '防御側へ選ぶ';
+  wrap.innerHTML = list.map(rec=>{
+    const sub = rec.displayName && rec.pokeName && rec.displayName!==rec.pokeName ? `<span style="display:block;font-size:9px;color:var(--text2);margin-top:2px;">${escapeHtml(rec.pokeName)}</span>` : '';
+    return `<button type="button" class="quick-chip" onclick="applyRegisteredPokemonToCalc(${JSON.stringify(side).replace(/"/g,'&quot;')}, ${JSON.stringify(String(rec.id)).replace(/"/g,'&quot;')})">${escapeHtml(rec.displayName || rec.pokeName || '未設定')}${sub}<span style="display:block;font-size:9px;color:var(--accent3);margin-top:2px;">${label}</span></button>`;
+  }).join('');
+}
+function renderAllRegisteredCalcButtons(){
+  renderRegisteredCalcButtons('atk');
+  renderRegisteredCalcButtons('def');
+}
+function syncSliderPair(baseId, value){
+  if(el(baseId)) el(baseId).value = value;
+  if(el(baseId+'-range')) el(baseId+'-range').value = value;
+  if(el(baseId+'-disp')) el(baseId+'-disp').textContent = value;
+}
+function setGameModeForSide(side, mode){
+  const useChamp = mode==='champions';
+  const classic = el(side+'-mode-classic');
+  const champ = el(side+'-mode-champions');
+  if(classic) classic.checked = !useChamp;
+  if(champ) champ.checked = useChamp;
+  if(side==='atk') onAtkModeChange();
+  else onDefModeChange();
+}
+function applyRegisteredPokemonToCalc(side, recId){
+  const rec = (REGISTERED_CALC_POKES||[]).find(p=>String(p.id)===String(recId));
+  if(!rec) return;
+  const targetPoke = POKEMON_DATA.find(p=>p.name === (rec.pokeName || rec.displayName));
+  if(!targetPoke) {
+    alert('登録ポケモンの元データが見つかりませんでした。');
+    return;
+  }
+  if(side==='atk'){
+    CURRENT_ATK_REGISTERED_RECORD = rec;
+    el('atk-search').value = targetPoke.name;
+    initAtkPoke(targetPoke);
+    if(el('atk-lv')) el('atk-lv').value = parseInt(rec.lv)||50;
+    if(el('atk-nature')) el('atk-nature').value = rec.nature || 'がんばりや';
+    syncSliderPair('atk-iv', Math.max(0, Math.min(31, parseInt(rec.iv)||31)));
+    setGameModeForSide('atk', rec.gameMode || 'champions');
+    syncSliderPair('atk-ev-atk', Math.max(0, parseInt((rec.ev&&rec.ev.atk)||0)||0));
+    syncSliderPair('atk-ev-def', Math.max(0, parseInt((rec.ev&&rec.ev.def)||0)||0));
+    syncSliderPair('atk-ev-spa', Math.max(0, parseInt((rec.ev&&rec.ev.spa)||0)||0));
+    if(rec.ability) selectAbility('atk', rec.ability); else clearAbilitySide('atk');
+    if(el('atk-item')) el('atk-item').value = rec.item || '';
+    renderQuickMoveChips(targetPoke.name);
+    if(Array.isArray(rec.moves) && rec.moves.length){
+      const first = rec.moves.find(m=>m && m.name);
+      if(first) pickRegisteredMove(targetPoke.name, first.name);
+    }
+    recalcAtk();
+  } else {
+    CURRENT_DEF_REGISTERED_RECORD = rec;
+    el('def-search').value = targetPoke.name;
+    initDefPoke(targetPoke);
+    if(el('def-lv')) el('def-lv').value = parseInt(rec.lv)||50;
+    if(el('def-nature')) el('def-nature').value = rec.nature || 'がんばりや';
+    syncSliderPair('def-iv', Math.max(0, Math.min(31, parseInt(rec.iv)||31)));
+    setGameModeForSide('def', rec.gameMode || 'champions');
+    syncSliderPair('def-ev-hp', Math.max(0, parseInt((rec.ev&&rec.ev.hp)||0)||0));
+    syncSliderPair('def-ev-atk', Math.max(0, parseInt((rec.ev&&rec.ev.atk)||0)||0));
+    syncSliderPair('def-ev-def', Math.max(0, parseInt((rec.ev&&rec.ev.def)||0)||0));
+    syncSliderPair('def-ev-spd', Math.max(0, parseInt((rec.ev&&rec.ev.spd)||0)||0));
+    if(rec.ability) selectAbility('def', rec.ability); else clearAbilitySide('def');
+    if(el('def-item')) el('def-item').value = rec.item || '';
+    recalcDef();
+  }
+  updateDamageSetupSummary();
+  updateContextSections();
+  scheduleAutoCalc();
+}
+async function loadRegisteredCalcPokemon(){
+  if(typeof initPokemonData !== 'function') return;
+  try { REGISTERED_CALC_POKES = await initPokemonData() || []; }
+  catch(e) { REGISTERED_CALC_POKES = []; }
+  renderAllRegisteredCalcButtons();
 }
 
 // ===== ダメージ計算 =====
@@ -3457,11 +3597,14 @@ window.onload = async()=>{
   await loadAbilitiesData();
   setupSearch('atk-search','atk-drop');
   setupSearch('def-search','def-drop');
+  el('atk-search')?.addEventListener('input',()=>renderRegisteredCalcButtons('atk'));
+  el('def-search')?.addEventListener('input',()=>renderRegisteredCalcButtons('def'));
   setupSearch('atk2-search','atk2-drop');
   setupMoveSearch('atk-move-search','atk-move-drop');
   setupMoveSearch('atk1b-move-search','atk1b-move-drop');
   setupMoveSearch('atk2-move-search','atk2-move-drop');
   initSeasonFilter();
+  await loadRegisteredCalcPokemon();
   setupEvents();
   bindAutoCalcEvents();
   updateDefHazardInfo();
