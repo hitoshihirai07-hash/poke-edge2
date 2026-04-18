@@ -288,10 +288,15 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 /* パーティ管理 新CSS */
 .party-layout{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start;}
 @media(max-width:700px){.party-layout{grid-template-columns:1fr;}}
-.party-slot-list{display:flex;flex-direction:column;gap:6px;}
+.party-top-grid,.party-mid-grid,.party-coverage-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,0.92fr);gap:16px;align-items:start;margin-bottom:16px;}
+@media(max-width:920px){.party-top-grid,.party-mid-grid,.party-coverage-grid{grid-template-columns:1fr;}}
+.party-slot-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+@media(max-width:560px){.party-slot-list{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.party-side-stack{display:flex;flex-direction:column;gap:14px;}
+.party-side-panel{margin-top:0 !important;}
 .party-slot-btn{
-  padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
-  transition:all 0.18s;position:relative;border:1px solid var(--border);background:var(--panel);border-radius:14px;min-height:68px;
+  padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;
+  transition:all 0.18s;position:relative;border:1px solid var(--border);background:var(--panel);border-radius:14px;min-height:82px;
 }
 .party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);transform:translateY(-1px);}
 .party-slot-btn.active{background:linear-gradient(135deg,rgba(0,200,240,0.12),rgba(15,20,35,0.96));box-shadow:0 10px 30px rgba(0,0,0,0.16);}
@@ -303,6 +308,19 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-slot-empty{font-size:11px;color:var(--text2);}
 .party-slot-remove{background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0;}
 .party-slot-remove:hover{color:var(--accent2);}
+.party-slot-info{padding-right:12px;}
+.party-slot-name{line-height:1.45;}
+.recommend-card{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;border-radius:14px;transition:all 0.18s;cursor:pointer;}
+.recommend-card:hover{border-color:var(--accent);transform:translateY(-1px);}
+.recommend-card.disabled{opacity:0.55;cursor:default;}
+.recommend-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.recommend-rank{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--accent);}
+.recommend-score{margin-left:auto;font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;}
+.recommend-add-btn{margin-top:10px;padding:8px 12px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:999px;font-size:11px;cursor:pointer;transition:all 0.18s;}
+.recommend-add-btn:hover{background:rgba(0,200,240,0.08);}
+.recommend-add-btn:disabled{border-color:var(--border2);color:var(--text2);cursor:default;background:transparent;}
+.party-section-box{background:var(--panel);border:1px solid var(--border);padding:14px;border-radius:16px;}
+.party-section-box .sec{margin-bottom:12px;}
 .party-editor{background:var(--panel);border:1px solid var(--border);padding:18px;}
 .party-editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .party-editor-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);}
@@ -410,7 +428,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="move.html">技選択判定</a>
     <a class="nav-btn active" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
-    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="stats.html">選出率</a>
+    <a class="nav-btn" href="scope.html">アナライザー</a>
     <a class="nav-btn" href="season.html">使用可能</a>
     <a class="nav-btn" href="speed.html">素早さ</a>
     <a class="nav-btn" href="blog.html">記事</a>
@@ -438,23 +457,36 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <button class="party-action-btn primary" onclick="exportPartyImage()">📷 構築画像を保存</button>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
-
-      <!-- 左: パーティスロット + カバレッジ -->
-      <div>
-        <div class="sec">パーティ（最大6体）</div>
+    <div class="party-top-grid">
+      <div class="party-section-box">
+        <div class="sec">パーティ登録</div>
         <div class="party-slot-list" id="party-slot-list"></div>
-        <!-- スロット編集エリア -->
-        <div id="party-editor-empty" style="display:none;background:var(--bg2);border:1px dashed var(--border2);padding:20px;text-align:center;font-size:11px;color:var(--text2);margin-top:10px;">
+        <div style="margin-top:8px;font-size:10px;color:var(--text2);">合計努力値: <span id="party-ev-summary" style="color:var(--text3);">—</span></div>
+      </div>
+
+      <div class="saved-parties-section" id="saved-parties-section">
+        <div class="saved-parties-head">
+          <div>
+            <div class="saved-parties-title">保存場所関連</div>
+            <div class="saved-parties-note">保存済みパーティの読み込みと整理をここで行えます。</div>
+          </div>
+          <button class="party-action-btn" type="button" onclick="refreshSavedPartiesPanel()">↻ 更新</button>
+        </div>
+        <div class="saved-party-list" id="saved-party-list"></div>
+      </div>
+    </div>
+
+    <div class="party-mid-grid">
+      <div>
+        <div id="party-editor-empty" style="display:none;background:var(--bg2);border:1px dashed var(--border2);padding:20px;text-align:center;font-size:11px;color:var(--text2);">
           スロットを選択して技・努力値を編集
         </div>
-        <div id="party-editor-content" style="display:none;margin-top:10px;background:var(--bg2);border:1px solid var(--border);padding:14px;">
+        <div id="party-editor-content" style="display:none;background:var(--bg2);border:1px solid var(--border);padding:14px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
             <span id="pe-pokename" style="font-size:15px;font-weight:700;"></span>
             <span id="pe-types"></span>
           </div>
 
-          <!-- ゲームモード -->
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
             <span style="font-size:9px;color:var(--text2);">ゲーム:</span>
             <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:11px;">
@@ -467,7 +499,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             </label>
           </div>
 
-          <!-- レベル・個体値・性格 -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">
             <div>
               <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">レベル</div>
@@ -513,7 +544,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             </div>
           </div>
 
-          <!-- 努力値 -->
           <div style="font-size:9px;color:var(--text2);margin-bottom:4px;"><span id="pe-ev-title">努力値（合計上限510）</span> <span id="pe-ev-remain" style="color:var(--accent3);">残り510</span></div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px;">
             <div><div style="font-size:8px;color:var(--text2);">HP</div><input type="number" id="pe-ev-hp"  value="0" min="0" max="252" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 5px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;outline:none;" oninput="pe_syncEV('hp',this.value)"><input type="range" id="pe-ev-hp-r"  min="0" max="252" step="4" value="0" style="width:100%;accent-color:#e53935;" oninput="pe_syncEV('hp',this.value)"></div>
@@ -524,7 +554,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <div><div style="font-size:8px;color:var(--text2);">素早</div><input type="number" id="pe-ev-spe" value="0" min="0" max="252" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 5px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;outline:none;" oninput="pe_syncEV('spe',this.value)"><input type="range" id="pe-ev-spe-r" min="0" max="252" step="4" value="0" style="width:100%;accent-color:#8e24aa;" oninput="pe_syncEV('spe',this.value)"></div>
           </div>
 
-          <!-- 実数値表示 -->
           <div id="pe-real-stats" style="font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:8px;"></div>
 
           <div class="editor-section">
@@ -553,77 +582,68 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <div id="pe-moves-grid" style="display:flex;flex-direction:column;gap:6px;margin-top:10px;"></div>
           </div>
 
-          <!-- メモ -->
           <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">メモ</div>
           <textarea id="pe-memo" rows="2" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:'Noto Sans JP',sans-serif;font-size:11px;outline:none;resize:vertical;" oninput="pe_save()"></textarea>
         </div>
-        <div style="margin-top:6px;font-size:10px;color:var(--text2);">合計努力値: <span id="party-ev-summary" style="color:var(--text3);">—</span></div>
+      </div>
 
-        <div class="cov-wrap" style="margin-top:12px;">
-          <div class="sec">攻撃カバレッジ（技ベース）</div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">登録した技で各タイプに抜群を取れるか</div>
-          <div id="cov-chart-atk"></div>
-          <div class="sec" style="margin-top:14px;">防御カバレッジ（被弾ベース）</div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">各タイプの技に対するパーティ全体の耐性。選択中の特性による無効（ふゆう・どしょく・もらいび等）も反映します。</div>
-          <div id="cov-chart-def"></div>
-        </div>
-
-        <div class="cov-wrap" style="margin-top:14px;">
-          <div class="sec">おすすめ補完</div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">現在のパーティで不足しやすい打点と受け先を、主に現在内定しているポケモンからタイプ相性ベースで提案します。</div>
+      <div class="party-side-stack">
+        <div class="cov-wrap party-side-panel">
+          <div class="sec">おすすめ表示</div>
+          <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">現在の構築で足りない打点と受け先を、主に内定ポケモンから提案します。候補を押すとそのままパーティに追加できます。</div>
           <div id="party-recommend-summary" class="note" style="padding:0 0 8px;"></div>
           <div id="party-recommend-list" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
+
+        <div class="add-section party-side-panel">
+          <div class="add-section-title">登録済みから選ぶ</div>
+          <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
+            <button id="tab-btn-reg" onclick="switchAddTab('reg')" style="flex:1;padding:8px;background:var(--accent);color:#000;border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">登録済みから選ぶ</button>
+            <button id="tab-btn-direct" onclick="switchAddTab('direct')" style="flex:1;padding:8px;background:var(--bg2);color:var(--text2);border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;">名前/タイプから選ぶ</button>
+          </div>
+
+          <div id="tab-reg">
+            <input type="text" id="party-reg-search" placeholder="絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;margin-bottom:8px;" oninput="renderRegPokeList(this.value)">
+            <div id="party-reg-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+          </div>
+
+          <div id="tab-direct" style="display:none;">
+            <div style="display:flex;gap:6px;margin-bottom:6px;">
+              <div style="flex:1;">
+                <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ1</div>
+                <select id="direct-type1" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ2</div>
+                <select id="direct-type2" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
+              </div>
+            </div>
+            <div style="position:relative;margin-bottom:6px;">
+              <input type="text" id="direct-poke-search" placeholder="ポケモン名で絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;" oninput="renderDirectPokeList()">
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:11px;color:var(--text3);">
+              <input type="checkbox" id="direct-season-only" onchange="renderDirectPokeList()" style="accent-color:var(--accent3);">
+              <span>使用可能ポケモンのみ表示</span>
+            </label>
+            <div id="direct-poke-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;"></div>
+          </div>
+
+          <div style="font-size:10px;color:var(--text2);margin-top:8px;">クリックでパーティに追加。パーティが6体の場合は追加できません。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="party-coverage-grid">
+      <div class="cov-wrap">
+        <div class="sec">攻撃相性タイプ</div>
+        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">登録した技で各タイプに抜群を取れるか</div>
+        <div id="cov-chart-atk"></div>
       </div>
 
-      <!-- 右: 登録済みポケモン選択 -->
-      <div>
-        <div class="saved-parties-section" id="saved-parties-section">
-          <div class="saved-parties-head">
-            <div>
-              <div class="saved-parties-title">保存済みパーティ</div>
-              <div class="saved-parties-note">一覧を上で見ながら、そのまま読み込みできます。</div>
-            </div>
-            <button class="party-action-btn" type="button" onclick="refreshSavedPartiesPanel()">↻ 更新</button>
-          </div>
-          <div class="saved-party-list" id="saved-party-list"></div>
-        </div>
-
-        <!-- タブ切り替え -->
-        <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
-          <button id="tab-btn-reg" onclick="switchAddTab('reg')" style="flex:1;padding:8px;background:var(--accent);color:#000;border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">登録済みから選ぶ</button>
-          <button id="tab-btn-direct" onclick="switchAddTab('direct')" style="flex:1;padding:8px;background:var(--bg2);color:var(--text2);border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;">名前/タイプから選ぶ</button>
-        </div>
-
-        <!-- 登録済みタブ -->
-        <div id="tab-reg">
-          <input type="text" id="party-reg-search" placeholder="絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;margin-bottom:8px;" oninput="renderRegPokeList(this.value)">
-          <div id="party-reg-list" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
-        </div>
-
-        <!-- 直接検索タブ -->
-        <div id="tab-direct" style="display:none;">
-          <div style="display:flex;gap:6px;margin-bottom:6px;">
-            <div style="flex:1;">
-              <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ1</div>
-              <select id="direct-type1" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
-            </div>
-            <div style="flex:1;">
-              <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ2</div>
-              <select id="direct-type2" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
-            </div>
-          </div>
-          <div style="position:relative;margin-bottom:6px;">
-            <input type="text" id="direct-poke-search" placeholder="ポケモン名で絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;" oninput="renderDirectPokeList()">
-          </div>
-          <label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:11px;color:var(--text3);">
-            <input type="checkbox" id="direct-season-only" onchange="renderDirectPokeList()" style="accent-color:var(--accent3);">
-            <span>使用可能ポケモンのみ表示</span>
-          </label>
-          <div id="direct-poke-list" style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;"></div>
-        </div>
-
-        <div style="font-size:10px;color:var(--text2);margin-top:8px;">クリックでパーティに追加。パーティが6体の場合は追加できません。</div>
+      <div class="cov-wrap">
+        <div class="sec">防御相性タイプ</div>
+        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">各タイプの技に対するパーティ全体の耐性。選択中の特性による無効（ふゆう・どしょく・もらいび等）も反映します。</div>
+        <div id="cov-chart-def"></div>
       </div>
     </div>
   </div>
@@ -712,6 +732,116 @@ function getPokemonKnownMoves(pokeName){
   const row = POKEMON_MOVES && POKEMON_MOVES[pokeName];
   return row && Array.isArray(row.moves) ? row.moves : [];
 }
+const PARTY_ALL_TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
+const MOVE_TYPE_TO_POKE_TYPE = {
+  '炎':'ほのお','水':'みず','電気':'でんき','草':'くさ','氷':'こおり',
+  '格闘':'かくとう','毒':'どく','地面':'じめん','飛行':'ひこう','虫':'むし',
+  '岩':'いわ','悪':'あく','鋼':'はがね',
+  'ノーマル':'ノーマル','エスパー':'エスパー','ゴースト':'ゴースト',
+  'ドラゴン':'ドラゴン','フェアリー':'フェアリー'
+};
+const POKE_TYPE_TO_MOVE_TYPE = Object.fromEntries(Object.entries(MOVE_TYPE_TO_POKE_TYPE).map(([moveType, pokeType]) => [pokeType, moveType]));
+const ABILITY_TYPE_IMMUNITIES = {
+  'ふゆう':['じめん'],
+  'どしょく':['じめん'],
+  'もらいび':['ほのお'],
+  'こんがりボディ':['ほのお'],
+  'ちょすい':['みず'],
+  'よびみず':['みず'],
+  'かんそうはだ':['みず'],
+  'ちくでん':['でんき'],
+  'ひらいしん':['でんき'],
+  'でんきエンジン':['でんき'],
+  'そうしょく':['くさ']
+};
+
+function getAbilityTypeImmunities(abilityName) {
+  const key = String(abilityName||'').trim();
+  return ABILITY_TYPE_IMMUNITIES[key] ? ABILITY_TYPE_IMMUNITIES[key].slice() : [];
+}
+
+function getAbilityImmunityReason(abilityName, attackType) {
+  const imm = getAbilityTypeImmunities(abilityName);
+  return imm.includes(attackType) ? `${abilityName}で${attackType}無効` : '';
+}
+
+function getAdjustedTypeEff(moveType, defTypes, abilityName) {
+  const attackType = MOVE_TYPE_TO_POKE_TYPE[moveType] || moveType;
+  if(getAbilityTypeImmunities(abilityName).includes(attackType)) return 0;
+  return getTypeEff(moveType, defTypes);
+}
+
+function getMemberBestDefEff(member, attackType) {
+  if(!member || !member.poke) return 1;
+  const defTypes = [member.poke.type1, member.poke.type2].filter(Boolean);
+  const moveType = POKE_TYPE_TO_MOVE_TYPE[attackType] || attackType;
+  return getAdjustedTypeEff(moveType, defTypes, member.ability || '');
+}
+
+function getCandidateBestDefEff(candidate, attackType) {
+  const defTypes = [candidate.type1, candidate.type2].filter(Boolean);
+  const moveType = POKE_TYPE_TO_MOVE_TYPE[attackType] || attackType;
+  const baseEff = getTypeEff(moveType, defTypes);
+  const abilities = getAbilityOptions(candidate.name);
+  let bestEff = baseEff;
+  abilities.forEach(ab => {
+    bestEff = Math.min(bestEff, getAdjustedTypeEff(moveType, defTypes, ab));
+  });
+  return bestEff;
+}
+
+function isMegaCandidateName(name) {
+  return /^メガ/.test(String(name||'').trim());
+}
+
+function getRecommendationGroupKey(name) {
+  const raw = String(name||'').trim();
+  if(!raw) return raw;
+  if(!/^メガ/.test(raw)) return raw;
+  return raw.replace(/^メガ/,'').replace(/[XYZ]$/,'');
+}
+
+function preferRecommendationCandidate(nextCandidate, currentCandidate) {
+  if(!currentCandidate) return true;
+  const nextMega = isMegaCandidateName(nextCandidate && nextCandidate.name);
+  const curMega = isMegaCandidateName(currentCandidate && currentCandidate.name);
+  if(curMega && !nextMega) return true;
+  if(curMega === nextMega) {
+    return String(nextCandidate.name||'').localeCompare(String(currentCandidate.name||''),'ja') < 0;
+  }
+  return false;
+}
+
+function getCandidateAttackTypes(candidate) {
+  const seen = new Set();
+  const result = [];
+  const knownMoves = getPokemonKnownMoves(candidate.name) || [];
+  knownMoves.forEach(mv => {
+    const power = Number(mv && mv.power);
+    const moveType = String(mv && mv.type || '').trim();
+    if(!moveType || !Number.isFinite(power) || power <= 0) return;
+    if(seen.has(moveType)) return;
+    seen.add(moveType);
+    result.push(moveType);
+  });
+  [candidate.type1, candidate.type2].filter(Boolean).forEach(tp => {
+    if(!seen.has(tp)) {
+      seen.add(tp);
+      result.push(tp);
+    }
+  });
+  return result;
+}
+
+function escapePartyHtml(str) {
+  return String(str||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 function renderPeAbilityOptions(pokeName, selected){
   const sel=document.getElementById('pe-ability');
   if(!sel) return;
@@ -786,94 +916,6 @@ const PERSONALITIES = {
   'ようき':     {atk:1.0,def:1.0,spa:0.9,spd:1.0,spe:1.1},
   'むじゃき':   {atk:1.0,def:1.0,spa:1.0,spd:0.9,spe:1.1},
 };
-
-const PARTY_ALL_TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
-const MOVE_TYPE_TO_POKE_TYPE = {
-  '炎':'ほのお','水':'みず','電気':'でんき','草':'くさ','氷':'こおり',
-  '格闘':'かくとう','毒':'どく','地面':'じめん','飛行':'ひこう','虫':'むし',
-  '岩':'いわ','悪':'あく','鋼':'はがね',
-  'ノーマル':'ノーマル','エスパー':'エスパー','ゴースト':'ゴースト',
-  'ドラゴン':'ドラゴン','フェアリー':'フェアリー'
-};
-const POKE_TYPE_TO_MOVE_TYPE = Object.fromEntries(Object.entries(MOVE_TYPE_TO_POKE_TYPE).map(([moveType, pokeType]) => [pokeType, moveType]));
-const ABILITY_TYPE_IMMUNITIES = {
-  'ふゆう':['じめん'],
-  'どしょく':['じめん'],
-  'もらいび':['ほのお'],
-  'こんがりボディ':['ほのお'],
-  'ちょすい':['みず'],
-  'よびみず':['みず'],
-  'かんそうはだ':['みず'],
-  'ちくでん':['でんき'],
-  'ひらいしん':['でんき'],
-  'でんきエンジン':['でんき'],
-  'そうしょく':['くさ']
-};
-
-function getAbilityTypeImmunities(abilityName) {
-  const key = String(abilityName||'').trim();
-  return ABILITY_TYPE_IMMUNITIES[key] ? ABILITY_TYPE_IMMUNITIES[key].slice() : [];
-}
-
-function getAbilityImmunityReason(abilityName, attackType) {
-  const imm = getAbilityTypeImmunities(abilityName);
-  return imm.includes(attackType) ? `${abilityName}で${attackType}無効` : '';
-}
-
-function getAdjustedTypeEff(moveType, defTypes, abilityName) {
-  const attackType = MOVE_TYPE_TO_POKE_TYPE[moveType] || moveType;
-  if(getAbilityTypeImmunities(abilityName).includes(attackType)) return 0;
-  return getTypeEff(moveType, defTypes);
-}
-
-function getMemberBestDefEff(member, attackType) {
-  if(!member || !member.poke) return 1;
-  const defTypes = [member.poke.type1, member.poke.type2].filter(Boolean);
-  const moveType = POKE_TYPE_TO_MOVE_TYPE[attackType] || attackType;
-  return getAdjustedTypeEff(moveType, defTypes, member.ability || '');
-}
-
-function getCandidateBestDefEff(candidate, attackType) {
-  const defTypes = [candidate.type1, candidate.type2].filter(Boolean);
-  const moveType = POKE_TYPE_TO_MOVE_TYPE[attackType] || attackType;
-  const baseEff = getTypeEff(moveType, defTypes);
-  const abilities = getAbilityOptions(candidate.name);
-  let bestEff = baseEff;
-  abilities.forEach(ab => {
-    bestEff = Math.min(bestEff, getAdjustedTypeEff(moveType, defTypes, ab));
-  });
-  return bestEff;
-}
-
-function getCandidateAttackTypes(candidate) {
-  const seen = new Set();
-  const result = [];
-  const knownMoves = getPokemonKnownMoves(candidate.name) || [];
-  knownMoves.forEach(mv => {
-    const power = Number(mv && mv.power);
-    const moveType = String(mv && mv.type || '').trim();
-    if(!moveType || !Number.isFinite(power) || power <= 0) return;
-    if(seen.has(moveType)) return;
-    seen.add(moveType);
-    result.push(moveType);
-  });
-  [candidate.type1, candidate.type2].filter(Boolean).forEach(tp => {
-    if(!seen.has(tp)) {
-      seen.add(tp);
-      result.push(tp);
-    }
-  });
-  return result;
-}
-
-function escapePartyHtml(str) {
-  return String(str||'')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
 
 const TYPE_EFF = {
   '炎':   {'くさ':2,'こおり':2,'むし':2,'はがね':2,'みず':0.5,'ほのお':0.5,'いわ':0.5,'ドラゴン':0.5},
@@ -1511,6 +1553,16 @@ function addToPartyDirect(name) {
   if(p) addToParty(p);
 }
 
+function addRecommendedPokemon(name) {
+  if(party.length >= 6) {
+    alert('パーティは6匹までです');
+    return;
+  }
+  const p = pokeIndex.find(x => x.name === name);
+  if(!p) return;
+  addToParty(p);
+}
+
 function renderRegPokeList(filter) {
   const el = document.getElementById('party-reg-list');
   if(!el) return;
@@ -1930,7 +1982,6 @@ function renderPartyGrid() { renderPartySlotList(); }
 function updateCoverage() {
   const allTypes = PARTY_ALL_TYPES.slice();
 
-  // ===== 攻撃カバレッジ（技ベース） =====
   const atkMap = {};
   allTypes.forEach(t => atkMap[t] = 0);
 
@@ -1970,7 +2021,6 @@ function updateCoverage() {
     }).join('');
   }
 
-  // ===== 防御カバレッジ（被弾ベース） =====
   const defWeakCount = {};
   const defResCount  = {};
   const defImmCount  = {};
@@ -2051,6 +2101,7 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
   });
 
   const currentNames = new Set(members.map(m => m.poke && m.poke.name).filter(Boolean));
+  const currentGroupKeys = new Set(Array.from(currentNames).map(getRecommendationGroupKey));
   let sourceLabel = '現在の表示中ポケモン';
   let pool = [];
   if(SEASON_DATA && Array.isArray(SEASON_DATA['内定']) && SEASON_DATA['内定'].length) {
@@ -2063,8 +2114,13 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
 
   const unique = new Map();
   pool.forEach(p => {
-    if(!p || !p.name || currentNames.has(p.name) || unique.has(p.name)) return;
-    unique.set(p.name, p);
+    if(!p || !p.name) return;
+    const key = getRecommendationGroupKey(p.name);
+    if(currentGroupKeys.has(key)) return;
+    const existing = unique.get(key);
+    if(!existing || preferRecommendationCandidate(p, existing)) {
+      unique.set(key, p);
+    }
   });
   const candidates = Array.from(unique.values());
 
@@ -2136,21 +2192,24 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
     return;
   }
 
+  const isFull = party.length >= 6;
   listEl.innerHTML = recommendations.map((row, idx) => {
     const c = row.candidate;
     const t1 = c.type1 ? `<span class="type-pill tp-${c.type1}">${c.type1}</span>` : '';
     const t2 = c.type2 ? `<span class="type-pill tp-${c.type2}">${c.type2}</span>` : '';
     const attackText = row.offenseReasons.length ? row.offenseReasons.join(' / ') : '大きな打点補完は少なめ';
     const defenseText = row.defenseReasons.length ? row.defenseReasons.join(' / ') : '大きな受け補完は少なめ';
-    return `<div style="background:var(--bg2);border:1px solid var(--border);padding:10px 12px;">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${idx===0?'var(--accent3)':'var(--accent)'};line-height:1;">${idx+1}</div>
-        <div style="font-size:13px;font-weight:700;color:var(--text);">${escapePartyHtml(c.name)}</div>
+    const safeName = escapePartyHtml(c.name);
+    return `<div class="recommend-card${isFull ? ' disabled' : ''}" ${isFull ? '' : `onclick="addRecommendedPokemon('${safeName}')"`}>
+      <div class="recommend-head">
+        <div class="recommend-rank" style="color:${idx===0?'var(--accent3)':'var(--accent)'};">${idx+1}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);">${safeName}</div>
         <div>${t1}${t2}</div>
-        <div style="margin-left:auto;font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;">DEF ${row.defenseScore} / ATK ${row.offenseScore}</div>
+        <div class="recommend-score">DEF ${row.defenseScore} / ATK ${row.offenseScore}</div>
       </div>
       <div style="font-size:10px;color:var(--text2);margin-top:6px;line-height:1.7;">受け補完: <span style="color:var(--text);">${escapePartyHtml(defenseText)}</span></div>
       <div style="font-size:10px;color:var(--text2);margin-top:4px;line-height:1.7;">打点補完: <span style="color:var(--text);">${escapePartyHtml(attackText)}</span></div>
+      <button type="button" class="recommend-add-btn" ${isFull ? 'disabled' : `onclick="event.stopPropagation();addRecommendedPokemon('${safeName}')"`}>${isFull ? 'パーティが埋まっています' : 'このポケモンを追加'}</button>
     </div>`;
   }).join('');
 }
