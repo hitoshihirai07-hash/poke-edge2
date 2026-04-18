@@ -235,6 +235,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-record-btn{flex:1;min-width:120px;padding:10px 12px;border:none;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;}
 .scope-record-btn.win{background:linear-gradient(135deg,var(--green),#0a8f56);}
 .scope-record-btn.lose{background:linear-gradient(135deg,var(--accent2),#a01040);}
+.scope-record-btn.draw{background:linear-gradient(135deg,var(--accent3),#b47a00);color:#111;}
 @media(max-width:760px){.scope-stats-grid{grid-template-columns:1fr;}.scope-history-body{grid-template-columns:1fr;}}
 
 @media(max-width:700px){.settings-row{grid-template-columns:1fr;}.settings-row.my-only{grid-template-columns:1fr;}}
@@ -270,6 +271,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   <div class="phase-tabs">
     <button class="phase-tab active" id="ptab-1" onclick="showPhase(1)"><span class="tab-icon">♟</span>選出フェーズ</button>
     <button class="phase-tab" id="ptab-2" onclick="showPhase(2)"><span class="tab-icon">⚔</span>バトルフェーズ</button>
+    <button class="phase-tab" id="ptab-3" onclick="showPhase(3)"><span class="tab-icon">📊</span>選出率記録</button>
   </div>
 
   <!-- ============ PHASE 1: 選出フェーズ ============ -->
@@ -403,15 +405,25 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     </div>
 
     <div class="card">
-      <div class="card-title yellow">選出率の記録</div>
+      <div class="card-title yellow">対戦結果を記録</div>
       <div class="scope-record-btns">
         <button class="scope-record-btn win" onclick="recordScopeBattle('win')">この対戦を勝ちで記録</button>
         <button class="scope-record-btn lose" onclick="recordScopeBattle('lose')">この対戦を負けで記録</button>
+        <button class="scope-record-btn draw" onclick="recordScopeBattle('draw')">この対戦を引き分けで記録</button>
       </div>
+      <div class="note">選出率記録・履歴の確認は上の「選出率記録」タブで行えます。</div>
+    </div>
+
+    <button class="act-btn secondary" onclick="showPhase(1)">← 選出フェーズに戻る</button>
+  </div>
+  <!-- ============ PHASE 3: 選出率記録 ============ -->
+  <div class="phase-panel" id="phase-3">
+    <div class="card">
+      <div class="card-title yellow">選出率の記録</div>
       <div class="scope-summary-row">
         <div class="scope-summary-item"><div class="scope-summary-label">総記録数</div><div class="scope-summary-val" id="scope-total-count">0</div></div>
         <div class="scope-summary-item"><div class="scope-summary-label">勝率</div><div class="scope-summary-val" id="scope-win-rate">—</div></div>
-        <div class="scope-summary-item"><div class="scope-summary-label">勝敗</div><div class="scope-summary-val" id="scope-win-count">—</div></div>
+        <div class="scope-summary-item"><div class="scope-summary-label">勝敗 / 引分</div><div class="scope-summary-val" id="scope-win-count">—</div></div>
       </div>
       <div id="scope-stats-area"></div>
       <div style="margin-top:10px;display:flex;justify-content:flex-end;">
@@ -419,8 +431,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       </div>
       <div id="scope-history-list"></div>
     </div>
-
-    <button class="act-btn secondary" onclick="showPhase(1)">← 選出フェーズに戻る</button>
   </div>
 </div>
 
@@ -504,19 +514,13 @@ const NATURE_TABLE = {
 const NATURE_NAMES = Object.keys(NATURE_TABLE);
 
 // ===== 実数値計算（Pokémon Champions） =====
-function convertChampionsPointToVirtualEv(point){
-  const p = Math.max(0, Math.floor(Number(point) || 0));
-  if(p <= 32) return p >= 32 ? 252 : p * 8;
-  return Math.min(252, p);
-}
 function calcHP(base, ev, lv){
-  const virtualEv = convertChampionsPointToVirtualEv(ev||0);
-  return Math.floor((Math.floor((base*2 + 31 + Math.floor(virtualEv/4)) * lv / 100) + 10 + lv));
+  return Math.floor((Math.floor((base*2 + 31) * lv / 100) + 10 + lv)) + (ev||0);
 }
 function calcStat(base, ev, lv, natureMult){
   const nature = natureMult || 1;
-  const virtualEv = convertChampionsPointToVirtualEv(ev||0);
-  return Math.floor((Math.floor((base*2 + 31 + Math.floor(virtualEv/4)) * lv / 100) + 5) * nature);
+  const bs = Math.floor((Math.floor((base*2 + 31) * lv / 100) + 5) * nature);
+  return bs + Math.floor((ev||0) * nature);
 }
 function calcAllStats(poke, natureName, spread, lv){
   lv = lv||50;
@@ -835,11 +839,12 @@ function buildSlot(poke, opts){
 
 // ===== フェーズ切替 =====
 function showPhase(n){
-  [1,2].forEach(i=>{
+  [1,2,3].forEach(i=>{
     document.getElementById('phase-'+i).classList.toggle('active',i===n);
     document.getElementById('ptab-'+i).classList.toggle('active',i===n);
   });
   if(n===2) renderBattlePhase();
+  if(n===3){ renderScopeStats(); renderScopeHistory(); }
 }
 function goToBattle(){
   if(!mySelect.length){alert('自分の選出を選んでください（パーティのポケモンをタップ）');return;}
@@ -1426,7 +1431,7 @@ async function recordScopeBattle(result){
   await saveBattleRecord(battle);
   await renderScopeStats();
   await renderScopeHistory();
-  alert(result==='win'?'勝ちで記録しました':'負けで記録しました');
+  alert(result==='win'?'勝ちで記録しました':result==='lose'?'負けで記録しました':'引き分けで記録しました');
 }
 async function clearAllScopeBattles(){
   if(!confirm('全記録を削除しますか？')) return;
@@ -1438,12 +1443,12 @@ async function clearAllScopeBattles(){
 }
 async function renderScopeStats(){
   const battles = await loadBattleRecords();
-  const total = battles.length, wins = battles.filter(b=>b.result==='win').length;
+  const total = battles.length, wins = battles.filter(b=>b.result==='win').length, losses = battles.filter(b=>b.result==='lose').length, draws = battles.filter(b=>b.result==='draw').length;
   const totalEl=document.getElementById('scope-total-count'), rateEl=document.getElementById('scope-win-rate'), countEl=document.getElementById('scope-win-count'), area=document.getElementById('scope-stats-area');
   if(!totalEl||!rateEl||!countEl||!area) return;
   totalEl.textContent=String(total);
   if(!total){ rateEl.textContent='—'; countEl.textContent='—'; area.innerHTML='<div class="note">まだ記録がありません</div>'; return; }
-  rateEl.textContent=Math.round(wins/total*100)+'%'; countEl.textContent=wins+'勝'+(total-wins)+'敗';
+  rateEl.textContent=Math.round(wins/total*100)+'%'; countEl.textContent=wins+'勝'+losses+'敗'+draws+'分';
   const myMap={}, oppMap={};
   battles.forEach(b=>{ (b.my?.select3||[]).forEach(m=>{ if(!myMap[m.name]) myMap[m.name]={sel:0,lead:0,win:0,type1:m.type1}; myMap[m.name].sel++; if(b.result==='win') myMap[m.name].win++; }); if(b.my?.lead){ if(!myMap[b.my.lead.name]) myMap[b.my.lead.name]={sel:0,lead:0,win:0,type1:b.my.lead.type1}; myMap[b.my.lead.name].lead++; } (b.opp?.select3||[]).forEach(m=>{ if(!oppMap[m.name]) oppMap[m.name]={sel:0,lead:0,type1:m.type1}; oppMap[m.name].sel++; }); if(b.opp?.lead){ if(!oppMap[b.opp.lead.name]) oppMap[b.opp.lead.name]={sel:0,lead:0,type1:b.opp.lead.type1}; oppMap[b.opp.lead.name].lead++; } });
   const myRows=Object.entries(myMap).sort((a,b)=>b[1].sel-a[1].sel), oppRows=Object.entries(oppMap).sort((a,b)=>b[1].sel-a[1].sel);
@@ -1459,7 +1464,7 @@ async function renderScopeHistory(){
     const myTags = (b.my?.select3||[]).map(m=>'<span class="scope-poke-tag '+(m.name===b.my?.lead?.name?'lead-tag':'')+'">'+escapeHtml(m.name)+'</span>').join('');
     const oppTags = (b.opp?.select3||[]).map(m=>'<span class="scope-poke-tag scope-opp-tag '+(m.name===b.opp?.lead?.name?'lead-tag':'')+'">'+escapeHtml(m.name)+'</span>').join('');
     return '<div class="scope-history-item '+escapeHtml(b.result||'')+'">'
-      + '<div class="scope-history-head"><span class="scope-history-result '+escapeHtml(b.result||'')+'">'+(b.result==='win'?'WIN':'LOSE')+'</span><span style="font-size:11px;color:var(--text2);">'+escapeHtml(b.date||'')+'</span><button class="scope-del-btn" onclick="deleteScopeBattleById(\''+escapeJs(String(b._id ?? b.id ?? ''))+'\')">削除</button></div>'
+      + '<div class="scope-history-head"><span class="scope-history-result '+escapeHtml(b.result||'')+'">'+(b.result==='win'?'WIN':b.result==='lose'?'LOSE':'DRAW')+'</span><span style="font-size:11px;color:var(--text2);">'+escapeHtml(b.date||'')+'</span><button class="scope-del-btn" onclick="deleteScopeBattleById(\''+escapeJs(String(b._id ?? b.id ?? ''))+'\')">削除</button></div>'
       + '<div class="scope-history-body">'
       +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">自分の選出'+(b.my?.lead?' / 初手: '+escapeHtml(b.my.lead.name):'')+'</div><div>'+myTags+'</div></div>'
       +   '<div style="font-size:18px;color:var(--border2);align-self:center;">vs</div>'
