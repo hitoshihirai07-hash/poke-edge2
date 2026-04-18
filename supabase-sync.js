@@ -16,10 +16,22 @@ async function initAuth() {
   const sb = getSB();
   const { data: { session } } = await sb.auth.getSession();
   _currentUser = session?.user || null;
-  sb.auth.onAuthStateChange((_event, session) => {
+
+  if(_currentUser) {
+    await migrateLocalPartiesToCloud();
+  }
+
+  sb.auth.onAuthStateChange(async (_event, session) => {
     _currentUser = session?.user || null;
+    if(_currentUser) {
+      await migrateLocalPartiesToCloud();
+    }
     renderAuthUI();
+    if(typeof renderSavedPartyList === 'function') {
+      try { await renderSavedPartyList(); } catch(e) { console.warn('renderSavedPartyList error', e); }
+    }
   });
+
   renderAuthUI();
   return _currentUser;
 }
@@ -119,40 +131,152 @@ async function savePokemonData(pokemons) {
 // ===== パーティデータ =====
 const LS_PARTY_KEY = 'pokeedge_parties';
 
-async function loadParties() {
-  if(!isLoggedIn()) {
-    try { return JSON.parse(localStorage.getItem(LS_PARTY_KEY)||'[]'); } catch(e) { return []; }
+function loadLocalPartiesRaw() {
+  try {
+    const data = JSON.parse(localStorage.getItem(LS_PARTY_KEY)||'[]');
+    return Array.isArray(data) ? data : [];
+  } catch(e) {
+    return [];
   }
+}
+
+function saveLocalPartiesRaw(parties) {
+  localStorage.setItem(LS_PARTY_KEY, JSON.stringify(Array.isArray(parties) ? parties : []));
+}
+
+function normalizePartyRecord(record) {
+  const base = record && record.data ? record.data : (record || {});
+  return {
+    id: record && record.id ? record.id : Date.now().toString(36) + Math.random().toString(36).slice(2,8),
+    name: record && record.name ? record.name : (base.name || 'パーティ'),
+    data: base,
+    created_at: record && record.created_at ? record.created_at : new Date().toISOString()
+  };
+}
+
+function partyComparableKey(record) {
+  const normalized = normalizePartyRecord(record);
+  const data = normalized.data || {};
+  const members = Array.isArray(data.members) ? data.members : [];
+  const memberKey = members.map(m => {
+    const ev = m && m.ev ? m.ev : {};
+    const moves = Array.isArray(m && m.moves) ? m.moves.map(x => x && x.name ? x.name : '').join('/') : '';
+    return [
+      m && m.pokeName || '',
+      m && m.lv || '',
+      m && m.nature || '',
+      m && m.ability || '',
+      m && m.item || '',
+      m && m.gameMode || '',
+      ev.hp || 0, ev.atk || 0, ev.def || 0, ev.spa || 0, ev.spd || 0, ev.spe || 0,
+      moves
+    ].join('|');
+  }).join('||');
+  return JSON.stringify([normalized.name || '', memberKey]);
+}
+
+function dedupePartyRecords(records) {
+  const map = new Map();
+  (records || []).forEach(record => {
+    const normalized = normalizePartyRecord(record);
+    const key = partyComparableKey(normalized);
+    const current = map.get(key);
+    if(!current) {
+      map.set(key, normalized);
+      return;
+    }
+    const currentTime = new Date(current.created_at || 0).getTime() || 0;
+    const nextTime = new Date(normalized.created_at || 0).getTime() || 0;
+    if(nextTime >= currentTime) {
+      map.set(key, normalized);
+    }
+  });
+  return Array.from(map.values()).sort((a,b) => {
+    const ta = new Date(a.created_at || 0).getTime() || 0;
+    const tb = new Date(b.created_at || 0).getTime() || 0;
+    return tb - ta;
+  });
+}
+
+async function loadCloudPartiesRaw() {
+  if(!isLoggedIn()) return [];
   const { data, error } = await getSB()
     .from('parties')
     .select('*')
     .eq('user_id', _currentUser.id)
     .order('created_at', { ascending: false });
-  return (!error && data) ? data : [];
+  return (!error && Array.isArray(data)) ? data : [];
+}
+
+async function migrateLocalPartiesToCloud() {
+  if(!isLoggedIn()) return false;
+
+  const localParties = loadLocalPartiesRaw().map(normalizePartyRecord);
+  if(!localParties.length) return true;
+
+  const cloudParties = (await loadCloudPartiesRaw()).map(normalizePartyRecord);
+  const cloudKeys = new Set(cloudParties.map(partyComparableKey));
+  const inserts = localParties
+    .filter(record => !cloudKeys.has(partyComparableKey(record)))
+    .map(record => ({
+      user_id: _currentUser.id,
+      name: record.name,
+      data: record.data,
+      created_at: record.created_at
+    }));
+
+  if(!inserts.length) return true;
+
+  const { error } = await getSB().from('parties').insert(inserts);
+  return !error;
+}
+
+async function loadParties() {
+  const local = loadLocalPartiesRaw().map(normalizePartyRecord);
+
+  if(!isLoggedIn()) {
+    return dedupePartyRecords(local);
+  }
+
+  const cloud = (await loadCloudPartiesRaw()).map(normalizePartyRecord);
+  return dedupePartyRecords([].concat(cloud, local));
 }
 
 async function saveParty(name, partyData) {
-  if(!isLoggedIn()) {
-    const saved = JSON.parse(localStorage.getItem(LS_PARTY_KEY)||'[]');
-    saved.unshift({ id: Date.now().toString(), name, data: partyData, created_at: new Date().toISOString() });
-    if(saved.length > 20) saved.pop();
-    localStorage.setItem(LS_PARTY_KEY, JSON.stringify(saved));
-    return true;
-  }
-  const { error } = await getSB().from('parties').insert({
-    user_id: _currentUser.id,
+  const record = normalizePartyRecord({
+    id: Date.now().toString(),
     name,
     data: partyData,
+    created_at: new Date().toISOString()
+  });
+
+  if(!isLoggedIn()) {
+    const saved = loadLocalPartiesRaw().map(normalizePartyRecord);
+    saved.unshift(record);
+    saveLocalPartiesRaw(dedupePartyRecords(saved).slice(0, 20));
+    return true;
+  }
+
+  const { error } = await getSB().from('parties').insert({
+    user_id: _currentUser.id,
+    name: record.name,
+    data: record.data,
+    created_at: record.created_at
   });
   return !error;
 }
 
 async function deleteParty(id) {
+  const local = loadLocalPartiesRaw().map(normalizePartyRecord);
+  const nextLocal = local.filter(p => String(p.id) !== String(id));
+  if(nextLocal.length !== local.length) {
+    saveLocalPartiesRaw(nextLocal);
+  }
+
   if(!isLoggedIn()) {
-    const saved = JSON.parse(localStorage.getItem(LS_PARTY_KEY)||'[]').filter(p=>p.id!=id);
-    localStorage.setItem(LS_PARTY_KEY, JSON.stringify(saved));
     return true;
   }
+
   const { error } = await getSB().from('parties').delete().eq('id', id).eq('user_id', _currentUser.id);
   return !error;
 }
