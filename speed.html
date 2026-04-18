@@ -160,7 +160,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <div class="main">
   <div style="margin-bottom:14px;">
     <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:3px;">SPEED TIER CHART</div>
-    <div class="desc">素早さの実数値を一覧で比較。スカーフ・追い風・特性補正・ランク補正にも対応。自分の素早さを入力すると、抜ける相手と抜けない相手がハイライトされます。</div>
+    <div class="desc">素早さの実数値を一覧で比較。従来作とPokémon Championsの両方に対応。自分側の条件を積んで、抜ける相手と抜けない相手を確認できます。</div>
   </div>
 
   <div class="guide-link-box">
@@ -175,6 +175,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <span class="ctrl-lbl">シーズン</span>
         <select class="ctrl-sel" id="season-filter" onchange="render()">
           <option value="">すべてのポケモン</option>
+        </select>
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">ゲーム</span>
+        <select class="ctrl-sel" id="game-mode" onchange="handleGameModeChange()">
+          <option value="champions" selected>Champions（0〜32）</option>
+          <option value="classic">従来作（0〜252）</option>
         </select>
       </div>
       <div class="ctrl-item">
@@ -197,6 +204,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         </select>
       </div>
       <div class="ctrl-item">
+        <span class="ctrl-lbl">全体ランク補正</span>
+        <select class="ctrl-sel" id="global-rank-mod" onchange="render()">
+          <option value="0">なし</option>
+          <option value="1">+1 (×1.5)</option>
+          <option value="2">+2 (×2.0)</option>
+          <option value="3">+3 (×2.5)</option>
+          <option value="-1">-1 (×0.67)</option>
+          <option value="-2">-2 (×0.5)</option>
+        </select>
+      </div>
+      <div class="ctrl-item">
         <span class="ctrl-lbl">名前検索</span>
         <input class="ctrl-search" id="name-filter" type="text" placeholder="ポケモン名..." oninput="render()">
       </div>
@@ -215,7 +233,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="my-speed-wrap">
     <div class="my-speed-head">
       <span class="my-speed-lbl">自分の素早さ判定</span>
-      <span class="my-speed-note">自分側にだけスカーフ・追い風などの補正を掛けて一覧と比較します。メガ進化ポケモンへ一覧側で一括スカーフを掛ける挙動はやめています。</span>
+      <span class="my-speed-note">自分側にだけスカーフ・追い風などの補正を掛けて一覧と比較します。シーズンで内定を選んでいる場合は、ここのポケモン候補も内定だけに絞ります。</span>
     </div>
     <div class="my-speed-grid">
       <div class="ctrl-item">
@@ -223,8 +241,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <input class="ctrl-search" id="my-pokemon-name" list="my-pokemon-list" placeholder="ポケモン名" oninput="handleMyPokemonChange()">
       </div>
       <div class="ctrl-item">
-        <span class="ctrl-lbl">努力値</span>
-        <input class="ctrl-input" id="my-spe-ev" type="number" min="0" max="252" step="4" value="252" oninput="render()">
+        <span class="ctrl-lbl">素早さポイント</span>
+        <input class="ctrl-input" id="my-spe-ev" type="number" min="0" max="32" step="1" value="32" oninput="render()">
       </div>
       <div class="ctrl-item">
         <span class="ctrl-lbl">個体値</span>
@@ -263,14 +281,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <input class="ctrl-input" id="my-speed-manual" type="number" placeholder="未入力なら自動計算" oninput="render()" style="width:100%;text-align:left;font-family:'Noto Sans JP',sans-serif;">
       </div>
       <div class="ctrl-item">
-        <span class="ctrl-lbl">補足</span>
-        <div class="manual-note" id="my-speed-help">ポケモン・努力値・性格から自動計算します。直接入力した場合はその値を優先します。</div>
+        <span class="ctrl-lbl">現在のルール</span>
+        <div class="manual-note" id="my-speed-help">初期値はChampionsの素早さ32です。直接入力した場合はその値を優先します。</div>
       </div>
     </div>
     <div class="my-speed-summary">
       <div class="my-speed-pill">未補正実数値 <strong id="my-speed-base">—</strong></div>
       <div class="my-speed-pill">判定に使う補正後素早さ <strong id="my-speed-effective">—</strong></div>
       <div class="my-speed-pill">比較基準 <strong id="compare-mode-label">相手の最速</strong></div>
+      <div class="my-speed-pill">ゲーム <strong id="game-mode-label">Champions</strong></div>
     </div>
     <datalist id="my-pokemon-list"></datalist>
   </div>
@@ -309,6 +328,7 @@ const NATURE_OPTIONS = [
 ];
 const SPEED_UP_NATURES = new Set(['おくびょう','せっかち','ようき','むじゃき']);
 const SPEED_DOWN_NATURES = new Set(['ゆうかん','のんき','れいせい','なまいき']);
+const GAME_MODE_LABELS = {champions:'Champions', classic:'従来作'};
 
 async function loadData(){
   const [pd,ad,sd,abd]=await Promise.all([
@@ -342,10 +362,29 @@ function initNatureOptions(){
 }
 
 function initMyPokemonList(){
+  updateMyPokemonList();
+}
+
+function getCurrentGameMode(){
+  return (document.getElementById('game-mode')?.value || 'champions');
+}
+
+function getCurrentEvMax(){
+  return getCurrentGameMode()==='champions' ? 32 : 252;
+}
+
+function getCurrentEvStep(){
+  return getCurrentGameMode()==='champions' ? 1 : 4;
+}
+
+function updateMyPokemonList(){
   const datalist = document.getElementById('my-pokemon-list');
+  const season = document.getElementById('season-filter')?.value || '';
+  const seasonNames = season && SEASON_DATA[season] ? new Set(SEASON_DATA[season]) : null;
   const seen = new Set();
   const names = [];
   POKEMON_DATA.forEach(p=>{
+    if(seasonNames && !seasonNames.has(p.name)) return;
     if(!seen.has(p.name)){
       seen.add(p.name);
       names.push(p.name);
@@ -355,16 +394,41 @@ function initMyPokemonList(){
   datalist.innerHTML = names.map(name=>`<option value="${name}"></option>`).join('');
 }
 
-function calcSpe(base,iv,ev,lv,natMult){
+function calcSpe(base,iv,ev,lv,natMult,gameMode){
   const safeIv = Math.max(0, Math.min(31, Number(iv)||0));
-  const safeEv = Math.max(0, Math.min(252, Number(ev)||0));
+  const maxEv = gameMode==='champions' ? 32 : 252;
+  const safeEv = Math.max(0, Math.min(maxEv, Number(ev)||0));
+  if(gameMode==='champions'){
+    const bs = Math.floor((Math.floor((base*2 + safeIv) * lv / 100) + 5) * natMult);
+    return bs + Math.floor(safeEv * natMult);
+  }
   return Math.floor((Math.floor((base*2+safeIv+Math.floor(safeEv/4))*lv/100)+5)*natMult);
 }
 
 function clampEvForSpeed(ev){
   const num = Number(ev);
   if(!Number.isFinite(num)) return 0;
-  return Math.max(0, Math.min(252, Math.floor(num)));
+  return Math.max(0, Math.min(getCurrentEvMax(), Math.floor(num)));
+}
+
+function updateMyEvInput(){
+  const input = document.getElementById('my-spe-ev');
+  if(!input) return;
+  const max = getCurrentEvMax();
+  const step = getCurrentEvStep();
+  input.max = String(max);
+  input.step = String(step);
+  let value = Number(input.value);
+  if(!Number.isFinite(value)) value = max;
+  value = Math.max(0, Math.min(max, Math.floor(value)));
+  if(getCurrentGameMode()==='classic' && value % 4 !== 0) value = Math.floor(value / 4) * 4;
+  if(getCurrentGameMode()==='champions' && (!input.dataset.userSet || input.dataset.userSet==='0')) value = 32;
+  input.value = String(value);
+}
+
+function handleGameModeChange(){
+  updateMyEvInput();
+  render();
 }
 
 function getNatureMult(nature){
@@ -444,16 +508,21 @@ function calculateMySpeedValues(){
   const para = document.getElementById('my-tgl-para').classList.contains('on');
   const abilityMult = Number(document.getElementById('my-speed-ability').value || '1');
   const natureMult = getNatureMult(nature);
+  const gameMode = getCurrentGameMode();
 
   let baseSpeed = 0;
-  let helpText = 'ポケモン・努力値・性格から自動計算します。直接入力した場合はその値を優先します。';
+  let helpText = gameMode==='champions'
+    ? 'Championsの0〜32ポイントで自動計算します。直接入力した場合はその値を優先します。'
+    : '従来作の0〜252努力値で自動計算します。直接入力した場合はその値を優先します。';
 
   if(Number.isFinite(manualInput) && manualInput > 0){
     baseSpeed = Math.floor(manualInput);
     helpText = '実数値直接入力を優先中です。ここにスカーフ・追い風・特性・ランク補正を上乗せしています。';
   }else if(myPokemon){
-    baseSpeed = calcSpe(myPokemon.spe, iv, ev, 50, natureMult);
-    helpText = '選択したポケモンの種族値・努力値・個体値・性格から実数値を計算しています。';
+    baseSpeed = calcSpe(myPokemon.spe, iv, ev, 50, natureMult, gameMode);
+    helpText = gameMode==='champions'
+      ? '選択したポケモンの種族値・0〜32ポイント・個体値・性格から実数値を計算しています。'
+      : '選択したポケモンの種族値・努力値・個体値・性格から実数値を計算しています。';
   }else{
     helpText = 'ポケモン名を入れるか、実数値を直接入力すると比較できます。';
   }
@@ -480,6 +549,12 @@ function render(){
   const nameQ = document.getElementById('name-filter').value.trim();
   const speMin = parseInt(document.getElementById('spe-min').value)||0;
   const speMax = parseInt(document.getElementById('spe-max').value)||9999;
+  const globalRankStr = document.getElementById('global-rank-mod').value;
+  const globalRankMult = RANK_MULT[globalRankStr] || 1;
+  const gameMode = getCurrentGameMode();
+
+  updateMyPokemonList();
+  updateMyEvInput();
   const mySpeedState = calculateMySpeedValues();
 
   document.getElementById('my-speed-base').textContent = mySpeedState.baseSpeed > 0 ? mySpeedState.baseSpeed : '—';
@@ -492,6 +567,7 @@ function render(){
     slowest: '相手の最遅'
   };
   document.getElementById('compare-mode-label').textContent = compareLabelMap[compareMode] || '相手の最速';
+  document.getElementById('game-mode-label').textContent = GAME_MODE_LABELS[gameMode] || 'Champions';
 
   let pokes = POKEMON_DATA.filter(p=>{
     if(season && SEASON_DATA[season] && !SEASON_DATA[season].includes(p.name)) return false;
@@ -501,10 +577,14 @@ function render(){
   });
 
   const rows = pokes.map(p=>{
-    const fastest = calcSpe(p.spe, 31, 252, 50, 1.1);
-    const semi    = calcSpe(p.spe, 31, 252, 50, 1.0);
-    const noev    = calcSpe(p.spe, 31, 0,   50, 1.0);
-    const slowest = calcSpe(p.spe, 0,  0,   50, 0.9);
+    const baseFastest = calcSpe(p.spe, 31, gameMode==='champions' ? 32 : 252, 50, 1.1, gameMode);
+    const baseSemi    = calcSpe(p.spe, 31, gameMode==='champions' ? 32 : 252, 50, 1.0, gameMode);
+    const baseNoev    = calcSpe(p.spe, 31, 0, 50, 1.0, gameMode);
+    const baseSlowest = calcSpe(p.spe, 0, 0, 50, 0.9, gameMode);
+    const fastest = Math.floor(baseFastest * globalRankMult);
+    const semi    = Math.floor(baseSemi * globalRankMult);
+    const noev    = Math.floor(baseNoev * globalRankMult);
+    const slowest = Math.floor(baseSlowest * globalRankMult);
     const speedAbs = getSpeedAbilities(p.name);
     return {
       name: p.name,
@@ -562,7 +642,9 @@ function render(){
 
   tbody.innerHTML = html;
   const speedInfo = mySpeedState.hasInput ? ` / 自分の補正後素早さ ${mySpeedState.effectiveSpeed}` : '';
-  document.getElementById('count-info').textContent = `${rows.length}体 表示中${speedInfo}`;
+  const ruleInfo = gameMode==='champions' ? ' / Champions基準' : ' / 従来作基準';
+  const rankInfo = globalRankStr==='0' ? '' : ` / 全体ランク${globalRankStr}`;
+  document.getElementById('count-info').textContent = `${rows.length}体 表示中${ruleInfo}${rankInfo}${speedInfo}`;
 }
 
 window.onload = async ()=>{
@@ -582,6 +664,10 @@ document.addEventListener('DOMContentLoaded',function(){
   const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');
   if(hb)hb.addEventListener('click',toggleNav);if(ov)ov.addEventListener('click',closeNav);
   document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){if(window.innerWidth<=768)closeNav();});});
+  const evInput=document.getElementById('my-spe-ev');
+  if(evInput){
+    evInput.addEventListener('input', function(){ this.dataset.userSet='1'; });
+  }
 });
 </script>
 </body>
