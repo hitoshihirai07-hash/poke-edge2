@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PokeEdgeでできること全まとめ！各機能をやさしく紹介 | PokeEdge</title>
-<meta name="description" content="PokeEdgeの全機能をわかりやすく紹介。ダメージ計算、技選択判定、パーティ管理、ポケモン登録、選出率記録、バトルアナライザー、使用可能ポケモンの使い方をやさしく解説します。">
+<title>PokeEdgeでできる8つの機能紹介 | PokeEdge</title>
+<meta name="description" content="PokeEdgeで使える8つの機能をまとめて紹介。ダメージ計算、技選択判定、パーティ管理、ポケモン登録、バトルアナライザー、使用可能ポケモン、素早さライン、アイテム一覧の使い分けを整理します。">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="PokeEdgeでできること全まとめ！各機能をやさしく紹介 | PokeEdge">
-<meta property="og:description" content="PokeEdgeの全機能を初心者向けにやさしく紹介します。">
+<meta property="og:title" content="PokeEdgeでできる8つの機能紹介 | PokeEdge">
+<meta property="og:description" content="PokeEdgeで使える8つの機能を初心者向けに整理して紹介します。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://poke-edge.pages.dev/articles/features-guide.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/articles/features-guide.html">
@@ -131,8 +131,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="../party.html">パーティ管理</a>
     <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="../items.html">アイテム</a>
-    <a class="nav-btn" href="../stats.html">選出率記録</a>
-    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+        <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
     <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
     <a class="nav-btn" href="../speed.html">素早さライン</a>
     <a class="nav-btn active" href="../blog.html">記事</a>
@@ -151,210 +150,159 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <span class="sep">›</span>
     <a href="../blog.html">記事一覧</a>
     <span class="sep">›</span>
-    <span>PokeEdgeでできること</span>
+    <span>PokeEdgeの8機能紹介</span>
   </div>
 
   <div class="article-header">
     <div class="article-meta">
-      <span class="article-date">2026.04.07</span>
+      <span class="article-date">2026.04.18</span>
       <span class="article-tag guide">ガイド</span>
       <span class="article-tag beginner">初心者向け</span>
     </div>
-    <h1 class="article-h1">PokeEdgeでできること全まとめ！ — 9つの機能をやさしく紹介</h1>
-    <p class="article-lead">「PokeEdgeって何ができるの？」という方へ。このページでは、PokeEdgeの全機能をひとつずつ、はじめての方でもわかるようにやさしく紹介します。気になる機能があったら、そのままリンクから使ってみてください！</p>
+    <h1 class="article-h1">PokeEdgeでできる8つの機能紹介 — まず見るページをまとめて整理</h1>
+    <p class="article-lead">PokeEdgeには、対戦前の準備から対戦中の確認まで使える機能がそろっています。このページでは、今使える8つの機能をまとめて紹介します。どこから触ればいいか迷ったときの入口として使ってください。</p>
   </div>
 
   <div class="article-body">
 
-    <h2>PokeEdgeってどんなサイト？</h2>
+    <h2>まずは全体像</h2>
 
-    <p>PokeEdge（ポケエッジ）は、<strong>ポケモン対戦をもっと楽しく、もっと強くなるための無料ツール</strong>です。「ダメージ計算」「技選び」「パーティ管理」など、対戦で必要なことをまとめてできるサイトになっています。</p>
+    <p>PokeEdgeは、<strong>登録したポケモンを各ツールで使い回しながら、計算・管理・確認をまとめて進めるためのサイト</strong>です。単体で便利なだけでなく、機能どうしがつながっているのが使いやすさのポイントです。</p>
 
-    <p>むずかしい操作はなく、ポケモンの名前を選ぶだけでほとんどの機能が使えます。スマホでもパソコンでもOKです。</p>
+    <div class="point-box">
+      <div class="point-title">このページで紹介する8機能</div>
+      <p>ダメージ計算 / 技選択判定 / パーティ管理 / ポケモン登録 / バトルアナライザー / 使用可能ポケモン / 素早さライン / アイテム一覧</p>
+    </div>
 
-    <p>それでは、9つの機能をひとつずつ見ていきましょう！</p>
-
-    <!-- ===== 1. ダメージ計算 ===== -->
     <h2>① ダメージ計算</h2>
-
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">⚡</span>
         <span class="feat-card-name">ダメージ計算</span>
       </div>
       <div class="feat-card-desc">
-        <p>「自分のポケモンの技で、相手のポケモンを倒せるかな？」を調べるための機能です。</p>
-        <p>たとえば、自分のガブリアスが「じしん」を使ったとき、相手のリザードンにどれくらいダメージが入るかを数字で教えてくれます。<strong>1発で倒せるのか、2発かかるのか</strong>が事前にわかるので、対戦中に「あ、倒せなかった…」という失敗を減らせます。</p>
-        <p>やることは「攻撃するポケモン」「受けるポケモン」「使う技」を選ぶだけ。あとは自動で計算してくれます。</p>
+        <p>技ごとのダメージを確認する基本機能です。攻撃側と防御側を選ぶだけで、乱数込みのダメージ幅や確定数を確認できます。</p>
+        <p><strong>登録済みのポケモンをそのまま読み込んで使える</strong>ので、毎回努力値や性格を入れ直さずに計算したいときに向いています。</p>
       </div>
-      <a class="feat-card-link" href="../calc.html">ダメージ計算を使ってみる →</a>
+      <a class="feat-card-link" href="../calc.html">ダメージ計算を開く →</a>
     </div>
 
-    <!-- ===== 2. 技選択判定 ===== -->
     <h2>② 技選択判定</h2>
-
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">🎯</span>
         <span class="feat-card-name">技選択判定</span>
       </div>
       <div class="feat-card-desc">
-        <p>「4つの技のうち、どれを使えばいちばんダメージが出るの？」を一発で教えてくれる機能です。</p>
-        <p>自分のポケモンの技を全部まとめて計算して、<strong>ダメージが大きい順にランキング</strong>で表示します。「タイプ相性」や「タイプ一致ボーナス（STAB）」もちゃんと考えて計算してくれるので、自分で相性を覚えていなくても大丈夫です。</p>
-        <p>しかも、<strong>相手のポケモンを最大6体まで登録</strong>できるので、「相手が交代してきても通る技はどれか？」を見比べることもできます。</p>
+        <p>複数の技をまとめて見比べて、どの技が通りやすいかを確認する機能です。相手6体に対して、押しやすい技や刺さりやすい範囲を見やすく整理できます。</p>
+        <p>「1匹に対して何を押すか」だけでなく、<strong>相手の並び全体にどの技が一貫しているか</strong>を確認したいときに便利です。</p>
       </div>
-      <a class="feat-card-link red" href="../move.html">技選択判定を使ってみる →</a>
+      <a class="feat-card-link red" href="../move.html">技選択判定を開く →</a>
     </div>
 
-    <!-- ===== 3. パーティ管理 ===== -->
     <h2>③ パーティ管理</h2>
-
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">📋</span>
         <span class="feat-card-name">パーティ管理</span>
       </div>
       <div class="feat-card-desc">
-        <p>対戦に連れていく<strong>6匹のチーム</strong>を登録・管理する機能です。</p>
-        <p>6匹を登録すると、チーム全体の「タイプカバレッジ」を自動でチェックしてくれます。タイプカバレッジとは、<strong>チームがどのタイプに強くて、どのタイプに弱いか</strong>ということ。たとえば「ほのおタイプに弱いポケモンが多すぎる！」といった穴をパッと見つけられます。</p>
-        <p>ログインしていれば、スマホで作ったチームをパソコンでも見られます。</p>
+        <p>6匹の並びを保存して、チーム単位で整理するための機能です。タイプの偏りや持ち物の重なりを見ながら、使う並びをまとめて管理できます。</p>
+        <p>ログインしていれば、<strong>ローカル保存のパーティも引き継ぎながら使える</strong>ので、後から別端末で見直したいときにも使いやすくなっています。</p>
       </div>
-      <a class="feat-card-link green" href="../party.html">パーティ管理を使ってみる →</a>
+      <a class="feat-card-link green" href="../party.html">パーティ管理を開く →</a>
     </div>
 
-    <!-- ===== 4. ポケモン登録 ===== -->
     <h2>④ ポケモン登録</h2>
-
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">🔴</span>
         <span class="feat-card-name">ポケモン登録</span>
       </div>
       <div class="feat-card-desc">
-        <p>自分がよく使うポケモンの<strong>くわしい情報をあらかじめ保存しておく</strong>機能です。</p>
-        <p>性格・努力値・個体値・持ち物・技の4つを登録できます。一度登録しておけば、ダメージ計算や技選択判定を使うときに<strong>ポケモンを選ぶだけで全部の数値が自動で入力</strong>されるので、毎回手で入力する手間がなくなります。</p>
-        <p>「ポケモン Champions」と従来作（スカーレット・バイオレットなど）の両方の努力値モードに対応しています。</p>
+        <p>自分が使う個体を保存しておく機能です。性格、努力値、個体値、持ち物、技を登録しておくと、他のツールで呼び出してそのまま使えます。</p>
+        <p>PokeEdgeの中では、<strong>各ツールをつなぐ土台になる機能</strong>です。まずここを整えると、ダメージ計算やバトルアナライザーがかなり使いやすくなります。</p>
       </div>
-      <a class="feat-card-link yellow" href="../pokemon.html">ポケモン登録を使ってみる →</a>
+      <a class="feat-card-link yellow" href="../pokemon.html">ポケモン登録を開く →</a>
     </div>
 
-    <!-- ===== 5. 選出率記録 ===== -->
-    <h2>⑤ 選出率記録</h2>
-
-    <div class="feat-card">
-      <div class="feat-card-head">
-        <span class="feat-card-icon">📊</span>
-        <span class="feat-card-name">選出率記録</span>
-      </div>
-      <div class="feat-card-desc">
-        <p>対戦の結果を記録して、<strong>自分のチームの強さを数字で振り返る</strong>機能です。</p>
-        <p>1試合ごとに「どのポケモンを出したか」「先頭は誰だったか」「勝ったか負けたか」を記録していくと、自動でこんなデータが見られるようになります。</p>
-        <ul>
-          <li><strong>選出率</strong> — そのポケモンをどれくらい試合に出しているか</li>
-          <li><strong>初手率</strong> — 最初に出す回数がどれくらいか</li>
-          <li><strong>勝率</strong> — そのポケモンを出した試合の勝ち負け</li>
-        </ul>
-        <p>「このポケモン、全然出してないな」「このポケモンを出すと勝率が高いな」といった発見ができます。</p>
-      </div>
-      <a class="feat-card-link" href="../stats.html">選出率記録を使ってみる →</a>
-    </div>
-
-    <!-- ===== 6. バトルアナライザー ===== -->
-    <h2>⑥ バトルアナライザー</h2>
-
+    <h2>⑤ バトルアナライザー</h2>
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">🔭</span>
         <span class="feat-card-name">バトルアナライザー</span>
       </div>
       <div class="feat-card-desc">
-        <p>対戦中の<strong>「今どっちが有利？」を数字で見える化</strong>する機能です。</p>
-        <p>自分が出す3匹と相手の3匹を入力すると、タイプ相性やステータスをもとに「形勢スコア」を計算してくれます。「自分のこのポケモンは相手のあのポケモンに有利」「ここは交代したほうがいい」といった判断のヒントが見えます。</p>
-        <p>登録済みのポケモンを使えば、技や努力値も自動で読み込まれるので入力もかんたんです。</p>
+        <p>選出段階と対戦中の両方を見ながら、対面や並びを確認する機能です。相手6体に対して誰を出すか、出したあとにどの対面が有利かをまとめて見られます。</p>
+        <p>選出率記録もこの中で見られるので、<strong>使った結果まで含めて振り返るページ</strong>として使えます。</p>
       </div>
-      <a class="feat-card-link red" href="../scope.html">バトルアナライザーを使ってみる →</a>
+      <a class="feat-card-link red" href="../scope.html">バトルアナライザーを開く →</a>
     </div>
 
-    <!-- ===== 7. 使用可能ポケモン ===== -->
-    <h2>⑦ 使用可能ポケモン</h2>
-
+    <h2>⑥ 使用可能ポケモン</h2>
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">📅</span>
         <span class="feat-card-name">使用可能ポケモン</span>
       </div>
       <div class="feat-card-desc">
-        <p><strong>今のシーズンで使えるポケモン</strong>を図鑑のように一覧で見られる機能です。</p>
-        <p>ポケモン対戦では、シーズンごとに使えるポケモンが決まっています。この機能を使えば、「今のシーズンで使えるポケモンはどれかな？」をすぐに確認できます。種族値（ポケモンごとの基本ステータス）やタイプも一緒に表示されるので、チームを考えるときの参考にもなります。</p>
-        <p>他のツールでポケモンを検索するときにも、同じシーズンフィルターで絞り込みができます。</p>
+        <p>シーズンや内定の状態に合わせて、現在使えるポケモンを一覧で確認するページです。対戦用の候補をしぼるときや、各ツールで検索対象を絞りたいときに役立ちます。</p>
+        <p>「今見ている形式で誰が使えるか」を整理するための、<strong>基準ページ</strong>として使うイメージです。</p>
       </div>
       <a class="feat-card-link green" href="../season.html">使用可能ポケモンを見る →</a>
     </div>
 
-
-
-    <!-- ===== 8. 素早さライン ===== -->
-    <h2>⑧ 素早さライン</h2>
-
+    <h2>⑦ 素早さライン</h2>
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">💨</span>
         <span class="feat-card-name">素早さライン</span>
       </div>
       <div class="feat-card-desc">
-        <p><strong>今の環境で誰を抜けるか</strong>を、素早さ実数値で見比べるための機能です。</p>
-        <p>最速・準速・無振りだけでなく、スカーフや追い風、特性補正もまとめて確認できます。対戦前に「この調整で十分か」を見直したいときに便利です。</p>
+        <p>自分の調整で、どの相手を抜けるかを確認するページです。最速・準速・無振り・最遅を見比べながら、実数値や補正込みで比較できます。</p>
+        <p>Championsのポイント制にも対応していて、<strong>「どこまで振れば十分か」を確認しやすい</strong>のが特徴です。</p>
       </div>
       <a class="feat-card-link" href="../speed.html">素早さラインを見る →</a>
     </div>
 
-    <!-- ===== 9. アイテム一覧 ===== -->
-    <h2>⑨ アイテム一覧</h2>
-
+    <h2>⑧ アイテム一覧</h2>
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">🎒</span>
         <span class="feat-card-name">アイテム一覧</span>
       </div>
       <div class="feat-card-desc">
-        <p><strong>現在使える道具・きのみ・メガストーン</strong>を一覧で確認できる機能です。</p>
-        <p>入手方法と効果をまとめて見られるので、ポケモン登録で持ち物を決める前の確認にも向いています。</p>
+        <p>現在使える持ち物を確認するページです。効果や入手方法を見ながら、登録する個体に何を持たせるかを決めやすくしています。</p>
+        <p>メガストーンを含めて見直したいときや、<strong>登録前の確認ページ</strong>として使いたいときに向いています。</p>
       </div>
       <a class="feat-card-link yellow" href="../items.html">アイテム一覧を見る →</a>
     </div>
 
-    <!-- ===== ログインの説明 ===== -->
-    <h2>ログインすると何が変わるの？</h2>
+    <h2>どこから使い始めるのがいいか</h2>
 
-    <p>PokeEdgeはログインしなくてもすべての計算機能が使えます。ただし、<strong>ログインすると便利なことが増えます</strong>。</p>
+    <p>はじめて触る場合は、まず<strong><a href="../pokemon.html">ポケモン登録</a></strong>で自分の個体を入れてから、<strong><a href="../calc.html">ダメージ計算</a></strong>と<strong><a href="../scope.html">バトルアナライザー</a></strong>を使う流れがわかりやすいです。</p>
 
-    <p>いちばん大きいのは<strong>「クラウド同期」</strong>です。ログインした状態でポケモンを登録したりパーティを作ったりすると、そのデータがクラウド（インターネット上）に保存されます。つまり、スマホで登録したポケモンを、あとからパソコンでもそのまま使えるということです。</p>
-
-    <p>ログインしていない場合は、データはそのブラウザの中だけに保存されます。ブラウザのキャッシュを消すとデータも消えてしまうので、大事なデータがある人はログインしておくのがおすすめです。</p>
-
-    <div class="article-cta">
-      <div class="article-cta-text">アカウント登録は無料です（メールアドレスだけでOK）</div>
-      <a class="article-cta-btn" href="../auth.html">無料で登録する →</a>
+    <div class="note-box">
+      <div class="note-title">おすすめの流れ</div>
+      <p>ポケモン登録 → パーティ管理 → ダメージ計算 → 技選択判定 → バトルアナライザー → 素早さライン、という順で触ると、機能どうしのつながりが見えやすくなります。</p>
     </div>
 
-    <!-- ===== まとめ ===== -->
     <h2>まとめ</h2>
 
-    <p>PokeEdgeには9つの機能があります。</p>
+    <p>PokeEdgeで現在使える機能は、次の8つです。</p>
 
     <ol>
-      <li><strong><a href="../calc.html">ダメージ計算</a></strong> — 技で何ダメージ入るかを調べる</li>
-      <li><strong><a href="../move.html">技選択判定</a></strong> — どの技が通りやすいかを比べる</li>
-      <li><strong><a href="../party.html">パーティ管理</a></strong> — 6匹のチームを作って弱点をチェック</li>
-      <li><strong><a href="../pokemon.html">ポケモン登録</a></strong> — よく使うポケモンの情報を保存</li>
-      <li><strong><a href="../stats.html">選出率記録</a></strong> — 対戦の記録をつけて勝率を分析</li>
-      <li><strong><a href="../scope.html">バトルアナライザー</a></strong> — 対戦中の形勢を数字で確認</li>
-      <li><strong><a href="../season.html">使用可能ポケモン</a></strong> — シーズンごとに使えるポケモンを一覧表示</li>
-      <li><strong><a href="../speed.html">素早さライン</a></strong> — 抜ける・抜けないを素早さ実数値で確認</li>
-      <li><strong><a href="../items.html">アイテム一覧</a></strong> — 入手方法と効果をまとめて確認</li>
+      <li><strong><a href="../calc.html">ダメージ計算</a></strong> — 技のダメージと確定数を確認する</li>
+      <li><strong><a href="../move.html">技選択判定</a></strong> — 相手全体に通りやすい技を見比べる</li>
+      <li><strong><a href="../party.html">パーティ管理</a></strong> — 6匹の並びを整理する</li>
+      <li><strong><a href="../pokemon.html">ポケモン登録</a></strong> — 個体情報を保存して他ツールで使う</li>
+      <li><strong><a href="../scope.html">バトルアナライザー</a></strong> — 選出と対戦中の判断をまとめて見る</li>
+      <li><strong><a href="../season.html">使用可能ポケモン</a></strong> — 今使えるポケモンを確認する</li>
+      <li><strong><a href="../speed.html">素早さライン</a></strong> — 抜ける範囲を実数値で確認する</li>
+      <li><strong><a href="../items.html">アイテム一覧</a></strong> — 持ち物候補を整理する</li>
     </ol>
 
-    <p>どの機能も無料で使えて、ログインなしでもOKです。まずは気になった機能から気軽に試してみてください！</p>
+    <p>気になるページから使っても大丈夫ですが、迷ったら<strong>ポケモン登録から始める</strong>と全体がつながりやすいです。</p>
 
   </div>
 
