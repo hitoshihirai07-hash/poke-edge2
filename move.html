@@ -120,6 +120,16 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .summary-pills{display:flex;gap:8px;flex-wrap:wrap;}
 .summary-pill{padding:7px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--border);font-size:11px;color:var(--text2);} .summary-pill strong{color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:500;}
 .result-grid{display:flex;flex-direction:column;gap:14px;}
+.result-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;}
+.result-tools > div{min-width:220px;flex:1;}
+.result-note{font-size:11px;color:var(--text3);line-height:1.7;}
+.overview-main{font-size:12px;font-weight:700;line-height:1.5;}
+.overview-sub{font-size:10px;color:var(--text3);line-height:1.6;margin-top:2px;}
+.overview-empty{font-size:11px;color:var(--text2);}
+.matrix.compact{min-width:820px;}
+.matrix.compact .cell{min-width:170px;}
+.matrix tbody tr.active-row td{background:rgba(0,200,240,0.05);}
+[data-theme="light"] .matrix tbody tr.active-row td{background:rgba(0,95,158,0.08);}
 .rank-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
 @media(max-width:980px){.rank-list{grid-template-columns:1fr;}}
 .rank-card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:16px;padding:14px;}
@@ -273,6 +283,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <div class="summary-row">
       <div class="summary-pills" id="result-summary"></div>
       <button class="btn primary" type="button" onclick="renderResults()">今の内容で計算</button>
+    </div>
+    <div class="result-tools">
+      <div>
+        <div class="label">表示対象（攻撃側）</div>
+        <select class="select" id="result-self-filter" onchange="renderResults()"></select>
+      </div>
+      <div>
+        <div class="label">表示モード</div>
+        <div class="result-note">全体一覧では6対6を1表で俯瞰、1匹選択ではそのポケモンの詳細表まで表示します。</div>
+      </div>
     </div>
     <div class="result-grid" id="results-area">
       <div class="empty-note">自分側と相手側を入れると、ここに対面ごとの結果が出ます。</div>
@@ -466,9 +486,22 @@ function applySavedParty(){
 }
 function setPageStatus(text){ const node = el('page-status'); if(node) node.textContent = text || ''; }
 function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-function renderAll(){ renderSavedPartyOptions(); renderSelfSide(); renderOppSide(); renderResults(); }
-function renderSelfSide(){ renderSlotNav('self'); renderSelfEditor(); updateSummaryPills(); }
+function renderAll(){ renderSavedPartyOptions(); renderSelfSide(); renderOppSide(); renderResultFilterOptions(); renderResults(); }
+function renderSelfSide(){ renderSlotNav('self'); renderSelfEditor(); renderResultFilterOptions(); updateSummaryPills(); }
 function renderOppSide(){ renderSlotNav('opp'); renderOppEditor(); updateSummaryPills(); }
+function renderResultFilterOptions(){
+  const select = el('result-self-filter');
+  if(!select) return;
+  const current = String(select.value || activeSelfIndex);
+  const options = ['<option value="all">全て（6対6一覧）</option>'];
+  selfSlots.forEach((slot, i)=>{
+    const label = slot.poke ? `${i+1}. ${slot.poke.name}` : `${i+1}. 未設定`;
+    options.push(`<option value="${i}">${escapeHtml(label)}</option>`);
+  });
+  select.innerHTML = options.join('');
+  select.value = (current === 'all' || /^\d+$/.test(current)) ? current : String(activeSelfIndex);
+  if(!select.value) select.value = String(activeSelfIndex);
+}
 function updateSummaryPills(){
   const selfCount = getFilledSelfSlots().length;
   const oppCount = getFilledOppSlots().length;
@@ -498,7 +531,7 @@ function renderSlotNav(side){
     </button>`;
   }).join('');
 }
-function selectSlot(side, index){ if(side==='self'){ activeSelfIndex=index; renderSelfSide(); } else { activeOppIndex=index; renderOppSide(); } }
+function selectSlot(side, index){ if(side==='self'){ activeSelfIndex=index; renderSelfSide(); const filter = el('result-self-filter'); if(filter && filter.value !== 'all'){ filter.value = String(index); } } else { activeOppIndex=index; renderOppSide(); } renderResults(); }
 function renderSelfEditor(){
   const slot = selfSlots[activeSelfIndex];
   const regOptions = '<option value="">登録済みから反映</option>' + registeredPokes.map((r, i)=>`<option value="${i}">${escapeHtml(r.displayName || r.pokeName || '名称未設定')}｜${escapeHtml(r.pokeName || '')}</option>`).join('');
@@ -861,7 +894,7 @@ function buildResultModel(){
       rows.push({move, cells, totalScore, koCount});
       rankings.push({attacker:slot, move, cells, totalScore, koCount, selfIndex:idx});
     });
-    groups.push({slot, rows});
+    groups.push({slot, rows, idx});
   });
   rankings.sort((a,b)=>b.totalScore-a.totalScore);
   return {attackers, defenders, groups, rankings};
@@ -870,11 +903,16 @@ function renderResults(){
   const model = buildResultModel();
   const resultSummary = el('result-summary');
   const area = el('results-area');
+  const filter = el('result-self-filter');
+  const selectedValue = filter ? String(filter.value || activeSelfIndex) : String(activeSelfIndex);
+  const selectedIndices = selectedValue === 'all' ? model.attackers.map(entry=>entry.idx) : [parseInt(selectedValue, 10)].filter(Number.isFinite);
+  const filteredGroups = model.groups.filter(group=>selectedIndices.includes(group.idx));
+  const filteredRankings = model.rankings.filter(entry=>selectedValue === 'all' || selectedIndices.includes(entry.selfIndex));
   resultSummary.innerHTML = [
     `自分枠 <strong>${model.attackers.length}</strong>`,
     `相手枠 <strong>${model.defenders.length}</strong>`,
-    `技組み合わせ <strong>${model.rankings.length}</strong>`,
-    `対面セル <strong>${model.rankings.length * model.defenders.length}</strong>`
+    `表示中 <strong>${selectedValue === 'all' ? '全体' : ((selfSlots[parseInt(selectedValue, 10)]?.poke?.name) || ('自分' + (parseInt(selectedValue, 10) + 1)))}</strong>`,
+    `対面セル <strong>${filteredRankings.length * model.defenders.length}</strong>`
   ].map(x=>`<div class="summary-pill">${x}</div>`).join('');
   if(!model.attackers.length || !model.defenders.length){
     area.innerHTML = '<div class="empty-note">自分側と相手側のポケモンを入れると、ここに結果が出ます。</div>';
@@ -882,17 +920,62 @@ function renderResults(){
     return;
   }
   const displayMode = el('result-display').value || 'all';
-  const rankCards = model.rankings.slice(0, 10).map((entry, idx)=>{
+  const rankCards = filteredRankings.slice(0, 10).map((entry, idx)=>{
     const bestNames = entry.cells.map((cell, i)=>cell && cell.ko && cell.ko!=='4発以上' ? `${model.defenders[i].slot.poke.name}:${cell.ko}` : '').filter(Boolean).join(' / ') || '即KO圏なし';
     return `<div class="rank-card"><div class="rank-top"><div class="rank-num">${idx+1}</div><div><div class="rank-name">${escapeHtml(entry.attacker.poke.name)} / ${escapeHtml(entry.move.name)}</div><div class="rank-sub">合計スコア ${entry.totalScore.toFixed(1)} ｜ 1発圏 ${entry.koCount}体</div></div><span class="type-pill tp-${escapeAttr(entry.move.type)}">${escapeHtml(entry.move.type)}</span></div><div class="rank-sub">${escapeHtml(bestNames)}</div></div>`;
   }).join('');
-  const blocks = model.groups.map(group=>{
-    const filteredRows = displayMode==='valid' ? group.rows.filter(row=>row.cells.some(cell=>cell && !cell.immune && cell.max>0)) : group.rows;
-    if(!filteredRows.length) return '';
-    return `<div class="block"><div class="block-head"><div><div class="block-title">${escapeHtml(group.slot.poke.name)}</div><div class="muted">特性: ${escapeHtml(group.slot.ability || '未設定')} / 性格: ${escapeHtml(group.slot.nature)} / LV${group.slot.lv}${group.slot.item ? ' / 持ち物: ' + escapeHtml(group.slot.item) : ''}</div></div><div class="summary-pill">${filteredRows.length}技</div></div><div class="table-wrap"><table class="matrix"><thead><tr><th class="move-col">技</th>${model.defenders.map(def=>`<th>${escapeHtml(def.slot.poke.name)}</th>`).join('')}<th>合計</th></tr></thead><tbody>${filteredRows.map(row=>renderRow(group.slot, row, model.defenders)).join('')}</tbody></table></div></div>`;
-  }).join('');
-  area.innerHTML = `${rankCards ? `<div class="section-label">総合ランキング</div><div class="rank-list">${rankCards}</div>` : ''}${blocks || '<div class="empty-note">有効な技が見つかりませんでした。</div>'}`;
+  const overviewBlock = renderOverviewBlock(model, filteredGroups, selectedIndices, selectedValue);
+  const detailBlocks = selectedValue === 'all' ? '' : filteredGroups.map(group=>renderDetailBlock(group, model.defenders, displayMode)).join('');
+  area.innerHTML = `${overviewBlock}${rankCards ? `<div class="section-label">主要技ランキング</div><div class="rank-list">${rankCards}</div>` : ''}${detailBlocks || (selectedValue === 'all' ? '<div class="empty-note">全体表示では6対6一覧を優先しています。1匹を選ぶと詳細表が出ます。</div>' : '<div class="empty-note">有効な技が見つかりませんでした。</div>')}`;
   updateSummaryPills();
+}
+function renderDetailBlock(group, defenders, displayMode){
+  const filteredRows = displayMode==='valid' ? group.rows.filter(row=>row.cells.some(cell=>cell && !cell.immune && cell.max>0)) : group.rows;
+  if(!filteredRows.length) return '';
+  return `<div class="block"><div class="block-head"><div><div class="block-title">${escapeHtml(group.slot.poke.name)}</div><div class="muted">特性: ${escapeHtml(group.slot.ability || '未設定')} / 性格: ${escapeHtml(group.slot.nature)} / LV${group.slot.lv}${group.slot.item ? ' / 持ち物: ' + escapeHtml(group.slot.item) : ''}</div></div><div class="summary-pill">${filteredRows.length}技</div></div><div class="table-wrap"><table class="matrix"><thead><tr><th class="move-col">技</th>${defenders.map(def=>`<th>${escapeHtml(def.slot.poke.name)}</th>`).join('')}<th>合計</th></tr></thead><tbody>${filteredRows.map(row=>renderRow(group.slot, row, defenders)).join('')}</tbody></table></div></div>`;
+}
+function renderOverviewBlock(model, groups, selectedIndices, selectedValue){
+  if(!groups.length) return '<div class="empty-note">表示対象の攻撃側ポケモンが未設定です。</div>';
+  const rows = groups.map(group=>renderOverviewRow(group, model.defenders, selectedIndices.includes(group.idx), selectedValue));
+  return `<div class="block"><div class="block-head"><div><div class="block-title">6対6 主要技一覧</div><div class="muted">各セルはその対面で一番通りやすい技を1つだけ表示します。全体確認はここ、細かい比較は1匹選択時の詳細表で見られます。</div></div><div class="summary-pill">${rows.length}行</div></div><div class="table-wrap"><table class="matrix compact"><thead><tr><th class="move-col">攻撃側</th>${model.defenders.map(def=>`<th>${escapeHtml(def.slot.poke.name)}</th>`).join('')}<th>総合</th></tr></thead><tbody>${rows.join('')}</tbody></table></div></div>`;
+}
+function renderOverviewRow(group, defenders, isActiveRow, selectedValue){
+  const cellsHtml = defenders.map((defender, defenderIndex)=>{
+    const best = pickBestCellForDefender(group.rows, defenderIndex);
+    return renderOverviewCell(best, defender.slot.poke?.name || '');
+  }).join('');
+  const bestOverall = pickBestOverallRow(group.rows);
+  const title = `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><strong>${escapeHtml(group.slot.poke.name)}</strong>${group.slot.item ? `<span class="cell-sub">${escapeHtml(group.slot.item)}</span>` : ''}</div><div class="cell-sub">${escapeHtml(group.slot.nature)} / ${escapeHtml(group.slot.ability || '特性未設定')}</div>`;
+  const totalCell = bestOverall ? `<div class="overview-main">${escapeHtml(bestOverall.move.name)}</div><div class="overview-sub">合計 ${bestOverall.totalScore.toFixed(1)} / 1発圏 ${bestOverall.koCount}体</div>` : '<div class="overview-empty">—</div>';
+  return `<tr class="${isActiveRow && selectedValue !== 'all' ? 'active-row' : ''}"><td class="cell">${title}</td>${cellsHtml}<td class="cell">${totalCell}</td></tr>`;
+}
+function pickBestCellForDefender(rows, defenderIndex){
+  let best = null;
+  rows.forEach(row=>{
+    const cell = row.cells[defenderIndex];
+    if(!cell) return;
+    const candidate = {row, cell};
+    if(!best || cell.score > best.cell.score || (cell.score === best.cell.score && cell.max > best.cell.max)) best = candidate;
+  });
+  return best;
+}
+function pickBestOverallRow(rows){
+  let best = null;
+  rows.forEach(row=>{
+    if(!best || row.totalScore > best.totalScore || (row.totalScore === best.totalScore && row.koCount > best.koCount)) best = row;
+  });
+  return best;
+}
+function renderOverviewCell(best, defenderName){
+  if(!best) return '<td class="cell"><div class="overview-empty">—</div></td>';
+  const row = best.row;
+  const cell = best.cell;
+  if(cell.immune){
+    return `<td class="cell"><div class="overview-main eff-immune">${escapeHtml(row.move.name)}</div><div class="overview-sub">${escapeHtml(defenderName)} に無効</div><span class="cell-ko ko-0">無効</span></td>`;
+  }
+  const effClass = cell.eff > 1 ? 'eff-good' : cell.eff < 1 ? 'eff-bad' : '';
+  const koClass = cell.ko.startsWith('確1') ? 'ko-1' : cell.ko.startsWith('乱1') ? 'ko-2' : cell.ko.startsWith('確2') ? 'ko-3' : cell.ko.startsWith('乱2') ? 'ko-3' : 'ko-4';
+  return `<td class="cell"><div class="overview-main">${escapeHtml(row.move.name)}</div><div class="overview-sub">${cell.min}〜${cell.max} / ${cell.pctMin}〜${cell.pctMax}% <span class="${effClass}">×${cell.eff}</span></div><span class="cell-ko ${koClass}">${cell.ko}</span></td>`;
 }
 function renderRow(attackerSlot, row, defenders){
   const move = row.move;
