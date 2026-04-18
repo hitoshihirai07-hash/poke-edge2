@@ -196,6 +196,17 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 
 footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16px;margin-top:32px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+
+/* パーティ詳細設定 */
+.slot-sub{font-size:8px;color:var(--text2);line-height:1.3;margin-top:2px;}
+.settings-wrap{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+.settings-row{display:grid;grid-template-columns:minmax(76px,90px) 1fr 1fr;gap:6px;align-items:center;padding:6px 8px;background:var(--bg2);border:1px solid var(--border);font-size:10px;}
+.settings-row.my-only{grid-template-columns:minmax(76px,90px) 1fr;}
+.settings-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.settings-select{width:100%;background:var(--panel);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;}
+.settings-select:focus{border-color:var(--accent);}
+.ability-chip{display:inline-block;font-size:8px;padding:1px 5px;border:1px solid var(--border2);color:var(--accent3);margin-left:6px;}
+@media(max-width:700px){.settings-row{grid-template-columns:1fr;}.settings-row.my-only{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -252,14 +263,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <div class="card-title">自分のパーティ（最大6体）</div>
         <div class="sw"><input class="si" id="my-search" placeholder="ポケモン名を入力..." oninput="doSearch('my',this.value)" autocomplete="off"><div class="dd" id="my-drop"></div></div>
         <div class="party-grid" id="my-party-grid"></div>
-        <div class="note">タップで選出（最大3体）。もう一度タップで解除。</div>
+        <div id="my-settings" class="settings-wrap"></div>
+        <div class="note">タップで選出（最大3体）。もう一度タップで解除。特性は下の設定から変更できます。</div>
       </div>
       <!-- 相手パーティ -->
       <div class="card">
         <div class="card-title red">相手のパーティ（最大6体）</div>
         <div class="sw"><input class="si" id="opp-search" placeholder="相手のポケモン名..." oninput="doSearch('opp',this.value)" autocomplete="off"><div class="dd" id="opp-drop"></div></div>
         <div class="party-grid" id="opp-party-grid"></div>
-        <div class="note">相手の6体を入力すると脅威分析と推奨選出が自動計算されます。</div>
+        <div id="opp-settings" class="settings-wrap"></div>
+        <div class="note">相手の6体を入力すると脅威分析と推奨選出が自動計算されます。相手側は特性と努力値プリセットも変更できます。</div>
       </div>
     </div>
 
@@ -467,6 +480,89 @@ function estimateStatsDefault(poke){
   return calcAllStats(poke, null, {hp:10,atk:10,def:10,spa:10,spd:10,spe:10}, 50);
 }
 
+const DEFAULT_SPREAD = {hp:10,atk:10,def:10,spa:10,spd:10,spe:10};
+const EV_PRESETS = {
+  season:{label:'推定のまま', spread:null},
+  H32A32:{label:'H32A32', spread:{hp:256,atk:256,def:0,spa:0,spd:0,spe:0}},
+  H32B32:{label:'H32B32', spread:{hp:256,atk:0,def:256,spa:0,spd:0,spe:0}},
+  H32C32:{label:'H32C32', spread:{hp:256,atk:0,def:0,spa:256,spd:0,spe:0}},
+  H32D32:{label:'H32D32', spread:{hp:256,atk:0,def:0,spa:0,spd:256,spe:0}},
+  H32S32:{label:'H32S32', spread:{hp:256,atk:0,def:0,spa:0,spd:0,spe:256}},
+  A32S32:{label:'A32S32', spread:{hp:0,atk:256,def:0,spa:0,spd:0,spe:256}},
+  C32S32:{label:'C32S32', spread:{hp:0,atk:0,def:0,spa:256,spd:0,spe:256}},
+  H16B16D16:{label:'H16B16D16', spread:{hp:128,atk:0,def:128,spa:0,spd:128,spe:0}},
+  H16A16S16:{label:'H16A16S16', spread:{hp:128,atk:128,def:0,spa:0,spd:0,spe:128}}
+};
+const PUNCH_MOVES = new Set(['アームハンマー','アイスハンマー','かみなりパンチ','ほのおのパンチ','れいとうパンチ','ドレインパンチ','マッハパンチ','バレットパンチ','コメットパンチ','シャドーパンチ','スカイアッパー','アームプレス','きあいパンチ','プラズマフィスト']);
+const BITE_MOVES = new Set(['かみつく','かみくだく','ほのおのキバ','かみなりのキバ','こおりのキバ','どくどくのキバ','サイコファング','エラがみ','くらいつく']);
+const SLICING_MOVES = new Set(['きょじゅうざん','きりさく','リーフブレード','サイコカッター','エアカッター','シェルブレード','つじぎり','せいなるつるぎ','アクアカッター','ソーラーブレード','クレバーハチェット','むねんのつるぎ']);
+const BULLET_BOMB_MOVES = new Set(['シャドーボール','エナジーボール','ジャイロボール','エレキボール','ミストボール','タネばくだん','ヘドロばくだん','どろばくだん','かえんだん','きあいだま','オクタンほう','ロックブラスト','たまなげ']);
+function cloneSpread(spread){
+  const src = spread || DEFAULT_SPREAD;
+  return {hp:src.hp||0, atk:src.atk||0, def:src.def||0, spa:src.spa||0, spd:src.spd||0, spe:src.spe||0};
+}
+function getAbilityOptions(poke){
+  if(!poke || !poke.name) return [];
+  let opts = ABILITY_MAP[poke.name] || [];
+  if((!opts || !opts.length) && isMegaPokemon(poke.name)){
+    opts = ABILITY_MAP[getBaseName(poke.name)] || [];
+  }
+  return [...new Set((opts||[]).filter(Boolean))];
+}
+function getDefaultAbilityForPokemon(poke){
+  const opts = getAbilityOptions(poke);
+  const sr = getSeasonRow(poke.name);
+  if(sr && Array.isArray(sr.abilities) && sr.abilities.length){
+    const a = parseRateEntry(sr.abilities[0]).name;
+    if(a) return a;
+  }
+  return opts[0] || '';
+}
+function getEstimatedProfile(poke){
+  const sr = getSeasonRow(poke.name);
+  if(sr && sr.natures && sr.natures.length && sr.spreads && sr.spreads.length){
+    const topNature = parseRateEntry(sr.natures[0]).name;
+    const topSpread = parseSpread(sr.spreads[0]) || cloneSpread(DEFAULT_SPREAD);
+    return {natureName:topNature, spread:cloneSpread(topSpread), source:'season'};
+  }
+  return {natureName:null, spread:cloneSpread(DEFAULT_SPREAD), source:'default'};
+}
+function getSpreadForSlot(slot){
+  if(slot && slot.presetKey && slot.presetKey !== 'season' && EV_PRESETS[slot.presetKey] && EV_PRESETS[slot.presetKey].spread){
+    return cloneSpread(EV_PRESETS[slot.presetKey].spread);
+  }
+  return cloneSpread(slot && slot.baseSpread ? slot.baseSpread : DEFAULT_SPREAD);
+}
+function rebuildSlotStats(slot){
+  slot.stats = calcAllStats(slot.poke, slot.natureName, getSpreadForSlot(slot), slot.lv||50);
+  return slot;
+}
+function createSlot(poke, opts){
+  opts = opts || {};
+  const profile = opts.profile || getEstimatedProfile(poke);
+  const abilityOptions = getAbilityOptions(poke);
+  const slot = {
+    poke,
+    natureName: Object.prototype.hasOwnProperty.call(opts,'natureName') ? opts.natureName : profile.natureName,
+    baseSpread: cloneSpread(opts.spread || profile.spread),
+    lv: opts.lv || 50,
+    moves: opts.moves || getEstimatedAtkMoves(poke),
+    abilityOptions: abilityOptions,
+    ability: opts.ability || getDefaultAbilityForPokemon(poke),
+    presetKey: opts.presetKey || 'season',
+    profileSource: opts.profileSource || profile.source
+  };
+  rebuildSlotStats(slot);
+  return slot;
+}
+function isSoundMove(move){
+  const txt = ((move && move.effect) || '') + ' ' + ((move && move.notes) || '');
+  return txt.includes('音系の技');
+}
+function ignoresDefenderAbility(ability){
+  return ['かたやぶり','ターボブレイズ','テラボルテージ'].includes(ability);
+}
+
 // ===== シーズンランキング活用 =====
 // ===== メガ進化 ↔ 元ポケモン ユーティリティ =====
 function isMegaPokemon(name){ return name && name.startsWith('メガ') && name!=='メガニウム' && name!=='メガヤンマ'; }
@@ -506,12 +602,8 @@ function parseSpread(s){
 }
 
 function estimateFromSeason(poke){
-  const sr = getSeasonRow(poke.name);
-  if(!sr || !sr.natures || !sr.natures.length || !sr.spreads || !sr.spreads.length) return estimateStatsDefault(poke);
-  const topNature = parseRateEntry(sr.natures[0]).name;
-  const topSpread = parseSpread(sr.spreads[0]);
-  // メガポケモンの場合も性格・努力値は元ランキングから取得し、種族値はメガのものを使う
-  return calcAllStats(poke, topNature, topSpread, 50);
+  const profile = getEstimatedProfile(poke);
+  return calcAllStats(poke, profile.natureName, profile.spread, 50);
 }
 
 function getPokemonMovesRow(pokeName){
@@ -567,16 +659,15 @@ function getEstimatedAtkMoves(poke){
 }
 
 // ===== ダメージ計算（簡易版） =====
-function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct){
+function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct, extraMod){
   if(eff===0) return {min:0,max:0,label:'無効',cls:'mu-null'};
   if(!power||!atkSt||!defSt) return null;
   const base = Math.floor(Math.floor(Math.floor(lv*2/5+2)*power*atkSt/defSt)/50+2);
-  const full = Math.floor(base*stab)*eff;
+  const full = Math.floor(base*stab*extraMod)*eff;
   const mn = Math.floor(full*0.85);
   const mx = Math.floor(full);
   const pMin = Math.round(mn/defHP*100);
   const pMax = Math.round(mx/defHP*100);
-  // 現HP考慮
   const curHP = Math.floor(defHP*hpPct/100);
   const ko1 = mx>=curHP;
   const ko2 = mn>=curHP;
@@ -590,29 +681,81 @@ function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct){
   return {min:pMin,max:pMax,label,cls};
 }
 
-function calcMoveDmg(atkPoke, atkStats, move, defPoke, defStats, defHpPct){
+function getAbilityDamageAdjustments(atkSlot, move, defSlot, baseEff, defHpPct){
+  const atkAbility = atkSlot && atkSlot.ability || '';
+  const defAbility = defSlot && defSlot.ability || '';
+  const ignoreDef = ignoresDefenderAbility(atkAbility);
+  let eff = baseEff;
+  let mod = 1;
+  let nullifyReason = '';
+
+  if(!ignoreDef){
+    if((defAbility==='ふゆう' || defAbility==='どしょく') && move.type==='じめん'){ eff = 0; nullifyReason = defAbility; }
+    else if(['ちょすい','よびみず','かんそうはだ'].includes(defAbility) && move.type==='みず'){ eff = 0; nullifyReason = defAbility; }
+    else if(['もらいび','こんがりボディ'].includes(defAbility) && move.type==='ほのお'){ eff = 0; nullifyReason = defAbility; }
+    else if(['ちくでん','ひらいしん','でんきエンジン'].includes(defAbility) && move.type==='でんき'){ eff = 0; nullifyReason = defAbility; }
+    else if(defAbility==='そうしょく' && move.type==='くさ'){ eff = 0; nullifyReason = defAbility; }
+    else if(defAbility==='ぼうおん' && isSoundMove(move)){ eff = 0; nullifyReason = defAbility; }
+    else if(defAbility==='ぼうだん' && BULLET_BOMB_MOVES.has(move.name)){ eff = 0; nullifyReason = defAbility; }
+    else if(defAbility==='ふしぎなまもり' && baseEff<=1){ eff = 0; nullifyReason = defAbility; }
+  }
+
+  if(eff>0){
+    if(defAbility==='あついしぼう' && (move.type==='ほのお' || move.type==='こおり')) mod *= 0.5;
+    if(defAbility==='たいねつ' && move.type==='ほのお') mod *= 0.5;
+    if(defAbility==='すいほう'){
+      if(move.type==='ほのお') mod *= 0.5;
+    }
+    if(defAbility==='かんそうはだ' && move.type==='ほのお') mod *= 1.25;
+    if(defAbility==='もふもふ'){
+      if(move.contact && move.type!=='ほのお') mod *= 0.5;
+      if(move.type==='ほのお') mod *= 2;
+    }
+    if(['フィルター','ハードロック','プリズムアーマー'].includes(defAbility) && baseEff>1) mod *= 0.75;
+    if(['マルチスケイル','ファントムガード'].includes(defAbility) && (defHpPct||100)===100) mod *= 0.5;
+  }
+
+  if(move.category==='物理' && ['ちからもち','ヨガパワー'].includes(atkAbility)) mod *= 2;
+  if(atkAbility==='すいほう' && move.type==='みず') mod *= 2;
+  if(atkAbility==='はがねつかい' && move.type==='はがね') mod *= 1.5;
+  if(atkAbility==='いろめがね' && baseEff>0 && baseEff<1) mod *= 2;
+  if(atkAbility==='パンクロック' && isSoundMove(move)) mod *= 1.3;
+  if(atkAbility==='がんじょうあご' && BITE_MOVES.has(move.name)) mod *= 1.5;
+  if(atkAbility==='てつのこぶし' && PUNCH_MOVES.has(move.name)) mod *= 1.2;
+  if(atkAbility==='きれあじ' && SLICING_MOVES.has(move.name)) mod *= 1.5;
+
+  return {eff, mod, nullifyReason};
+}
+
+function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
+  const atkPoke = atkSlot.poke, atkStats = atkSlot.stats;
+  const defPoke = defSlot.poke, defStats = defSlot.stats;
   const defTypes = [defPoke.type1,defPoke.type2].filter(Boolean);
   const atkTypes = [atkPoke.type1,atkPoke.type2].filter(Boolean);
-  const eff = typeEff(move.type, defTypes);
-  const stab = atkTypes.includes(move.type)?1.5:1;
+  const baseEff = typeEff(move.type, defTypes);
+  const adjust = getAbilityDamageAdjustments(atkSlot, move, defSlot, baseEff, defHpPct||100);
+  if(adjust.eff===0){
+    return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null'};
+  }
+  const stab = atkTypes.includes(move.type) ? ((atkSlot.ability==='てきおうりょく') ? 2 : 1.5) : 1;
   const aSt = move.category==='物理' ? atkStats.atk : atkStats.spa;
   const dSt = move.category==='物理' ? defStats.def : defStats.spd;
-  return calcDmgRange(aSt, dSt, move.power, atkStats.lv, eff, stab, defStats.hp, defHpPct||100);
+  return calcDmgRange(aSt, dSt, move.power, atkStats.lv, adjust.eff, stab, defStats.hp, defHpPct||100, adjust.mod);
 }
 
 // ===== 対面評価 =====
-function evaluateMatchup(myPoke, myStats, myMoves, oppPoke, oppStats, oppMoves){
+function evaluateMatchup(mySlot, oppSlot){
   let myBest = 0, oppBest = 0;
-  myMoves.forEach(m=>{
-    const r = calcMoveDmg(myPoke, myStats, m, oppPoke, oppStats, 100);
+  (mySlot.moves||[]).forEach(m=>{
+    const r = calcMoveDmg(mySlot, m, oppSlot, 100);
     if(r) myBest = Math.max(myBest, r.max);
   });
-  oppMoves.forEach(m=>{
-    const r = calcMoveDmg(oppPoke, oppStats, m, myPoke, myStats, 100);
+  (oppSlot.moves||[]).forEach(m=>{
+    const r = calcMoveDmg(oppSlot, m, mySlot, 100);
     if(r) oppBest = Math.max(oppBest, r.max);
   });
   const diff = myBest - oppBest;
-  const faster = myStats.spe > oppStats.spe;
+  const faster = mySlot.stats.spe > oppSlot.stats.spe;
   let score = diff + (faster?5:-5);
   let symbol, cls;
   if(score>=30)      {symbol='◎';cls='mu-win';}
@@ -629,11 +772,9 @@ let mySelect=[], oppSelect=[];
 let myActiveIdx=0, oppActiveIdx=0;
 let myHP=[100,100,100], oppHP=[100,100,100];
 
-// 各パーティスロット: {poke, stats, moves}
-function buildSlot(poke){
-  const stats = estimateFromSeason(poke);
-  const moves = getEstimatedAtkMoves(poke);
-  return {poke, stats, moves};
+// 各パーティスロット: {poke, stats, moves, ability}
+function buildSlot(poke, opts){
+  return createSlot(poke, opts);
 }
 
 // ===== フェーズ切替 =====
@@ -701,7 +842,7 @@ function addFromReg(id){
     const md = moveIndex.find(x=>x.name===m.name);
     return md ? Object.assign({}, md) : {name:m.name, type:m.type||'', category:m.category||'', power:parseInt(m.power)||0};
   }).filter(m=>m.power>0);
-  myParty.push({poke, stats, moves: moves.length ? moves : getEstimatedAtkMoves(poke), regData:rec});
+  myParty.push(buildSlot(poke, {natureName:rec.nature||null, spread:rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:rec.lv||50, moves: moves.length ? moves : getEstimatedAtkMoves(poke), ability:rec.ability||getDefaultAbilityForPokemon(poke), presetKey:'season', profileSource:'registered'}));
   renderParty('my');
   autoAnalyze();
 }
@@ -737,7 +878,7 @@ async function loadFromParty(id){
       const md = moveIndex.find(x=>x.name===mv.name);
       return md ? Object.assign({}, md) : {name:mv.name, type:mv.type||'', category:mv.category||'', power:parseInt(mv.power)||0};
     }).filter(mv=>mv.power>0);
-    myParty.push({poke, stats, moves: moves.length ? moves : getEstimatedAtkMoves(poke)});
+    myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves: moves.length ? moves : getEstimatedAtkMoves(poke), ability:m.ability||getDefaultAbilityForPokemon(poke), presetKey:'season', profileSource:'saved'}));
   });
   renderParty('my');
   autoAnalyze();
@@ -800,12 +941,51 @@ function renderParty(side){
   const grid=document.getElementById(side+'-party-grid');
   grid.innerHTML=party.map((s,i)=>{
     const selected=sel.includes(i);
+    const presetLabel = side==='opp' && s.presetKey && EV_PRESETS[s.presetKey] ? EV_PRESETS[s.presetKey].label : '';
     return '<div class="party-slot '+(selected?'selected':'')+'" onclick="toggleSelect(\''+side+'\','+i+')">'+
       '<button class="slot-remove" onclick="event.stopPropagation();removePoke(\''+side+'\','+i+')">×</button>'+
       '<div class="slot-name">'+s.poke.name+'</div>'+
       '<div>'+typeHTML(s.poke)+'</div>'+
+      '<div class="slot-sub">'+(s.ability||'')+(presetLabel?'<br>'+presetLabel:'')+'</div>'+
     '</div>';
   }).join('')+(party.length<6?'<div class="party-slot"><div class="slot-empty">＋</div></div>':'');
+  renderSlotSettings(side);
+}
+
+function renderSlotSettings(side){
+  const wrap = document.getElementById(side+'-settings');
+  if(!wrap) return;
+  const party = side==='my'?myParty:oppParty;
+  if(!party.length){ wrap.innerHTML=''; return; }
+  wrap.innerHTML = party.map((slot,i)=>{
+    const opts = [...new Set([...(slot.abilityOptions||[]), slot.ability].filter(Boolean))];
+    const abilityOptions = opts.length ? opts.map(a=>'<option value="'+a+'" '+(slot.ability===a?'selected':'')+'>'+a+'</option>').join('') : '<option value="">なし</option>';
+    const abilitySelect = '<select class="settings-select" onchange="setSlotAbility(\''+side+'\','+i+',this.value)">'+abilityOptions+'</select>';
+    if(side==='opp'){
+      const presetOptions = Object.keys(EV_PRESETS).map(key=>'<option value="'+key+'" '+((slot.presetKey||'season')===key?'selected':'')+'>'+EV_PRESETS[key].label+'</option>').join('');
+      return '<div class="settings-row"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+'<select class="settings-select" onchange="setOppPreset('+i+',this.value)">'+presetOptions+'</select></div>';
+    }
+    return '<div class="settings-row my-only"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+'</div>';
+  }).join('');
+}
+
+function setSlotAbility(side, idx, ability){
+  const party = side==='my' ? myParty : oppParty;
+  if(!party[idx]) return;
+  party[idx].ability = ability || '';
+  renderParty(side);
+  autoAnalyze();
+  if(document.getElementById('phase-2').classList.contains('active')) renderBattlePhase();
+}
+
+function setOppPreset(idx, presetKey){
+  const slot = oppParty[idx];
+  if(!slot) return;
+  slot.presetKey = presetKey || 'season';
+  rebuildSlotStats(slot);
+  renderParty('opp');
+  autoAnalyze();
+  if(document.getElementById('phase-2').classList.contains('active')) renderBattlePhase();
 }
 
 // ===== 自動分析 =====
@@ -830,7 +1010,7 @@ function renderMatrix(){
   myParty.forEach((my,mi)=>{
     html+='<tr><th>'+my.poke.name+'</th>';
     oppParty.forEach((opp,oi)=>{
-      const mu = evaluateMatchup(my.poke, my.stats, my.moves, opp.poke, opp.stats, opp.moves);
+      const mu = evaluateMatchup(my, opp);
       html+='<td class="'+mu.cls+'" title="自→相:'+mu.myBest+'% 相→自:'+mu.oppBest+'%">'+mu.symbol+'</td>';
     });
     html+='</tr>';
@@ -860,7 +1040,7 @@ function renderRecommendation(){
       let bestMu = -999;
       team.forEach(mi=>{
         const my=myParty[mi];
-        const mu = evaluateMatchup(my.poke, my.stats, my.moves, opp.poke, opp.stats, opp.moves);
+        const mu = evaluateMatchup(my, opp);
         bestMu = Math.max(bestMu, mu.score);
       });
       score += bestMu;
@@ -946,7 +1126,7 @@ function renderThreatAnalysis(){
     }
 
     // 対処可能な味方
-    const handlers = myParty.filter(my=>evaluateMatchup(my.poke, my.stats, my.moves, opp.poke, opp.stats, opp.moves).score>=10).map(my=>my.poke.name);
+    const handlers = myParty.filter(my=>evaluateMatchup(my, opp).score>=10).map(my=>my.poke.name);
     if(handlers.length) detail += '<div class="safe">→ '+handlers.join(', ')+' で対処可能</div>';
     else if(myParty.length) detail += '<div class="warn">⚠ 有利な対面がありません！</div>';
 
@@ -973,7 +1153,7 @@ function renderBattleField(side){
   if(!active) return;
 
   document.getElementById(side+'-active-name').textContent = active.poke.name;
-  document.getElementById(side+'-active-types').innerHTML = typeHTML(active.poke);
+  document.getElementById(side+'-active-types').innerHTML = typeHTML(active.poke) + (active.ability ? '<span class="ability-chip">'+active.ability+'</span>' : '');
   const pct = hp[activeIdx]||100;
   document.getElementById(side+'-hp-fill').style.width = pct+'%';
   document.getElementById(side+'-hp-fill').style.background = hpColor(pct);
@@ -1023,7 +1203,7 @@ function calcBattleActions(){
   const myDmgEl = document.getElementById('my-dmg-list');
   if(oppSlot){
     const results = mySlot.moves.map(m=>{
-      const r = calcMoveDmg(mySlot.poke, mySlot.stats, m, oppSlot.poke, oppSlot.stats, oppHP[oppActiveIdx]);
+      const r = calcMoveDmg(mySlot, m, oppSlot, oppHP[oppActiveIdx]);
       return {move:m, result:r};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
 
@@ -1045,7 +1225,7 @@ function calcBattleActions(){
   const oppDmgEl = document.getElementById('opp-dmg-list');
   if(oppSlot){
     const oppResults = oppSlot.moves.map(m=>{
-      const r = calcMoveDmg(oppSlot.poke, oppSlot.stats, m, mySlot.poke, mySlot.stats, myHP[myActiveIdx]);
+      const r = calcMoveDmg(oppSlot, m, mySlot, myHP[myActiveIdx]);
       return {move:m, result:r, rate:m.rate||0};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
 
@@ -1071,7 +1251,7 @@ function calcBattleActions(){
       // 相手の最大ダメ技で被ダメ計算
       let worstDmg = 0, worstMove = '';
       oppSlot.moves.forEach(m=>{
-        const r = calcMoveDmg(oppSlot.poke, oppSlot.stats, m, benchSlot.poke, benchSlot.stats, 100);
+        const r = calcMoveDmg(oppSlot, m, benchSlot, 100);
         if(r && r.max > worstDmg){worstDmg=r.max; worstMove=m.name;}
       });
       const safety = worstDmg<25?'switch-safe':worstDmg<50?'switch-warn':'switch-danger';
@@ -1096,7 +1276,7 @@ function calcBattleActions(){
       // 自分の最大ダメ技
       let myBest=0, myBestMove='';
       mySlot.moves.forEach(m=>{
-        const r = calcMoveDmg(mySlot.poke, mySlot.stats, m, benchOpp.poke, benchOpp.stats, 100);
+        const r = calcMoveDmg(mySlot, m, benchOpp, 100);
         if(r && r.max > myBest){myBest=r.max; myBestMove=m.name;}
       });
       const tag = myBest>=50?'mu-win':myBest>=25?'mu-even':'mu-lose';
@@ -1130,7 +1310,7 @@ function calcGauge(){
   const mySlot = myParty[mySel[myActiveIdx]];
   const oppSlot = oppParty[oppSel[oppActiveIdx]];
   if(mySlot && oppSlot){
-    const mu = evaluateMatchup(mySlot.poke, mySlot.stats, mySlot.moves, oppSlot.poke, oppSlot.stats, oppSlot.moves);
+    const mu = evaluateMatchup(mySlot, oppSlot);
     score += mu.score*0.3;
     // 素早さ表示
     document.getElementById('speed-compare').innerHTML =
