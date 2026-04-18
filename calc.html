@@ -234,6 +234,14 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .quick-chip{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;cursor:pointer;line-height:1.3;transition:all 0.18s;}
 .quick-chip:hover{border-color:var(--accent);color:var(--accent);}
 .quick-chip.subtle{color:var(--text2);border-style:dashed;}
+.registered-pick-box{margin:8px 0 10px;padding:10px;border:1px solid var(--border);background:rgba(255,200,0,0.03);}
+.registered-pick-title{font-size:10px;letter-spacing:2px;color:var(--accent3);margin-bottom:8px;}
+.registered-pick-note{font-size:10px;color:var(--text2);margin-bottom:8px;line-height:1.6;}
+.registered-pick-list{display:flex;flex-direction:column;gap:6px;}
+.registered-pick-btn{width:100%;text-align:left;background:var(--bg2);border:1px solid rgba(255,200,0,.28);color:var(--text);padding:8px 10px;font-size:11px;cursor:pointer;transition:all .18s;}
+.registered-pick-btn:hover{border-color:var(--accent3);background:rgba(255,200,0,0.06);}
+.registered-pick-btn strong{color:var(--accent3);font-size:12px;}
+.registered-pick-meta{display:block;color:var(--text2);font-size:10px;margin-top:3px;line-height:1.5;}
 .swap-btn{background:transparent;border:1px solid var(--border2);color:var(--accent2);padding:10px 12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:2px;transition:all 0.18s;writing-mode:vertical-rl;text-orientation:mixed;}
 .swap-btn:hover{border-color:var(--accent2);background:rgba(255,48,96,0.08);}
 .picker-modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.72);padding:18px;align-items:center;justify-content:center;}
@@ -489,6 +497,8 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
   .dropdown{max-height:44vh;}
   .quick-chip-wrap{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;}
   .quick-chip{white-space:nowrap;flex:0 0 auto;}
+  .registered-pick-box{padding:8px;}
+  .registered-pick-btn{padding:8px;}
   .picker-list{grid-template-columns:1fr;}
   .main-btn{font-size:17px;letter-spacing:3px;}
   .card-title{font-size:11px;}
@@ -577,6 +587,11 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 <div class="search-wrap">
           <input class="search-input" id="atk-search" type="text" placeholder="名前を入力..." autocomplete="off">
           <div class="dropdown" id="atk-drop"></div>
+        </div>
+        <div class="registered-pick-box">
+          <div class="registered-pick-title">ポケモン登録</div>
+          <div class="registered-pick-note">登録済みポケモンをそのまま攻撃側へ反映できます。検索欄とシーズンで絞り込みます。</div>
+          <div class="registered-pick-list" id="atk-registered-list"></div>
         </div>
         <div class="poke-card" id="atk-card">
           <div class="poke-no" id="atk-no"></div>
@@ -846,6 +861,11 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <div class="search-wrap">
           <input class="search-input" id="def-search" type="text" placeholder="名前を入力..." autocomplete="off">
           <div class="dropdown" id="def-drop"></div>
+        </div>
+        <div class="registered-pick-box">
+          <div class="registered-pick-title">ポケモン登録</div>
+          <div class="registered-pick-note">登録済みポケモンをそのまま防御側へ反映できます。検索欄とシーズンで絞り込みます。</div>
+          <div class="registered-pick-list" id="def-registered-list"></div>
         </div>
         <div class="quick-action-row">
           <button type="button" class="quick-action-btn" onclick="openPokemonPicker('def')">一覧から選ぶ</button>
@@ -2197,6 +2217,8 @@ function clearDamageSetupSelection(){
   clearSelectedMove();
   if(el('result-box')) el('result-box').classList.remove('show');
   renderQuickMoveChips('');
+  renderRegisteredPickList('atk');
+  renderRegisteredPickList('def');
   updateDamageSetupSummary();
   updateContextSections();
 }
@@ -2245,11 +2267,40 @@ function getSeasonFilteredPokes() {
   if(!season||!SEASON_DATA||!SEASON_DATA[season]) return pokeIndex;
   return pokeIndex.filter(p=>SEASON_DATA[season].includes(p.name));
 }
+
+function renderRegisteredPickList(side){
+  const list = el(`${side}-registered-list`);
+  if(!list) return;
+  const q = (el(`${side}-search`)?.value||'').trim();
+  const actionLabel = side==='atk' ? '攻撃側へ選ぶ' : '防御側へ選ぶ';
+  const records = getCalcFilteredRegisteredRecords(q).sort((a,b)=>getCalcRecordLabel(a).localeCompare(getCalcRecordLabel(b),'ja')).slice(0,24);
+  if(!records.length){
+    list.innerHTML = '<div class="quick-note">該当する登録ポケモンがありません。</div>';
+    return;
+  }
+  list.innerHTML = records.map(rec=>{
+    const species = rec.pokeName || '';
+    const label = getCalcRecordLabel(rec);
+    const metaParts = [species];
+    if(rec.ability) metaParts.push(`特性 ${rec.ability}`);
+    if(rec.item) metaParts.push(`持ち物 ${rec.item}`);
+    if(rec.nature) metaParts.push(`性格 ${rec.nature}`);
+    return `<button type="button" class="registered-pick-btn" onclick="pickRegisteredCalcRecord('${side}','${String(rec.id).replace(/'/g,"\'")}')"><strong>${escapeHtml(label)}</strong> を${actionLabel}<span class="registered-pick-meta">${escapeHtml(metaParts.filter(Boolean).join(' / '))}</span></button>`;
+  }).join('');
+}
+function pickRegisteredCalcRecord(side, recordId){
+  const rec = getCalcRegisteredPokes().find(r=>String(r.id)===String(recordId));
+  if(!rec) return;
+  if(side==='atk') applyCalcRecordToSide('atk', rec);
+  else applyCalcRecordToSide('def', rec);
+}
 function setupSearch(inputId,dropId,onSelect) {
   const inp=el(inputId), drop=el(dropId); if(!inp || !drop) return;
   let timer;
   inp.addEventListener('input',()=>{
     clearTimeout(timer); const q=inp.value.trim();
+    if(inputId==='atk-search') renderRegisteredPickList('atk');
+    if(inputId==='def-search') renderRegisteredPickList('def');
     if(!q){drop.classList.remove('show');drop.innerHTML='';return;}
     timer=setTimeout(()=>{
       const res=getCalcPokemonSearchItems(q, 12);
@@ -2299,6 +2350,8 @@ function setupMoveSearch(inputId,dropId,onSelect) {
   let timer;
   inp.addEventListener('input',()=>{
     clearTimeout(timer); const q=inp.value.trim();
+    if(inputId==='atk-search') renderRegisteredPickList('atk');
+    if(inputId==='def-search') renderRegisteredPickList('def');
     if(!q){drop.classList.remove('show');drop.innerHTML='';return;}
     timer=setTimeout(()=>{
       const res=moveIndex.filter(m=>String(m.name||'').includes(q)&&(m.power>0||m.notes==='体重依存')).slice(0,12);
@@ -3576,6 +3629,8 @@ function initSeasonFilter(){
 }
 function onSeasonFilterChange(){
   document.querySelectorAll('input.search-input').forEach(inp=>inp.dispatchEvent(new Event('input')));
+  renderRegisteredPickList('atk');
+  renderRegisteredPickList('def');
   if(el('damage-setup-modal')?.classList.contains('show')) renderDamageSetupLists();
 }
 
@@ -3646,6 +3701,8 @@ window.onload = async()=>{
   el('poke-picker-modal')?.addEventListener('click',e=>{ if(e.target===el('poke-picker-modal')) closePokemonPicker(); });
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
+  renderRegisteredPickList('atk');
+  renderRegisteredPickList('def');
   updateDamageSetupSummary();
   initContextUI();
   initMobileResultUI();
