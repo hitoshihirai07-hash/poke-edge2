@@ -233,6 +233,19 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 
   <!-- ============ PHASE 1: 選出フェーズ ============ -->
   <div class="phase-panel active" id="phase-1">
+    <!-- フィルタ＋パーティ読み込み -->
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+      <select id="scope-season-filter" onchange="onScopeSeasonChange()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;">
+        <option value="">すべてのポケモン</option>
+      </select>
+      <select id="scope-reg-select" onchange="addFromReg(this.value);this.value='';" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;max-width:180px;">
+        <option value="">— 登録済みから追加 —</option>
+      </select>
+      <select id="scope-party-select" onchange="loadFromParty(this.value);this.value='';" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;max-width:180px;">
+        <option value="">— パーティから読込 —</option>
+      </select>
+    </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <!-- 自分パーティ -->
       <div class="card">
@@ -572,11 +585,104 @@ function goToBattle(){
   showPhase(2);
 }
 
+// ===== シーズンフィルタ =====
+function getScopeFilteredPokes(){
+  const sel=document.getElementById('scope-season-filter');
+  const season=sel?sel.value:'';
+  if(!season||!SEASON_DATA||!SEASON_DATA[season]) return pokeIndex;
+  return pokeIndex.filter(p=>SEASON_DATA[season].includes(p.name));
+}
+function onScopeSeasonChange(){}
+
+function initScopeSeasonFilter(){
+  const sel=document.getElementById('scope-season-filter');
+  if(!sel||!SEASON_DATA||!SEASON_DATA.seasons) return;
+  sel.innerHTML='<option value="">すべてのポケモン</option>';
+  SEASON_DATA.seasons.forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s; opt.textContent=s+'（'+(SEASON_DATA[s]||[]).length+'体）';
+    sel.appendChild(opt);
+  });
+  // デフォルトで内定を選択
+  if(SEASON_DATA.seasons.length) sel.value=SEASON_DATA.seasons[0];
+}
+
+// ===== 登録済みポケモンから追加 =====
+function initRegSelect(){
+  const sel=document.getElementById('scope-reg-select');
+  if(!sel) return;
+  const regs = loadLocal ? loadLocal() : [];
+  sel.innerHTML='<option value="">— 登録済みから追加 —</option>';
+  regs.forEach(r=>{
+    const opt=document.createElement('option');
+    opt.value=r.id;
+    opt.textContent=(r.displayName||r.pokeName||'?')+' ('+( r.pokeName||'')+')';
+    sel.appendChild(opt);
+  });
+}
+function addFromReg(id){
+  if(!id) return;
+  if(myParty.length>=6){alert('パーティは最大6体です');return;}
+  const regs = loadLocal ? loadLocal() : [];
+  const rec = regs.find(r=>r.id===id);
+  if(!rec) return;
+  const poke = pokeIndex.find(p=>p.name===rec.pokeName);
+  if(!poke){alert('ポケモンが見つかりません: '+rec.pokeName);return;}
+  // 登録データの性格・努力値から実数値を計算
+  const stats = calcAllStats(poke, rec.nature, rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, rec.lv||50);
+  // 登録技を使用
+  const moves = (rec.moves||[]).filter(m=>m&&m.name).map(m=>{
+    const md = moveIndex.find(x=>x.name===m.name);
+    return md ? Object.assign({}, md) : {name:m.name, type:m.type||'', category:m.category||'', power:parseInt(m.power)||0};
+  }).filter(m=>m.power>0);
+  myParty.push({poke, stats, moves: moves.length ? moves : getEstimatedAtkMoves(poke), regData:rec});
+  renderParty('my');
+  autoAnalyze();
+}
+
+// ===== パーティから読み込み =====
+async function initPartySelect(){
+  const sel=document.getElementById('scope-party-select');
+  if(!sel) return;
+  const saved = typeof loadParties==='function' ? await loadParties() : [];
+  sel.innerHTML='<option value="">— パーティから読込 —</option>';
+  saved.forEach((s,i)=>{
+    const d = s.data || s;
+    const members = (d.members||[]).map(m=>m.pokeName).join('/');
+    const opt=document.createElement('option');
+    opt.value = s.id || i;
+    opt.textContent = (s.name||d.name||'パーティ')+'（'+members+'）';
+    sel.appendChild(opt);
+  });
+}
+async function loadFromParty(id){
+  if(!id && id!==0) return;
+  const saved = typeof loadParties==='function' ? await loadParties() : [];
+  const s = saved.find(p=>(p.id||'').toString()===id.toString()) || saved[parseInt(id)];
+  if(!s) return;
+  const d = s.data || s;
+  myParty = [];
+  mySelect = [];
+  (d.members||[]).forEach(m=>{
+    const poke = pokeIndex.find(x=>x.name===m.pokeName);
+    if(!poke) return;
+    const stats = calcAllStats(poke, m.nature, m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, m.lv||50);
+    const moves = (m.moves||[]).filter(mv=>mv&&mv.name).map(mv=>{
+      const md = moveIndex.find(x=>x.name===mv.name);
+      return md ? Object.assign({}, md) : {name:mv.name, type:mv.type||'', category:mv.category||'', power:parseInt(mv.power)||0};
+    }).filter(mv=>mv.power>0);
+    myParty.push({poke, stats, moves: moves.length ? moves : getEstimatedAtkMoves(poke)});
+  });
+  renderParty('my');
+  autoAnalyze();
+}
+
 // ===== ポケモン検索 =====
 function doSearch(side,q){
   const drop=document.getElementById(side+'-drop');
   if(!q.trim()){drop.classList.remove('show');return;}
-  const res=pokeIndex.filter(p=>p.name.includes(q.trim())).slice(0,20);
+  const pool = getScopeFilteredPokes();
+  const res=pool.filter(p=>p.name.includes(q.trim())).slice(0,20);
   if(!res.length){drop.classList.remove('show');return;}
   drop.innerHTML=res.map(p=>{
     const t1=p.type1?'<span class="tp tp-'+p.type1+'">'+p.type1+'</span>':'';
@@ -963,6 +1069,9 @@ function closeNav(){var nav=document.querySelector('.header-nav');var hb=documen
 window.onload=async()=>{
   await initAuth();
   await loadSeasonData();
+  initScopeSeasonFilter();
+  initRegSelect();
+  await initPartySelect();
   renderParty('my');
   renderParty('opp');
   applyTheme(localStorage.getItem('pokeedge_theme')||'dark');
