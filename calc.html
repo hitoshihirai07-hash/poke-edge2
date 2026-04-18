@@ -1141,7 +1141,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
       </div>
       <div class="result-subpanel">
         <div class="result-subpanel-title">内定ポケモンの主要技チェック</div>
-        <div id="inner-ko-summary" style="font-size:10px;color:var(--text2);line-height:1.7;">ボタンを押すと、現在の防御側に対して内定ポケモンの主要技から確定1発 / 乱数1発だけを表示します。特性・持ち物は、完全一致したそのポケモン名の登録内容・判明候補だけを使います。</div>
+        <div id="inner-ko-summary" style="font-size:10px;color:var(--text2);line-height:1.7;">ボタンを押すと、現在の防御側に対して内定ポケモンの主要技から確定1発 / 乱数1発だけを表示します。特性・持ち物は登録済み、またはポケモン別に判明している候補だけを使います。</div>
         <div id="inner-ko-list" class="inner-ko-list"></div>
       </div>
     </div>
@@ -2179,6 +2179,193 @@ function parseRateEntryForCalc(s){
 function getCalcSeasonRankingRow(pokeName){
   return (SEASON_RANKING?.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName) || null;
 }
+
+const INNER_ALIAS_TO_SITE_NAME = {
+  'ウォッシュロトム':'ロトム水',
+  'ヒートロトム':'ロトム炎',
+  'フロストロトム':'ロトム氷',
+  'スピンロトム':'ロトム飛',
+  'カットロトム':'ロトム草',
+  'イダイトウ(オス)':'イダイトウ♂',
+  'イダイトウ(メス)':'イダイトウ♀',
+  'フラエッテ(えいえんのはな)':'フラエッテえいえん'
+};
+const INNER_SITE_NAME_TO_RANKING_NAMES = {
+  'ロトム水':['ウォッシュロトム'],
+  'ロトム炎':['ヒートロトム'],
+  'ロトム氷':['フロストロトム'],
+  'ロトム飛':['スピンロトム'],
+  'ロトム草':['カットロトム'],
+  'イダイトウ♂':['イダイトウ(オス)'],
+  'イダイトウ♀':['イダイトウ(メス)'],
+  'フラエッテえいえん':['フラエッテ(えいえんのはな)']
+};
+function uniqInner(arr){
+  return Array.from(new Set((arr||[]).map(v=>String(v||'').trim()).filter(Boolean)));
+}
+function inferBaseRankingNamesForInner(name){
+  if(!name || !String(name).startsWith('メガ')) return [];
+  let base = String(name).replace(/^メガ/,'').replace(/[XY]$/,'');
+  return uniqInner([base]);
+}
+function resolveSiteNamesForInner(name){
+  return [INNER_ALIAS_TO_SITE_NAME[name] || name];
+}
+function resolveRankingLookupNamesForInner(name){
+  const names=[name];
+  const siteNames=resolveSiteNamesForInner(name);
+  siteNames.forEach(siteName=>{
+    names.push(siteName);
+    (INNER_SITE_NAME_TO_RANKING_NAMES[siteName]||[]).forEach(n=>names.push(n));
+  });
+  inferBaseRankingNamesForInner(name).forEach(baseName=>{
+    names.push(baseName);
+    resolveSiteNamesForInner(baseName).forEach(siteName=>{
+      names.push(siteName);
+      (INNER_SITE_NAME_TO_RANKING_NAMES[siteName]||[]).forEach(n=>names.push(n));
+    });
+  });
+  return uniqInner(names);
+}
+function getCalcSeasonRankingRowsForInner(name){
+  const lookup = resolveRankingLookupNamesForInner(name);
+  const baseLookups = inferBaseRankingNamesForInner(name);
+  const seen = new Set();
+  const rows = [];
+  (SEASON_RANKING?.rows||[]).forEach(row=>{
+    const key = [row.battleType,row.rank,row.name,row.siteName].join('::');
+    const matchSelf = lookup.includes(row.name) || lookup.includes(row.siteName);
+    const matchBase = !matchSelf && (baseLookups.includes(row.name) || baseLookups.includes(row.siteName));
+    if((matchSelf || matchBase) && !seen.has(key)){
+      seen.add(key);
+      rows.push(Object.assign({}, row, { rankingSource: matchBase ? 'base' : 'self' }));
+    }
+  });
+  return rows;
+}
+function parseSpreadForInner(s){
+  const m = String(s||'').match(/^(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
+  if(!m) return null;
+  return {hp:+m[1], atk:+m[2], def:+m[3], spa:+m[4], spd:+m[5], spe:+m[6]};
+}
+function getTopRateName(list){
+  const arr = Array.isArray(list) ? list : [];
+  return arr.length ? parseRateEntryForCalc(arr[0]).name : '';
+}
+function getInnerScanSeasonNames(){
+  const season = getCurrentSeasonKey();
+  const names = season && Array.isArray(SEASON_DATA?.[season]) ? SEASON_DATA[season] : (Array.isArray(SEASON_DATA?.['内定']) ? SEASON_DATA['内定'] : []);
+  return uniqInner(names);
+}
+function inferDominantAttackSideForInner(poke, moves){
+  let phys = 0;
+  let spec = 0;
+  (moves||[]).forEach(move=>{
+    const power = parseInt(move?.power)||0;
+    if(power<=0) return;
+    if(move.category==='物理') phys += power;
+    if(move.category==='特殊') spec += power;
+  });
+  if(phys===0 && spec===0){
+    if((poke?.atk||0) > (poke?.spa||0)) return 'physical';
+    if((poke?.spa||0) > (poke?.atk||0)) return 'special';
+    return 'mixed';
+  }
+  if(phys===spec) return (poke?.atk||0) >= (poke?.spa||0) ? 'physical' : 'special';
+  return phys > spec ? 'physical' : 'special';
+}
+function inferInnerScanNature(poke, moves){
+  const side = inferDominantAttackSideForInner(poke, moves);
+  if(side==='physical') return 'いじっぱり';
+  if(side==='special') return 'ひかえめ';
+  return 'がんばりや';
+}
+function inferInnerScanSpread(poke, moves){
+  const side = inferDominantAttackSideForInner(poke, moves);
+  const spread = {hp:0, atk:0, def:0, spa:0, spd:0, spe:0};
+  if(side==='physical') spread.atk = 32;
+  else if(side==='special') spread.spa = 32;
+  else {
+    if((poke?.atk||0) >= (poke?.spa||0)) spread.atk = 32;
+    else spread.spa = 32;
+  }
+  if((poke?.spe||0) >= 60) spread.spe = 32;
+  else spread.hp = 32;
+  return spread;
+}
+function calcProfileStatsFromInner(poke, lv, iv, ev, natureName){
+  const nat = PERSONALITIES[natureName] || PERSONALITIES['がんばりや'];
+  return {
+    hp: calcHP(poke.hp,iv,parseInt(ev.hp)||0,lv,true),
+    atk: calcStat(poke.atk,iv,parseInt(ev.atk)||0,lv,nat.atk,true),
+    def: calcStat(poke.def,iv,parseInt(ev.def)||0,lv,nat.def,true),
+    spa: calcStat(poke.spa,iv,parseInt(ev.spa)||0,lv,nat.spa,true),
+    spd: calcStat(poke.spd,iv,parseInt(ev.spd)||0,lv,nat.spd,true),
+    spe: calcStat(poke.spe,iv,parseInt(ev.spe)||0,lv,nat.spe,true)
+  };
+}
+function getInnerScanMovesFromRows(rows){
+  const result=[];
+  const seen=new Set();
+  (rows||[]).forEach(row=>{
+    (row?.moves||[]).map(parseRateEntryForCalc).forEach(entry=>{
+      const exact = moveIndex.find(m=>m.name===entry.name);
+      if(!exact || seen.has(exact.name) || exact.category==='変化' || (parseInt(exact.power)||0)<=0) return;
+      seen.add(exact.name);
+      result.push({name:exact.name,type:exact.type,category:exact.category,power:parseInt(exact.power)||0,hits:exact.hits||'1',notes:exact.notes||'',alwaysCrit:exact.alwaysCrit||''});
+    });
+  });
+  return result;
+}
+function getInnerScanMovesFromPokemonData(pokeName){
+  const result=[];
+  const seen=new Set();
+  const names = uniqInner([pokeName, ...inferBaseRankingNamesForInner(pokeName)]);
+  names.forEach(name=>{
+    getPokemonKnownMoves(name).forEach(entry=>{
+      const m = normalizeMoveFromPokemonEntry(entry);
+      if(!m || !m.name || seen.has(m.name) || m.category==='変化' || (parseInt(m.power)||0)<=0) return;
+      seen.add(m.name);
+      result.push({name:m.name,type:m.type,category:m.category,power:parseInt(m.power)||0,hits:m.hits||'1',notes:m.notes||'',alwaysCrit:m.alwaysCrit||''});
+    });
+  });
+  return result;
+}
+function buildInnerScanProfile(pokeName){
+  const poke = pokeIndex.find(p=>p.name===pokeName);
+  if(!poke) return null;
+  const rankingRows = getCalcSeasonRankingRowsForInner(pokeName);
+  const primaryRow = rankingRows.find(r=>r.rankingSource==='self') || rankingRows[0] || null;
+  let moves = getInnerScanMovesFromRows(rankingRows);
+  if(!moves.length) moves = getInnerScanMovesFromPokemonData(pokeName);
+  if(!moves.length) return null;
+  const exactAbilities = getPokemonAbilityCandidates(pokeName);
+  const rankingAbilities = uniqInner((primaryRow?.abilities||[]).map(getTopRateName));
+  const abilityCandidates = exactAbilities.length ? exactAbilities : (rankingAbilities.length ? rankingAbilities : ['']);
+  const rankingItems = uniqInner((primaryRow?.items||[]).map(getTopRateName));
+  const itemCandidates = rankingItems.length ? rankingItems : [''];
+  const natureName = getTopRateName(primaryRow?.natures) || inferInnerScanNature(poke, moves);
+  const spread = parseSpreadForInner(primaryRow?.spreads?.[0]) || inferInnerScanSpread(poke, moves);
+  const lv = 50;
+  const iv = 31;
+  const stats = calcProfileStatsFromInner(poke, lv, iv, spread, natureName);
+  return {
+    pokeName,
+    displayName: pokeName,
+    poke,
+    lv,
+    iv,
+    nature: natureName,
+    ev: spread,
+    stats,
+    moves: moves.slice(0,6),
+    abilityCandidates: abilityCandidates.slice(0,6),
+    itemCandidates: itemCandidates.slice(0,6)
+  };
+}
+function getInnerScanSourceProfiles(){
+  return getInnerScanSeasonNames().map(buildInnerScanProfile).filter(Boolean);
+}
 function getBelongingsNameSet(){
   return new Set((BELONGINGS_DATA||[]).map(item=>String(item?.name||'').trim()).filter(Boolean));
 }
@@ -2186,15 +2373,7 @@ function getPokemonAbilityCandidates(pokeName){
   return [...new Set((ABILITY_MAP[pokeName]||[]).map(v=>String(v||'').trim()).filter(Boolean))];
 }
 function getInnerScanSourceRecords(){
-  const season=getCurrentSeasonKey();
-  const allowSet=season && Array.isArray(SEASON_DATA?.[season]) ? new Set(SEASON_DATA[season]) : null;
-  return (REGISTERED_CALC_POKES||[]).filter(rec=>{
-    const resolved = resolveInnerScanPokemon(rec);
-    const baseName=String(resolved?.name || rec?.pokeName || rec?.displayName || '').trim();
-    if(!baseName) return false;
-    if(allowSet && !allowSet.has(baseName)) return false;
-    return true;
-  });
+  return getInnerScanSourceProfiles();
 }
 function resolveInnerScanPokemon(rec){
   const exactNames = [rec?.pokeName, rec?.displayName].map(v=>String(v||'').trim()).filter(Boolean);
@@ -2218,23 +2397,24 @@ function resolveInnerScanPokemon(rec){
   }
   return base || null;
 }
-function getInnerScanExactPokemonNames(rec, poke){
+function getInnerScanRelatedPokemonNames(rec, poke){
   const names = [];
   const add=(name)=>{
     const n=String(name||'').trim();
     if(!n || names.includes(n)) return;
     names.push(n);
   };
-  const resolvedName = String(poke?.name||'').trim();
-  if(resolvedName) add(resolvedName);
-  const recPoke = String(rec?.pokeName||'').trim();
-  const recDisplay = String(rec?.displayName||'').trim();
-  if(recPoke && recPoke===resolvedName) add(recPoke);
-  if(recDisplay && recDisplay===resolvedName) add(recDisplay);
+  add(poke?.name);
+  add(rec?.pokeName);
+  add(rec?.displayName);
+  if(poke && isMegaPokemon(poke.name)){
+    const base = getBasePokemon(poke.name);
+    add(base?.name);
+  } else if(rec?.item && String(rec.item).includes('ナイト') && rec?.pokeName){
+    const megas = getMegaForms(String(rec.pokeName));
+    megas.forEach(m=>add(m.name));
+  }
   return names;
-}
-function getInnerScanRelatedPokemonNames(rec, poke){
-  return getInnerScanExactPokemonNames(rec, poke);
 }
 function getInnerScanCandidateAbilities(rec, poke){
   const out=[];
@@ -2243,15 +2423,14 @@ function getInnerScanCandidateAbilities(rec, poke){
     if(!n || out.includes(n)) return;
     out.push(n);
   };
-  const exactNames = getInnerScanExactPokemonNames(rec, poke);
-  exactNames.forEach(name=>getPokemonAbilityCandidates(name).forEach(add));
-  const exactRow = getCalcSeasonRankingRow(String(poke?.name||'').trim());
-  (exactRow?.abilities||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
-  if(rec?.ability){
-    const recAbility = String(rec.ability||'').trim();
-    if(recAbility && (!out.length || out.includes(recAbility))) add(recAbility);
-  }
-  if(!out.length && rec?.ability) add(rec.ability);
+  const relatedNames = getInnerScanRelatedPokemonNames(rec, poke);
+  if(poke?.name) getPokemonAbilityCandidates(poke.name).forEach(add);
+  relatedNames.forEach(name=>{
+    const sr=getCalcSeasonRankingRow(name);
+    (sr?.abilities||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  });
+  if(rec?.ability) add(rec.ability);
+  relatedNames.forEach(name=>getPokemonAbilityCandidates(name).forEach(add));
   if(!out.length) add('');
   return out.slice(0,6);
 }
@@ -2265,8 +2444,11 @@ function getInnerScanCandidateItems(rec, poke){
     out.push(n);
   };
   if(rec?.item) add(rec.item);
-  const exactRow = getCalcSeasonRankingRow(String(poke?.name||'').trim());
-  (exactRow?.items||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  const relatedNames = getInnerScanRelatedPokemonNames(rec, poke);
+  relatedNames.forEach(name=>{
+    const sr=getCalcSeasonRankingRow(name);
+    (sr?.items||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  });
   if(!out.length) out.push('');
   return out.slice(0,8);
 }
@@ -3748,22 +3930,20 @@ async function checkRegisteredMajorKOs(){
     if(list) list.innerHTML='';
     return;
   }
-  const sourceRecords=getInnerScanSourceRecords();
-  if(!sourceRecords.length){
-    if(summary) summary.textContent='ポケモン登録の中に、現在の内定ポケモンがありません。';
+  const sourceProfiles=getInnerScanSourceProfiles();
+  if(!sourceProfiles.length){
+    if(summary) summary.textContent='現在の内定ポケモンから計算に使える候補が見つかりませんでした。';
     if(list) list.innerHTML='';
     return;
   }
   const rows=[];
-  for(const rec of sourceRecords){
-    const poke = resolveInnerScanPokemon(rec);
-    if(!poke) continue;
-    const stats = getRecordCalcStats(rec, poke);
-    stats.lv = Math.max(1, parseInt(rec?.lv)||50);
-    const moves = getRecordMajorMoves(rec, poke);
-    if(!moves.length) continue;
-    const abilityCandidates = getInnerScanCandidateAbilities(rec, poke);
-    const itemCandidates = getInnerScanCandidateItems(rec, poke);
+  for(const profile of sourceProfiles){
+    const poke = profile.poke;
+    const stats = Object.assign({lv:profile.lv}, profile.stats||{});
+    const moves = profile.moves || [];
+    if(!poke || !moves.length) continue;
+    const abilityCandidates = Array.isArray(profile.abilityCandidates) && profile.abilityCandidates.length ? profile.abilityCandidates : [''];
+    const itemCandidates = Array.isArray(profile.itemCandidates) && profile.itemCandidates.length ? profile.itemCandidates : [''];
     for(const move of moves){
       let best=null;
       for(const ability of abilityCandidates){
@@ -3771,9 +3951,9 @@ async function checkRegisteredMajorKOs(){
           const dmg = calcInnerScanDamage(poke, stats, move, ability, mapRecordItemToCalcKey(itemName, move.type));
           if(!dmg) continue;
           const candidate={
-            displayName: rec.displayName || rec.pokeName,
+            displayName: profile.displayName || profile.pokeName || poke.name,
             moveName: move.name,
-            adjustment: `Lv${stats.lv} / ${rec.nature||'がんばりや'} / ${formatSpreadText(rec.ev||{})} / 特性 ${ability||'なし'} / 持ち物 ${itemName||'なし'}`,
+            adjustment: `Lv${profile.lv||50} / ${profile.nature||'がんばりや'} / ${formatSpreadText(profile.ev||{})} / 特性 ${ability||'なし'} / 持ち物 ${itemName||'なし'}`,
             damage: `${dmg.mn}〜${dmg.mx}`,
             percent: `${dmg.pctMn}〜${dmg.pctMx}%`,
             ko: dmg.ko,
