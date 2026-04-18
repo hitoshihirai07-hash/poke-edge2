@@ -1141,7 +1141,7 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
       </div>
       <div class="result-subpanel">
         <div class="result-subpanel-title">内定ポケモンの主要技チェック</div>
-        <div id="inner-ko-summary" style="font-size:10px;color:var(--text2);line-height:1.7;">ボタンを押すと、現在の防御側に対して内定ポケモンの主要技から確定1発 / 乱数1発だけを表示します。特性・持ち物は登録済み、またはポケモン別に判明している候補だけを使います。</div>
+        <div id="inner-ko-summary" style="font-size:10px;color:var(--text2);line-height:1.7;">ボタンを押すと、現在の防御側に対して内定ポケモンの主要技から確定1発 / 乱数1発だけを表示します。特性・持ち物は、完全一致したそのポケモン名の登録内容・判明候補だけを使います。</div>
         <div id="inner-ko-list" class="inner-ko-list"></div>
       </div>
     </div>
@@ -2218,24 +2218,23 @@ function resolveInnerScanPokemon(rec){
   }
   return base || null;
 }
-function getInnerScanRelatedPokemonNames(rec, poke){
+function getInnerScanExactPokemonNames(rec, poke){
   const names = [];
   const add=(name)=>{
     const n=String(name||'').trim();
     if(!n || names.includes(n)) return;
     names.push(n);
   };
-  add(poke?.name);
-  add(rec?.pokeName);
-  add(rec?.displayName);
-  if(poke && isMegaPokemon(poke.name)){
-    const base = getBasePokemon(poke.name);
-    add(base?.name);
-  } else if(rec?.item && String(rec.item).includes('ナイト') && rec?.pokeName){
-    const megas = getMegaForms(String(rec.pokeName));
-    megas.forEach(m=>add(m.name));
-  }
+  const resolvedName = String(poke?.name||'').trim();
+  if(resolvedName) add(resolvedName);
+  const recPoke = String(rec?.pokeName||'').trim();
+  const recDisplay = String(rec?.displayName||'').trim();
+  if(recPoke && recPoke===resolvedName) add(recPoke);
+  if(recDisplay && recDisplay===resolvedName) add(recDisplay);
   return names;
+}
+function getInnerScanRelatedPokemonNames(rec, poke){
+  return getInnerScanExactPokemonNames(rec, poke);
 }
 function getInnerScanCandidateAbilities(rec, poke){
   const out=[];
@@ -2244,14 +2243,15 @@ function getInnerScanCandidateAbilities(rec, poke){
     if(!n || out.includes(n)) return;
     out.push(n);
   };
-  const relatedNames = getInnerScanRelatedPokemonNames(rec, poke);
-  if(poke?.name) getPokemonAbilityCandidates(poke.name).forEach(add);
-  relatedNames.forEach(name=>{
-    const sr=getCalcSeasonRankingRow(name);
-    (sr?.abilities||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
-  });
-  if(rec?.ability) add(rec.ability);
-  relatedNames.forEach(name=>getPokemonAbilityCandidates(name).forEach(add));
+  const exactNames = getInnerScanExactPokemonNames(rec, poke);
+  exactNames.forEach(name=>getPokemonAbilityCandidates(name).forEach(add));
+  const exactRow = getCalcSeasonRankingRow(String(poke?.name||'').trim());
+  (exactRow?.abilities||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  if(rec?.ability){
+    const recAbility = String(rec.ability||'').trim();
+    if(recAbility && (!out.length || out.includes(recAbility))) add(recAbility);
+  }
+  if(!out.length && rec?.ability) add(rec.ability);
   if(!out.length) add('');
   return out.slice(0,6);
 }
@@ -2265,11 +2265,8 @@ function getInnerScanCandidateItems(rec, poke){
     out.push(n);
   };
   if(rec?.item) add(rec.item);
-  const relatedNames = getInnerScanRelatedPokemonNames(rec, poke);
-  relatedNames.forEach(name=>{
-    const sr=getCalcSeasonRankingRow(name);
-    (sr?.items||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
-  });
+  const exactRow = getCalcSeasonRankingRow(String(poke?.name||'').trim());
+  (exactRow?.items||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
   if(!out.length) out.push('');
   return out.slice(0,8);
 }
