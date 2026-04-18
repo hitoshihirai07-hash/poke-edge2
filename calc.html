@@ -2189,11 +2189,53 @@ function getInnerScanSourceRecords(){
   const season=getCurrentSeasonKey();
   const allowSet=season && Array.isArray(SEASON_DATA?.[season]) ? new Set(SEASON_DATA[season]) : null;
   return (REGISTERED_CALC_POKES||[]).filter(rec=>{
-    const baseName=String(rec?.pokeName || rec?.displayName || '').trim();
+    const resolved = resolveInnerScanPokemon(rec);
+    const baseName=String(resolved?.name || rec?.pokeName || rec?.displayName || '').trim();
     if(!baseName) return false;
     if(allowSet && !allowSet.has(baseName)) return false;
     return true;
   });
+}
+function resolveInnerScanPokemon(rec){
+  const exactNames = [rec?.pokeName, rec?.displayName].map(v=>String(v||'').trim()).filter(Boolean);
+  for(const name of exactNames){
+    const exact = pokeIndex.find(p=>p.name===name);
+    if(exact) return exact;
+  }
+  const baseName = String(rec?.pokeName || '').trim();
+  const itemName = String(rec?.item || '').trim();
+  const base = baseName ? pokeIndex.find(p=>p.name===baseName) : null;
+  if(base && !isMegaPokemon(base.name) && itemName.includes('ナイト')){
+    const megas = getMegaForms(base.name);
+    if(megas.length===1) return megas[0];
+    if(megas.length>1){
+      const suffix = itemName.endsWith('X') ? 'X' : (itemName.endsWith('Y') ? 'Y' : '');
+      if(suffix){
+        const matched = megas.find(m=>m.name.endsWith(suffix));
+        if(matched) return matched;
+      }
+    }
+  }
+  return base || null;
+}
+function getInnerScanRelatedPokemonNames(rec, poke){
+  const names = [];
+  const add=(name)=>{
+    const n=String(name||'').trim();
+    if(!n || names.includes(n)) return;
+    names.push(n);
+  };
+  add(poke?.name);
+  add(rec?.pokeName);
+  add(rec?.displayName);
+  if(poke && isMegaPokemon(poke.name)){
+    const base = getBasePokemon(poke.name);
+    add(base?.name);
+  } else if(rec?.item && String(rec.item).includes('ナイト') && rec?.pokeName){
+    const megas = getMegaForms(String(rec.pokeName));
+    megas.forEach(m=>add(m.name));
+  }
+  return names;
 }
 function getInnerScanCandidateAbilities(rec, poke){
   const out=[];
@@ -2202,12 +2244,16 @@ function getInnerScanCandidateAbilities(rec, poke){
     if(!n || out.includes(n)) return;
     out.push(n);
   };
+  const relatedNames = getInnerScanRelatedPokemonNames(rec, poke);
+  if(poke?.name) getPokemonAbilityCandidates(poke.name).forEach(add);
+  relatedNames.forEach(name=>{
+    const sr=getCalcSeasonRankingRow(name);
+    (sr?.abilities||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  });
   if(rec?.ability) add(rec.ability);
-  const sr=getCalcSeasonRankingRow(rec?.pokeName || poke?.name || '');
-  (sr?.abilities||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
-  getPokemonAbilityCandidates(poke?.name || rec?.pokeName || '').forEach(add);
+  relatedNames.forEach(name=>getPokemonAbilityCandidates(name).forEach(add));
   if(!out.length) add('');
-  return out.slice(0,4);
+  return out.slice(0,6);
 }
 function getInnerScanCandidateItems(rec, poke){
   const allowed=getBelongingsNameSet();
@@ -2219,8 +2265,11 @@ function getInnerScanCandidateItems(rec, poke){
     out.push(n);
   };
   if(rec?.item) add(rec.item);
-  const sr=getCalcSeasonRankingRow(rec?.pokeName || poke?.name || '');
-  (sr?.items||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  const relatedNames = getInnerScanRelatedPokemonNames(rec, poke);
+  relatedNames.forEach(name=>{
+    const sr=getCalcSeasonRankingRow(name);
+    (sr?.items||[]).map(parseRateEntryForCalc).forEach(entry=>add(entry.name));
+  });
   if(!out.length) out.push('');
   return out.slice(0,8);
 }
@@ -3511,7 +3560,7 @@ function getRecordCalcStats(rec, poke){
     spe: calcStat(poke.spe,iv,parseInt(ev.spe)||0,lv,nat.spe,champ)
   };
 }
-function getRecordMajorMoves(rec){
+function getRecordMajorMoves(rec, poke){
   const result=[];
   const seen=new Set();
   const pushMove=(entry)=>{
@@ -3521,18 +3570,23 @@ function getRecordMajorMoves(rec){
     result.push({name:m.name,type:m.type,category:m.category,power:parseInt(m.power)||0,hits:m.hits||'1',notes:m.notes||'',alwaysCrit:m.alwaysCrit||''});
   };
   if(rec && Array.isArray(rec.moves)) rec.moves.forEach(pushMove);
-  if(result.length) return result.slice(0,4);
-  const sr = getCalcSeasonRankingRow(rec?.pokeName||'');
-  if(sr && Array.isArray(sr.moves)){
-    sr.moves.map(parseRateEntryForCalc).forEach(entry=>{
-      const exact = moveIndex.find(m=>m.name===entry.name);
-      if(exact) pushMove(exact);
-    });
-  }
-  if(result.length) return result.slice(0,4);
-  const known = getPokemonKnownMoves(rec?.pokeName||'');
-  known.forEach(pushMove);
-  return result.slice(0,4);
+  if(result.length) return result.slice(0,6);
+  const relatedNames = getInnerScanRelatedPokemonNames(rec, poke);
+  relatedNames.forEach(name=>{
+    const sr = getCalcSeasonRankingRow(name);
+    if(sr && Array.isArray(sr.moves)){
+      sr.moves.map(parseRateEntryForCalc).forEach(entry=>{
+        const exact = moveIndex.find(m=>m.name===entry.name);
+        if(exact) pushMove(exact);
+      });
+    }
+  });
+  if(result.length) return result.slice(0,6);
+  relatedNames.forEach(name=>{
+    const known = getPokemonKnownMoves(name);
+    known.forEach(pushMove);
+  });
+  return result.slice(0,6);
 }
 function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   let moveName=move.name||'';
@@ -3705,11 +3759,11 @@ async function checkRegisteredMajorKOs(){
   }
   const rows=[];
   for(const rec of sourceRecords){
-    const poke = pokeIndex.find(p=>p.name===rec.pokeName);
+    const poke = resolveInnerScanPokemon(rec);
     if(!poke) continue;
     const stats = getRecordCalcStats(rec, poke);
     stats.lv = Math.max(1, parseInt(rec?.lv)||50);
-    const moves = getRecordMajorMoves(rec);
+    const moves = getRecordMajorMoves(rec, poke);
     if(!moves.length) continue;
     const abilityCandidates = getInnerScanCandidateAbilities(rec, poke);
     const itemCandidates = getInnerScanCandidateItems(rec, poke);
