@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PokeEdge | ポケ将棋 バトルアナライザー</title>
-<meta name="description" content="ポケ将棋 — 対戦中の全局面を俯瞰し、次の最善手と相手の脅威を瞬時に把握。選出支援からバトル中のリアルタイム分析まで。">
+<title>PokeEdge | バトルアナライザー</title>
+<meta name="description" content="バトルアナライザー — 対戦中の全局面を俯瞰し、次の最善手と相手の脅威を瞬時に把握。選出支援からバトル中のリアルタイム分析まで。">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="ポケ将棋 バトルアナライザー | PokeEdge">
+<meta property="og:title" content="バトルアナライザー | PokeEdge">
 <meta property="og:description" content="対戦中の全局面を俯瞰。選出支援・ダメージ予測・交代シミュレーション。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://poke-edge.pages.dev/scope.html">
@@ -200,12 +200,43 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 /* パーティ詳細設定 */
 .slot-sub{font-size:8px;color:var(--text2);line-height:1.3;margin-top:2px;}
 .settings-wrap{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
-.settings-row{display:grid;grid-template-columns:minmax(76px,90px) 1fr 1fr;gap:6px;align-items:center;padding:6px 8px;background:var(--bg2);border:1px solid var(--border);font-size:10px;}
+.settings-row{display:grid;grid-template-columns:minmax(76px,90px) 1fr 1fr 1fr;gap:6px;align-items:center;padding:6px 8px;background:var(--bg2);border:1px solid var(--border);font-size:10px;}
 .settings-row.my-only{grid-template-columns:minmax(76px,90px) 1fr;}
 .settings-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .settings-select{width:100%;background:var(--panel);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;}
 .settings-select:focus{border-color:var(--accent);}
 .ability-chip{display:inline-block;font-size:8px;padding:1px 5px;border:1px solid var(--border2);color:var(--accent3);margin-left:6px;}
+
+.scope-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.scope-summary-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.scope-summary-item{background:var(--bg2);border:1px solid var(--border);padding:10px 14px;text-align:center;flex:1;min-width:110px;}
+.scope-summary-label{font-size:9px;color:var(--text2);letter-spacing:2px;}
+.scope-summary-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);line-height:1.2;}
+.scope-stats-head{font-size:10px;letter-spacing:3px;color:var(--accent3);margin-bottom:8px;}
+.scope-stats-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.scope-stats-table th{text-align:left;padding:5px 8px;color:var(--text2);font-size:9px;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:400;}
+.scope-stats-table td{padding:6px 8px;border-bottom:1px solid var(--border);}
+.scope-num{font-family:'JetBrains Mono',monospace;text-align:right;}
+.scope-bar-wrap{display:inline-block;width:60px;height:4px;background:var(--bg);overflow:hidden;vertical-align:middle;margin-right:4px;}
+.scope-bar-fill{height:100%;transition:width 0.4s;}
+.scope-history-item{background:var(--bg2);border:1px solid var(--border);padding:10px 12px;margin-top:8px;}
+.scope-history-item.win{border-left:3px solid var(--green);}
+.scope-history-item.lose{border-left:3px solid var(--accent2);}
+.scope-history-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.scope-history-result{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;}
+.scope-history-result.win{color:var(--green);}.scope-history-result.lose{color:var(--accent2);}
+.scope-history-body{display:grid;grid-template-columns:1fr 32px 1fr;gap:8px;align-items:start;}
+.scope-poke-tag{display:inline-block;padding:2px 7px;background:var(--panel);border:1px solid var(--border);font-size:11px;margin:2px 4px 0 0;}
+.scope-poke-tag.lead-tag{border-color:var(--accent3);color:var(--accent3);}
+.scope-opp-tag{background:rgba(255,48,96,0.05);border-color:rgba(255,48,96,0.2);}
+.scope-del-btn{margin-left:auto;background:none;border:1px solid var(--border);color:var(--text2);font-size:10px;padding:2px 8px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+.scope-del-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+.scope-record-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.scope-record-btn{flex:1;min-width:120px;padding:10px 12px;border:none;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+.scope-record-btn.win{background:linear-gradient(135deg,var(--green),#0a8f56);}
+.scope-record-btn.lose{background:linear-gradient(135deg,var(--accent2),#a01040);}
+@media(max-width:760px){.scope-stats-grid{grid-template-columns:1fr;}.scope-history-body{grid-template-columns:1fr;}}
+
 @media(max-width:700px){.settings-row{grid-template-columns:1fr;}.settings-row.my-only{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -214,7 +245,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 <header>
   <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
   <div class="header-sep"></div>
-  <div class="header-sub">ポケ将棋</div>
+  <div class="header-sub">バトルアナライザー</div>
   <div class="header-nav" id="main-nav">
     <a class="nav-btn" href="index.html">トップ</a>
     <a class="nav-btn" href="calc.html">ダメージ計算</a>
@@ -222,8 +253,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
-    <a class="nav-btn" href="stats.html">選出率記録</a>
-    <a class="nav-btn active" href="scope.html">ポケ将棋</a>
+    <a class="nav-btn active" href="scope.html">バトルアナライザー</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
     <a class="nav-btn" href="speed.html">素早さライン</a>
     <a class="nav-btn" href="blog.html">記事</a>
@@ -264,7 +294,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <div class="sw"><input class="si" id="my-search" placeholder="ポケモン名を入力..." oninput="doSearch('my',this.value)" autocomplete="off"><div class="dd" id="my-drop"></div></div>
         <div class="party-grid" id="my-party-grid"></div>
         <div id="my-settings" class="settings-wrap"></div>
-        <div class="note">タップで選出（最大3体）。もう一度タップで解除。特性は下の設定から変更できます。</div>
+        <div class="note">タップで選出（最大3体）。もう一度タップで解除。特性・性格は下の設定から変更できます。</div>
       </div>
       <!-- 相手パーティ -->
       <div class="card">
@@ -272,7 +302,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <div class="sw"><input class="si" id="opp-search" placeholder="相手のポケモン名..." oninput="doSearch('opp',this.value)" autocomplete="off"><div class="dd" id="opp-drop"></div></div>
         <div class="party-grid" id="opp-party-grid"></div>
         <div id="opp-settings" class="settings-wrap"></div>
-        <div class="note">相手の6体を入力すると脅威分析と推奨選出が自動計算されます。相手側は特性と努力値プリセットも変更できます。</div>
+        <div class="note">相手の6体を入力すると脅威分析と推奨選出が自動計算されます。相手側は特性・性格・努力値プリセットを変更できます。</div>
       </div>
     </div>
 
@@ -372,6 +402,24 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <div class="speed-compare" id="speed-compare">素早さ比較: —</div>
     </div>
 
+    <div class="card">
+      <div class="card-title yellow">選出率の記録</div>
+      <div class="scope-record-btns">
+        <button class="scope-record-btn win" onclick="recordScopeBattle('win')">この対戦を勝ちで記録</button>
+        <button class="scope-record-btn lose" onclick="recordScopeBattle('lose')">この対戦を負けで記録</button>
+      </div>
+      <div class="scope-summary-row">
+        <div class="scope-summary-item"><div class="scope-summary-label">総記録数</div><div class="scope-summary-val" id="scope-total-count">0</div></div>
+        <div class="scope-summary-item"><div class="scope-summary-label">勝率</div><div class="scope-summary-val" id="scope-win-rate">—</div></div>
+        <div class="scope-summary-item"><div class="scope-summary-label">勝敗</div><div class="scope-summary-val" id="scope-win-count">—</div></div>
+      </div>
+      <div id="scope-stats-area"></div>
+      <div style="margin-top:10px;display:flex;justify-content:flex-end;">
+        <button class="scope-del-btn" onclick="clearAllScopeBattles()">全記録を削除</button>
+      </div>
+      <div id="scope-history-list"></div>
+    </div>
+
     <button class="act-btn secondary" onclick="showPhase(1)">← 選出フェーズに戻る</button>
   </div>
 </div>
@@ -446,52 +494,54 @@ function hpColor(pct){return pct>50?'var(--green)':pct>25?'var(--accent3)':'var(
 
 // ===== 性格テーブル =====
 const NATURE_TABLE = {
-  'さみしがり':{up:'atk',down:'def'},'いじっぱり':{up:'atk',down:'spa'},'やんちゃ':{up:'atk',down:'spd'},'ゆうかん':{up:'atk',down:'spe'},
-  'ずぶとい':{up:'def',down:'atk'},'わんぱく':{up:'def',down:'spa'},'のうてんき':{up:'def',down:'spd'},'のんき':{up:'def',down:'spe'},
-  'ひかえめ':{up:'spa',down:'atk'},'おっとり':{up:'spa',down:'def'},'うっかりや':{up:'spa',down:'spd'},'れいせい':{up:'spa',down:'spe'},
-  'おだやか':{up:'spd',down:'atk'},'おとなしい':{up:'spd',down:'def'},'しんちょう':{up:'spd',down:'spa'},'なまいき':{up:'spd',down:'spe'},
-  'おくびょう':{up:'spe',down:'atk'},'せっかち':{up:'spe',down:'def'},'ようき':{up:'spe',down:'spa'},'むじゃき':{up:'spe',down:'spd'}
+  'がんばりや':{atk:1,def:1,spa:1,spd:1,spe:1},'すなお':{atk:1,def:1,spa:1,spd:1,spe:1},'てれや':{atk:1,def:1,spa:1,spd:1,spe:1},'きまぐれ':{atk:1,def:1,spa:1,spd:1,spe:1},'まじめ':{atk:1,def:1,spa:1,spd:1,spe:1},
+  'さみしがり':{atk:1.1,def:0.9,spa:1,spd:1,spe:1},'いじっぱり':{atk:1.1,def:1,spa:0.9,spd:1,spe:1},'やんちゃ':{atk:1.1,def:1,spa:1,spd:0.9,spe:1},'ゆうかん':{atk:1.1,def:1,spa:1,spd:1,spe:0.9},
+  'ずぶとい':{atk:0.9,def:1.1,spa:1,spd:1,spe:1},'わんぱく':{atk:1,def:1.1,spa:0.9,spd:1,spe:1},'のうてんき':{atk:1,def:1.1,spa:1,spd:0.9,spe:1},'のんき':{atk:1,def:1.1,spa:1,spd:1,spe:0.9},
+  'ひかえめ':{atk:0.9,def:1,spa:1.1,spd:1,spe:1},'おっとり':{atk:1,def:0.9,spa:1.1,spd:1,spe:1},'うっかりや':{atk:1,def:1,spa:1.1,spd:0.9,spe:1},'れいせい':{atk:1,def:1,spa:1.1,spd:1,spe:0.9},
+  'おだやか':{atk:0.9,def:1,spa:1,spd:1.1,spe:1},'おとなしい':{atk:1,def:0.9,spa:1,spd:1.1,spe:1},'しんちょう':{atk:1,def:1,spa:0.9,spd:1.1,spe:1},'なまいき':{atk:1,def:1,spa:1,spd:1.1,spe:0.9},
+  'おくびょう':{atk:0.9,def:1,spa:1,spd:1,spe:1.1},'せっかち':{atk:1,def:0.9,spa:1,spd:1,spe:1.1},'ようき':{atk:1,def:1,spa:0.9,spd:1,spe:1.1},'むじゃき':{atk:1,def:1,spa:1,spd:0.9,spe:1.1}
 };
+const NATURE_NAMES = Object.keys(NATURE_TABLE);
 
-// ===== 実数値計算 =====
-function calcStat(base, ev, lv, nature, stat){
-  if(stat==='hp') return Math.floor((base*2+31+Math.floor(ev/4))*lv/100)+lv+10;
-  let val = Math.floor((base*2+31+Math.floor(ev/4))*lv/100)+5;
-  if(nature && nature.up===stat) val=Math.floor(val*1.1);
-  if(nature && nature.down===stat) val=Math.floor(val*0.9);
-  return val;
+// ===== 実数値計算（Pokémon Champions） =====
+function calcHP(base, ev, lv){
+  return Math.floor((Math.floor((base*2 + 31) * lv / 100) + 10 + lv)) + (ev||0);
+}
+function calcStat(base, ev, lv, natureMult){
+  const nature = natureMult || 1;
+  const bs = Math.floor((Math.floor((base*2 + 31) * lv / 100) + 5) * nature);
+  return bs + Math.floor((ev||0) * nature);
 }
 function calcAllStats(poke, natureName, spread, lv){
   lv = lv||50;
-  const n = NATURE_TABLE[natureName]||null;
+  const n = NATURE_TABLE[natureName] || NATURE_TABLE['がんばりや'];
   const ev = spread||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
   return {
-    hp: calcStat(poke.hp, ev.hp||0, lv, n, 'hp'),
-    atk: calcStat(poke.atk, ev.atk||0, lv, n, 'atk'),
-    def: calcStat(poke.def, ev.def||0, lv, n, 'def'),
-    spa: calcStat(poke.spa, ev.spa||0, lv, n, 'spa'),
-    spd: calcStat(poke.spd, ev.spd||0, lv, n, 'spd'),
-    spe: calcStat(poke.spe, ev.spe||0, lv, n, 'spe'),
+    hp: calcHP(poke.hp, ev.hp||0, lv),
+    atk: calcStat(poke.atk, ev.atk||0, lv, n.atk),
+    def: calcStat(poke.def, ev.def||0, lv, n.def),
+    spa: calcStat(poke.spa, ev.spa||0, lv, n.spa),
+    spd: calcStat(poke.spd, ev.spd||0, lv, n.spd),
+    spe: calcStat(poke.spe, ev.spe||0, lv, n.spe),
     lv: lv
   };
 }
-// デフォルト推定（性格補正なし、努力値均等）
 function estimateStatsDefault(poke){
-  return calcAllStats(poke, null, {hp:10,atk:10,def:10,spa:10,spd:10,spe:10}, 50);
+  return calcAllStats(poke, 'がんばりや', {hp:10,atk:10,def:10,spa:10,spd:10,spe:10}, 50);
 }
 
 const DEFAULT_SPREAD = {hp:10,atk:10,def:10,spa:10,spd:10,spe:10};
 const EV_PRESETS = {
   season:{label:'推定のまま', spread:null},
-  H32A32:{label:'H32A32', spread:{hp:256,atk:256,def:0,spa:0,spd:0,spe:0}},
-  H32B32:{label:'H32B32', spread:{hp:256,atk:0,def:256,spa:0,spd:0,spe:0}},
-  H32C32:{label:'H32C32', spread:{hp:256,atk:0,def:0,spa:256,spd:0,spe:0}},
-  H32D32:{label:'H32D32', spread:{hp:256,atk:0,def:0,spa:0,spd:256,spe:0}},
-  H32S32:{label:'H32S32', spread:{hp:256,atk:0,def:0,spa:0,spd:0,spe:256}},
-  A32S32:{label:'A32S32', spread:{hp:0,atk:256,def:0,spa:0,spd:0,spe:256}},
-  C32S32:{label:'C32S32', spread:{hp:0,atk:0,def:0,spa:256,spd:0,spe:256}},
-  H16B16D16:{label:'H16B16D16', spread:{hp:128,atk:0,def:128,spa:0,spd:128,spe:0}},
-  H16A16S16:{label:'H16A16S16', spread:{hp:128,atk:128,def:0,spa:0,spd:0,spe:128}}
+  H32A32:{label:'H32A32', spread:{hp:32,atk:32,def:0,spa:0,spd:0,spe:0}},
+  H32B32:{label:'H32B32', spread:{hp:32,atk:0,def:32,spa:0,spd:0,spe:0}},
+  H32C32:{label:'H32C32', spread:{hp:32,atk:0,def:0,spa:32,spd:0,spe:0}},
+  H32D32:{label:'H32D32', spread:{hp:32,atk:0,def:0,spa:0,spd:32,spe:0}},
+  H32S32:{label:'H32S32', spread:{hp:32,atk:0,def:0,spa:0,spd:0,spe:32}},
+  A32S32:{label:'A32S32', spread:{hp:0,atk:32,def:0,spa:0,spd:0,spe:32}},
+  C32S32:{label:'C32S32', spread:{hp:0,atk:0,def:0,spa:32,spd:0,spe:32}},
+  H16B16D16:{label:'H16B16D16', spread:{hp:16,atk:0,def:16,spa:0,spd:16,spe:0}},
+  H16A16S16:{label:'H16A16S16', spread:{hp:16,atk:16,def:0,spa:0,spd:0,spe:16}}
 };
 const PUNCH_MOVES = new Set(['アームハンマー','アイスハンマー','かみなりパンチ','ほのおのパンチ','れいとうパンチ','ドレインパンチ','マッハパンチ','バレットパンチ','コメットパンチ','シャドーパンチ','スカイアッパー','アームプレス','きあいパンチ','プラズマフィスト']);
 const BITE_MOVES = new Set(['かみつく','かみくだく','ほのおのキバ','かみなりのキバ','こおりのキバ','どくどくのキバ','サイコファング','エラがみ','くらいつく']);
@@ -543,7 +593,7 @@ function createSlot(poke, opts){
   const abilityOptions = getAbilityOptions(poke);
   const slot = {
     poke,
-    natureName: Object.prototype.hasOwnProperty.call(opts,'natureName') ? opts.natureName : profile.natureName,
+    natureName: Object.prototype.hasOwnProperty.call(opts,'natureName') ? (opts.natureName || 'がんばりや') : (profile.natureName || 'がんばりや'),
     baseSpread: cloneSpread(opts.spread || profile.spread),
     lv: opts.lv || 50,
     moves: opts.moves || getEstimatedAtkMoves(poke),
@@ -598,7 +648,7 @@ function parseSpread(s){
   // "2 32 0 0 0 32 (53.7%)" → {hp:2,atk:32,def:0,spa:0,spd:0,spe:32}
   const m = s.match(/^(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
   if(!m) return null;
-  return {hp:+m[1]*8,atk:+m[2]*8,def:+m[3]*8,spa:+m[4]*8,spd:+m[5]*8,spe:+m[6]*8};
+  return {hp:+m[1],atk:+m[2],def:+m[3],spa:+m[4],spd:+m[5],spe:+m[6]};
 }
 
 function estimateFromSeason(poke){
@@ -946,7 +996,7 @@ function renderParty(side){
       '<button class="slot-remove" onclick="event.stopPropagation();removePoke(\''+side+'\','+i+')">×</button>'+
       '<div class="slot-name">'+s.poke.name+'</div>'+
       '<div>'+typeHTML(s.poke)+'</div>'+
-      '<div class="slot-sub">'+(s.ability||'')+(presetLabel?'<br>'+presetLabel:'')+'</div>'+
+      '<div class="slot-sub">'+(s.ability||'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+'</div>'+
     '</div>';
   }).join('')+(party.length<6?'<div class="party-slot"><div class="slot-empty">＋</div></div>':'');
   renderSlotSettings(side);
@@ -961,21 +1011,36 @@ function renderSlotSettings(side){
     const opts = [...new Set([...(slot.abilityOptions||[]), slot.ability].filter(Boolean))];
     const abilityOptions = opts.length ? opts.map(a=>'<option value="'+a+'" '+(slot.ability===a?'selected':'')+'>'+a+'</option>').join('') : '<option value="">なし</option>';
     const abilitySelect = '<select class="settings-select" onchange="setSlotAbility(\''+side+'\','+i+',this.value)">'+abilityOptions+'</select>';
+    const natureOptions = NATURE_NAMES.map(n=>'<option value="'+n+'" '+((slot.natureName||'がんばりや')===n?'selected':'')+'>'+n+'</option>').join('');
+    const natureSelect = '<select class="settings-select" onchange="setSlotNature(\''+side+'\','+i+',this.value)">'+natureOptions+'</select>';
     if(side==='opp'){
       const presetOptions = Object.keys(EV_PRESETS).map(key=>'<option value="'+key+'" '+((slot.presetKey||'season')===key?'selected':'')+'>'+EV_PRESETS[key].label+'</option>').join('');
-      return '<div class="settings-row"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+'<select class="settings-select" onchange="setOppPreset('+i+',this.value)">'+presetOptions+'</select></div>';
+      return '<div class="settings-row"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+natureSelect+'<select class="settings-select" onchange="setOppPreset('+i+',this.value)">'+presetOptions+'</select></div>';
     }
-    return '<div class="settings-row my-only"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+'</div>';
+    return '<div class="settings-row"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+natureSelect+'<div></div></div>';
   }).join('');
+}
+
+function refreshAfterSlotChange(side){
+  renderParty(side);
+  autoAnalyze();
+  if(document.getElementById('phase-2').classList.contains('active')) renderBattlePhase();
 }
 
 function setSlotAbility(side, idx, ability){
   const party = side==='my' ? myParty : oppParty;
   if(!party[idx]) return;
   party[idx].ability = ability || '';
-  renderParty(side);
-  autoAnalyze();
-  if(document.getElementById('phase-2').classList.contains('active')) renderBattlePhase();
+  refreshAfterSlotChange(side);
+}
+
+function setSlotNature(side, idx, natureName){
+  const party = side==='my' ? myParty : oppParty;
+  const slot = party[idx];
+  if(!slot) return;
+  slot.natureName = natureName || 'がんばりや';
+  rebuildSlotStats(slot);
+  refreshAfterSlotChange(side);
 }
 
 function setOppPreset(idx, presetKey){
@@ -983,9 +1048,7 @@ function setOppPreset(idx, presetKey){
   if(!slot) return;
   slot.presetKey = presetKey || 'season';
   rebuildSlotStats(slot);
-  renderParty('opp');
-  autoAnalyze();
-  if(document.getElementById('phase-2').classList.contains('active')) renderBattlePhase();
+  refreshAfterSlotChange('opp');
 }
 
 // ===== 自動分析 =====
@@ -1329,6 +1392,88 @@ function calcGauge(){
 }
 
 // ===== テーマ =====
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+function escapeJs(str){
+  return String(str ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+function recordLeadFromSelection(side){
+  const party = side==='my' ? myParty : oppParty;
+  const sel = side==='my' ? mySelect : oppSelect;
+  const active = side==='my' ? myActiveIdx : oppActiveIdx;
+  const slot = party[sel[active] ?? sel[0]];
+  if(!slot) return null;
+  return {name:slot.poke.name, type1:slot.poke.type1, type2:slot.poke.type2};
+}
+function cloneBattleMoves(moves){
+  return (moves||[]).filter(m=>m&&m.name).map(m=>({name:m.name,type:m.type||'',category:m.category||'',power:parseInt(m.power)||0}));
+}
+async function recordScopeBattle(result){
+  const mySel = mySelect.map(i=>myParty[i]).filter(Boolean);
+  const oppSel = oppSelect.map(i=>oppParty[i]).filter(Boolean);
+  if(!mySel.length){ alert('自分の選出を選んでください'); return; }
+  if(!oppSel.length){ alert('相手の選出を選んでください'); return; }
+  const battle = {id:Date.now(),date:new Date().toLocaleDateString('ja-JP'),result,
+    my:{party6:myParty.filter(Boolean).map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2})),select3:mySel.map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2})),lead:recordLeadFromSelection('my')},
+    opp:{party6:oppParty.filter(Boolean).map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2,moves:cloneBattleMoves(s.moves)})),select3:oppSel.map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2,moves:cloneBattleMoves(s.moves)})),lead:recordLeadFromSelection('opp')}};
+  await saveBattleRecord(battle);
+  await renderScopeStats();
+  await renderScopeHistory();
+  alert(result==='win'?'勝ちで記録しました':'負けで記録しました');
+}
+async function clearAllScopeBattles(){
+  if(!confirm('全記録を削除しますか？')) return;
+  if(typeof getCurrentUser === 'function' && getCurrentUser()){
+    try{ await getSB().from('battle_records').delete().eq('user_id', getCurrentUser().id); }catch(e){}
+  } else { localStorage.removeItem('pokeedge_battles_v1'); }
+  await renderScopeStats();
+  await renderScopeHistory();
+}
+async function renderScopeStats(){
+  const battles = await loadBattleRecords();
+  const total = battles.length, wins = battles.filter(b=>b.result==='win').length;
+  const totalEl=document.getElementById('scope-total-count'), rateEl=document.getElementById('scope-win-rate'), countEl=document.getElementById('scope-win-count'), area=document.getElementById('scope-stats-area');
+  if(!totalEl||!rateEl||!countEl||!area) return;
+  totalEl.textContent=String(total);
+  if(!total){ rateEl.textContent='—'; countEl.textContent='—'; area.innerHTML='<div class="note">まだ記録がありません</div>'; return; }
+  rateEl.textContent=Math.round(wins/total*100)+'%'; countEl.textContent=wins+'勝'+(total-wins)+'敗';
+  const myMap={}, oppMap={};
+  battles.forEach(b=>{ (b.my?.select3||[]).forEach(m=>{ if(!myMap[m.name]) myMap[m.name]={sel:0,lead:0,win:0,type1:m.type1}; myMap[m.name].sel++; if(b.result==='win') myMap[m.name].win++; }); if(b.my?.lead){ if(!myMap[b.my.lead.name]) myMap[b.my.lead.name]={sel:0,lead:0,win:0,type1:b.my.lead.type1}; myMap[b.my.lead.name].lead++; } (b.opp?.select3||[]).forEach(m=>{ if(!oppMap[m.name]) oppMap[m.name]={sel:0,lead:0,type1:m.type1}; oppMap[m.name].sel++; }); if(b.opp?.lead){ if(!oppMap[b.opp.lead.name]) oppMap[b.opp.lead.name]={sel:0,lead:0,type1:b.opp.lead.type1}; oppMap[b.opp.lead.name].lead++; } });
+  const myRows=Object.entries(myMap).sort((a,b)=>b[1].sel-a[1].sel), oppRows=Object.entries(oppMap).sort((a,b)=>b[1].sel-a[1].sel);
+  function rowHtml(name,d,color,showWin){ const selPct=Math.round(d.sel/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0; return '<tr><td><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+(d.type1?'<span class="tp tp-'+escapeHtml(d.type1)+'" style="font-size:7px;">'+escapeHtml(d.type1)+'</span>':'')+'</td><td class="scope-num">'+d.sel+'/'+total+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:'+color+';display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td class="scope-num">'+d.lead+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td>'+(showWin?'<td class="scope-num" style="color:'+(d.sel && Math.round(d.win/d.sel*100)>=50?'var(--green)':'var(--accent2)')+';">'+(d.sel?Math.round(d.win/d.sel*100):0)+'%</td>':'')+'</tr>'; }
+  area.innerHTML='<div class="scope-stats-grid"><div><div class="scope-stats-head">自分の選出率</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtml(n,d,'var(--accent)',true)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の選出率</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtml(n,d,'var(--accent2)',false)).join('')+'</tbody></table></div></div>';
+}
+async function renderScopeHistory(){
+  const battles = await loadBattleRecords();
+  const el = document.getElementById('scope-history-list');
+  if(!el) return;
+  if(!battles.length){ el.innerHTML=''; return; }
+  el.innerHTML = battles.slice(0,20).map(b=>{
+    const myTags = (b.my?.select3||[]).map(m=>'<span class="scope-poke-tag '+(m.name===b.my?.lead?.name?'lead-tag':'')+'">'+escapeHtml(m.name)+'</span>').join('');
+    const oppTags = (b.opp?.select3||[]).map(m=>'<span class="scope-poke-tag scope-opp-tag '+(m.name===b.opp?.lead?.name?'lead-tag':'')+'">'+escapeHtml(m.name)+'</span>').join('');
+    return '<div class="scope-history-item '+escapeHtml(b.result||'')+'">'
+      + '<div class="scope-history-head"><span class="scope-history-result '+escapeHtml(b.result||'')+'">'+(b.result==='win'?'WIN':'LOSE')+'</span><span style="font-size:11px;color:var(--text2);">'+escapeHtml(b.date||'')+'</span><button class="scope-del-btn" onclick="deleteScopeBattleById(\''+escapeJs(String(b._id ?? b.id ?? ''))+'\')">削除</button></div>'
+      + '<div class="scope-history-body">'
+      +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">自分の選出'+(b.my?.lead?' / 初手: '+escapeHtml(b.my.lead.name):'')+'</div><div>'+myTags+'</div></div>'
+      +   '<div style="font-size:18px;color:var(--border2);align-self:center;">vs</div>'
+      +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">相手の選出'+(b.opp?.lead?' / 初手: '+escapeHtml(b.opp.lead.name):'')+'</div><div>'+oppTags+'</div></div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+async function deleteScopeBattleById(id){
+  if(!confirm('この記録を削除しますか？')) return;
+  if(typeof getCurrentUser==='function' && getCurrentUser() && id && String(id).match(/^[0-9a-f-]{8,}$/i)) {
+    await deleteBattleRecord(id);
+  } else {
+    const keep=(await loadBattleRecords()).filter(b=>String(b.id)!==String(id));
+    localStorage.setItem('pokeedge_battles_v1', JSON.stringify(keep));
+  }
+  await renderScopeStats();
+  await renderScopeHistory();
+}
+
 var THEMES={
   dark:{'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'},
   light:{'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'}
@@ -1354,6 +1499,8 @@ window.onload=async()=>{
   await initPartySelect();
   renderParty('my');
   renderParty('opp');
+  await renderScopeStats();
+  await renderScopeHistory();
   applyTheme(localStorage.getItem('pokeedge_theme')||'dark');
   document.getElementById('hamburger')?.addEventListener('click',toggleNav);
   document.getElementById('nav-overlay')?.addEventListener('click',closeNav);

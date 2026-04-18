@@ -207,7 +207,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
-    <a class="nav-btn" href="stats.html">選出率記録</a>
     <a class="nav-btn" href="scope.html">バトルアナライザー</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
     <a class="nav-btn" href="speed.html">素早さライン</a>
@@ -230,7 +229,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 POKE-EDGE
   </h1>
   <p class="hero-desc">
-    「この技で倒せるか」「どの技が通りやすいか」——対戦中に迷いやすい場面を、数字で確認しやすくするためのツールです。Pokémon Championsの準備から実戦中の見直しまで、1か所で使いやすい形にまとめています。
+    ダメージ計算として、「この技で倒せるか」「どの技が通りやすいか」——対戦中に迷いやすい場面を、数字で確認しやすくするためのツールです。ポケモンチャンピオンズの準備から実戦中の見直しまで、1か所で使いやすい形にまとめています。
   </p>
   <div class="cta-group">
     <a class="cta-primary" href="calc.html">ツールを使う →</a>
@@ -271,12 +270,6 @@ POKE-EDGE
       <div class="tool-card-name">アイテム一覧</div>
       <div class="tool-card-desc">現在使える道具・きのみ・メガストーンを一覧表示。入手方法と効果をまとめて確認できるので、ポケモン登録で持ち物を決める前の確認にも向いています。</div>
       <span class="tool-card-tag">入手方法 / 効果を一覧確認</span>
-    </a>
-    <a class="tool-card" href="stats.html">
-      <div class="tool-card-icon">📊</div>
-      <div class="tool-card-name">選出率記録</div>
-      <div class="tool-card-desc">試合ごとの自分・相手の選出・初手・勝敗を記録。蓄積するとポケモン別の選出率・初手率・勝率を自動集計します。ログイン済みならクラウドに保存。</div>
-      <span class="tool-card-tag">勝率 / 選出率 / 初手率集計</span>
     </a>
     <a class="tool-card" href="scope.html">
       <div class="tool-card-icon">🔭</div>
@@ -346,7 +339,7 @@ POKE-EDGE
 <div style="position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 20px 48px;">
 
   <!-- ログイン説明 -->
-  <div style="margin-bottom:36px;">
+  <div style="margin-bottom:36px;" data-nosnippet>
     <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:16px;">LOGIN GUIDE</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
 
@@ -355,8 +348,8 @@ POKE-EDGE
         <div style="font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:8px;">未ログイン</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text3);margin-bottom:12px;">ブラウザ内のみ保存</div>
         <ul style="font-size:12px;color:var(--text3);line-height:2;list-style:none;padding:0;">
-          <li>✓ ポケモン登録・パーティ・対戦記録を保存</li>
-          <li>✓ 全ての計算機能が使える</li>
+          <li>✓ ポケモン登録・パーティ・対戦記録をこの端末に保存</li>
+          <li>✓ すべての計算機能をそのまま使える</li>
           <li style="color:var(--accent2);">✗ 端末をまたいでデータは見られない</li>
           <li style="color:var(--accent2);">✗ キャッシュ削除でデータが消える</li>
         </ul>
@@ -368,10 +361,10 @@ POKE-EDGE
         <div style="font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">ログイン済み</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);margin-bottom:12px;">クラウド同期</div>
         <ul style="font-size:12px;color:var(--text3);line-height:2;list-style:none;padding:0;">
-          <li style="color:var(--green);">✓ スマホ↔PCでデータが同期される</li>
-          <li style="color:var(--green);">✓ キャッシュ削除してもデータが残る</li>
-          <li style="color:var(--green);">✓ ポケモン登録・パーティ・対戦記録が同期</li>
-          <li>✓ 全ての計算機能が使える</li>
+          <li style="color:var(--green);">✓ スマホ・PCのどちらからでも同じデータを使える</li>
+          <li style="color:var(--green);">✓ ログイン後も保存した内容を引き継げる</li>
+          <li style="color:var(--green);">✓ ポケモン登録・パーティ・対戦記録をまとめて管理できる</li>
+          <li>✓ すべての計算機能をそのまま使える</li>
         </ul>
         <a href="auth.html" style="display:inline-block;margin-top:12px;padding:8px 20px;background:linear-gradient(135deg,var(--accent),#007a99);color:#000;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;text-decoration:none;">無料登録 →</a>
       </div>
@@ -417,7 +410,7 @@ POKE-EDGE
             <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
           </tr>
           <tr>
-            <td style="padding:11px 16px;color:var(--text);">選出率記録</td>
+            <td style="padding:11px 16px;color:var(--text);">バトルアナライザー内記録</td>
             <td style="padding:11px 16px;text-align:center;color:var(--text3);">端末内のみ保存</td>
             <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
           </tr>

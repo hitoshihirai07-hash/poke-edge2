@@ -110,6 +110,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .tp-あく{background:#212121;color:#fff;}.tp-はがね{background:#455a64;color:#fff;}.tp-フェアリー{background:#880e4f;color:#fff;}
 .ab-badge{font-size:9px;color:var(--accent3);border:1px solid rgba(255,200,0,0.3);padding:0 4px;margin-left:4px;}
 .count-info{font-size:11px;color:var(--text2);margin-bottom:8px;}
+.guide-link-box{margin:0 0 14px;padding:12px 14px;background:var(--panel);border:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;}
+.guide-link-box strong{color:var(--text);font-size:12px;}
+.guide-link-box p{font-size:12px;color:var(--text3);line-height:1.8;flex:1 1 280px;}
+.guide-link-box a{display:inline-block;padding:8px 14px;background:rgba(0,200,240,0.08);border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-size:11px;letter-spacing:1px;white-space:nowrap;}
+.guide-link-box a:hover{background:rgba(0,200,240,0.14);}
 
 footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
@@ -127,7 +132,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
-    <a class="nav-btn" href="stats.html">選出率記録</a>
     <a class="nav-btn" href="scope.html">バトルアナライザー</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
     <a class="nav-btn active" href="speed.html">素早さライン</a>
@@ -144,6 +148,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div style="margin-bottom:14px;">
     <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:3px;">SPEED TIER CHART</div>
     <div class="desc">素早さの実数値を一覧で比較。スカーフ・追い風・特性補正・ランク補正にも対応。自分の素早さを入力すると、抜ける相手と抜けない相手がハイライトされます。</div>
+  </div>
+
+  <div class="guide-link-box">
+    <p><strong>素早さラインの見方を先に整理したい方向け：</strong><br>最速・準速・無振り・最遅の意味や、スカーフ・追い風込みでの見方を記事でまとめています。</p>
+    <a href="articles/speed-tier-guide.html">使い方ガイドを見る</a>
   </div>
 
   <!-- 設定パネル -->
