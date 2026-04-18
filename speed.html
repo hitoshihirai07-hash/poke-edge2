@@ -242,7 +242,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="my-speed-wrap">
     <div class="my-speed-head">
       <span class="my-speed-lbl">自分の素早さ判定</span>
-      <span class="my-speed-note">自分側のポケモン・ポイント・性格・特性・補正から計算した値で一覧と比較します。内定を選んでいるときは、自分側の候補も内定だけに絞ります。</span>
+      <span class="my-speed-note">自分側のポケモン・ポイント・性格・特性・補正から計算した値で一覧と比較します。Championsは1〜31ポイントも従来作の実数値上昇と同じ刻みになるよう補正しています。内定を選んでいるときは、自分側の候補も内定だけに絞ります。</span>
     </div>
     <div class="my-speed-grid">
       <div class="ctrl-item">
@@ -426,17 +426,24 @@ function initMyPokemonList(){
   datalist.innerHTML = names.map(name=>`<option value="${name}"></option>`).join('');
 }
 
-function calcSpe(base,iv,ev,lv,natMult){
-  const safeIv = Math.max(0, Math.min(31, Number(iv)||0));
-  const safeEv = clampEvForSpeed(ev);
-  return Math.floor((Math.floor((base*2+safeIv+Math.floor(safeEv/4))*lv/100)+5)*natMult);
-}
-
 function clampEvForSpeed(ev){
   const rule = getCurrentGameRule();
   const num = Number(ev);
   if(!Number.isFinite(num)) return 0;
   return Math.max(0, Math.min(rule.evMax, Math.floor(num)));
+}
+
+function convertChampionsPointToVirtualEv(point){
+  const p = Math.max(0, Math.min(32, Math.floor(Number(point)||0)));
+  return p >= 32 ? 252 : p * 8;
+}
+
+function calcSpe(base,iv,ev,lv,natMult){
+  const safeIv = Math.max(0, Math.min(31, Number(iv)||0));
+  const safeEv = clampEvForSpeed(ev);
+  const rule = getCurrentGameRule();
+  const virtualEv = rule.label === 'Champions' ? convertChampionsPointToVirtualEv(safeEv) : safeEv;
+  return Math.floor((Math.floor((base*2+safeIv+Math.floor(virtualEv/4))*lv/100)+5)*natMult);
 }
 
 function normalizeMyPointInput(){

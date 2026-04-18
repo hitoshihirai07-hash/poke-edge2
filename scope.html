@@ -504,13 +504,19 @@ const NATURE_TABLE = {
 const NATURE_NAMES = Object.keys(NATURE_TABLE);
 
 // ===== 実数値計算（Pokémon Champions） =====
+function convertChampionsPointToVirtualEv(point){
+  const p = Math.max(0, Math.floor(Number(point) || 0));
+  if(p <= 32) return p >= 32 ? 252 : p * 8;
+  return Math.min(252, p);
+}
 function calcHP(base, ev, lv){
-  return Math.floor((Math.floor((base*2 + 31) * lv / 100) + 10 + lv)) + (ev||0);
+  const virtualEv = convertChampionsPointToVirtualEv(ev||0);
+  return Math.floor((Math.floor((base*2 + 31 + Math.floor(virtualEv/4)) * lv / 100) + 10 + lv));
 }
 function calcStat(base, ev, lv, natureMult){
   const nature = natureMult || 1;
-  const bs = Math.floor((Math.floor((base*2 + 31) * lv / 100) + 5) * nature);
-  return bs + Math.floor((ev||0) * nature);
+  const virtualEv = convertChampionsPointToVirtualEv(ev||0);
+  return Math.floor((Math.floor((base*2 + 31 + Math.floor(virtualEv/4)) * lv / 100) + 5) * nature);
 }
 function calcAllStats(poke, natureName, spread, lv){
   lv = lv||50;
