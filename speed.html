@@ -240,9 +240,66 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
   <!-- 自分の素早さ判定 -->
   <div class="my-speed-wrap">
-    <span class="my-speed-lbl">自分の素早さ実数値:</span>
-    <input class="ctrl-input" id="my-speed" type="number" placeholder="例: 252" oninput="render()" style="width:70px;">
-    <span style="font-size:10px;color:var(--text2);">入力すると抜ける/抜けないをハイライト</span>
+    <div class="my-speed-head">
+      <span class="my-speed-lbl">自分の素早さ判定</span>
+      <span class="my-speed-note">自分側のポケモン・ポイント・性格・特性・補正から計算した値で一覧と比較します。内定を選んでいるときは、自分側の候補も内定だけに絞ります。</span>
+    </div>
+    <div class="my-speed-grid">
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">自分のポケモン</span>
+        <input class="ctrl-search" id="my-pokemon-name" list="my-pokemon-list" placeholder="ポケモン名" oninput="handleMyPokemonChange()">
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl" id="my-point-label">素早さポイント</span>
+        <input class="ctrl-input" id="my-spe-ev" type="number" min="0" max="32" step="1" value="32" oninput="render()">
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">個体値</span>
+        <input class="ctrl-input" id="my-spe-iv" type="number" min="0" max="31" value="31" oninput="render()">
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">性格</span>
+        <select class="ctrl-sel" id="my-nature" onchange="render()"></select>
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">素早さ特性</span>
+        <select class="ctrl-sel" id="my-speed-ability" onchange="render()">
+          <option value="1">なし</option>
+        </select>
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">自分のランク補正</span>
+        <select class="ctrl-sel" id="my-rank-mod" onchange="render()">
+          <option value="0">なし</option>
+          <option value="1">+1 (×1.5)</option>
+          <option value="2">+2 (×2.0)</option>
+          <option value="3">+3 (×2.5)</option>
+          <option value="-1">-1 (×0.67)</option>
+          <option value="-2">-2 (×0.5)</option>
+        </select>
+      </div>
+    </div>
+    <div class="my-speed-toggles">
+      <div class="tgl tgl-scarf" id="my-tgl-scarf" onclick="toggleTgl(this)">🧣 スカーフ ×1.5</div>
+      <div class="tgl tgl-tw" id="my-tgl-tailwind" onclick="toggleTgl(this)">🌪 追い風 ×2</div>
+      <div class="tgl tgl-para" id="my-tgl-para" onclick="toggleTgl(this)">⚡ 麻痺 ×0.5</div>
+    </div>
+    <div class="my-speed-grid" style="grid-template-columns:repeat(2,minmax(160px,220px));">
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">実数値を直接入力（任意）</span>
+        <input class="ctrl-input" id="my-speed-manual" type="number" placeholder="未入力なら自動計算" oninput="render()" style="width:100%;text-align:left;font-family:'Noto Sans JP',sans-serif;">
+      </div>
+      <div class="ctrl-item">
+        <span class="ctrl-lbl">補足</span>
+        <div class="manual-note" id="my-speed-help">ポケモン・ポイント・性格から自動計算します。直接入力した場合はその値を優先します。</div>
+      </div>
+    </div>
+    <div class="my-speed-summary">
+      <div class="my-speed-pill">未補正実数値 <strong id="my-speed-base">—</strong></div>
+      <div class="my-speed-pill">判定に使う補正後素早さ <strong id="my-speed-effective">—</strong></div>
+      <div class="my-speed-pill">比較基準 <strong id="compare-mode-label">相手の最速</strong></div>
+    </div>
+    <datalist id="my-pokemon-list"></datalist>
   </div>
 
   <div class="count-info" id="count-info"></div>
