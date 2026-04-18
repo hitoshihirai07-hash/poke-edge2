@@ -237,7 +237,21 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-record-btn.win{background:linear-gradient(135deg,var(--green),#0a8f56);}
 .scope-record-btn.lose{background:linear-gradient(135deg,var(--accent2),#a01040);}
 .scope-record-btn.draw{background:linear-gradient(135deg,var(--accent3),#b47a00);color:#111;}
-@media(max-width:760px){.scope-stats-grid{grid-template-columns:1fr;}.scope-history-body{grid-template-columns:1fr;}}
+.scope-calc-list{display:flex;flex-direction:column;gap:10px;}
+.scope-calc-item{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;}
+.scope-calc-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.scope-calc-date{font-size:10px;color:var(--text2);}
+.scope-calc-title{font-size:13px;font-weight:700;color:var(--accent);}
+.scope-calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.scope-calc-box{background:var(--panel);border:1px solid var(--border);padding:9px 10px;}
+.scope-calc-label{font-size:9px;color:var(--text2);letter-spacing:2px;margin-bottom:5px;}
+.scope-calc-main{font-size:12px;font-weight:700;line-height:1.6;}
+.scope-calc-sub{font-size:10px;color:var(--text2);line-height:1.7;margin-top:4px;white-space:pre-wrap;}
+.scope-calc-result{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.scope-calc-result-box{background:var(--panel);border:1px solid var(--border);padding:8px 9px;}
+.scope-calc-ko{font-size:12px;font-weight:700;color:var(--accent2);}
+.scope-calc-note{font-size:10px;color:var(--text2);line-height:1.7;}
+@media(max-width:760px){.scope-stats-grid{grid-template-columns:1fr;}.scope-history-body{grid-template-columns:1fr;}.scope-calc-grid,.scope-calc-result{grid-template-columns:1fr;}}
 
 .lead-pick-wrap{margin-top:8px;padding:8px;background:var(--bg2);border:1px solid var(--border);display:none;}
 .lead-pick-wrap.show{display:block;}
@@ -283,6 +297,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     <button class="phase-tab active" id="ptab-1" onclick="showPhase(1)"><span class="tab-icon">♟</span>選出フェーズ</button>
     <button class="phase-tab" id="ptab-2" onclick="showPhase(2)"><span class="tab-icon">⚔</span>バトルフェーズ</button>
     <button class="phase-tab" id="ptab-3" onclick="showPhase(3)"><span class="tab-icon">📊</span>選出率記録</button>
+    <button class="phase-tab" id="ptab-4" onclick="showPhase(4)"><span class="tab-icon">🧮</span>計算履歴</button>
   </div>
 
   <!-- ============ PHASE 1: 選出フェーズ ============ -->
@@ -424,7 +439,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <button class="scope-record-btn lose" onclick="recordScopeBattle('lose')">この対戦を負けで記録</button>
         <button class="scope-record-btn draw" onclick="recordScopeBattle('draw')">この対戦を引き分けで記録</button>
       </div>
-      <div class="note">選出率記録・履歴の確認は上の「選出率記録」タブで行えます。</div>
+      <div class="note">選出率記録は「選出率記録」、calc.htmlから保存した内容は「計算履歴」で確認できます。</div>
     </div>
 
     <button class="act-btn secondary" onclick="showPhase(1)">← 選出フェーズに戻る</button>
@@ -444,6 +459,18 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <button class="scope-del-btn" onclick="clearAllScopeBattles()">全記録を削除</button>
       </div>
       <div id="scope-history-list"></div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE 4: 計算履歴 ============ -->
+  <div class="phase-panel" id="phase-4">
+    <div class="card">
+      <div class="card-title yellow">計算履歴</div>
+      <div class="note">calc.html から保存した計算結果を確認できます。表示内容はポケモン・技・調整・ダメージです。</div>
+      <div style="margin-top:10px;display:flex;justify-content:flex-end;">
+        <button class="scope-del-btn" onclick="clearAllCalcRecords()">全履歴を削除</button>
+      </div>
+      <div id="scope-calc-history-list" class="scope-calc-list" style="margin-top:10px;"></div>
     </div>
   </div>
 </div>
@@ -860,12 +887,14 @@ function buildSlot(poke, opts){
 
 // ===== フェーズ切替 =====
 function showPhase(n){
-  [1,2,3].forEach(i=>{
+  [1,2,3,4].forEach(i=>{
     document.getElementById('phase-'+i).classList.toggle('active',i===n);
     document.getElementById('ptab-'+i).classList.toggle('active',i===n);
   });
+  if(location.hash !== '#phase-'+n) history.replaceState(null,'','#phase-'+n);
   if(n===2) renderBattlePhase();
   if(n===3){ renderScopeStats(); renderScopeHistory(); }
+  if(n===4){ renderCalcHistory(); }
 }
 function getLeadSlotValue(side){
   return side==='my' ? myLeadSlot : oppLeadSlot;
@@ -1558,6 +1587,70 @@ async function deleteScopeBattleById(id){
   await renderScopeHistory();
 }
 
+function getCalcPhaseFromHash(){
+  const m = String(location.hash||'').match(/^#phase-(\d)$/);
+  const n = m ? parseInt(m[1],10) : 1;
+  return [1,2,3,4].includes(n) ? n : 1;
+}
+
+function renderCalcRecordCard(r){
+  const attackerName = escapeHtml(r.attacker?.displayName || r.attacker?.name || '—');
+  const defenderName = escapeHtml(r.defender?.displayName || r.defender?.name || '—');
+  const moveName = escapeHtml(r.move?.name || '—');
+  const createdAt = escapeHtml(String(r.created_at || '').replace('T',' ').replace(/\.\d+Z?$/,''));
+  const attackerAdjust = escapeHtml(r.attacker?.adjustment || '');
+  const defenderAdjust = escapeHtml(r.defender?.adjustment || '');
+  const damage = escapeHtml(r.result?.damage || '—');
+  const percent = escapeHtml(r.result?.percent || '');
+  const ko = escapeHtml(r.result?.ko || '');
+  const range = escapeHtml(r.result?.range || '');
+  const desc = escapeHtml(r.result?.desc || '');
+  const itemId = String(r._id ?? r.id ?? '');
+  return '<div class="scope-calc-item">'
+    + '<div class="scope-calc-head">'
+    +   '<div class="scope-calc-title">'+attackerName+' → '+defenderName+'</div>'
+    +   '<div class="scope-calc-date">'+createdAt+'</div>'
+    +   '<button class="scope-del-btn" onclick="deleteCalcHistoryById(\''+escapeJs(itemId)+'\')">削除</button>'
+    + '</div>'
+    + '<div class="scope-calc-grid">'
+    +   '<div class="scope-calc-box"><div class="scope-calc-label">攻撃側</div><div class="scope-calc-main">'+attackerName+'</div><div class="scope-calc-sub">'+attackerAdjust+'</div></div>'
+    +   '<div class="scope-calc-box"><div class="scope-calc-label">防御側</div><div class="scope-calc-main">'+defenderName+'</div><div class="scope-calc-sub">'+defenderAdjust+'</div></div>'
+    + '</div>'
+    + '<div class="scope-calc-result">'
+    +   '<div class="scope-calc-result-box"><div class="scope-calc-label">技</div><div class="scope-calc-main">'+moveName+'</div></div>'
+    +   '<div class="scope-calc-result-box"><div class="scope-calc-label">ダメージ</div><div class="scope-calc-main">'+damage+'</div><div class="scope-calc-sub">'+percent+'</div></div>'
+    +   '<div class="scope-calc-result-box"><div class="scope-calc-label">判定</div><div class="scope-calc-ko">'+ko+'</div><div class="scope-calc-sub">'+range+(desc?'<br>'+desc:'')+'</div></div>'
+    + '</div>'
+    + '</div>';
+}
+
+async function renderCalcHistory(){
+  const el = document.getElementById('scope-calc-history-list');
+  if(!el || typeof loadCalcRecords !== 'function') return;
+  const records = await loadCalcRecords(100);
+  if(!records.length){
+    el.innerHTML = '<div class="scope-calc-note">保存された計算履歴はまだありません。</div>';
+    return;
+  }
+  el.innerHTML = records.map(renderCalcRecordCard).join('');
+}
+
+async function deleteCalcHistoryById(id){
+  if(!confirm('この計算履歴を削除しますか？')) return;
+  if(typeof deleteCalcRecord === 'function') await deleteCalcRecord(id);
+  await renderCalcHistory();
+}
+
+async function clearAllCalcRecords(){
+  if(!confirm('計算履歴をすべて削除しますか？')) return;
+  const records = typeof loadCalcRecords === 'function' ? await loadCalcRecords(200) : [];
+  for(const r of records){
+    const id = r._id ?? r.id;
+    if(id && typeof deleteCalcRecord === 'function') await deleteCalcRecord(id);
+  }
+  await renderCalcHistory();
+}
+
 var THEMES={
   dark:{'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'},
   light:{'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'}
@@ -1585,9 +1678,12 @@ window.onload=async()=>{
   renderParty('opp');
   await renderScopeStats();
   await renderScopeHistory();
+  await renderCalcHistory();
   applyTheme(localStorage.getItem('pokeedge_theme')||'dark');
   document.getElementById('hamburger')?.addEventListener('click',toggleNav);
   document.getElementById('nav-overlay')?.addEventListener('click',closeNav);
+  showPhase(getCalcPhaseFromHash());
+  window.addEventListener('hashchange', ()=>showPhase(getCalcPhaseFromHash()));
 };
 </script>
 </body>

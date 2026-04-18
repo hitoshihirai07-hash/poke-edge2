@@ -342,6 +342,21 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .cov-pct{width:26px;font-size:10px;color:var(--accent);text-align:right;font-family:'JetBrains Mono',monospace;}
 .save-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;letter-spacing:2px;transition:all 0.2s;margin-top:8px;}
 .save-btn:hover{background:rgba(0,200,240,0.07);}
+.calc-result-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;}
+.calc-result-actions .save-btn{width:auto;margin-top:0;white-space:nowrap;}
+.result-subpanel{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.result-subpanel-title{font-size:10px;color:var(--accent3);letter-spacing:2px;margin-bottom:8px;}
+.inner-ko-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.inner-ko-group{display:flex;flex-direction:column;gap:6px;}
+.inner-ko-group-title{font-size:10px;color:var(--text2);letter-spacing:2px;}
+.inner-ko-item{background:var(--bg2);border:1px solid var(--border);padding:9px 10px;display:grid;grid-template-columns:1.1fr 1fr auto;gap:10px;align-items:center;}
+.inner-ko-main{font-size:12px;font-weight:700;line-height:1.6;}
+.inner-ko-sub{font-size:10px;color:var(--text2);line-height:1.6;}
+.inner-ko-right{text-align:right;}
+.inner-ko-tag{display:inline-block;padding:4px 8px;border:1px solid var(--border2);font-size:10px;letter-spacing:1px;font-weight:700;}
+.inner-ko-tag.confirm{color:var(--accent2);border-color:rgba(255,48,96,0.45);}
+.inner-ko-tag.roll{color:var(--accent3);border-color:rgba(255,200,0,0.45);}
+@media(max-width:760px){.inner-ko-item{grid-template-columns:1fr;}.inner-ko-right{text-align:left;}}
 .tp-ノーマル{background:#9e9e9e;color:#fff;}.tp-ほのお,.tp-炎{background:#c62828;color:#fff;}.tp-みず,.tp-水{background:#1565c0;color:#fff;}
 .tp-でんき,.tp-電気{background:#f9a825;color:#000;}.tp-くさ,.tp-草{background:#2e7d32;color:#fff;}.tp-こおり,.tp-氷{background:#00838f;color:#fff;}
 .tp-かくとう,.tp-格闘{background:#b71c1c;color:#fff;}.tp-どく,.tp-毒{background:#6a1b9a;color:#fff;}.tp-じめん,.tp-地面{background:#6d4c41;color:#fff;}
@@ -1115,6 +1130,20 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
         <button class="save-btn" id="export-dmg-btn" type="button" onclick="exportDamageResultImage()" style="width:auto;margin-top:0;white-space:nowrap;">📷 投稿用画像を保存</button>
       </div>
       <div id="export-dmg-status" style="font-size:10px;color:var(--text2);margin-top:8px;min-height:16px;"></div>
+      <div class="result-subpanel">
+        <div class="result-subpanel-title">保存・確認</div>
+        <div class="calc-result-actions">
+          <button class="save-btn" type="button" onclick="saveCurrentCalcHistory()">履歴に保存</button>
+          <button class="save-btn" type="button" onclick="openCalcHistoryTab()">履歴を開く</button>
+          <button class="save-btn" type="button" onclick="checkRegisteredMajorKOs()">このポケモンに倒せるのいるかな</button>
+        </div>
+        <div id="calc-history-status" style="font-size:10px;color:var(--text2);margin-top:8px;min-height:16px;"></div>
+      </div>
+      <div class="result-subpanel">
+        <div class="result-subpanel-title">内定ポケモンの主要技チェック</div>
+        <div id="inner-ko-summary" style="font-size:10px;color:var(--text2);line-height:1.7;">ボタンを押すと、現在の防御側に対して内定ポケモンの主要技から確定1発 / 乱数1発だけを表示します。</div>
+        <div id="inner-ko-list" class="inner-ko-list"></div>
+      </div>
     </div>
 
     <!-- 加算計算セクション -->
@@ -3316,6 +3345,307 @@ function getDamageExportData(){
     exportedAt: new Date().toLocaleString('ja-JP'),
     site: 'https://poke-edge.pages.dev/'
   };
+}
+function formatSpreadText(ev){
+  const src=ev||{};
+  return `H${parseInt(src.hp)||0} A${parseInt(src.atk)||0} B${parseInt(src.def)||0} C${parseInt(src.spa)||0} D${parseInt(src.spd)||0} S${parseInt(src.spe)||0}`;
+}
+function getCurrentCalcSideAdjustment(side){
+  if(side==='atk'){
+    const ev={hp:0, atk:parseInt(el('atk-ev-atk')?.value)||0, def:parseInt(el('atk-ev-def')?.value)||0, spa:parseInt(el('atk-ev-spa')?.value)||0, spd:0, spe:0};
+    return `Lv${el('atk-lv')?.value||50} / ${el('atk-nature')?.value||'がんばりや'} / ${formatSpreadText(ev)} / 特性 ${el('atk-ability')?.value||'なし'} / 持ち物 ${getSelectedLabel('atk-item')||'なし'}`;
+  }
+  const ev={hp:parseInt(el('def-ev-hp')?.value)||0, atk:parseInt(el('def-ev-atk')?.value)||0, def:parseInt(el('def-ev-def')?.value)||0, spa:0, spd:parseInt(el('def-ev-spd')?.value)||0, spe:0};
+  return `Lv${el('def-lv')?.value||50} / ${el('def-nature')?.value||'がんばりや'} / ${formatSpreadText(ev)} / 特性 ${el('def-ability')?.value||'なし'} / 持ち物 ${getSelectedLabel('def-item')||'なし'}`;
+}
+function getCurrentCalcRecordData(){
+  const base = getDamageExportData();
+  if(!base) return null;
+  return {
+    id: 'local_calc_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+    created_at: new Date().toISOString(),
+    attacker: {
+      name: base.attacker.name,
+      displayName: (CURRENT_ATK_REGISTERED_RECORD && CURRENT_ATK_REGISTERED_RECORD.displayName) || base.attacker.name,
+      adjustment: getCurrentCalcSideAdjustment('atk')
+    },
+    defender: {
+      name: base.defender.name,
+      displayName: (CURRENT_DEF_REGISTERED_RECORD && CURRENT_DEF_REGISTERED_RECORD.displayName) || base.defender.name,
+      adjustment: getCurrentCalcSideAdjustment('def')
+    },
+    move: {
+      name: base.move.name,
+      type: base.move.type,
+      category: base.move.category,
+      power: base.move.power,
+      weather: base.move.weather
+    },
+    result: {
+      damage: base.result.damage,
+      percent: base.result.percent,
+      ko: base.result.ko,
+      range: base.result.range,
+      desc: base.result.desc,
+      hazardSummary: base.result.hazardSummary
+    }
+  };
+}
+async function saveCurrentCalcHistory(){
+  const status = el('calc-history-status');
+  const record = getCurrentCalcRecordData();
+  if(!record){
+    if(status) status.textContent='先にダメージ計算結果を表示してください。';
+    return;
+  }
+  if(typeof saveCalcRecord !== 'function'){
+    if(status) status.textContent='保存機能を読み込めませんでした。';
+    return;
+  }
+  const ok = await saveCalcRecord(record);
+  if(status) status.textContent = ok ? '計算履歴に保存しました。' : '保存に失敗しました。';
+}
+function openCalcHistoryTab(){
+  location.href='scope.html#phase-4';
+}
+function mapRecordItemToCalcKey(itemName, moveType){
+  const name=String(itemName||'');
+  if(!name) return 'none';
+  if(name.includes('こだわりハチマキ')) return 'hachimaki';
+  if(name.includes('こだわりメガネ')) return 'megane';
+  if(name.includes('いのちのたま')) return 'inochi';
+  if(name.includes('たつじんのおび')) return 'tatsujin';
+  if(name.includes('ノーマルジュエル')||name.includes('ほのおジュエル')||name.includes('みずジュエル')||name.includes('でんきジュエル')||name.includes('くさジュエル')||name.includes('こおりジュエル')||name.includes('かくとうジュエル')||name.includes('どくジュエル')||name.includes('じめんジュエル')||name.includes('ひこうジュエル')||name.includes('エスパージュエル')||name.includes('むしジュエル')||name.includes('いわジュエル')||name.includes('ゴーストジュエル')||name.includes('ドラゴンジュエル')||name.includes('あくジュエル')||name.includes('はがねジュエル')||name.includes('フェアリージュエル')) return 'juel';
+  const typeBoost={
+    'くろいメガネ':'あく','しんぴのしずく':'みず','ようせいのハネ':'フェアリー','のろいのおふだ':'ゴースト','やわらかいすな':'じめん','するどいくちばし':'ひこう','くろおび':'かくとう','りゅうのキバ':'ドラゴン','もくたん':'ほのお','しんかいのキバ':'みず'
+  };
+  if(typeBoost[name] && typeBoost[name]===moveType) return 'pangro';
+  if(name.includes('ふといホネ')||name.includes('ふとい骨')) return 'hone';
+  return 'none';
+}
+function getRecordCalcStats(rec, poke){
+  const lv=Math.max(1, parseInt(rec?.lv)||50);
+  const iv=Math.max(0, Math.min(31, parseInt(rec?.iv)||31));
+  const ev=rec?.ev||{};
+  const nat=PERSONALITIES[rec?.nature]||PERSONALITIES['がんばりや'];
+  const champ=(rec?.gameMode||'champions')==='champions';
+  return {
+    hp: calcHP(poke.hp,iv,parseInt(ev.hp)||0,lv,champ),
+    atk: calcStat(poke.atk,iv,parseInt(ev.atk)||0,lv,nat.atk,champ),
+    def: calcStat(poke.def,iv,parseInt(ev.def)||0,lv,nat.def,champ),
+    spa: calcStat(poke.spa,iv,parseInt(ev.spa)||0,lv,nat.spa,champ),
+    spd: calcStat(poke.spd,iv,parseInt(ev.spd)||0,lv,nat.spd,champ),
+    spe: calcStat(poke.spe,iv,parseInt(ev.spe)||0,lv,nat.spe,champ)
+  };
+}
+function getRecordMajorMoves(rec){
+  const result=[];
+  const seen=new Set();
+  const pushMove=(entry)=>{
+    const m=normalizeMoveFromPokemonEntry(entry);
+    if(!m || !m.name || seen.has(m.name) || m.category==='変化' || (parseInt(m.power)||0)<=0) return;
+    seen.add(m.name);
+    result.push({name:m.name,type:m.type,category:m.category,power:parseInt(m.power)||0,hits:m.hits||'1',notes:m.notes||'',alwaysCrit:m.alwaysCrit||''});
+  };
+  if(rec && Array.isArray(rec.moves)) rec.moves.forEach(pushMove);
+  if(result.length) return result.slice(0,4);
+  const known = getPokemonKnownMoves(rec?.pokeName||'');
+  known.forEach(pushMove);
+  return result.slice(0,4);
+}
+function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
+  let moveName=move.name||'';
+  let mtype=move.type||'';
+  const mcat=move.category||'';
+  let power=parseInt(move.power)||0;
+  const notes=move.notes||'';
+  const hitsInfo=parseHits(move.hits||'1');
+  const isFoulPlay = moveName==='イカサマ' && mcat==='物理';
+  const isBodyPress = isBodyPressMove(moveName,mcat);
+  const isStoredPowerLike = moveName==='アシストパワー' || moveName==='つけあがる';
+  const isLowHpMove = moveName==='きしかいせい' || moveName==='じたばた';
+  if(!power || !window._defBase || !window._defStats) return null;
+  if(isStoredPowerLike) power=20;
+  if(isLowHpMove) power=getLowHpMovePower(100);
+  const SKIN_MAP={'スカイスキン':'ひこう','フリーズスキン':'こおり','フェアリースキン':'フェアリー','エレキスキン':'でんき'};
+  let skinMult=1;
+  if(SKIN_MAP[atkAbilityName]&&mtype==='ノーマル'){
+    mtype=SKIN_MAP[atkAbilityName];
+    skinMult=1.2;
+  }
+  const weather=el('atk-weather')?el('atk-weather').value:'';
+  if(moveName==='ウェザーボール'&&weather){
+    const WB_MAP={'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こおり'};
+    if(WB_MAP[weather]){ mtype=WB_MAP[weather]; power=100; }
+  }
+  let weatherDmgMult=1;
+  if(weather==='sunny'){
+    if(mtype==='ほのお') weatherDmgMult=1.5;
+    else if(mtype==='みず') weatherDmgMult=0.5;
+  } else if(weather==='rain'){
+    if(mtype==='みず') weatherDmgMult=1.5;
+    else if(mtype==='ほのお') weatherDmgMult=0.5;
+  }
+  const moveCategory=getResolvedMoveCategory(moveName,mcat,atkStats,window._defStats);
+  const defenseCategory=getEffectiveDefenseCategory(moveName,mcat,atkStats,window._defStats);
+  let atkStat=isBodyPress ? (atkStats.def||atkStats.atk) : (moveCategory==='物理'?atkStats.atk:atkStats.spa);
+  if(isFoulPlay) atkStat=window._defStats.atk||atkStat;
+  let defStat=defenseCategory==='物理'?window._defStats.def:window._defStats.spd;
+  const defTypes=[window._defBase.type1,window._defBase.type2].filter(Boolean);
+  if(weather==='snow'&&defTypes.includes('こおり')&&defenseCategory==='物理') defStat=Math.floor(defStat*1.5);
+  if(weather==='sand'&&defTypes.includes('いわ')&&defenseCategory==='特殊') defStat=Math.floor(defStat*1.5);
+  const eff=getTypeEff(mtype,defTypes);
+  const atkTypes=getEffectiveAtkTypes(atkBase, atkAbilityName, mtype, moveName);
+  let stab=atkTypes.includes(mtype)?1.5:1;
+  if(stab>1&&atkAbilityName==='てきおうりょく') stab=2.0;
+  let itemMult=1;
+  if(itemKey==='hachimaki'&&moveCategory==='物理'&&!isBodyPress) itemMult=1.5;
+  else if(itemKey==='megane'&&moveCategory==='特殊') itemMult=1.5;
+  else if(itemKey==='inochi') itemMult=1.3;
+  else if(itemKey==='tatsujin'&&eff>1) itemMult=1.2;
+  else if(itemKey==='juel') itemMult=1.3;
+  else if(itemKey==='pangro') itemMult=1.2;
+  else if(itemKey==='hone'&&!isBodyPress) itemMult=2.0;
+  let powerMult=1;
+  if(atkAbilityName==='てつのこぶし'&&abilityHasListedMove('てつのこぶし',moveName)) powerMult*=1.2;
+  if(atkAbilityName==='すてみ'&&abilityHasListedMove('すてみ',moveName)) powerMult*=1.2;
+  if(atkAbilityName==='がんじょうあご'&&abilityHasListedMove('がんじょうあご',moveName)) powerMult*=1.5;
+  if(atkAbilityName==='きれあじ'&&abilityHasListedMove('きれあじ',moveName)) powerMult*=1.5;
+  if(atkAbilityName==='メガランチャー'&&abilityHasListedMove('メガランチャー',moveName)) powerMult*=1.5;
+  if(atkAbilityName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)) powerMult*=1.3;
+  if(atkAbilityName==='いわはこび'&&mtype==='いわ') powerMult*=1.5;
+  if(atkAbilityName==='りゅうのあぎと'&&mtype==='ドラゴン') powerMult*=1.5;
+  if(atkAbilityName==='はがねつかい'&&mtype==='はがね') powerMult*=1.5;
+  if(atkAbilityName==='トランジスタ'&&mtype==='でんき') powerMult*=1.3;
+  const atkAbData=getAbilityByName(atkAbilityName);
+  if(atkAbData&&atkAbData.atkPowerUp){
+    const up=atkAbData.atkPowerUp;
+    const typeOk=!up.type||up.type===mtype;
+    const techOk=atkAbilityName!=='テクニシャン'||power<=60;
+    if(typeOk&&techOk) powerMult*=up.mult;
+  }
+  const aura=getAuraModifier(mtype, atkAbilityName, el('def-ability')?.value||'');
+  if(aura.mult!==1) powerMult*=aura.mult;
+  let atkStatMult=1;
+  if(['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(atkAbilityName)){
+    const typeMap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
+    if(typeMap[atkAbilityName]===mtype) atkStatMult*=1.5;
+  }
+  if(['クォークチャージ','こだいかっせい'].includes(atkAbilityName)) atkStatMult*=1.3;
+  if(['ちからもち','ヨガパワー'].includes(atkAbilityName)&&moveCategory==='物理'&&!isBodyPress) atkStatMult*=2;
+  if(atkAbilityName==='ごりむちゅう'&&moveCategory==='物理') atkStatMult*=1.5;
+  if(atkAbilityName==='はりきり'&&moveCategory==='物理') atkStatMult*=1.5;
+  let dmgMult=1;
+  if(atkAbilityName==='スナイパー') dmgMult*=1.5;
+  if(atkAbilityName==='ちからずく') dmgMult*=1.3;
+  if(atkAbilityName==='いろめがね'&&eff<1) dmgMult*=2;
+  const defAbName=el('def-ability')?.value||'';
+  const defAbData=getAbilityByName(defAbName);
+  const defItem=el('def-item')?.value||'1';
+  const defWall=el('def-wall')?.value||'1';
+  const defAlly=el('def-ally-ability')?.value||'1';
+  if(defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype) return null;
+  let defStatMult=1;
+  if(['マルチスケイル','ファントムガード'].includes(defAbName)) defStatMult*=0.5;
+  if(['フィルター','ハードロック'].includes(defAbName)&&eff>=2) defStatMult*=0.75;
+  if(defAbName==='ファーコート'&&defenseCategory==='物理') defStatMult*=2;
+  if(defAbName==='わざわいのうつわ') defStatMult*=(1/0.75);
+  if(['クォークチャージ','こだいかっせい'].includes(defAbName)) defStatMult*=1.3;
+  if(defAbData&&defAbData.defDmgMult){
+    const dm=Array.isArray(defAbData.defDmgMult)?defAbData.defDmgMult:[defAbData.defDmgMult];
+    dm.forEach(d=>{ if(!d.type||d.type===mtype) dmgMult*=d.mult; });
+  }
+  if(defAbName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)) dmgMult*=0.5;
+  if(defItem==='def_1.5_kiseki') defStatMult*=1.5;
+  if(defItem==='def_2_metaba'&&defenseCategory==='物理') defStatMult*=2;
+  if(defAlly==='def_0.75_waza2') defStatMult*=(1/0.75);
+  if(defItem==='def_0.5_handi') dmgMult*=0.5;
+  if(defAlly==='def_0.75_fureka') dmgMult*=0.75;
+  if(defWall==='wall_0.5_hikari'&&moveCategory==='特殊') dmgMult*=0.5;
+  if(defWall==='wall_0.5_reflect'&&moveCategory==='物理') dmgMult*=0.5;
+  const defRank=Math.max(-6, Math.min(6, parseInt(el('def-rank')?.value)||0));
+  const RANK=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
+  const effAtk=Math.floor(atkStat*atkStatMult);
+  const effDef=Math.floor(defStat*defStatMult*RANK[defRank+6]);
+  const effPow=Math.floor(power*powerMult*skinMult);
+  const firstHit = calcBaseDamageRolls(parseInt((atkStats.lv)||50)||50, effPow, effAtk, effDef, stab, eff, itemMult, dmgMult, weatherDmgMult);
+  let totalMn=firstHit.mn*hitsInfo.min;
+  let totalMx=firstHit.mx*hitsInfo.max;
+  if(atkAbilityName==='おやこあい' && !isParentalBondBlocked(moveName, hitsInfo, notes)){
+    const secondPower=Math.max(1, Math.floor(effPow*0.25));
+    const secondHit=calcBaseDamageRolls(parseInt((atkStats.lv)||50)||50, secondPower, effAtk, effDef, stab, eff, itemMult, dmgMult, weatherDmgMult);
+    totalMn=(firstHit.mn+secondHit.mn)*hitsInfo.min;
+    totalMx=(firstHit.mx+secondHit.mx)*hitsInfo.max;
+  }
+  const hp=window._defStats.hp;
+  const hazardInfo=getHazardInfo(window._defBase, window._defStats);
+  const judgeHp=Math.max(1, hazardInfo.remaining);
+  const pctMn=Math.round(totalMn/hp*100);
+  const pctMx=Math.round(totalMx/hp*100);
+  const judgeMn=Math.round(totalMn/judgeHp*100);
+  const judgeMx=Math.round(totalMx/judgeHp*100);
+  let ko='';
+  if(judgeMn>=100) ko='確定1発';
+  else if(judgeMx>=100) ko='乱数1発';
+  else return null;
+  return {mn:totalMn,mx:totalMx,pctMn,pctMx,ko};
+}
+function renderInnerKoResults(results, targetName){
+  const summary=el('inner-ko-summary');
+  const list=el('inner-ko-list');
+  if(!summary || !list) return;
+  if(!results.length){
+    summary.textContent=`${targetName}に対して、内定ポケモンの主要技から確定1発 / 乱数1発は見つかりませんでした。`;
+    list.innerHTML='';
+    return;
+  }
+  const confirmList=results.filter(r=>r.ko==='確定1発');
+  const rollList=results.filter(r=>r.ko==='乱数1発');
+  summary.textContent=`${targetName}に対して、確定1発 ${confirmList.length}件 / 乱数1発 ${rollList.length}件を表示しています。`;
+  const renderGroup=(title, arr, cls)=>{
+    if(!arr.length) return '';
+    return `<div class="inner-ko-group"><div class="inner-ko-group-title">${title}</div>${arr.map(r=>`<div class="inner-ko-item"><div><div class="inner-ko-main">${r.displayName} / ${r.moveName}</div><div class="inner-ko-sub">${r.adjustment}</div></div><div><div class="inner-ko-sub">${r.damage}</div><div class="inner-ko-sub">${r.percent}</div></div><div class="inner-ko-right"><span class="inner-ko-tag ${cls}">${r.ko}</span></div></div>`).join('')}</div>`;
+  };
+  list.innerHTML = renderGroup('確定1発', confirmList, 'confirm') + renderGroup('乱数1発', rollList, 'roll');
+}
+async function checkRegisteredMajorKOs(){
+  const summary=el('inner-ko-summary');
+  const list=el('inner-ko-list');
+  if(!window._defBase || !window._defStats){
+    if(summary) summary.textContent='先に防御側ポケモンを選んでください。';
+    if(list) list.innerHTML='';
+    return;
+  }
+  if(!REGISTERED_CALC_POKES || !REGISTERED_CALC_POKES.length){
+    if(summary) summary.textContent='ポケモン登録に内定ポケモンがありません。';
+    if(list) list.innerHTML='';
+    return;
+  }
+  const rows=[];
+  for(const rec of REGISTERED_CALC_POKES){
+    const poke = pokeIndex.find(p=>p.name===rec.pokeName);
+    if(!poke) continue;
+    const stats = getRecordCalcStats(rec, poke);
+    stats.lv = Math.max(1, parseInt(rec?.lv)||50);
+    const ability = rec.ability || '';
+    const moves = getRecordMajorMoves(rec);
+    for(const move of moves){
+      const dmg = calcInnerScanDamage(poke, stats, move, ability, mapRecordItemToCalcKey(rec.item, move.type));
+      if(!dmg) continue;
+      rows.push({
+        displayName: rec.displayName || rec.pokeName,
+        moveName: move.name,
+        adjustment: `Lv${stats.lv} / ${rec.nature||'がんばりや'} / ${formatSpreadText(rec.ev||{})} / 特性 ${ability||'なし'} / 持ち物 ${rec.item||'なし'}`,
+        damage: `${dmg.mn}〜${dmg.mx}`,
+        percent: `${dmg.pctMn}〜${dmg.pctMx}%`,
+        ko: dmg.ko,
+        sortKey: dmg.ko==='確定1発' ? 0 : 1,
+        pctSort: dmg.pctMx
+      });
+    }
+  }
+  rows.sort((a,b)=>a.sortKey-b.sortKey || b.pctSort-a.pctSort || a.displayName.localeCompare(b.displayName,'ja'));
+  renderInnerKoResults(rows, window._defBase.name||'このポケモン');
 }
 function drawRoundedRect(ctx,x,y,w,h,r,fill,stroke){
   ctx.beginPath();

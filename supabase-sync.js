@@ -321,3 +321,89 @@ async function deleteBattleRecord(id) {
   const { error } = await getSB().from('battle_records').delete().eq('id', id).eq('user_id', _currentUser.id);
   return !error;
 }
+
+
+// ===== ダメージ計算履歴 =====
+const LS_CALC_RECORD_KEY = 'pokeedge_calc_records_v1';
+
+function createLocalCalcRecordId(){
+  return 'local_calc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+}
+
+function loadLocalCalcRecordsRaw(){
+  try {
+    const data = JSON.parse(localStorage.getItem(LS_CALC_RECORD_KEY)||'[]');
+    return Array.isArray(data) ? data : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveLocalCalcRecordsRaw(records){
+  localStorage.setItem(LS_CALC_RECORD_KEY, JSON.stringify(Array.isArray(records) ? records : []));
+}
+
+async function saveCalcRecord(record) {
+  const safeRecord = Object.assign({}, record || {});
+  if(!safeRecord.id) safeRecord.id = createLocalCalcRecordId();
+  if(!safeRecord.created_at) safeRecord.created_at = new Date().toISOString();
+
+  const localRecords = loadLocalCalcRecordsRaw();
+  localRecords.unshift(safeRecord);
+  saveLocalCalcRecordsRaw(localRecords.slice(0, 200));
+
+  if(!isLoggedIn()) return true;
+
+  try {
+    const { error } = await getSB().from('calc_records').insert({
+      user_id: _currentUser.id,
+      data: safeRecord,
+      created_at: safeRecord.created_at
+    });
+    return !error;
+  } catch(e) {
+    console.warn('saveCalcRecord cloud fallback', e);
+    return true;
+  }
+}
+
+async function loadCalcRecords(limit=100) {
+  if(!isLoggedIn()) {
+    return loadLocalCalcRecordsRaw().slice(0, limit);
+  }
+  try {
+    const { data, error } = await getSB()
+      .from('calc_records')
+      .select('id, data, created_at')
+      .eq('user_id', _currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if(!error && Array.isArray(data)) {
+      return data.map(r=>Object.assign({}, r.data||{}, {
+        _id: r.id,
+        created_at: (r.data && r.data.created_at) || r.created_at || new Date().toISOString()
+      }));
+    }
+  } catch(e) {
+    console.warn('loadCalcRecords cloud fallback', e);
+  }
+  return loadLocalCalcRecordsRaw().slice(0, limit);
+}
+
+async function deleteCalcRecord(id) {
+  const local = loadLocalCalcRecordsRaw();
+  const nextLocal = local.filter(r=>String(r._id ?? r.id ?? '') !== String(id));
+  if(nextLocal.length !== local.length) {
+    saveLocalCalcRecordsRaw(nextLocal);
+  }
+
+  if(!isLoggedIn()) return true;
+
+  try {
+    const { error } = await getSB().from('calc_records').delete().eq('id', id).eq('user_id', _currentUser.id);
+    return !error;
+  } catch(e) {
+    console.warn('deleteCalcRecord cloud fallback', e);
+    return true;
+  }
+}
