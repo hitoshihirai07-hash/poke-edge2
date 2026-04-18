@@ -455,8 +455,30 @@ function estimateStatsDefault(poke){
 }
 
 // ===== シーズンランキング活用 =====
+// ===== メガ進化 ↔ 元ポケモン ユーティリティ =====
+function isMegaPokemon(name){ return name && name.startsWith('メガ') && name!=='メガニウム' && name!=='メガヤンマ'; }
+function getBaseName(megaName){
+  if(!isMegaPokemon(megaName)) return null;
+  return megaName.replace(/^メガ/,'').replace(/[XYZ]$/,'');
+}
+function getMegaFormsOf(baseName){
+  const prefix = 'メガ'+baseName;
+  return pokeIndex.filter(p=>p.name===prefix||p.name===prefix+'X'||p.name===prefix+'Y'||p.name===prefix+'Z');
+}
+
 function getSeasonRow(pokeName){
-  return (SEASON_RANKING.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName);
+  // まず直接検索
+  const direct = (SEASON_RANKING.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName);
+  if(direct && direct.moves && direct.moves.length) return direct;
+  if(direct) return direct; // データが空でもヒットはヒット
+  // メガ進化ポケモンの場合、元ポケモン名で検索
+  if(isMegaPokemon(pokeName)){
+    const baseName = getBaseName(pokeName);
+    if(baseName){
+      return (SEASON_RANKING.rows||[]).find(r=>r.name===baseName || r.siteName===baseName) || null;
+    }
+  }
+  return null;
 }
 function parseRateEntry(s){
   // "じしん (99.1%)" → {name:'じしん', rate:99.1}
@@ -472,22 +494,26 @@ function parseSpread(s){
 
 function estimateFromSeason(poke){
   const sr = getSeasonRow(poke.name);
-  if(!sr) return estimateStatsDefault(poke);
+  if(!sr || !sr.natures || !sr.natures.length || !sr.spreads || !sr.spreads.length) return estimateStatsDefault(poke);
   const topNature = parseRateEntry(sr.natures[0]).name;
   const topSpread = parseSpread(sr.spreads[0]);
+  // メガポケモンの場合も性格・努力値は元ランキングから取得し、種族値はメガのものを使う
   return calcAllStats(poke, topNature, topSpread, 50);
 }
 
 function getEstimatedMoves(poke){
   const sr = getSeasonRow(poke.name);
-  if(sr){
+  if(sr && sr.moves && sr.moves.length){
     return sr.moves.map(parseRateEntry).filter(m=>m.rate>=15).map(m=>{
       const md = moveIndex.find(x=>x.name===m.name);
       return md ? Object.assign({rate:m.rate},md) : null;
     }).filter(Boolean).slice(0,6);
   }
-  // ランキング外: pokemon_movesから攻撃技上位4
-  const pmData = POKEMON_MOVES_RAW[poke.name];
+  // ランキング外: pokemon_movesから攻撃技上位4（メガ名→元名の順で探す）
+  let pmData = POKEMON_MOVES_RAW[poke.name];
+  if(!pmData && isMegaPokemon(poke.name)){
+    pmData = POKEMON_MOVES_RAW[getBaseName(poke.name)];
+  }
   if(pmData && pmData.moves){
     return pmData.moves.filter(m=>m.category!=='変化'&&m.power&&parseInt(m.power)>0)
       .sort((a,b)=>(parseInt(b.power)||0)-(parseInt(a.power)||0))
@@ -830,27 +856,55 @@ function renderThreatAnalysis(){
   document.getElementById('threat-card').style.display='block';
   const html = oppParty.map(opp=>{
     const sr = getSeasonRow(opp.poke.name);
+    const isMega = isMegaPokemon(opp.poke.name);
+    const baseName = isMega ? getBaseName(opp.poke.name) : null;
     let detail = '';
-    if(sr){
+
+    if(sr && sr.moves && sr.moves.length){
+      // ランキングに有効データあり
+      if(isMega && sr.name !== opp.poke.name){
+        detail += '<div style="font-size:9px;color:var(--accent3);margin-bottom:3px;">※ '+sr.name+' のランキングデータを参照</div>';
+      }
       const topMoves = sr.moves.slice(0,4).map(parseRateEntry);
-      const topItem = parseRateEntry(sr.items[0]);
-      const topNature = parseRateEntry(sr.natures[0]);
       detail += '<div>推定技: '+topMoves.map(m=>'<b>'+m.name+'</b>('+m.rate+'%)').join(', ')+'</div>';
-      detail += '<div>推定持ち物: '+topItem.name+'('+topItem.rate+'%) / 性格: '+topNature.name+'('+topNature.rate+'%)</div>';
-      // 自分のパーティで対処できるか
-      let canHandle = false;
-      myParty.forEach(my=>{
-        const mu = evaluateMatchup(my.poke, my.stats, my.moves, opp.poke, opp.stats, opp.moves);
-        if(mu.score>=10) canHandle=true;
-      });
-      const handlers = myParty.filter(my=>evaluateMatchup(my.poke, my.stats, my.moves, opp.poke, opp.stats, opp.moves).score>=10).map(my=>my.poke.name);
-      if(handlers.length) detail += '<div class="safe">→ '+handlers.join(', ')+' で対処可能</div>';
-      else detail += '<div class="warn">⚠ 有利な対面がありません！</div>';
+      if(sr.items && sr.items.length){
+        const topItem = parseRateEntry(sr.items[0]);
+        detail += '<div>推定持ち物: '+topItem.name+'('+topItem.rate+'%)';
+        // メガストーンがあれば表示
+        const megaItems = sr.items.filter(it=>it.includes('ナイト')).map(parseRateEntry);
+        if(megaItems.length && !isMega){
+          detail += ' <span style="color:var(--accent3);">⚡メガ進化: '+megaItems.map(m=>m.name+'('+m.rate+'%)').join(', ')+'</span>';
+        }
+        detail += '</div>';
+      }
+      if(sr.natures && sr.natures.length){
+        const topNature = parseRateEntry(sr.natures[0]);
+        detail += '<div>推定性格: '+topNature.name+'('+topNature.rate+'%)</div>';
+      }
+    } else if(sr){
+      // ランキングにはいるがデータ空（ハッサム等）
+      detail += '<div style="color:var(--accent3);">ランキング'+sr.rank+'位（詳細データ未収集）</div>';
+      if(isMega) detail += '<div style="font-size:9px;color:var(--text2);">'+opp.poke.name+' として種族値ベースで推定</div>';
+      detail += '<div>推定素早さ実数値: '+opp.stats.spe+'</div>';
+      // 覚える技から推定
+      if(opp.moves.length){
+        detail += '<div>推定主力技: '+opp.moves.slice(0,4).map(m=>'<b>'+m.name+'</b>(威力'+m.power+')').join(', ')+'</div>';
+      }
     } else {
-      detail += '<div>ランキング外のためデータなし。種族値ベースの推定。</div>';
-      const spe = opp.stats.spe;
-      detail += '<div>推定素早さ実数値: '+spe+'</div>';
+      // 完全にランキング外
+      detail += '<div>ランキング外。種族値ベースの推定。</div>';
+      if(isMega) detail += '<div style="font-size:9px;color:var(--text2);">元: '+baseName+'</div>';
+      detail += '<div>推定素早さ実数値: '+opp.stats.spe+'</div>';
+      if(opp.moves.length){
+        detail += '<div>推定主力技: '+opp.moves.slice(0,4).map(m=>'<b>'+m.name+'</b>(威力'+m.power+')').join(', ')+'</div>';
+      }
     }
+
+    // 対処可能な味方
+    const handlers = myParty.filter(my=>evaluateMatchup(my.poke, my.stats, my.moves, opp.poke, opp.stats, opp.moves).score>=10).map(my=>my.poke.name);
+    if(handlers.length) detail += '<div class="safe">→ '+handlers.join(', ')+' で対処可能</div>';
+    else if(myParty.length) detail += '<div class="warn">⚠ 有利な対面がありません！</div>';
+
     return '<div class="threat-card"><div class="threat-name">'+opp.poke.name+' '+typeHTML(opp.poke)+'</div><div class="threat-detail">'+detail+'</div></div>';
   }).join('');
   document.getElementById('threat-list').innerHTML = html;
