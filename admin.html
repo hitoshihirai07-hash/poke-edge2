@@ -756,6 +756,11 @@ function generateJSON(type) {
       const hitsKey = data.headers.find(h => h === '技のヒット数' || h === 'ヒット数' || h === 'hits') || '';
       const descKey = data.headers.find(h => h === '技の説明' || h === '説明') || '';
       const updatedKey = data.headers.find(h => h === '更新日' || h === 'updatedAt') || '';
+      const candidateKey = data.headers.find(h => h === '候補' || h === 'candidate' || h === 'Candidate') || '';
+      const isTruthyCell = (value) => {
+        const v = String(value == null ? '' : value).trim().toLowerCase();
+        return v === 'true' || v === '1' || v === 'yes' || v === 'on';
+      };
       const missing = [];
       if(!pokemonKey) missing.push('ポケモン名');
       if(!moveNameKey) missing.push('技名前');
@@ -784,17 +789,25 @@ function generateJSON(type) {
           pp: normalizeMoveCell(r[ppKey]),
           hits: normalizeMoveCell(r[hitsKey]),
           description: (r[descKey]||'').trim(),
+          candidate: candidateKey ? isTruthyCell(r[candidateKey]) : false,
         });
         if(!grouped[pokemonName].updatedAt && updatedKey) grouped[pokemonName].updatedAt = (r[updatedKey]||'').trim();
         moveRowCount++;
       });
 
+      Object.keys(grouped).forEach(name => {
+        const candidateMoves = grouped[name].moves.filter(m => m.candidate);
+        grouped[name].candidateMoves = candidateMoves;
+        grouped[name].candidateCount = candidateMoves.length;
+      });
+      const candidateMoveCount = Object.values(grouped).reduce((sum, row) => sum + (row.candidateCount || 0), 0);
       json = {
         pokemonCount: Object.keys(grouped).length,
         moveRowCount,
+        candidateMoveCount,
         pokemon: grouped,
       };
-      log.innerHTML = `<span class="ok">✅ ${json.pokemonCount}件のポケモン別技データを生成しました（技行数: ${moveRowCount}件 / ヒット数対応）</span>`;
+      log.innerHTML = `<span class="ok">✅ ${json.pokemonCount}件のポケモン別技データを生成しました（技行数: ${moveRowCount}件 / 候補技: ${candidateMoveCount}件 / ヒット数対応）</span>`;
     }
 
     else if(type==='season') {
