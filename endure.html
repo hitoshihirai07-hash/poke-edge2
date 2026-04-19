@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>耐久調整ツール | Poke-Edge</title>
+<style>
+  :root{
+    --bg:#0b1220;
+    --bg2:#121c30;
+    --panel:#16233a;
+    --panel2:#1b2b46;
+    --line:#29405f;
+    --text:#eef4ff;
+    --muted:#aebcd7;
+    --accent:#7dd3fc;
+    --accent2:#86efac;
+    --danger:#fca5a5;
+    --warn:#fde68a;
+    --chip:#22324f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#09111d 0%,#0b1220 100%);color:var(--text);font-family:"Noto Sans JP",system-ui,sans-serif;}
+  .wrap{max-width:1280px;margin:0 auto;padding:18px 14px 48px}
+  h1{margin:0 0 6px;font-size:28px;line-height:1.2}
+  .lead{margin:0;color:var(--muted);font-size:13px;line-height:1.8}
+  .grid{display:grid;grid-template-columns:1.02fr 1.38fr;gap:16px;margin-top:16px;align-items:start}
+  .card{background:rgba(22,35,58,.92);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.24)}
+  .card h2,.card h3{margin:0 0 10px;font-size:18px}
+  .small{font-size:12px;color:var(--muted)}
+  .mode-row,.source-row,.mega-row,.chip-row,.toggle-row{display:flex;gap:8px;flex-wrap:wrap}
+  .mode-btn,.source-btn,.chip,.mini-btn,.rank-chip{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--text);padding:8px 12px;border-radius:999px;font-size:12px;cursor:pointer}
+  .mode-btn.active,.source-btn.active,.chip.active,.mini-btn.active,.rank-chip.active{background:linear-gradient(90deg,rgba(125,211,252,.25),rgba(134,239,172,.18));border-color:var(--accent);color:#fff}
+  .mini-btn{padding:6px 10px}
+  .section-gap{margin-top:14px}
+  label{display:block;margin:0 0 6px;font-size:12px;color:var(--muted)}
+  input[type="text"], input[type="number"], select{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:12px;font-size:14px;outline:none}
+  input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{margin:0}
+  input:focus,select:focus{border-color:var(--accent)}
+  .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .ev-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .ev-box{background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:8px}
+  .ev-box span{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+  .stat{background:rgba(10,16,28,.4);border:1px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center}
+  .stat .k{font-size:11px;color:var(--muted)}
+  .stat .v{font-size:18px;font-weight:700;margin-top:3px}
+  .rank-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:420px;overflow:auto;padding-right:2px}
+  .rank-chip{border-radius:14px;padding:10px 12px;text-align:left;display:flex;justify-content:space-between;align-items:center;background:rgba(15,24,40,.75)}
+  .rank-chip .sub{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+  .rank-num{display:inline-flex;min-width:34px;justify-content:center;font-weight:700;color:var(--accent)}
+  .source-card{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(11,18,32,.35)}
+  .source-card.active{border-color:var(--accent);box-shadow:0 0 0 1px rgba(125,211,252,.18) inset}
+  .move-list-note{font-size:11px;color:var(--muted);margin-top:6px}
+  .result-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+  .result-main{font-size:28px;font-weight:800;line-height:1.2}
+  .result-sub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.7}
+  .result-bar{height:16px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:10px}
+  .result-bar > div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .18s ease}
+  .result-plain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+  .result-box{background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:10px}
+  .result-box .rk{font-size:11px;color:var(--muted)}
+  .result-box .rv{font-size:16px;font-weight:700;margin-top:4px;line-height:1.5}
+  .rolls{margin-top:10px;background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:10px;line-height:2}
+  .hint{font-size:11px;color:var(--muted);line-height:1.8}
+  .stack{display:grid;gap:12px}
+  .hidden-frame{position:absolute;left:-99999px;top:-99999px;width:1200px;height:2400px;opacity:0;pointer-events:none}
+  .muted-banner{margin-top:12px;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--muted);line-height:1.8}
+  .status-line{font-size:12px;color:var(--muted);margin-top:6px}
+  .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(125,211,252,.16);color:var(--accent);font-size:11px;border:1px solid rgba(125,211,252,.28)}
+  @media (max-width:980px){
+    .grid{grid-template-columns:1fr}
+    .rank-list{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    .wrap{padding:14px 10px 38px}
+    h1{font-size:24px}
+    .field-grid,.result-plain{grid-template-columns:1fr}
+    .ev-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>耐久調整ツール</h1>
+  <p class="lead">シングル用の試作ページです。上で耐久したい側を選び、下でランキング側または自由入力側を使うと、既存ダメージ計算の内容をそのまま使って結果を自動反映します。</p>
+
+  <div class="card section-gap">
+    <div class="result-head">
+      <div>
+        <h2 style="margin-bottom:6px;">対象範囲</h2>
+        <div class="mode-row" id="mode-buttons"></div>
+      </div>
+      <div>
+        <span class="pill">シングル固定</span>
+      </div>
+    </div>
+    <div class="status-line" id="mode-status">読み込み中です…</div>
+  </div>
+
+  <div class="grid">
+    <div class="stack">
+      <section class="card">
+        <h2>耐久したい側</h2>
+        <div class="field-grid">
+          <div>
+            <label for="defender-name">ポケモン</label>
+            <input id="defender-name" list="pokemon-list" type="text" placeholder="ポケモン名を入力">
+          </div>
+          <div>
+            <label for="defender-nature">性格</label>
+            <select id="defender-nature"></select>
+          </div>
+        </div>
+        <div class="section-gap">
+          <label>メガ進化</label>
+          <div class="mega-row" id="defender-mega"></div>
+        </div>
+        <div class="section-gap">
+          <label for="defender-ability">特性</label>
+          <select id="defender-ability"></select>
+        </div>
+        <div class="section-gap">
+          <label>努力値（Champions 0〜32）</label>
+          <div class="ev-grid" id="defender-evs"></div>
+        </div>
+        <div class="stats-grid" id="defender-stats"></div>
+        <div class="muted-banner">防御側は HP / 攻撃 / 防御 / 特防 を既存ダメ計に連動させます。持ち物・壁・場の補正はこの試作では既存計算の初期値のままです。</div>
+      </section>
+
+      <section class="card">
+        <div class="result-head">
+          <div>
+            <h2 style="margin-bottom:4px;">結果</h2>
+            <div class="small" id="result-matchup">攻撃側と防御側を選ぶと反映されます。</div>
+          </div>
+          <div class="small" id="active-source-label">使用中: ランキング側</div>
+        </div>
+        <div class="result-main" id="result-dmg">—</div>
+        <div class="result-sub" id="result-range">技を選ぶとここに乱数幅が出ます。</div>
+        <div class="result-bar"><div id="result-bar-fill"></div></div>
+        <div class="result-plain">
+          <div class="result-box">
+            <div class="rk">割合</div>
+            <div class="rv" id="result-pct">—</div>
+          </div>
+          <div class="result-box">
+            <div class="rk">確定数</div>
+            <div class="rv" id="result-ko">—</div>
+          </div>
+        </div>
+        <div class="rolls" id="result-rolls">16乱数はここに表示されます。</div>
+        <div class="status-line" id="result-status">裏側で既存ダメージ計算を読み込んでいます…</div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card">
+        <div class="result-head">
+          <div>
+            <h2 style="margin-bottom:4px;">ランキングに載っているポケモン</h2>
+            <div class="small">更新元は <code>season_ranking_single.json</code> です。変化技は候補から除外しています。</div>
+          </div>
+        </div>
+        <div class="rank-list" id="ranking-list"></div>
+      </section>
+
+      <section class="source-card active" id="source-ranking-card">
+        <div class="result-head">
+          <h3>ランキング側の設定</h3>
+          <div class="source-row" id="source-toggle"></div>
+        </div>
+        <div class="field-grid">
+          <div>
+            <label for="ranking-pokemon">選択中ポケモン</label>
+            <input id="ranking-pokemon" type="text" readonly>
+          </div>
+          <div>
+            <label for="ranking-nature">性格</label>
+            <select id="ranking-nature"></select>
+          </div>
+        </div>
+        <div class="section-gap">
+          <label>メガ進化</label>
+          <div class="mega-row" id="ranking-mega"></div>
+        </div>
+        <div class="field-grid section-gap">
+          <div>
+            <label for="ranking-ability">特性</label>
+            <select id="ranking-ability"></select>
+          </div>
+          <div>
+            <label for="ranking-move">技候補</label>
+            <select id="ranking-move"></select>
+          </div>
+        </div>
+        <div class="section-gap">
+          <label for="ranking-move-free">自由入力（攻撃技のみ）</label>
+          <input id="ranking-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
+          <div class="move-list-note">入力すると上の技候補よりこちらを優先します。</div>
+        </div>
+        <div class="section-gap">
+          <label>努力値（Champions 0〜32）</label>
+          <div class="ev-grid" id="ranking-evs"></div>
+        </div>
+        <div class="stats-grid" id="ranking-stats"></div>
+      </section>
+
+      <section class="source-card" id="source-free-card">
+        <h3>自由ポケモン入力</h3>
+        <div class="field-grid">
+          <div>
+            <label for="free-pokemon">ポケモン</label>
+            <input id="free-pokemon" list="pokemon-list" type="text" placeholder="ポケモン名を入力">
+          </div>
+          <div>
+            <label for="free-nature">性格</label>
+            <select id="free-nature"></select>
+          </div>
+        </div>
+        <div class="section-gap">
+          <label>メガ進化</label>
+          <div class="mega-row" id="free-mega"></div>
+        </div>
+        <div class="field-grid section-gap">
+          <div>
+            <label for="free-ability">特性</label>
+            <select id="free-ability"></select>
+          </div>
+          <div>
+            <label for="free-move">技候補</label>
+            <select id="free-move"></select>
+          </div>
+        </div>
+        <div class="section-gap">
+          <label for="free-move-free">自由入力（攻撃技のみ）</label>
+          <input id="free-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
+        </div>
+        <div class="section-gap">
+          <label>努力値（Champions 0〜32）</label>
+          <div class="ev-grid" id="free-evs"></div>
+        </div>
+        <div class="stats-grid" id="free-stats"></div>
+      </section>
+    </div>
+  </div>
+
+  <datalist id="pokemon-list"></datalist>
+  <datalist id="damaging-move-list"></datalist>
+  <iframe id="calc-frame" class="hidden-frame" src="calc.html" title="hidden calc"></iframe>
+</div>
+
+<script>
+const NATURE_NAMES = [
+  'がんばりや','すなお','てれや','きまぐれ','おとぼけ',
+  'さみしがり','いじっぱり','やんちゃ','ゆうかん',
+  'ずぶとい','わんぱく','のうてんき','のんき',
+  'ひかえめ','おっとり','うっかりや','れいせい',
+  'おだやか','おとなしい','しんちょう','なまいき',
+  'おくびょう','せっかち','ようき','むじゃき'
+];
+const PERSONALITIES = {
+  'がんばりや':{atk:1,def:1,spa:1,spd:1,spe:1},'すなお':{atk:1,def:1,spa:1,spd:1,spe:1},'てれや':{atk:1,def:1,spa:1,spd:1,spe:1},'きまぐれ':{atk:1,def:1,spa:1,spd:1,spe:1},'おとぼけ':{atk:1,def:1,spa:1,spd:1,spe:1},
+  'さみしがり':{atk:1.1,def:0.9,spa:1,spd:1,spe:1},'いじっぱり':{atk:1.1,def:1,spa:0.9,spd:1,spe:1},'やんちゃ':{atk:1.1,def:1,spa:1,spd:0.9,spe:1},'ゆうかん':{atk:1.1,def:1,spa:1,spd:1,spe:0.9},
+  'ずぶとい':{atk:0.9,def:1.1,spa:1,spd:1,spe:1},'わんぱく':{atk:1,def:1.1,spa:0.9,spd:1,spe:1},'のうてんき':{atk:1,def:1.1,spa:1,spd:0.9,spe:1},'のんき':{atk:1,def:1.1,spa:1,spd:1,spe:0.9},
+  'ひかえめ':{atk:0.9,def:1,spa:1.1,spd:1,spe:1},'おっとり':{atk:1,def:0.9,spa:1.1,spd:1,spe:1},'うっかりや':{atk:1,def:1,spa:1.1,spd:0.9,spe:1},'れいせい':{atk:1,def:1,spa:1.1,spd:1,spe:0.9},
+  'おだやか':{atk:0.9,def:1,spa:1,spd:1.1,spe:1},'おとなしい':{atk:1,def:1,spa:0.9,spd:1.1,spe:1},'しんちょう':{atk:1,def:1,spa:0.9,spd:1.1,spe:1},'なまいき':{atk:1,def:1,spa:1,spd:1.1,spe:0.9},
+  'おくびょう':{atk:1,def:1,spa:1,spd:0.9,spe:1.1},'せっかち':{atk:1,def:0.9,spa:1,spd:1,spe:1.1},'ようき':{atk:1,def:1,spa:0.9,spd:1,spe:1.1},'むじゃき':{atk:1,def:1,spa:1,spd:0.9,spe:1.1}
+};
+const DEF_EV_KEYS = ['hp','atk','def','spd'];
+const ATK_EV_KEYS = ['atk','def','spa'];
+const STATE = {
+  mode: 'inner',
+  activeSource: 'ranking',
+  data: null,
+  frameReady: false,
+  ranking: { rowName: '', formName: '', nature: 'がんばりや', ability: '', move: '', freeMove: '', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [] },
+  free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', move: '', freeMove: '', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [] },
+  defender: { baseName: '', formName: '', nature: 'がんばりや', ability: '', ev: {hp:0,atk:0,def:0,spd:0}, abilityOptions: [] }
+};
+
+const ELS = {};
+function el(id){ return document.getElementById(id); }
+function clamp32(v){ const n = parseInt(v,10); return Number.isFinite(n) ? Math.max(0, Math.min(32, n)) : 0; }
+function uniq(arr){ return [...new Set((arr||[]).filter(Boolean))]; }
+function calcHP(base, iv, ev, lv){ return Math.floor((Math.floor((base*2 + iv) * lv / 100) + 10 + lv)) + ev; }
+function calcStat(base, iv, ev, lv, nat){ return Math.floor((Math.floor((base*2 + iv) * lv / 100) + 5) * nat) + Math.floor(ev * nat); }
+function getNatureName(text){
+  const s = String(text || '').trim();
+  return NATURE_NAMES.find(name => s.startsWith(name)) || 'がんばりや';
+}
+function parseSpread(text){
+  const nums = String(text || '').match(/\d+/g) || [];
+  if(nums.length < 6) return {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+  return {hp:+nums[0]||0, atk:+nums[1]||0, def:+nums[2]||0, spa:+nums[3]||0, spd:+nums[4]||0, spe:+nums[5]||0};
+}
+function stripRate(text){
+  const m = String(text || '').match(/^(.+?)\s*\(([\d.]+)%\)$/);
+  return m ? m[1].trim() : String(text || '').trim();
+}
+function createNatureOptions(select, selected){
+  select.innerHTML = NATURE_NAMES.map(name => `<option value="${name}">${name}</option>`).join('');
+  select.value = selected || 'がんばりや';
+}
+function escapeHtml(str){
+  return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function getAllowedNames(){
+  if(!STATE.data) return [];
+  if(STATE.mode === 'all') return STATE.data.allPokemonNames;
+  return STATE.data.innerNames;
+}
+function getPokemon(name){ return STATE.data?.pokemonByName?.[name] || null; }
+function resolveBaseName(name){
+  const n = String(name || '').trim();
+  if(!n) return '';
+  if(!n.startsWith('メガ')) return n.replace(/[XY]$/,(m,idx)=> (n.startsWith('メガ') ? '' : m));
+  return n.replace(/^メガ/, '').replace(/[XY]$/, '');
+}
+function isMegaName(name){ return String(name || '').startsWith('メガ'); }
+function getMegaForms(baseName){
+  if(!STATE.data) return [];
+  const list = STATE.data.megaMap[baseName] || [];
+  return list.slice();
+}
+function setActiveSource(source){
+  STATE.activeSource = source;
+  el('source-ranking-card').classList.toggle('active', source === 'ranking');
+  el('source-free-card').classList.toggle('active', source === 'free');
+  document.querySelectorAll('.source-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.source === source));
+  el('active-source-label').textContent = `使用中: ${source === 'ranking' ? 'ランキング側' : '自由入力側'}`;
+}
+function renderModeButtons(){
+  const wrap = el('mode-buttons');
+  wrap.innerHTML = [
+    {key:'inner', label:'内定'},
+    {key:'all', label:'全部'}
+  ].map(item => `<button type="button" class="mode-btn ${STATE.mode===item.key?'active':''}" data-mode="${item.key}">${item.label}</button>`).join('');
+  wrap.querySelectorAll('[data-mode]').forEach(btn => btn.addEventListener('click', () => {
+    STATE.mode = btn.dataset.mode;
+    renderModeButtons();
+    renderPokemonDatalist();
+    updateModeStatus();
+    if(STATE.defender.baseName && !getAllowedNames().includes(STATE.defender.baseName) && STATE.mode === 'inner'){
+      STATE.defender.baseName = ''; STATE.defender.formName = '';
+      el('defender-name').value = '';
+      renderDefenderMega(); renderDefenderAbilities(); renderDefenderStats();
+    }
+    if(STATE.free.baseName && !getAllowedNames().includes(resolveBaseName(STATE.free.baseName)) && STATE.mode === 'inner'){
+      STATE.free.baseName = ''; STATE.free.formName = '';
+      el('free-pokemon').value = '';
+      renderFreeMega(); renderFreeAbilities(); renderFreeMoves(); renderFreeStats();
+    }
+    scheduleSync();
+  }));
+}
+function updateModeStatus(){
+  const count = getAllowedNames().length;
+  el('mode-status').textContent = STATE.mode === 'inner'
+    ? `内定ポケモン ${count}体を選択候補に出します。ランキング側はシングル上位を固定表示します。`
+    : `全ポケモン ${count}体を選択候補に出します。ランキング側はシングル上位を固定表示します。`;
+}
+function renderPokemonDatalist(){
+  const list = getAllowedNames();
+  el('pokemon-list').innerHTML = list.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
+}
+function renderDamagingMoveDatalist(){
+  el('damaging-move-list').innerHTML = STATE.data.damagingMoveNames.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
+}
+function buildEvInputs(containerId, evKeys, stateObj, onChange){
+  const labels = {hp:'HP',atk:'攻撃',def:'防御',spa:'特攻',spd:'特防',spe:'素早'};
+  const container = el(containerId);
+  container.innerHTML = evKeys.map(key => `
+    <div class="ev-box">
+      <span>${labels[key]}</span>
+      <input type="number" min="0" max="32" step="1" data-ev-key="${key}" value="${clamp32(stateObj.ev[key] || 0)}">
+    </div>
+  `).join('');
+  container.querySelectorAll('input[data-ev-key]').forEach(input => {
+    input.addEventListener('input', () => {
+      stateObj.ev[input.dataset.evKey] = clamp32(input.value);
+      input.value = stateObj.ev[input.dataset.evKey];
+      onChange();
+    });
+  });
+}
+function renderStatBoxes(containerId, stats){
+  const labels = {hp:'HP',atk:'攻撃',def:'防御',spa:'特攻',spd:'特防',spe:'素早'};
+  el(containerId).innerHTML = Object.entries(stats).map(([key, value]) => `
+    <div class="stat"><div class="k">${labels[key]}</div><div class="v">${value}</div></div>
+  `).join('');
+}
+function calcDisplayedStats(poke, role, natureName, ev){
+  if(!poke) return role === 'def' ? {hp:'—',atk:'—',def:'—',spd:'—'} : {atk:'—',def:'—',spa:'—'};
+  const nat = PERSONALITIES[natureName] || PERSONALITIES['がんばりや'];
+  if(role === 'def'){
+    return {
+      hp: calcHP(poke.hp, 31, clamp32(ev.hp), 50),
+      atk: calcStat(poke.atk, 31, clamp32(ev.atk), 50, nat.atk || 1),
+      def: calcStat(poke.def, 31, clamp32(ev.def), 50, nat.def || 1),
+      spd: calcStat(poke.spd, 31, clamp32(ev.spd), 50, nat.spd || 1)
+    };
+  }
+  return {
+    atk: calcStat(poke.atk, 31, clamp32(ev.atk), 50, nat.atk || 1),
+    def: calcStat(poke.def, 31, clamp32(ev.def), 50, nat.def || 1),
+    spa: calcStat(poke.spa, 31, clamp32(ev.spa), 50, nat.spa || 1)
+  };
+}
+function populateAbilitySelect(selectId, options, selected){
+  const select = el(selectId);
+  const list = uniq(['', ...(options || [])]);
+  select.innerHTML = list.map(name => `<option value="${escapeHtml(name)}">${name ? escapeHtml(name) : 'なし'}</option>`).join('');
+  select.value = list.includes(selected) ? selected : (list[1] || '');
+}
+function resolveAbilityOptions(pokeName, rankingFallback = []){
+  const byPokemon = STATE.data.abilityMap[pokeName] || [];
+  return uniq([...(rankingFallback || []), ...byPokemon]);
+}
+function isDamagingMoveName(name){
+  if(!name) return false;
+  const move = STATE.data.movesByName[name];
+  if(move) return move.category !== '変化';
+  return false;
+}
+function resolveMoveOptionsForPokemon(pokeName, rankingMoves = []){
+  const rankingList = (rankingMoves || []).map(stripRate).filter(isDamagingMoveName);
+  const pm = STATE.data.pokemonMoves[pokeName];
+  const candidateList = (pm?.candidateMoves || []).map(m => m.name).filter(isDamagingMoveName);
+  const moveList = (pm?.moves || []).filter(m => m.candidate).map(m => m.name).filter(isDamagingMoveName);
+  return uniq([...rankingList, ...candidateList, ...moveList]);
+}
+function renderMoveSelect(selectId, options, selected){
+  const select = el(selectId);
+  const list = uniq(options).filter(Boolean);
+  select.innerHTML = list.length
+    ? list.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('')
+    : '<option value="">候補なし</option>';
+  if(list.length) select.value = list.includes(selected) ? selected : list[0];
+}
+function renderRankingList(){
+  const wrap = el('ranking-list');
+  wrap.innerHTML = STATE.data.rankingRows.map(row => `
+    <button type="button" class="rank-chip ${STATE.ranking.rowName===row.name?'active':''}" data-rank-name="${escapeHtml(row.name)}">
+      <span><span class="rank-num">#${row.rank}</span> ${escapeHtml(row.name)}<span class="sub">${escapeHtml((row.moves||[]).map(stripRate).filter(isDamagingMoveName).slice(0,3).join(' / ') || '技候補なし')}</span></span>
+    </button>
+  `).join('');
+  wrap.querySelectorAll('[data-rank-name]').forEach(btn => btn.addEventListener('click', () => selectRankingPokemon(btn.dataset.rankName)));
+}
+function selectRankingPokemon(name){
+  const row = STATE.data.rankingRows.find(r => r.name === name);
+  if(!row) return;
+  const nature = getNatureName(stripRate((row.natures || [])[0] || 'がんばりや'));
+  const spread = parseSpread((row.spreads || [])[0] || '0-0-0-0-0-0');
+  const rankingAbilities = (row.abilities || []).map(stripRate);
+  STATE.ranking.rowName = row.name;
+  STATE.ranking.formName = row.name;
+  STATE.ranking.nature = nature;
+  STATE.ranking.ev = {atk: clamp32(spread.atk), def: clamp32(spread.def), spa: clamp32(spread.spa)};
+  STATE.ranking.abilityOptions = resolveAbilityOptions(row.name, rankingAbilities);
+  STATE.ranking.ability = STATE.ranking.abilityOptions[0] || '';
+  STATE.ranking.moveOptions = resolveMoveOptionsForPokemon(row.name, row.moves);
+  STATE.ranking.move = STATE.ranking.moveOptions[0] || '';
+  STATE.ranking.freeMove = '';
+  el('ranking-move-free').value = '';
+  setActiveSource('ranking');
+  renderRankingList();
+  renderRankingForm();
+  scheduleSync();
+}
+function renderRankingMega(){
+  const wrap = el('ranking-mega');
+  wrap.innerHTML = '';
+  const current = STATE.ranking.formName || STATE.ranking.rowName;
+  if(!current) return;
+  const base = isMegaName(current) ? resolveBaseName(current) : current;
+  const forms = getMegaForms(base);
+  const buttons = [];
+  buttons.push({name: base, label: isMegaName(current) ? `${base} に戻す` : `${base}`});
+  forms.forEach(name => buttons.push({name, label:name}));
+  buttons.forEach(btnInfo => {
+    if(btnInfo.name === current && (btnInfo.name !== base || forms.length)) {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'mini-btn active'; btn.textContent = btnInfo.label;
+      wrap.appendChild(btn); return;
+    }
+    if(btnInfo.name === base && !forms.length){
+      const btn = document.createElement('button');
+      btn.type='button'; btn.className='mini-btn active'; btn.textContent='メガ進化なし';
+      wrap.appendChild(btn); return;
+    }
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'mini-btn'+(btnInfo.name===current?' active':''); btn.textContent = btnInfo.label;
+    btn.addEventListener('click', () => {
+      STATE.ranking.formName = btnInfo.name;
+      STATE.ranking.abilityOptions = resolveAbilityOptions(btnInfo.name, (STATE.data.rankingRows.find(r => r.name===STATE.ranking.rowName)?.abilities || []).map(stripRate));
+      if(!STATE.ranking.abilityOptions.includes(STATE.ranking.ability)) STATE.ranking.ability = STATE.ranking.abilityOptions[0] || '';
+      STATE.ranking.moveOptions = resolveMoveOptionsForPokemon(btnInfo.name, STATE.data.rankingRows.find(r => r.name===STATE.ranking.rowName)?.moves || []);
+      if(!STATE.ranking.moveOptions.includes(STATE.ranking.move)) STATE.ranking.move = STATE.ranking.moveOptions[0] || '';
+      renderRankingForm(); scheduleSync();
+    });
+    wrap.appendChild(btn);
+  });
+}
+function renderRankingAbilities(){ populateAbilitySelect('ranking-ability', STATE.ranking.abilityOptions, STATE.ranking.ability); }
+function renderRankingMoves(){ renderMoveSelect('ranking-move', STATE.ranking.moveOptions, STATE.ranking.move); }
+function renderRankingStats(){ renderStatBoxes('ranking-stats', calcDisplayedStats(getPokemon(STATE.ranking.formName || STATE.ranking.rowName), 'atk', STATE.ranking.nature, STATE.ranking.ev)); }
+function renderRankingForm(){
+  el('ranking-pokemon').value = STATE.ranking.formName || STATE.ranking.rowName || '';
+  createNatureOptions(el('ranking-nature'), STATE.ranking.nature);
+  renderRankingMega(); renderRankingAbilities(); renderRankingMoves(); buildEvInputs('ranking-evs', ATK_EV_KEYS, STATE.ranking, () => { renderRankingStats(); setActiveSource('ranking'); scheduleSync(); }); renderRankingStats();
+  el('ranking-nature').onchange = () => { STATE.ranking.nature = el('ranking-nature').value; renderRankingStats(); setActiveSource('ranking'); scheduleSync(); };
+  el('ranking-ability').onchange = () => { STATE.ranking.ability = el('ranking-ability').value; setActiveSource('ranking'); scheduleSync(); };
+  el('ranking-move').onchange = () => { STATE.ranking.move = el('ranking-move').value; STATE.ranking.freeMove = ''; el('ranking-move-free').value=''; setActiveSource('ranking'); scheduleSync(); };
+}
+function normalizePokemonInput(raw){
+  const value = String(raw || '').trim();
+  if(!value) return '';
+  if(getPokemon(value)) return value;
+  return '';
+}
+function renderDefenderMega(){
+  const wrap = el('defender-mega');
+  wrap.innerHTML = '';
+  const current = STATE.defender.formName || STATE.defender.baseName;
+  if(!current) return;
+  const base = isMegaName(current) ? resolveBaseName(current) : current;
+  const forms = getMegaForms(base);
+  if(!forms.length){
+    wrap.innerHTML = '<button type="button" class="mini-btn active">メガ進化なし</button>';
+    return;
+  }
+  [{name:base,label:`${base}`}, ...forms.map(name=>({name,label:name}))].forEach(info => {
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='mini-btn'+(info.name===current?' active':'');
+    btn.textContent = info.name===base ? (isMegaName(current)?`${base} に戻す`:`${base}`) : info.label;
+    btn.addEventListener('click', () => {
+      STATE.defender.formName = info.name;
+      STATE.defender.abilityOptions = resolveAbilityOptions(info.name);
+      if(!STATE.defender.abilityOptions.includes(STATE.defender.ability)) STATE.defender.ability = STATE.defender.abilityOptions[0] || '';
+      renderDefenderMega(); renderDefenderAbilities(); renderDefenderStats(); scheduleSync();
+    });
+    wrap.appendChild(btn);
+  });
+}
+function renderDefenderAbilities(){ populateAbilitySelect('defender-ability', STATE.defender.abilityOptions, STATE.defender.ability); }
+function renderDefenderStats(){ renderStatBoxes('defender-stats', calcDisplayedStats(getPokemon(STATE.defender.formName || STATE.defender.baseName), 'def', STATE.defender.nature, STATE.defender.ev)); }
+function applyDefenderPokemon(name){
+  const normalized = normalizePokemonInput(name);
+  if(!normalized) return;
+  const base = resolveBaseName(normalized);
+  STATE.defender.baseName = base;
+  STATE.defender.formName = normalized;
+  STATE.defender.abilityOptions = resolveAbilityOptions(normalized);
+  STATE.defender.ability = STATE.defender.abilityOptions[0] || '';
+  el('defender-name').value = normalized;
+  renderDefenderMega(); renderDefenderAbilities(); renderDefenderStats(); scheduleSync();
+}
+function renderFreeMega(){
+  const wrap = el('free-mega');
+  wrap.innerHTML = '';
+  const current = STATE.free.formName || STATE.free.baseName;
+  if(!current) return;
+  const base = isMegaName(current) ? resolveBaseName(current) : current;
+  const forms = getMegaForms(base);
+  if(!forms.length){
+    wrap.innerHTML = '<button type="button" class="mini-btn active">メガ進化なし</button>';
+    return;
+  }
+  [{name:base,label:`${base}`}, ...forms.map(name=>({name,label:name}))].forEach(info => {
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='mini-btn'+(info.name===current?' active':'');
+    btn.textContent = info.name===base ? (isMegaName(current)?`${base} に戻す`:`${base}`) : info.label;
+    btn.addEventListener('click', () => {
+      STATE.free.formName = info.name;
+      STATE.free.abilityOptions = resolveAbilityOptions(info.name);
+      if(!STATE.free.abilityOptions.includes(STATE.free.ability)) STATE.free.ability = STATE.free.abilityOptions[0] || '';
+      STATE.free.moveOptions = resolveMoveOptionsForPokemon(info.name);
+      if(!STATE.free.moveOptions.includes(STATE.free.move)) STATE.free.move = STATE.free.moveOptions[0] || '';
+      renderFreeForm(); scheduleSync();
+    });
+    wrap.appendChild(btn);
+  });
+}
+function renderFreeAbilities(){ populateAbilitySelect('free-ability', STATE.free.abilityOptions, STATE.free.ability); }
+function renderFreeMoves(){ renderMoveSelect('free-move', STATE.free.moveOptions, STATE.free.move); }
+function renderFreeStats(){ renderStatBoxes('free-stats', calcDisplayedStats(getPokemon(STATE.free.formName || STATE.free.baseName), 'atk', STATE.free.nature, STATE.free.ev)); }
+function applyFreePokemon(name){
+  const normalized = normalizePokemonInput(name);
+  if(!normalized) return;
+  STATE.free.baseName = resolveBaseName(normalized);
+  STATE.free.formName = normalized;
+  STATE.free.abilityOptions = resolveAbilityOptions(normalized);
+  STATE.free.ability = STATE.free.abilityOptions[0] || '';
+  STATE.free.moveOptions = resolveMoveOptionsForPokemon(normalized);
+  STATE.free.move = STATE.free.moveOptions[0] || '';
+  STATE.free.freeMove = '';
+  el('free-pokemon').value = normalized;
+  el('free-move-free').value = '';
+  setActiveSource('free');
+  renderFreeForm(); scheduleSync();
+}
+function renderFreeForm(){
+  createNatureOptions(el('free-nature'), STATE.free.nature);
+  renderFreeMega(); renderFreeAbilities(); renderFreeMoves(); buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFreeStats(); setActiveSource('free'); scheduleSync(); }); renderFreeStats();
+  el('free-nature').onchange = () => { STATE.free.nature = el('free-nature').value; renderFreeStats(); setActiveSource('free'); scheduleSync(); };
+  el('free-ability').onchange = () => { STATE.free.ability = el('free-ability').value; setActiveSource('free'); scheduleSync(); };
+  el('free-move').onchange = () => { STATE.free.move = el('free-move').value; STATE.free.freeMove=''; el('free-move-free').value=''; setActiveSource('free'); scheduleSync(); };
+}
+function getActiveAttackState(){ return STATE.activeSource === 'ranking' ? STATE.ranking : STATE.free; }
+function getActiveAttackName(){ return STATE.activeSource === 'ranking' ? (STATE.ranking.formName || STATE.ranking.rowName) : (STATE.free.formName || STATE.free.baseName); }
+function getActiveMoveName(){
+  const src = getActiveAttackState();
+  return normalizeMoveInput(src.freeMove) || src.move || '';
+}
+function normalizeMoveInput(raw){
+  const value = String(raw || '').trim();
+  if(!value) return '';
+  return isDamagingMoveName(value) ? value : '';
+}
+function renderSourceToggle(){
+  const wrap = el('source-toggle');
+  wrap.innerHTML = [
+    {key:'ranking',label:'ランキング側を使用'},
+    {key:'free',label:'自由入力側を使用'}
+  ].map(item => `<button type="button" class="source-btn ${STATE.activeSource===item.key?'active':''}" data-source="${item.key}">${item.label}</button>`).join('');
+  wrap.querySelectorAll('[data-source]').forEach(btn => btn.addEventListener('click', () => { setActiveSource(btn.dataset.source); scheduleSync(); }));
+}
+let syncTimer = null;
+function scheduleSync(){ clearTimeout(syncTimer); syncTimer = setTimeout(syncCalcFrame, 90); }
+function clearResult(msg){
+  el('result-dmg').textContent = '—';
+  el('result-range').textContent = msg || '条件を選ぶと結果が出ます。';
+  el('result-pct').textContent = '—';
+  el('result-ko').textContent = '—';
+  el('result-rolls').textContent = '16乱数はここに表示されます。';
+  el('result-bar-fill').style.width = '0%';
+}
+async function waitForCalcFrame(){
+  const frame = el('calc-frame');
+  const ensureLoaded = async()=>{
+    const win = frame.contentWindow;
+    if(!win) throw new Error('calc frame not found');
+    if(typeof win.loadGameData !== 'function'){
+      await new Promise(resolve => frame.addEventListener('load', resolve, {once:true}));
+    }
+    const readyWin = frame.contentWindow;
+    if(typeof readyWin.loadGameData === 'function') await readyWin.loadGameData();
+    if(typeof readyWin.loadAbilitiesData === 'function') await readyWin.loadAbilitiesData();
+    await new Promise(resolve => setTimeout(resolve, 120));
+    return readyWin;
+  };
+  await ensureLoaded();
+  STATE.frameReady = true;
+  el('result-status').textContent = '既存ダメージ計算の読み込みが完了しました。';
+}
+function syncFrameModes(win){
+  if(win.el('atk-mode-champions')) win.el('atk-mode-champions').checked = true;
+  if(win.el('atk-mode-classic')) win.el('atk-mode-classic').checked = false;
+  if(win.el('def-mode-champions')) win.el('def-mode-champions').checked = true;
+  if(win.el('def-mode-classic')) win.el('def-mode-classic').checked = false;
+  if(typeof win.onAtkModeChange === 'function') win.onAtkModeChange();
+  if(typeof win.onDefModeChange === 'function') win.onDefModeChange();
+}
+function fillAttackerIntoFrame(win, attackerName, stateObj){
+  const poke = getPokemon(attackerName);
+  if(!poke) return false;
+  win.el('atk-search').value = attackerName;
+  win.initAtkPoke(poke);
+  win.el('atk-lv').value = 50;
+  win.el('atk-iv').value = 31;
+  win.el('atk-nature').value = stateObj.nature || 'がんばりや';
+  win.el('atk-ev-atk').value = clamp32(stateObj.ev.atk);
+  win.el('atk-ev-def').value = clamp32(stateObj.ev.def);
+  win.el('atk-ev-spa').value = clamp32(stateObj.ev.spa);
+  if(stateObj.ability) win.selectAbility('atk', stateObj.ability); else win.clearAbilitySide('atk');
+  const moveName = normalizeMoveInput(stateObj.freeMove) || stateObj.move;
+  const move = STATE.data.movesByName[moveName];
+  if(!move) return false;
+  win.setAtkMove(move);
+  win.el('atk-item').value = 'none';
+  win.recalcAtk();
+  return true;
+}
+function fillDefenderIntoFrame(win){
+  const defenderName = STATE.defender.formName || STATE.defender.baseName;
+  const poke = getPokemon(defenderName);
+  if(!poke) return false;
+  win.el('def-search').value = defenderName;
+  win.initDefPoke(poke);
+  win.el('def-lv').value = 50;
+  win.el('def-iv').value = 31;
+  win.el('def-nature').value = STATE.defender.nature || 'がんばりや';
+  win.el('def-ev-hp').value = clamp32(STATE.defender.ev.hp);
+  win.el('def-ev-atk').value = clamp32(STATE.defender.ev.atk);
+  win.el('def-ev-def').value = clamp32(STATE.defender.ev.def);
+  win.el('def-ev-spd').value = clamp32(STATE.defender.ev.spd);
+  if(STATE.defender.ability) win.selectAbility('def', STATE.defender.ability); else win.clearAbilitySide('def');
+  win.el('def-item').value = '1';
+  win.el('def-wall').value = '1';
+  win.recalcDef();
+  return true;
+}
+async function syncCalcFrame(){
+  if(!STATE.data) return;
+  const attackerName = getActiveAttackName();
+  const defenderName = STATE.defender.formName || STATE.defender.baseName;
+  const moveName = getActiveMoveName();
+  el('result-matchup').textContent = attackerName && defenderName && moveName
+    ? `${attackerName} の ${moveName} → ${defenderName}`
+    : '攻撃側・防御側・技をそろえると結果が出ます。';
+  if(!attackerName || !defenderName || !moveName){
+    clearResult('攻撃側・防御側・技を選んでください。');
+    return;
+  }
+  try{
+    if(!STATE.frameReady) await waitForCalcFrame();
+    const win = el('calc-frame').contentWindow;
+    syncFrameModes(win);
+    const active = getActiveAttackState();
+    if(!fillAttackerIntoFrame(win, attackerName, active)){
+      clearResult('攻撃側の反映に失敗しました。');
+      return;
+    }
+    if(!fillDefenderIntoFrame(win)){
+      clearResult('防御側の反映に失敗しました。');
+      return;
+    }
+    const ok = win.calcDamage({silent:true});
+    if(!ok){
+      clearResult('この条件ではダメージを計算できませんでした。');
+      el('result-status').textContent = '技が攻撃技か、ポケモン名が正しいかを確認してください。';
+      return;
+    }
+    const dmgNum = win.el('dmg-num')?.textContent?.trim() || '—';
+    const dmgRange = win.el('dmg-range')?.textContent?.trim() || '—';
+    const dmgPct = win.el('dmg-pct')?.textContent?.trim() || '—';
+    const koHtml = win.el('ko-tag')?.innerHTML?.trim() || '—';
+    const rollsHtml = win.el('dmg-rolls')?.innerHTML?.trim() || '—';
+    const barWidth = win.el('dmg-bar')?.style?.width || '0%';
+    el('result-dmg').textContent = dmgNum;
+    el('result-range').textContent = dmgRange;
+    el('result-pct').textContent = dmgPct;
+    el('result-ko').innerHTML = koHtml;
+    el('result-rolls').innerHTML = rollsHtml || '—';
+    el('result-bar-fill').style.width = barWidth;
+    el('result-status').textContent = '既存ダメージ計算と同じロジックで自動反映しています。';
+  }catch(err){
+    console.error(err);
+    clearResult('読み込み中にエラーが出ました。');
+    el('result-status').textContent = 'calc.html の読み込みやデータ反映に失敗しました。';
+  }
+}
+async function loadData(){
+  const [pokemon, moves, season, ranking, abilities, pokemonMoves] = await Promise.all([
+    fetch('pokemon.json').then(r=>r.json()),
+    fetch('moves.json').then(r=>r.json()),
+    fetch('season.json').then(r=>r.json()),
+    fetch('season_ranking_single.json').then(r=>r.json()),
+    fetch('abilities.json').then(r=>r.json()),
+    fetch('pokemon_moves.json').then(r=>r.json())
+  ]);
+  const pokemonByName = Object.fromEntries((pokemon || []).map(p => [p.name, p]));
+  const allPokemonNames = (pokemon || []).map(p => p.name);
+  const innerNames = Array.isArray(season?.['内定']) ? season['内定'] : (Array.isArray(season?.seasons) ? season.seasons : []);
+  const movesByName = Object.fromEntries((moves || []).map(m => [m.name, m]));
+  const damagingMoveNames = (moves || []).filter(m => m.category !== '変化').map(m => m.name).sort((a,b)=>a.localeCompare(b,'ja'));
+  const megaMap = {};
+  (pokemon || []).forEach(p => {
+    if(!String(p.name || '').startsWith('メガ')) return;
+    const base = resolveBaseName(p.name);
+    megaMap[base] = megaMap[base] || [];
+    megaMap[base].push(p.name);
+  });
+  Object.values(megaMap).forEach(arr => arr.sort((a,b)=>a.localeCompare(b,'ja')));
+  return {
+    pokemonByName,
+    allPokemonNames,
+    innerNames,
+    movesByName,
+    damagingMoveNames,
+    rankingRows: Array.isArray(ranking?.rows) ? ranking.rows : [],
+    abilityMap: abilities || {},
+    pokemonMoves: pokemonMoves?.pokemon || {},
+    megaMap
+  };
+}
+function bindStaticEvents(){
+  el('defender-name').addEventListener('change', e => applyDefenderPokemon(e.target.value));
+  el('defender-name').addEventListener('blur', e => applyDefenderPokemon(e.target.value));
+  el('defender-nature').addEventListener('change', () => { STATE.defender.nature = el('defender-nature').value; renderDefenderStats(); scheduleSync(); });
+  el('defender-ability').addEventListener('change', () => { STATE.defender.ability = el('defender-ability').value; scheduleSync(); });
+  el('free-pokemon').addEventListener('change', e => applyFreePokemon(e.target.value));
+  el('free-pokemon').addEventListener('blur', e => applyFreePokemon(e.target.value));
+  el('free-move-free').addEventListener('input', () => { STATE.free.freeMove = el('free-move-free').value.trim(); setActiveSource('free'); scheduleSync(); });
+  el('ranking-move-free').addEventListener('input', () => { STATE.ranking.freeMove = el('ranking-move-free').value.trim(); setActiveSource('ranking'); scheduleSync(); });
+}
+async function init(){
+  createNatureOptions(el('defender-nature'), 'がんばりや');
+  createNatureOptions(el('ranking-nature'), 'がんばりや');
+  createNatureOptions(el('free-nature'), 'がんばりや');
+  buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); scheduleSync(); });
+  buildEvInputs('ranking-evs', ATK_EV_KEYS, STATE.ranking, () => { renderRankingStats(); setActiveSource('ranking'); scheduleSync(); });
+  buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFreeStats(); setActiveSource('free'); scheduleSync(); });
+  renderStatBoxes('defender-stats', {hp:'—',atk:'—',def:'—',spd:'—'});
+  renderStatBoxes('ranking-stats', {atk:'—',def:'—',spa:'—'});
+  renderStatBoxes('free-stats', {atk:'—',def:'—',spa:'—'});
+  renderSourceToggle();
+  renderModeButtons();
+  bindStaticEvents();
+  STATE.data = await loadData();
+  renderDamagingMoveDatalist();
+  renderPokemonDatalist();
+  updateModeStatus();
+  renderRankingList();
+  if(STATE.data.rankingRows.length) selectRankingPokemon(STATE.data.rankingRows[0].name);
+  if(getAllowedNames().length) applyDefenderPokemon(getAllowedNames()[0]);
+  const freeDefault = getAllowedNames().find(name => !String(name).startsWith('メガ')) || getAllowedNames()[0] || '';
+  if(freeDefault) applyFreePokemon(freeDefault);
+  renderFreeForm();
+  renderDefenderStats();
+  setActiveSource('ranking');
+  scheduleSync();
+}
+
+document.getElementById('calc-frame').addEventListener('load', () => {
+  if(STATE.data) scheduleSync();
+});
+init().catch(err => {
+  console.error(err);
+  el('mode-status').textContent = 'データ読み込みに失敗しました。';
+  el('result-status').textContent = 'pokemon.json / moves.json / season_ranking_single.json / pokemon_moves.json を確認してください。';
+});
+</script>
+</body>
+</html>
