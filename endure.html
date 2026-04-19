@@ -641,24 +641,24 @@ function rankingCardHtml(name, cfg, row){
         </div>
         <div class="stack">
           <div class="result-panel">
-            <div class="sub-strong" id="rank-result-matchup-${key}">条件を選ぶとここに反映されます。</div>
+            <div class="sub-strong" id="rank-result-${key}-matchup">条件を選ぶとここに反映されます。</div>
             <div class="result-grid top-space">
               <div>
-                <div class="result-big" id="rank-result-dmg-${key}">—</div>
-                <div class="result-range" id="rank-result-range-${key}">攻撃側・防御側・技をそろえると結果が出ます。</div>
-                <div class="result-bar"><div id="rank-result-bar-${key}"></div></div>
+                <div class="result-big" id="rank-result-${key}-dmg">—</div>
+                <div class="result-range" id="rank-result-${key}-range">攻撃側・防御側・技をそろえると結果が出ます。</div>
+                <div class="result-bar"><div id="rank-result-${key}-bar"></div></div>
               </div>
               <div class="result-box">
                 <div class="k">割合</div>
-                <div class="v" id="rank-result-pct-${key}">—</div>
+                <div class="v" id="rank-result-${key}-pct">—</div>
               </div>
               <div class="result-box">
                 <div class="k">確定数</div>
-                <div class="v" id="rank-result-ko-${key}">—</div>
+                <div class="v" id="rank-result-${key}-ko">—</div>
               </div>
             </div>
-            <div class="result-rolls" id="rank-result-rolls-${key}">16乱数はここに表示されます。</div>
-            <div class="status-line" id="rank-result-status-${key}">読み込み待ちです。</div>
+            <div class="result-rolls" id="rank-result-${key}-rolls">16乱数はここに表示されます。</div>
+            <div class="status-line" id="rank-result-${key}-status">読み込み待ちです。</div>
           </div>
         </div>
       </div>
@@ -876,7 +876,7 @@ async function updateAllResults(){
 
   for(const name of STATE.rankingSelected){
     const key = safeKey(name);
-    if(!el(`rank-result-dmg-${key}`)) continue;
+    if(!el(`rank-result-${key}-dmg`)) continue;
     clearResultBox(`rank-result-${key}`);
     const cfg = ensureRankingConfig(name);
     const result = await calculateMatchup(cfg.formName || cfg.rowName, cfg);
