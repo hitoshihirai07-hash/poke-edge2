@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>耐久調整ツール | Poke-Edge</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b1220;
@@ -19,7 +22,7 @@
     --danger:#fca5a5;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#09111d 0%,#0b1220 100%);color:var(--text);font-family:"Noto Sans JP",system-ui,sans-serif;}
+  body{margin:0;background:linear-gradient(180deg,#09111d 0%,#0b1220 100%);color:var(--text);font-family:"Noto Sans JP",system-ui,sans-serif;min-height:100vh;overflow-x:hidden;}
   .wrap{max-width:1320px;margin:0 auto;padding:18px 14px 42px}
   h1{margin:0 0 6px;font-size:28px;line-height:1.2}
   h2{margin:0 0 10px;font-size:20px}
@@ -79,7 +82,36 @@
   .top-space{margin-top:14px}
   .status-line{font-size:12px;color:var(--muted);line-height:1.8}
   .clear-btn{margin-left:auto}
-  @media (max-width:1080px){
+  
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 20px rgba(125,211,252,0.35);flex-shrink:0;cursor:pointer;}
+.logo em{color:#ff5c8a;font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--line);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--muted);letter-spacing:2px;flex-shrink:0;}
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--line);color:var(--muted);padding:4px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(125,211,252,0.08);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;}
+.nav-overlay.show{display:block;}
+footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--muted);letter-spacing:4px;}
+.footer-text{font-size:10px;color:var(--muted);line-height:1.6;}
+@media(max-width:768px){
+  .header-nav{display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);background:rgba(7,9,15,0.98);border-left:1px solid var(--line);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);}
+  .header-nav.open{display:flex;}
+  .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--line);width:100%;text-align:left;letter-spacing:1px;}
+  .nav-btn:last-child{border-bottom:none;}
+  .nav-btn.active{background:rgba(125,211,252,0.08);border-left:3px solid var(--accent);}
+  .hamburger{display:flex;}
+}
+
+@media (max-width:1080px){
     .grid-2,.result-grid,.field-grid-4{grid-template-columns:1fr}
     .chooser{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
@@ -91,10 +123,35 @@
 </style>
 </head>
 <body>
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">耐久調整</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="index.html">トップ</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn active" href="endure.html">耐久調整</a>
+    <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn" href="stats.html">選出率記録</a>
+    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="season.html">使用可能ポケモン</a>
+    <a class="nav-btn" href="speed.html">素早さライン</a>
+    <a class="nav-btn" href="blog.html">記事</a>
+    <a class="nav-btn" href="policy.html">サイト情報</a>
+  </div>
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--line);color:var(--muted);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+</header>
 <div class="wrap stack">
   <section class="card">
     <h1>耐久調整ツール</h1>
-    <p class="lead">シングル用の試作ページです。耐久したい側を決めたあと、自由入力やランキング側から攻撃側を選ぶと、自動でダメージを並べて確認できます。</p>
+    <p class="lead">シングル用の耐久調整ページです。耐久したい側を決めたあと、自由入力やランキング側から攻撃側を選ぶと、自動でダメージを並べて確認できます。</p>
   </section>
 
   <section class="card">
@@ -238,6 +295,12 @@
   <datalist id="damaging-move-list"></datalist>
   <iframe id="calc-frame" class="hidden-frame" src="calc.html" title="hidden calc"></iframe>
 </div>
+
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>耐久ラインを複数候補で並べて確認</div>
+  <div style="font-size:10px;"><a href="policy.html" style="color:var(--muted);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
 
 <script>
 const NATURE_NAMES = [
@@ -1027,6 +1090,33 @@ init().catch(err => {
   el('mode-status').textContent = 'データ読み込みに失敗しました。';
   el('free-result-status').textContent = '必要データの確認が必要です。';
 });
+var THEMES = {
+  dark:  {'--bg':'#0b1220','--bg2':'#121c30','--panel':'#16233a','--panel2':'#1b2b46','--line':'#29405f','--text':'#eef4ff','--muted':'#aebcd7','--accent':'#7dd3fc','--accent2':'#86efac','--chip':'#22324f','--danger':'#fca5a5'},
+  light: {'--bg':'#e8f4f8','--bg2':'#d6e8f3','--panel':'#f5fbff','--panel2':'#eaf5fb','--line':'#9abbd1','--text':'#102132','--muted':'#4f667b','--accent':'#006aa3','--accent2':'#138b63','--chip':'#d8e7f2','--danger':'#b94a4a'}
+};
+function applyTheme(theme){
+  var vars=THEMES[theme]||THEMES.dark, root=document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  localStorage.setItem('pokeedge_theme', theme);
+  var btn=document.getElementById('theme-btn');
+  if(btn) btn.textContent = theme==='light' ? '🌙' : '☀️';
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function toggleTheme(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  applyTheme(t==='dark' ? 'light' : 'dark');
+}
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=THEMES[t]||THEMES.dark, root=document.documentElement.style;
+  for(var k in vars) root.setProperty(k, vars[k]);
+  document.documentElement.setAttribute('data-theme', t);
+  var btn=document.getElementById('theme-btn');
+  if(btn) btn.textContent = t==='light' ? '🌙' : '☀️';
+})();
+function toggleNav(){var nav=document.querySelector('.header-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.toggle('open');hb.classList.toggle('open');ov.classList.toggle('show');}
+function closeNav(){var nav=document.querySelector('.header-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
+
 </script>
 </body>
 </html>
