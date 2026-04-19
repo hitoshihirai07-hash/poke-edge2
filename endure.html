@@ -835,7 +835,6 @@ function syncFrameModes(win){
   if(win.el('atk-mode-classic')) win.el('atk-mode-classic').checked = false;
   if(win.el('def-mode-champions')) win.el('def-mode-champions').checked = true;
   if(win.el('def-mode-classic')) win.el('def-mode-classic').checked = false;
-  if(win.el('atk-weather')) win.el('atk-weather').value = attackerState.weather || '';
   if(typeof win.onAtkModeChange === 'function') win.onAtkModeChange();
   if(typeof win.onDefModeChange === 'function') win.onDefModeChange();
 }
@@ -856,7 +855,7 @@ function fillAttackerIntoFrame(win, attackerName, stateObj){
   if(!move) return false;
   win.setAtkMove(move);
   win.el('atk-item').value = 'none';
-  if(win.el('atk-weather')) win.el('atk-weather').value = attackerState.weather || '';
+  if(win.el('atk-weather')) win.el('atk-weather').value = stateObj.weather || '';
   win.recalcAtk();
   return true;
 }
