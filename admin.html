@@ -1212,25 +1212,17 @@ function toggleTheme() {
     const historyHeaders = collectHistoryColumns(data.headers);
     if(!historyHeaders.length) throw new Error('順位推移カラムが見つかりません');
 
-    const columns = historyHeaders.map((header, index) => ({
-      key: index === 0 ? 'current' : header,
-      label: header,
-      sourceKey: header,
-      isLatest: index === 0
+    const columns = historyHeaders.map(header => ({
+      key: header,
+      label: header
     }));
 
     const rows = data.rows.map(r => {
       const name = String(r['ポケモン名'] || '').trim();
       if(!name) return null;
       const ranks = {};
-      historyHeaders.forEach((header, index) => {
-        const value = normalizeRankValue(r[header]);
-        if(index === 0) {
-          ranks.current = value;
-          ranks[header] = value;
-        } else {
-          ranks[header] = value;
-        }
+      historyHeaders.forEach((header) => {
+        ranks[header] = normalizeRankValue(r[header]);
       });
       return {
         rank: parseInt(r['順位'], 10) || 0,

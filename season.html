@@ -1012,31 +1012,9 @@ document.addEventListener('DOMContentLoaded',function(){
     return currentHistoryBattle === 'double' ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY;
   }
 
-  function historyRankSortValue(value) {
-    const raw = String(value == null ? '' : value).trim();
-    if(!raw) return Number.POSITIVE_INFINITY;
-    const num = Number(raw);
-    return Number.isFinite(num) ? num : Number.POSITIVE_INFINITY;
-  }
-
-  function compareHistoryRowsByColumns(a, b, columns) {
-    const orderedColumns = Array.isArray(columns) && columns.length ? columns : [{key:'current'}];
-    for(const col of orderedColumns) {
-      const key = col && col.key ? col.key : 'current';
-      const av = historyRankSortValue(a && a.ranks ? a.ranks[key] : '');
-      const bv = historyRankSortValue(b && b.ranks ? b.ranks[key] : '');
-      if(av !== bv) return av - bv;
-    }
-    const ar = historyRankSortValue(a ? a.rank : '');
-    const br = historyRankSortValue(b ? b.rank : '');
-    if(ar !== br) return ar - br;
-    return String(a && a.name || '').localeCompare(String(b && b.name || ''), 'ja');
-  }
-
   function rankHistoryRowsForCurrentView() {
     const data = getHistoryData();
     const source = Array.isArray(data.rows) ? data.rows : [];
-    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current'}];
     const q = (document.getElementById('name-search')?.value || '').trim();
     return source.filter(row => {
       const siteNames = resolveSiteNames(row.name || row.siteName || '');
@@ -1046,7 +1024,12 @@ document.addEventListener('DOMContentLoaded',function(){
         if(!hay.includes(q)) return false;
       }
       return true;
-    }).sort((a,b) => compareHistoryRowsByColumns(a, b, columns));
+    }).sort((a,b) => {
+      const av = Number.isFinite(Number(a && a.rank)) && Number(a.rank) > 0 ? Number(a.rank) : Number.MAX_SAFE_INTEGER;
+      const bv = Number.isFinite(Number(b && b.rank)) && Number(b.rank) > 0 ? Number(b.rank) : Number.MAX_SAFE_INTEGER;
+      if(av !== bv) return av - bv;
+      return String(a && a.name || '').localeCompare(String(b && b.name || ''), 'ja');
+    });
   }
 
   function formatHistoryRank(value) {
@@ -1065,15 +1048,16 @@ document.addEventListener('DOMContentLoaded',function(){
     const updated = formatRankingDate(data.updatedAt) || '未取得';
     meta.textContent = `${currentHistoryBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件 / 列数: ${columns.length}`;
 
-    head.innerHTML = `<tr><th>ポケモン</th>${columns.map(col => `<th>${escapeHtml(col.label || col.key || '')}</th>`).join('')}</tr>`;
+    head.innerHTML = `<tr><th>最新順位</th><th>ポケモン</th>${columns.map(col => `<th>${escapeHtml(col.label || col.key || '')}</th>`).join('')}</tr>`;
 
     if(!rows.length) {
-      body.innerHTML = `<tr><td colspan="${columns.length + 1}" class="detail-empty">順位推移データがありません</td></tr>`;
+      body.innerHTML = `<tr><td colspan="${columns.length + 2}" class="detail-empty">順位推移データがありません</td></tr>`;
       return;
     }
 
     body.innerHTML = rows.map(row => `
       <tr>
+        <td>${escapeHtml(formatHistoryRank(row.rank))}</td>
         <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
         ${columns.map(col => `<td>${escapeHtml(formatHistoryRank(row.ranks ? row.ranks[col.key] : null))}</td>`).join('')}
       </tr>
