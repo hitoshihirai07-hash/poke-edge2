@@ -802,7 +802,7 @@ document.addEventListener('DOMContentLoaded',function(){
               <th>持ち物</th>
               <th>特性</th>
               <th>性格</th>
-              <th>調整</th>
+              <th>努力値</th>
               <th>更新日</th>
             </tr>
           </thead>
@@ -942,7 +942,7 @@ document.addEventListener('DOMContentLoaded',function(){
           <div class="detail-ranking-line">持ち物: ${escapeHtml((row.items || []).slice(0,3).join(' / ') || '—')}</div>
           <div class="detail-ranking-line">特性: ${escapeHtml((row.abilities || []).slice(0,3).join(' / ') || '—')}</div>
           <div class="detail-ranking-line">性格: ${escapeHtml((row.natures || []).slice(0,3).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">調整: ${escapeHtml((row.spreads || []).slice(0,3).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">努力値: ${escapeHtml((row.spreads || []).slice(0,3).join(' / ') || '—')}</div>
         `).join('')}
       </div>
     `).join('');

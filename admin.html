@@ -595,35 +595,53 @@ const state = {
 
 // ===== CSV パーサー =====
 function parseCSV(text) {
-  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
-  if(!lines.length) return [];
-  // BOM除去
-  lines[0] = lines[0].replace(/^\uFEFF/,'');
-  const headers = lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  const normalized = String(text == null ? '' : text)
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n');
+  if(!normalized.trim()) throw new Error('空ファイルです');
+
+  const records = [];
+  let row = [];
+  let cur = '';
+  let inQ = false;
+
+  for(let i=0; i<normalized.length; i++) {
+    const c = normalized[i];
+    if(c === '"') {
+      if(inQ && normalized[i+1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQ = !inQ;
+      }
+    } else if(c === ',' && !inQ) {
+      row.push(cur);
+      cur = '';
+    } else if(c === '\n' && !inQ) {
+      row.push(cur);
+      if(row.some(v => String(v || '').trim() !== '')) records.push(row);
+      row = [];
+      cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  row.push(cur);
+  if(row.some(v => String(v || '').trim() !== '')) records.push(row);
+  if(!records.length) throw new Error('空ファイルです');
+
+  const cleanCell = (value) => String(value == null ? '' : value).trim();
+  const headers = records[0].map(v => cleanCell(v));
   const rows = [];
-  for(let i=1;i<lines.length;i++){
-    if(!lines[i].trim()) continue;
-    const vals = splitCSVLine(lines[i]);
-    const row = {};
-    headers.forEach((h,j)=>{ row[h] = (vals[j]||'').trim().replace(/^"|"$/g,''); });
-    rows.push(row);
+  for(let i=1; i<records.length; i++) {
+    const vals = records[i];
+    const rowObj = {};
+    headers.forEach((h,j) => { rowObj[h] = cleanCell(vals[j]); });
+    rows.push(rowObj);
   }
   return {headers, rows};
 }
-
-function splitCSVLine(line) {
-  const result = [];
-  let cur = '', inQ = false;
-  for(let i=0;i<line.length;i++){
-    const c = line[i];
-    if(c==='"') { inQ=!inQ; }
-    else if(c===',' && !inQ) { result.push(cur); cur=''; }
-    else { cur+=c; }
-  }
-  result.push(cur);
-  return result;
-}
-
 function normalizeMoveCell(value) {
   const raw = (value==null ? '' : String(value)).trim();
   if(!raw || raw.toLowerCase() === 'nan') return '';
@@ -756,11 +774,6 @@ function generateJSON(type) {
       const hitsKey = data.headers.find(h => h === '技のヒット数' || h === 'ヒット数' || h === 'hits') || '';
       const descKey = data.headers.find(h => h === '技の説明' || h === '説明') || '';
       const updatedKey = data.headers.find(h => h === '更新日' || h === 'updatedAt') || '';
-      const candidateKey = data.headers.find(h => h === '候補' || h === 'candidate' || h === 'Candidate') || '';
-      const isTruthyCell = (value) => {
-        const v = String(value == null ? '' : value).trim().toLowerCase();
-        return v === 'true' || v === '1' || v === 'yes' || v === 'on';
-      };
       const missing = [];
       if(!pokemonKey) missing.push('ポケモン名');
       if(!moveNameKey) missing.push('技名前');
@@ -789,25 +802,17 @@ function generateJSON(type) {
           pp: normalizeMoveCell(r[ppKey]),
           hits: normalizeMoveCell(r[hitsKey]),
           description: (r[descKey]||'').trim(),
-          candidate: candidateKey ? isTruthyCell(r[candidateKey]) : false,
         });
         if(!grouped[pokemonName].updatedAt && updatedKey) grouped[pokemonName].updatedAt = (r[updatedKey]||'').trim();
         moveRowCount++;
       });
 
-      Object.keys(grouped).forEach(name => {
-        const candidateMoves = grouped[name].moves.filter(m => m.candidate);
-        grouped[name].candidateMoves = candidateMoves;
-        grouped[name].candidateCount = candidateMoves.length;
-      });
-      const candidateMoveCount = Object.values(grouped).reduce((sum, row) => sum + (row.candidateCount || 0), 0);
       json = {
         pokemonCount: Object.keys(grouped).length,
         moveRowCount,
-        candidateMoveCount,
         pokemon: grouped,
       };
-      log.innerHTML = `<span class="ok">✅ ${json.pokemonCount}件のポケモン別技データを生成しました（技行数: ${moveRowCount}件 / 候補技: ${candidateMoveCount}件 / ヒット数対応）</span>`;
+      log.innerHTML = `<span class="ok">✅ ${json.pokemonCount}件のポケモン別技データを生成しました（技行数: ${moveRowCount}件 / ヒット数対応）</span>`;
     }
 
     else if(type==='season') {
@@ -1026,7 +1031,7 @@ function toggleTheme() {
   function splitRankList(value) {
     const raw = String(value == null ? '' : value).trim();
     if(!raw || raw.toLowerCase() === 'nan') return [];
-    return raw.split(' / ').map(v => v.trim()).filter(Boolean);
+    return raw.split(/\s*\/\s*|\n+/).map(v => v.trim()).filter(Boolean);
   }
 
   function collectOrderedColumns(headers, prefix) {
@@ -1039,22 +1044,53 @@ function toggleTheme() {
       });
   }
 
+  function collectPreferredColumns(headers, candidates) {
+    const seen = new Set();
+    const cols = [];
+    candidates.forEach(name => {
+      if(headers.includes(name) && !seen.has(name)) {
+        cols.push(name);
+        seen.add(name);
+      }
+    });
+    return cols;
+  }
+
+  function normalizeRankValue(value) {
+    const raw = String(value == null ? '' : value).trim();
+    if(!raw || raw.toLowerCase() === 'nan') return '';
+    return raw;
+  }
+
   function buildRankingJSON(data, battleType) {
     const required = ['順位','ポケモン名','更新日'];
     const missing = required.filter(k => !data.headers.includes(k));
     if(missing.length) throw new Error('必須カラムが不足: ' + missing.join(', '));
 
     const moveCols = collectOrderedColumns(data.headers, '技');
-    const itemCols = collectOrderedColumns(data.headers, '持ち物');
+    const modernItemCols = collectPreferredColumns(data.headers, ['持ちもの1','持ちもの2','持ちもの3','持ちもの4','持ちもの5']);
+    const modernAbilityCols = collectPreferredColumns(data.headers, ['特性1','特性2']);
+    const modernNatureCols = collectPreferredColumns(data.headers, ['性格1','性格2','性格3']);
+    const modernSpreadCols = collectPreferredColumns(data.headers, ['努力値']);
+    const itemCols = modernItemCols.length ? modernItemCols : collectOrderedColumns(data.headers, '持ち物');
     const abilityKey = data.headers.includes('特性') ? '特性' : (data.headers.includes('Unnamed: 22') ? 'Unnamed: 22' : '');
     const natureKey = data.headers.includes('性格') ? '性格' : '';
-    const spreadKey = data.headers.includes('調整') ? '調整' : '';
+    const spreadKey = data.headers.includes('調整') ? '調整' : (data.headers.includes('努力値') ? '努力値' : '');
 
     const rows = data.rows.map(r => {
       const name = String(r['ポケモン名'] || '').trim();
       if(!name) return null;
-      const moves = moveCols.map(col => String(r[col] || '').trim()).filter(v => v && v.toLowerCase() !== 'nan');
-      const items = itemCols.map(col => String(r[col] || '').trim()).filter(v => v && v.toLowerCase() !== 'nan');
+      const moves = moveCols.map(col => normalizeRankValue(r[col])).filter(Boolean);
+      const items = itemCols.map(col => normalizeRankValue(r[col])).filter(Boolean);
+      const abilities = modernAbilityCols.length
+        ? modernAbilityCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
+        : (abilityKey ? splitRankList(r[abilityKey]) : []);
+      const natures = modernNatureCols.length
+        ? modernNatureCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
+        : (natureKey ? splitRankList(r[natureKey]) : []);
+      const spreads = modernSpreadCols.length
+        ? modernSpreadCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
+        : (spreadKey ? splitRankList(r[spreadKey]) : []);
       return {
         rank: parseInt(r['順位'], 10) || 0,
         name,
@@ -1062,9 +1098,9 @@ function toggleTheme() {
         battleType,
         moves,
         items,
-        abilities: abilityKey ? splitRankList(r[abilityKey]) : [],
-        natures: natureKey ? splitRankList(r[natureKey]) : [],
-        spreads: spreadKey ? splitRankList(r[spreadKey]) : [],
+        abilities,
+        natures,
+        spreads,
         updatedAt: String(r['更新日'] || '').trim(),
       };
     }).filter(Boolean);
@@ -1075,7 +1111,6 @@ function toggleTheme() {
       rows
     };
   }
-
   const originalGenerateJSON = window.generateJSON;
   window.generateJSON = function(type) {
     if(type !== 'rank_single' && type !== 'rank_double') {
