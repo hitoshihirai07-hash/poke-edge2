@@ -6,197 +6,227 @@
 <title>耐久調整ツール | Poke-Edge</title>
 <style>
   :root{
-    --bg:#0b1220;
-    --bg2:#121c30;
-    --panel:#16233a;
-    --line:#29405f;
-    --text:#eef4ff;
-    --muted:#aebcd7;
-    --accent:#7dd3fc;
-    --accent2:#86efac;
-    --chip:#22324f;
-    --chip2:#0f1828;
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --line:#d8e0eb;
+    --line-strong:#bfcadb;
+    --text:#1f2b3a;
+    --muted:#607086;
+    --accent:#2563eb;
+    --accent-soft:#e8f0ff;
+    --chip:#eef3fa;
+    --chip-active:#dbe8ff;
+    --ok:#0f766e;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#09111d 0%,#0b1220 100%);color:var(--text);font-family:"Noto Sans JP",system-ui,sans-serif;}
-  .wrap{max-width:1380px;margin:0 auto;padding:18px 14px 48px}
-  h1{margin:0 0 6px;font-size:28px;line-height:1.2}
-  .lead{margin:0;color:var(--muted);font-size:13px;line-height:1.8}
-  .grid{display:grid;grid-template-columns:420px minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
-  .stack{display:grid;gap:12px}
-  .card{background:rgba(22,35,58,.92);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.24)}
-  .card h2,.card h3{margin:0 0 10px;font-size:18px}
-  .small{font-size:12px;color:var(--muted);line-height:1.7}
-  .mode-row,.mega-row,.chip-row,.top-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .mode-btn,.chip,.mini-btn,.rank-chip,.ghost-btn,.remove-btn{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--text);padding:8px 12px;border-radius:999px;font-size:12px;cursor:pointer}
-  .mode-btn.active,.chip.active,.mini-btn.active,.rank-chip.active{background:linear-gradient(90deg,rgba(125,211,252,.25),rgba(134,239,172,.18));border-color:var(--accent);color:#fff}
-  .ghost-btn{background:transparent}
-  .remove-btn{background:rgba(252,165,165,.12)}
-  .mini-btn{padding:6px 10px}
-  label{display:block;margin:0 0 6px;font-size:12px;color:var(--muted)}
-  input[type="text"], input[type="number"], select{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:12px;font-size:14px;outline:none}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans JP",system-ui,sans-serif;line-height:1.5}
+  .wrap{max-width:1360px;margin:0 auto;padding:16px 14px 40px}
+  h1{margin:0;font-size:30px;line-height:1.2}
+  h2{margin:0 0 10px;font-size:22px}
+  h3{margin:0 0 8px;font-size:18px}
+  p{margin:0}
+  .lead{margin-top:8px;color:var(--muted);font-size:14px}
+  .stack{display:grid;gap:14px;margin-top:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(31,43,58,.06)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .between{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .help{font-size:12px;color:var(--muted);line-height:1.8}
+  .pill{display:inline-block;padding:5px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;border:1px solid #c9dbff}
+  .btn,.chip,.mini-btn{appearance:none;border:1px solid var(--line-strong);background:var(--chip);color:var(--text);border-radius:999px;padding:8px 13px;font-size:13px;cursor:pointer}
+  .btn.active,.chip.active,.mini-btn.active{background:var(--chip-active);border-color:#8fb3ff;color:#123d9f;font-weight:700}
+  .btn.clear-btn{background:#fff}
+  .grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+  .grid-4{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:10px}
+  .grid-5{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:10px}
+  .grid-6{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr 1fr 1fr;gap:10px}
+  .input-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .field label,.subhead{display:block;margin:0 0 5px;font-size:12px;color:var(--muted)}
+  input[type="text"],input[type="number"],select{width:100%;padding:9px 11px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--text);font-size:14px;outline:none}
+  input[type="text"]:focus,input[type="number"]:focus,select:focus{border-color:#8fb3ff;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
   input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{margin:0}
-  input:focus,select:focus{border-color:var(--accent)}
-  .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .ev-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-  .ev-box{background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:8px}
-  .ev-box span{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
-  .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
-  .stats-grid.atk{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .stat{background:rgba(10,16,28,.4);border:1px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center}
-  .stat .k{font-size:11px;color:var(--muted)}
-  .stat .v{font-size:18px;font-weight:700;margin-top:3px}
-  .muted-banner{margin-top:12px;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--muted);line-height:1.8}
-  .status-line{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.7}
-  .rank-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:420px;overflow:auto;padding-right:2px}
-  .rank-chip{border-radius:14px;padding:10px 12px;text-align:left;display:flex;justify-content:space-between;align-items:center;background:rgba(15,24,40,.75)}
-  .rank-chip .sub{display:block;font-size:10px;color:var(--muted);margin-top:2px}
-  .rank-num{display:inline-flex;min-width:34px;justify-content:center;font-weight:700;color:var(--accent)}
-  .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(125,211,252,.16);color:var(--accent);font-size:11px;border:1px solid rgba(125,211,252,.28)}
-  .selection-status{margin-top:8px;font-size:12px;color:var(--muted)}
-  .cards-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .attacker-card{background:rgba(11,18,32,.38);border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px}
-  .attacker-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
-  .attacker-title{font-size:18px;font-weight:700;line-height:1.4}
-  .attacker-sub{font-size:11px;color:var(--muted);margin-top:4px}
-  .result-panel{background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:10px}
-  .result-main{font-size:24px;font-weight:800;line-height:1.2}
-  .result-sub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.7}
-  .result-bar{height:14px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:10px}
-  .result-bar > div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .18s ease}
-  .result-plain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
-  .result-box{background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:10px}
-  .result-box .rk{font-size:11px;color:var(--muted)}
-  .result-box .rv{font-size:15px;font-weight:700;margin-top:4px;line-height:1.5}
-  .rolls{margin-top:10px;background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:10px;line-height:2;font-size:12px}
-  .placeholder{padding:16px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px;line-height:1.8;background:rgba(10,16,28,.2)}
+  .mega-row,.mode-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .ev-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .ev-grid.attack{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ev-box{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fbfcfe}
+  .ev-box span{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .stats-grid.attack{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stat{border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:#fbfcfe;text-align:center}
+  .stat .k{display:block;font-size:11px;color:var(--muted)}
+  .stat .v{display:block;font-size:18px;font-weight:800;margin-top:2px}
+  .compact-section{display:grid;gap:10px}
+  .result-grid{display:grid;grid-template-columns:1.1fr .9fr .9fr;gap:8px}
+  .result-cell{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfcfe}
+  .result-cell .k{display:block;font-size:11px;color:var(--muted)}
+  .result-cell .v{display:block;font-size:16px;font-weight:800;margin-top:4px;line-height:1.4}
+  .rolls{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfcfe;font-size:12px;line-height:1.8;word-break:break-word}
+  .ranking-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-height:300px;overflow:auto;padding-right:2px}
+  .rank-chip{appearance:none;width:100%;text-align:left;border:1px solid var(--line);background:#fbfcfe;border-radius:14px;padding:10px 12px;cursor:pointer;color:var(--text)}
+  .rank-chip.active{background:var(--chip-active);border-color:#8fb3ff}
+  .rank-chip .num{display:inline-flex;min-width:34px;justify-content:center;color:var(--accent);font-weight:800}
+  .rank-chip .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+  .selected-stack{display:grid;gap:12px}
+  .selected-card{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff}
+  .selected-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .selected-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .rank-badge{display:inline-block;padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:12px}
+  .selected-name{font-size:18px;font-weight:800}
+  .selected-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .mini-btn.remove-btn{background:#fff7f7;border-color:#f0c5c5;color:#9b1c1c}
+  .free-layout,.selected-layout{display:grid;grid-template-columns:1.3fr .9fr;gap:12px;align-items:start}
+  .summary-box{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfcfe}
+  .summary-box h3{margin-bottom:10px}
+  .status-line{font-size:12px;color:var(--muted)}
   .hidden-frame{position:absolute;left:-99999px;top:-99999px;width:1200px;height:2400px;opacity:0;pointer-events:none}
+  .empty{padding:16px;border:1px dashed var(--line-strong);border-radius:14px;color:var(--muted);background:#fbfcfe}
   @media (max-width:1180px){
-    .grid{grid-template-columns:1fr}
-    .cards-grid{grid-template-columns:1fr}
+    .ranking-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .free-layout,.selected-layout{grid-template-columns:1fr}
+    .grid-4,.grid-5,.grid-6,.input-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
   @media (max-width:760px){
-    .wrap{padding:14px 10px 38px}
-    h1{font-size:24px}
-    .rank-list,.field-grid,.result-plain{grid-template-columns:1fr}
-    .ev-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .wrap{padding:14px 10px 30px}
+    h1{font-size:26px}
+    .grid-3,.grid-4,.grid-5,.grid-6,.input-grid,.result-grid,.ev-grid,.stats-grid,.ev-grid.attack,.stats-grid.attack,.ranking-list{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>耐久調整ツール</h1>
-  <p class="lead">シングル用の試作ページです。耐久したい側を1匹決めたあと、ランキング候補や自由入力から攻撃側を選ぶと、自動でダメージを並べて確認できます。</p>
+  <p class="lead">シングル用の試作ページです。耐久したい側を先に決めたあと、自由入力やランキング候補から攻撃側を選び、結果を並べて確認できます。</p>
 
-  <div class="card" style="margin-top:16px;">
-    <div class="top-row" style="justify-content:space-between;">
-      <div>
-        <h2 style="margin-bottom:6px;">対象範囲</h2>
-        <div class="mode-row" id="mode-buttons"></div>
+  <div class="stack">
+    <section class="card">
+      <div class="between">
+        <div>
+          <h3>対象範囲</h3>
+          <div class="mode-row" id="mode-buttons"></div>
+        </div>
+        <div><span class="pill">シングル固定</span></div>
       </div>
-      <div><span class="pill">シングル固定</span></div>
-    </div>
-    <div class="status-line" id="mode-status">読み込み中です…</div>
-  </div>
+      <div class="status-line" id="mode-status">読み込み中です…</div>
+    </section>
 
-  <div class="grid">
-    <div class="stack">
-      <section class="card">
+    <section class="card">
+      <div class="between">
         <h2>耐久したい側</h2>
-        <div class="field-grid">
-          <div>
+        <div class="status-line">上の内容を基準に、下の攻撃側をまとめて比較します。</div>
+      </div>
+      <div class="compact-section">
+        <div class="grid-3">
+          <div class="field">
             <label for="defender-name">ポケモン</label>
             <input id="defender-name" list="pokemon-list" type="text" placeholder="ポケモン名を入力">
           </div>
-          <div>
+          <div class="field">
             <label for="defender-nature">性格</label>
             <select id="defender-nature"></select>
           </div>
+          <div class="field">
+            <label for="defender-ability">特性</label>
+            <select id="defender-ability"></select>
+          </div>
         </div>
-        <div style="margin-top:10px;">
-          <label>メガ進化</label>
+        <div>
+          <span class="subhead">メガ進化</span>
           <div class="mega-row" id="defender-mega"></div>
         </div>
-        <div style="margin-top:10px;">
-          <label for="defender-ability">特性</label>
-          <select id="defender-ability"></select>
+        <div class="grid-3">
+          <div>
+            <span class="subhead">努力値（Champions 0〜32）</span>
+            <div class="ev-grid" id="defender-evs"></div>
+          </div>
+          <div style="grid-column: span 2;">
+            <span class="subhead">実数値</span>
+            <div class="stats-grid" id="defender-stats"></div>
+          </div>
         </div>
-        <div style="margin-top:10px;">
-          <label>努力値（Champions 0〜32）</label>
-          <div class="ev-grid" id="defender-evs"></div>
-        </div>
-        <div class="stats-grid" id="defender-stats"></div>
-        <div class="muted-banner">防御側は HP / 攻撃 / 防御 / 特防 を既存ダメ計に連動させます。補助込みの細かい条件は、この試作では既存計算の初期値のままです。</div>
-      </section>
+      </div>
+    </section>
 
-      <section class="card">
-        <div class="attacker-head">
-          <div>
-            <h2 style="margin-bottom:4px;">自由入力</h2>
-            <div class="small">候補にない攻撃側もここで確認できます。</div>
-          </div>
+    <section class="card">
+      <div class="between">
+        <div>
+          <h2>自由入力</h2>
+          <p class="help">候補にない攻撃側もここで確認できます。攻撃技だけ見られる形にしています。</p>
         </div>
-        <div class="field-grid">
-          <div>
-            <label for="free-pokemon">ポケモン</label>
-            <input id="free-pokemon" list="pokemon-list" type="text" placeholder="ポケモン名を入力">
-          </div>
-          <div>
-            <label for="free-nature">性格</label>
-            <select id="free-nature"></select>
-          </div>
-        </div>
-        <div style="margin-top:10px;">
-          <label>メガ進化</label>
-          <div class="mega-row" id="free-mega"></div>
-        </div>
-        <div class="field-grid" style="margin-top:10px;">
-          <div>
-            <label for="free-ability">特性</label>
-            <select id="free-ability"></select>
+      </div>
+      <div class="free-layout">
+        <div class="compact-section">
+          <div class="grid-3">
+            <div class="field">
+              <label for="free-pokemon">ポケモン</label>
+              <input id="free-pokemon" list="pokemon-list" type="text" placeholder="ポケモン名を入力">
+            </div>
+            <div class="field">
+              <label for="free-nature">性格</label>
+              <select id="free-nature"></select>
+            </div>
+            <div class="field">
+              <label for="free-ability">特性</label>
+              <select id="free-ability"></select>
+            </div>
           </div>
           <div>
-            <label for="free-move">技候補</label>
-            <select id="free-move"></select>
+            <span class="subhead">メガ進化</span>
+            <div class="mega-row" id="free-mega"></div>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="free-move">技候補</label>
+              <select id="free-move"></select>
+            </div>
+            <div class="field" style="grid-column: span 2;">
+              <label for="free-move-free">自由入力（攻撃技のみ）</label>
+              <input id="free-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
+            </div>
+          </div>
+          <div class="grid-3">
+            <div>
+              <span class="subhead">努力値（Champions 0〜32）</span>
+              <div class="ev-grid attack" id="free-evs"></div>
+            </div>
+            <div style="grid-column: span 2;">
+              <span class="subhead">実数値</span>
+              <div class="stats-grid attack" id="free-stats"></div>
+            </div>
           </div>
         </div>
-        <div style="margin-top:10px;">
-          <label for="free-move-free">自由入力（攻撃技のみ）</label>
-          <input id="free-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
+        <div class="summary-box">
+          <h3>計算結果</h3>
+          <div class="result-grid">
+            <div class="result-cell"><span class="k">ダメージ</span><span class="v" id="free-result-dmg">—</span></div>
+            <div class="result-cell"><span class="k">割合</span><span class="v" id="free-result-pct">—</span></div>
+            <div class="result-cell"><span class="k">確定数</span><span class="v" id="free-result-ko">—</span></div>
+          </div>
+          <div class="result-cell" style="margin-top:8px;"><span class="k">範囲</span><span class="v" id="free-result-range">攻撃側と防御側をそろえると出ます。</span></div>
+          <div class="rolls" id="free-result-rolls" style="margin-top:8px;">16乱数はここに表示されます。</div>
+          <div class="status-line" id="free-result-status" style="margin-top:8px;">既存ダメージ計算の読み込み待ちです。</div>
         </div>
-        <div style="margin-top:10px;">
-          <label>努力値（Champions 0〜32）</label>
-          <div class="ev-grid" id="free-evs"></div>
-        </div>
-        <div class="stats-grid atk" id="free-stats"></div>
-        <div id="free-result" style="margin-top:10px;"></div>
-      </section>
-    </div>
+      </div>
+    </section>
 
-    <div class="stack">
-      <section class="card">
-        <div class="attacker-head">
-          <div>
-            <h2 style="margin-bottom:4px;">ランキング候補</h2>
-            <div class="small">変化技は候補から外し、攻撃技だけで見られる形にしています。クリックしたポケモンは下にまとめて表示されます。</div>
-          </div>
-          <button type="button" class="ghost-btn" id="clear-selection">選択をクリア</button>
+    <section class="card">
+      <div class="between">
+        <div>
+          <h2>ランキング候補</h2>
+          <p class="help">変化技は候補から外し、攻撃技だけで見られる形にしています。クリックしたポケモンは下にまとめて表示されます。</p>
         </div>
-        <div class="rank-list" id="ranking-list"></div>
-        <div class="selection-status" id="selection-status">0体選択中</div>
-      </section>
+        <button type="button" class="btn clear-btn" id="clear-ranking-selection">選択をクリア</button>
+      </div>
+      <div class="ranking-list" id="ranking-list"></div>
+    </section>
 
-      <section class="card">
-        <div class="attacker-head">
-          <div>
-            <h2 style="margin-bottom:4px;">選択中のランキングポケモン</h2>
-            <div class="small">選んだポケモンはすべてここに並びます。</div>
-          </div>
+    <section class="card">
+      <div class="between">
+        <div>
+          <h2>選択中のランキングポケモン</h2>
+          <p class="help">選んだポケモンを上から順に並べています。ここで性格・特性・努力値・技を個別に触れます。</p>
         </div>
-        <div id="ranking-cards"></div>
-      </section>
-    </div>
+      </div>
+      <div id="ranking-selected-list" class="selected-stack"></div>
+    </section>
   </div>
 
   <datalist id="pokemon-list"></datalist>
@@ -223,51 +253,67 @@ const PERSONALITIES = {
 };
 const DEF_EV_KEYS = ['hp','atk','def','spd'];
 const ATK_EV_KEYS = ['atk','def','spa'];
+const RESULT_INIT = {dmg:'—', range:'攻撃側と防御側をそろえると出ます。', pct:'—', ko:'—', rolls:'16乱数はここに表示されます。', status:'既存ダメージ計算の読み込み待ちです。'};
 const STATE = {
   mode: 'inner',
   data: null,
   frameReady: false,
-  calcRunId: 0,
+  renderToken: 0,
   defender: { baseName: '', formName: '', nature: 'がんばりや', ability: '', ev: {hp:0,atk:0,def:0,spd:0}, abilityOptions: [] },
-  free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', move: '', freeMove: '', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [], result: null },
-  ranking: { selectedNames: [], cards: {} }
+  free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', ev: {atk:0,def:0,spa:0}, move: '', freeMove: '', abilityOptions: [], moveOptions: [], result: {...RESULT_INIT} },
+  rankingSelected: []
 };
 
 function el(id){ return document.getElementById(id); }
 function clamp32(v){ const n = parseInt(v,10); return Number.isFinite(n) ? Math.max(0, Math.min(32, n)) : 0; }
-function uniq(arr){ return [...new Set((arr || []).filter(Boolean))]; }
+function uniq(arr){ return [...new Set((arr||[]).filter(Boolean))]; }
 function calcHP(base, iv, ev, lv){ return Math.floor((Math.floor((base*2 + iv) * lv / 100) + 10 + lv)) + ev; }
 function calcStat(base, iv, ev, lv, nat){ return Math.floor((Math.floor((base*2 + iv) * lv / 100) + 5) * nat) + Math.floor(ev * nat); }
-function getNatureName(text){ const s = String(text || '').trim(); return NATURE_NAMES.find(name => s.startsWith(name)) || 'がんばりや'; }
-function parseSpread(text){ const nums = String(text || '').match(/\d+/g) || []; if(nums.length < 6) return {hp:0,atk:0,def:0,spa:0,spd:0,spe:0}; return {hp:+nums[0]||0, atk:+nums[1]||0, def:+nums[2]||0, spa:+nums[3]||0, spd:+nums[4]||0, spe:+nums[5]||0}; }
-function stripRate(text){ const m = String(text || '').match(/^(.+?)\s*\(([\d.]+)%\)$/); return m ? m[1].trim() : String(text || '').trim(); }
-function escapeHtml(str){ return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function normalizeMoveInput(raw){ const value = String(raw || '').trim(); return isDamagingMoveName(value) ? value : ''; }
-function createNatureOptions(select, selected){ select.innerHTML = NATURE_NAMES.map(name => `<option value="${name}">${name}</option>`).join(''); select.value = selected || 'がんばりや'; }
-function getAllowedNames(){ if(!STATE.data) return []; return STATE.mode === 'all' ? STATE.data.allPokemonNames : STATE.data.innerNames; }
-function getPokemon(name){ return STATE.data?.pokemonByName?.[name] || null; }
-function resolveBaseName(name){ const n = String(name || '').trim(); return n.startsWith('メガ') ? n.replace(/^メガ/, '').replace(/[XY]$/, '') : n; }
+function createNatureOptions(selected){
+  return NATURE_NAMES.map(name => `<option value="${escapeHtml(name)}" ${name===selected?'selected':''}>${escapeHtml(name)}</option>`).join('');
+}
+function getNatureName(text){
+  const s = String(text || '').trim();
+  return NATURE_NAMES.find(name => s.startsWith(name)) || 'がんばりや';
+}
+function parseSpread(text){
+  const nums = String(text || '').match(/\d+/g) || [];
+  if(nums.length < 6) return {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+  return {hp:+nums[0]||0, atk:+nums[1]||0, def:+nums[2]||0, spa:+nums[3]||0, spd:+nums[4]||0, spe:+nums[5]||0};
+}
+function stripRate(text){
+  const m = String(text || '').match(/^(.+?)\s*\(([\d.]+)%\)$/);
+  return m ? m[1].trim() : String(text || '').trim();
+}
+function escapeHtml(str){
+  return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function normalizePokemonInput(raw){
+  const value = String(raw || '').trim();
+  if(!value) return '';
+  if(getPokemon(value)) return value;
+  return '';
+}
+function normalizeMoveInput(raw){
+  const value = String(raw || '').trim();
+  if(!value) return '';
+  return isDamagingMoveName(value) ? value : '';
+}
+function resolveBaseName(name){
+  const n = String(name || '').trim();
+  if(!n) return '';
+  if(!n.startsWith('メガ')) return n;
+  return n.replace(/^メガ/, '').replace(/[XY]$/, '');
+}
 function isMegaName(name){ return String(name || '').startsWith('メガ'); }
-function getMegaForms(baseName){ return STATE.data?.megaMap?.[baseName]?.slice() || []; }
-function getRankingRow(name){ return STATE.data?.rankingMap?.[name] || null; }
-function selectedRankingNames(){ return STATE.ranking.selectedNames.slice().sort((a,b) => (getRankingRow(a)?.rank || 9999) - (getRankingRow(b)?.rank || 9999)); }
-function populateAbilitySelect(selectId, options, selected){
-  const select = el(selectId);
-  const list = uniq(['', ...(options || [])]);
-  select.innerHTML = list.map(name => `<option value="${escapeHtml(name)}">${name ? escapeHtml(name) : 'なし'}</option>`).join('');
-  select.value = list.includes(selected) ? selected : (list[1] || '');
+function getPokemon(name){ return STATE.data?.pokemonByName?.[name] || null; }
+function getAllowedNames(){
+  if(!STATE.data) return [];
+  return STATE.mode === 'all' ? STATE.data.allPokemonNames : STATE.data.innerNames;
 }
-function renderMoveSelect(selectId, options, selected){
-  const select = el(selectId);
-  const list = uniq(options).filter(Boolean);
-  select.innerHTML = list.length ? list.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('') : '<option value="">候補なし</option>';
-  if(list.length) select.value = list.includes(selected) ? selected : list[0];
-}
-function renderStatBoxes(containerId, stats, atkMode=false){
-  const labels = {hp:'HP',atk:'攻撃',def:'防御',spa:'特攻',spd:'特防',spe:'素早'};
-  const box = el(containerId);
-  box.classList.toggle('atk', !!atkMode);
-  box.innerHTML = Object.entries(stats).map(([key, value]) => `<div class="stat"><div class="k">${labels[key]}</div><div class="v">${value}</div></div>`).join('');
+function getMegaForms(baseName){
+  if(!STATE.data) return [];
+  return (STATE.data.megaMap[baseName] || []).slice();
 }
 function calcDisplayedStats(poke, role, natureName, ev){
   if(!poke) return role === 'def' ? {hp:'—',atk:'—',def:'—',spd:'—'} : {atk:'—',def:'—',spa:'—'};
@@ -286,9 +332,18 @@ function calcDisplayedStats(poke, role, natureName, ev){
     spa: calcStat(poke.spa, 31, clamp32(ev.spa), 50, nat.spa || 1)
   };
 }
-function buildEvInputs(containerId, evKeys, stateObj, onChange){
+function renderStatCells(containerId, stats){
   const labels = {hp:'HP',atk:'攻撃',def:'防御',spa:'特攻',spd:'特防',spe:'素早'};
+  const isAttack = Object.keys(stats).length === 3;
+  el(containerId).className = 'stats-grid' + (isAttack ? ' attack' : '');
+  el(containerId).innerHTML = Object.entries(stats).map(([key, value]) => `
+    <div class="stat"><span class="k">${labels[key]}</span><span class="v">${value}</span></div>
+  `).join('');
+}
+function buildEvInputs(containerId, evKeys, stateObj, onChange){
+  const labels = {hp:'HP',atk:'攻撃',def:'防御',spa:'特攻',spd:'特防'};
   const container = el(containerId);
+  container.className = 'ev-grid' + (evKeys.length === 3 ? ' attack' : '');
   container.innerHTML = evKeys.map(key => `
     <div class="ev-box">
       <span>${labels[key]}</span>
@@ -296,71 +351,81 @@ function buildEvInputs(containerId, evKeys, stateObj, onChange){
     </div>
   `).join('');
   container.querySelectorAll('input[data-ev-key]').forEach(input => {
-    input.addEventListener('change', () => {
+    input.addEventListener('input', () => {
       stateObj.ev[input.dataset.evKey] = clamp32(input.value);
       input.value = stateObj.ev[input.dataset.evKey];
       onChange();
     });
   });
 }
+function populateAbilitySelect(selectId, options, selected){
+  const select = el(selectId);
+  const list = uniq(['', ...(options || [])]);
+  select.innerHTML = list.map(name => `<option value="${escapeHtml(name)}">${name ? escapeHtml(name) : 'なし'}</option>`).join('');
+  select.value = list.includes(selected) ? selected : (list[1] || '');
+}
+function renderMoveSelect(selectId, options, selected){
+  const select = el(selectId);
+  const list = uniq(options).filter(Boolean);
+  select.innerHTML = list.length ? list.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('') : '<option value="">候補なし</option>';
+  if(list.length) select.value = list.includes(selected) ? selected : list[0];
+}
+function resolveAbilityOptions(pokeName, rankingFallback = []){
+  const byPokemon = STATE.data?.abilityMap?.[pokeName] || [];
+  return uniq([...(rankingFallback || []), ...byPokemon]);
+}
 function isDamagingMoveName(name){
   if(!name) return false;
   const move = STATE.data?.movesByName?.[name];
-  return !!move && move.category !== '変化';
+  if(move) return move.category !== '変化';
+  return false;
 }
-function resolveAbilityOptions(pokeName, fallback=[]){ return uniq([...(fallback || []), ...((STATE.data?.abilityMap?.[pokeName]) || [])]); }
-function resolveMoveOptionsForPokemon(pokeName, rankingMoves=[]){
+function resolveMoveOptionsForPokemon(pokeName, rankingMoves = []){
   const rankingList = (rankingMoves || []).map(stripRate).filter(isDamagingMoveName);
   const pm = STATE.data?.pokemonMoves?.[pokeName];
   const candidateList = (pm?.candidateMoves || []).map(m => m.name).filter(isDamagingMoveName);
   const moveList = (pm?.moves || []).filter(m => m.candidate).map(m => m.name).filter(isDamagingMoveName);
   return uniq([...rankingList, ...candidateList, ...moveList]);
 }
-function resultHtml(result){
-  if(!result){
-    return `<div class="result-panel"><div class="result-main">—</div><div class="result-sub">条件をそろえるとここに結果が出ます。</div><div class="result-bar"><div style="width:0%"></div></div><div class="result-plain"><div class="result-box"><div class="rk">割合</div><div class="rv">—</div></div><div class="result-box"><div class="rk">確定数</div><div class="rv">—</div></div></div><div class="rolls">16乱数はここに表示されます。</div></div>`;
-  }
-  return `
-    <div class="result-panel">
-      <div class="result-main">${result.dmgNum || '—'}</div>
-      <div class="result-sub">${result.rangeText || result.message || '—'}</div>
-      <div class="result-bar"><div style="width:${result.barWidth || '0%'}"></div></div>
-      <div class="result-plain">
-        <div class="result-box"><div class="rk">割合</div><div class="rv">${result.pctText || '—'}</div></div>
-        <div class="result-box"><div class="rk">確定数</div><div class="rv">${result.koHtml || '—'}</div></div>
-      </div>
-      <div class="rolls">${result.rollsHtml || result.message || '16乱数はここに表示されます。'}</div>
-    </div>
-  `;
+function renderPokemonDatalist(){
+  const list = getAllowedNames();
+  el('pokemon-list').innerHTML = list.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
+}
+function renderDamagingMoveDatalist(){
+  el('damaging-move-list').innerHTML = STATE.data.damagingMoveNames.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
 }
 function renderModeButtons(){
   const wrap = el('mode-buttons');
-  wrap.innerHTML = [{key:'inner',label:'内定'},{key:'all',label:'全部'}].map(item => `<button type="button" class="mode-btn ${STATE.mode===item.key?'active':''}" data-mode="${item.key}">${item.label}</button>`).join('');
+  wrap.innerHTML = [
+    {key:'inner', label:'内定'},
+    {key:'all', label:'全部'}
+  ].map(item => `<button type="button" class="btn ${STATE.mode===item.key?'active':''}" data-mode="${item.key}">${item.label}</button>`).join('');
   wrap.querySelectorAll('[data-mode]').forEach(btn => btn.addEventListener('click', () => {
     STATE.mode = btn.dataset.mode;
     renderModeButtons();
     renderPokemonDatalist();
     updateModeStatus();
-    const allowed = getAllowedNames();
-    if(STATE.defender.baseName && !allowed.includes(STATE.defender.baseName)){
-      STATE.defender.baseName = ''; STATE.defender.formName = ''; el('defender-name').value = ''; renderDefenderMega(); renderDefenderAbilities(); renderDefenderStats();
+    if(STATE.defender.baseName && !getAllowedNames().includes(STATE.defender.baseName) && STATE.mode === 'inner'){
+      STATE.defender.baseName = '';
+      STATE.defender.formName = '';
+      el('defender-name').value = '';
+      renderDefender();
     }
-    if(STATE.free.baseName && !allowed.includes(resolveBaseName(STATE.free.baseName))){
-      STATE.free.baseName = ''; STATE.free.formName = ''; el('free-pokemon').value = ''; renderFreeForm();
+    if(STATE.free.baseName && !getAllowedNames().includes(resolveBaseName(STATE.free.baseName)) && STATE.mode === 'inner'){
+      STATE.free.baseName = '';
+      STATE.free.formName = '';
+      el('free-pokemon').value = '';
+      renderFree();
     }
-    scheduleResults();
+    syncAllResultsSoon();
   }));
 }
 function updateModeStatus(){
   const count = getAllowedNames().length;
   el('mode-status').textContent = STATE.mode === 'inner'
-    ? `内定ポケモン ${count}体を選択候補に出します。ランキング候補はシングル順位を固定表示します。`
-    : `全ポケモン ${count}体を選択候補に出します。ランキング候補はシングル順位を固定表示します。`;
+    ? `内定ポケモン ${count}体を選択候補に出します。ランキング候補はシングル順位のまま表示します。`
+    : `全ポケモン ${count}体を選択候補に出します。ランキング候補はシングル順位のまま表示します。`;
 }
-function renderPokemonDatalist(){ el('pokemon-list').innerHTML = getAllowedNames().map(name => `<option value="${escapeHtml(name)}"></option>`).join(''); }
-function renderDamagingMoveDatalist(){ el('damaging-move-list').innerHTML = STATE.data.damagingMoveNames.map(name => `<option value="${escapeHtml(name)}"></option>`).join(''); }
-function normalizePokemonInput(raw){ const value = String(raw || '').trim(); return getPokemon(value) ? value : ''; }
-
 function renderDefenderMega(){
   const wrap = el('defender-mega');
   wrap.innerHTML = '';
@@ -368,22 +433,25 @@ function renderDefenderMega(){
   if(!current) return;
   const base = isMegaName(current) ? resolveBaseName(current) : current;
   const forms = getMegaForms(base);
-  if(!forms.length){ wrap.innerHTML = '<button type="button" class="mini-btn active">メガ進化なし</button>'; return; }
-  [{name:base,label:base}, ...forms.map(name=>({name,label:name}))].forEach(info => {
+  if(!forms.length){
+    wrap.innerHTML = '<button type="button" class="mini-btn active">メガ進化なし</button>';
+    return;
+  }
+  [{name:base,label:'メガ進化なし'}, ...forms.map(name=>({name,label:name}))].forEach(info => {
     const btn = document.createElement('button');
-    btn.type='button'; btn.className='mini-btn'+(info.name===current?' active':'');
-    btn.textContent = info.name===base ? (isMegaName(current) ? `${base} に戻す` : `${base}`) : info.label;
+    btn.type = 'button';
+    btn.className = 'mini-btn' + (info.name===current ? ' active' : '');
+    btn.textContent = info.label;
     btn.addEventListener('click', () => {
       STATE.defender.formName = info.name;
       STATE.defender.abilityOptions = resolveAbilityOptions(info.name);
       if(!STATE.defender.abilityOptions.includes(STATE.defender.ability)) STATE.defender.ability = STATE.defender.abilityOptions[0] || '';
-      renderDefenderMega(); renderDefenderAbilities(); renderDefenderStats(); scheduleResults();
+      renderDefender();
+      syncAllResultsSoon();
     });
     wrap.appendChild(btn);
   });
 }
-function renderDefenderAbilities(){ populateAbilitySelect('defender-ability', STATE.defender.abilityOptions, STATE.defender.ability); }
-function renderDefenderStats(){ renderStatBoxes('defender-stats', calcDisplayedStats(getPokemon(STATE.defender.formName || STATE.defender.baseName), 'def', STATE.defender.nature, STATE.defender.ev)); }
 function applyDefenderPokemon(name){
   const normalized = normalizePokemonInput(name);
   if(!normalized) return;
@@ -392,9 +460,14 @@ function applyDefenderPokemon(name){
   STATE.defender.abilityOptions = resolveAbilityOptions(normalized);
   STATE.defender.ability = STATE.defender.abilityOptions[0] || '';
   el('defender-name').value = normalized;
-  renderDefenderMega(); renderDefenderAbilities(); renderDefenderStats(); scheduleResults();
+  renderDefender();
+  syncAllResultsSoon();
 }
-
+function renderDefender(){
+  populateAbilitySelect('defender-ability', STATE.defender.abilityOptions, STATE.defender.ability);
+  renderDefenderMega();
+  renderStatCells('defender-stats', calcDisplayedStats(getPokemon(STATE.defender.formName || STATE.defender.baseName), 'def', STATE.defender.nature, STATE.defender.ev));
+}
 function renderFreeMega(){
   const wrap = el('free-mega');
   wrap.innerHTML = '';
@@ -402,26 +475,27 @@ function renderFreeMega(){
   if(!current) return;
   const base = isMegaName(current) ? resolveBaseName(current) : current;
   const forms = getMegaForms(base);
-  if(!forms.length){ wrap.innerHTML = '<button type="button" class="mini-btn active">メガ進化なし</button>'; return; }
-  [{name:base,label:base}, ...forms.map(name=>({name,label:name}))].forEach(info => {
+  if(!forms.length){
+    wrap.innerHTML = '<button type="button" class="mini-btn active">メガ進化なし</button>';
+    return;
+  }
+  [{name:base,label:'メガ進化なし'}, ...forms.map(name=>({name,label:name}))].forEach(info => {
     const btn = document.createElement('button');
-    btn.type='button'; btn.className='mini-btn'+(info.name===current?' active':'');
-    btn.textContent = info.name===base ? (isMegaName(current) ? `${base} に戻す` : `${base}`) : info.label;
+    btn.type = 'button';
+    btn.className = 'mini-btn' + (info.name===current ? ' active' : '');
+    btn.textContent = info.label;
     btn.addEventListener('click', () => {
       STATE.free.formName = info.name;
       STATE.free.abilityOptions = resolveAbilityOptions(info.name);
       if(!STATE.free.abilityOptions.includes(STATE.free.ability)) STATE.free.ability = STATE.free.abilityOptions[0] || '';
       STATE.free.moveOptions = resolveMoveOptionsForPokemon(info.name);
       if(!STATE.free.moveOptions.includes(STATE.free.move)) STATE.free.move = STATE.free.moveOptions[0] || '';
-      renderFreeForm(); scheduleResults();
+      renderFree();
+      syncAllResultsSoon();
     });
     wrap.appendChild(btn);
   });
 }
-function renderFreeAbilities(){ populateAbilitySelect('free-ability', STATE.free.abilityOptions, STATE.free.ability); }
-function renderFreeMoves(){ renderMoveSelect('free-move', STATE.free.moveOptions, STATE.free.move); }
-function renderFreeStats(){ renderStatBoxes('free-stats', calcDisplayedStats(getPokemon(STATE.free.formName || STATE.free.baseName), 'atk', STATE.free.nature, STATE.free.ev), true); }
-function renderFreeResult(){ el('free-result').innerHTML = resultHtml(STATE.free.result); }
 function applyFreePokemon(name){
   const normalized = normalizePokemonInput(name);
   if(!normalized) return;
@@ -434,178 +508,215 @@ function applyFreePokemon(name){
   STATE.free.freeMove = '';
   el('free-pokemon').value = normalized;
   el('free-move-free').value = '';
-  renderFreeForm(); scheduleResults();
+  renderFree();
+  syncAllResultsSoon();
 }
-function renderFreeForm(){
-  createNatureOptions(el('free-nature'), STATE.free.nature);
-  renderFreeMega(); renderFreeAbilities(); renderFreeMoves();
-  buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFreeStats(); scheduleResults(); });
-  renderFreeStats();
-  renderFreeResult();
-  el('free-nature').onchange = () => { STATE.free.nature = el('free-nature').value; renderFreeStats(); scheduleResults(); };
-  el('free-ability').onchange = () => { STATE.free.ability = el('free-ability').value; scheduleResults(); };
-  el('free-move').onchange = () => { STATE.free.move = el('free-move').value; STATE.free.freeMove=''; el('free-move-free').value=''; scheduleResults(); };
+function renderFree(){
+  populateAbilitySelect('free-ability', STATE.free.abilityOptions, STATE.free.ability);
+  renderMoveSelect('free-move', STATE.free.moveOptions, STATE.free.move);
+  renderFreeMega();
+  renderStatCells('free-stats', calcDisplayedStats(getPokemon(STATE.free.formName || STATE.free.baseName), 'atk', STATE.free.nature, STATE.free.ev));
+  renderResultInto('free-result', STATE.free.result);
 }
-
-function buildRankingCardState(row){
+function makeRankingState(row){
   const nature = getNatureName(stripRate((row.natures || [])[0] || 'がんばりや'));
   const spread = parseSpread((row.spreads || [])[0] || '0-0-0-0-0-0');
-  const abilities = resolveAbilityOptions(row.name, (row.abilities || []).map(stripRate));
-  const moves = resolveMoveOptionsForPokemon(row.name, row.moves || []);
+  const abilityOptions = resolveAbilityOptions(row.name, (row.abilities || []).map(stripRate));
+  const moveOptions = resolveMoveOptionsForPokemon(row.name, row.moves || []);
   return {
+    key: row.name,
+    rank: row.rank,
     rowName: row.name,
     formName: row.name,
     nature,
-    ability: abilities[0] || '',
-    abilityOptions: abilities,
-    move: moves[0] || '',
+    ability: abilityOptions[0] || '',
+    abilityOptions,
+    moveOptions,
+    move: moveOptions[0] || '',
     freeMove: '',
-    moveOptions: moves,
     ev: {atk: clamp32(spread.atk), def: clamp32(spread.def), spa: clamp32(spread.spa)},
-    result: null
+    result: {...RESULT_INIT}
   };
 }
-function ensureRankingCard(name){
-  if(STATE.ranking.cards[name]) return STATE.ranking.cards[name];
-  const row = getRankingRow(name);
-  if(!row) return null;
-  STATE.ranking.cards[name] = buildRankingCardState(row);
-  return STATE.ranking.cards[name];
+function isRankingSelected(name){
+  return STATE.rankingSelected.some(item => item.rowName === name);
 }
-function toggleRankingPokemon(name){
-  const idx = STATE.ranking.selectedNames.indexOf(name);
+function toggleRankingSelection(name){
+  const idx = STATE.rankingSelected.findIndex(item => item.rowName === name);
   if(idx >= 0){
-    STATE.ranking.selectedNames.splice(idx, 1);
+    STATE.rankingSelected.splice(idx,1);
   }else{
-    ensureRankingCard(name);
-    STATE.ranking.selectedNames.push(name);
+    const row = STATE.data.rankingRows.find(r => r.name === name);
+    if(!row) return;
+    STATE.rankingSelected.push(makeRankingState(row));
+    STATE.rankingSelected.sort((a,b) => a.rank - b.rank);
   }
   renderRankingList();
-  renderRankingCards();
-  scheduleResults();
+  renderSelectedRankingList();
+  syncAllResultsSoon();
 }
 function renderRankingList(){
   const wrap = el('ranking-list');
   wrap.innerHTML = STATE.data.rankingRows.map(row => `
-    <button type="button" class="rank-chip ${STATE.ranking.selectedNames.includes(row.name)?'active':''}" data-rank-name="${escapeHtml(row.name)}">
-      <span><span class="rank-num">#${row.rank}</span> ${escapeHtml(row.name)}<span class="sub">${escapeHtml((row.moves||[]).map(stripRate).filter(isDamagingMoveName).slice(0,3).join(' / ') || '技候補なし')}</span></span>
+    <button type="button" class="rank-chip ${isRankingSelected(row.name)?'active':''}" data-rank-name="${escapeHtml(row.name)}">
+      <span><span class="num">#${row.rank}</span> ${escapeHtml(row.name)}<span class="sub">${escapeHtml((row.moves||[]).map(stripRate).filter(isDamagingMoveName).slice(0,3).join(' / ') || '技候補なし')}</span></span>
     </button>
   `).join('');
-  wrap.querySelectorAll('[data-rank-name]').forEach(btn => btn.addEventListener('click', () => toggleRankingPokemon(btn.dataset.rankName)));
-  el('selection-status').textContent = `${STATE.ranking.selectedNames.length}体選択中`;
+  wrap.querySelectorAll('[data-rank-name]').forEach(btn => btn.addEventListener('click', () => toggleRankingSelection(btn.dataset.rankName)));
 }
-function rankingCardMarkup(name){
-  const card = STATE.ranking.cards[name];
-  const row = getRankingRow(name);
-  const displayName = card.formName || card.rowName;
-  const base = isMegaName(displayName) ? resolveBaseName(displayName) : displayName;
+function rankingMegaButtons(item){
+  const current = item.formName || item.rowName;
+  const base = isMegaName(current) ? resolveBaseName(current) : current;
   const forms = getMegaForms(base);
-  const megaButtons = forms.length ? [{name:base,label:base}, ...forms.map(form => ({name:form,label:form}))] : [{name:base,label:'メガ進化なし'}];
-  const abilityOptions = uniq(['', ...(card.abilityOptions || [])]);
-  const moveOptions = uniq(card.moveOptions || []).filter(Boolean);
-  const stats = calcDisplayedStats(getPokemon(displayName), 'atk', card.nature, card.ev);
-  return `
-    <section class="attacker-card" data-card-name="${escapeHtml(name)}">
-      <div class="attacker-head">
-        <div>
-          <div class="attacker-title">#${row.rank} ${escapeHtml(displayName)}</div>
-          <div class="attacker-sub">元の順位ポケモン: ${escapeHtml(row.name)}</div>
+  if(!forms.length) return '<button type="button" class="mini-btn active">メガ進化なし</button>';
+  return [{name:base,label:'メガ進化なし'}, ...forms.map(name=>({name,label:name}))].map(info => `
+    <button type="button" class="mini-btn ${info.name===current?'active':''}" data-action="mega" data-key="${escapeHtml(item.key)}" data-form="${escapeHtml(info.name)}">${escapeHtml(info.label)}</button>
+  `).join('');
+}
+function renderSelectedRankingList(){
+  const wrap = el('ranking-selected-list');
+  if(!STATE.rankingSelected.length){
+    wrap.innerHTML = '<div class="empty">まだ選択されていません。上のランキング候補から見たいポケモンを押してください。</div>';
+    return;
+  }
+  wrap.innerHTML = STATE.rankingSelected.map(item => `
+    <section class="selected-card" data-key="${escapeHtml(item.key)}">
+      <div class="selected-head">
+        <div class="selected-title">
+          <span class="rank-badge">#${item.rank}</span>
+          <span class="selected-name">${escapeHtml(item.formName || item.rowName)}</span>
         </div>
-        <button type="button" class="remove-btn" data-remove-name="${escapeHtml(name)}">外す</button>
-      </div>
-      <div>
-        <label>メガ進化</label>
-        <div class="mega-row">
-          ${megaButtons.map(info => `<button type="button" class="mini-btn ${info.name===displayName?'active':''}" data-card-mega="${escapeHtml(name)}" data-mega-form="${escapeHtml(info.name)}">${escapeHtml(info.label)}</button>`).join('')}
-        </div>
-      </div>
-      <div class="field-grid">
-        <div>
-          <label>性格</label>
-          <select data-card-nature="${escapeHtml(name)}">${NATURE_NAMES.map(n => `<option value="${n}" ${card.nature===n?'selected':''}>${n}</option>`).join('')}</select>
-        </div>
-        <div>
-          <label>特性</label>
-          <select data-card-ability="${escapeHtml(name)}">${abilityOptions.map(a => `<option value="${escapeHtml(a)}" ${card.ability===a?'selected':''}>${a ? escapeHtml(a) : 'なし'}</option>`).join('')}</select>
+        <div class="selected-actions">
+          <button type="button" class="mini-btn remove-btn" data-action="remove" data-key="${escapeHtml(item.key)}">外す</button>
         </div>
       </div>
-      <div class="field-grid">
-        <div>
-          <label>技候補</label>
-          <select data-card-move="${escapeHtml(name)}">${moveOptions.length ? moveOptions.map(m => `<option value="${escapeHtml(m)}" ${card.move===m?'selected':''}>${escapeHtml(m)}</option>`).join('') : '<option value="">候補なし</option>'}</select>
-        </div>
-        <div>
-          <label>自由入力（攻撃技のみ）</label>
-          <input type="text" list="damaging-move-list" data-card-free-move="${escapeHtml(name)}" value="${escapeHtml(card.freeMove || '')}" placeholder="候補にない技名を入力">
-        </div>
-      </div>
-      <div>
-        <label>努力値（Champions 0〜32）</label>
-        <div class="ev-grid">
-          ${ATK_EV_KEYS.map(key => `
-            <div class="ev-box">
-              <span>${{atk:'攻撃',def:'防御',spa:'特攻'}[key]}</span>
-              <input type="number" min="0" max="32" step="1" data-card-ev="${escapeHtml(name)}" data-ev-key="${key}" value="${clamp32(card.ev[key] || 0)}">
+      <div class="selected-layout">
+        <div class="compact-section">
+          <div class="grid-3">
+            <div class="field">
+              <label>性格</label>
+              <select data-action="nature" data-key="${escapeHtml(item.key)}">${createNatureOptions(item.nature)}</select>
             </div>
-          `).join('')}
+            <div class="field">
+              <label>特性</label>
+              <select data-action="ability" data-key="${escapeHtml(item.key)}">${uniq(['', ...(item.abilityOptions || [])]).map(name => `<option value="${escapeHtml(name)}" ${name===item.ability?'selected':''}>${name ? escapeHtml(name) : 'なし'}</option>`).join('')}</select>
+            </div>
+            <div class="field">
+              <label>技候補</label>
+              <select data-action="move" data-key="${escapeHtml(item.key)}">${(item.moveOptions || []).length ? item.moveOptions.map(name => `<option value="${escapeHtml(name)}" ${name===item.move?'selected':''}>${escapeHtml(name)}</option>`).join('') : '<option value="">候補なし</option>'}</select>
+            </div>
+          </div>
+          <div class="field">
+            <label>自由入力（攻撃技のみ）</label>
+            <input type="text" list="damaging-move-list" value="${escapeHtml(item.freeMove || '')}" data-action="free-move" data-key="${escapeHtml(item.key)}" placeholder="候補にない技名を入力">
+          </div>
+          <div>
+            <span class="subhead">メガ進化</span>
+            <div class="mega-row">${rankingMegaButtons(item)}</div>
+          </div>
+          <div class="grid-3">
+            <div>
+              <span class="subhead">努力値（Champions 0〜32）</span>
+              <div class="ev-grid attack">
+                ${ATK_EV_KEYS.map(key => `
+                  <div class="ev-box">
+                    <span>${({atk:'攻撃',def:'防御',spa:'特攻'})[key]}</span>
+                    <input type="number" min="0" max="32" step="1" value="${clamp32(item.ev[key] || 0)}" data-action="ev" data-key="${escapeHtml(item.key)}" data-ev-key="${key}">
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            <div style="grid-column: span 2;">
+              <span class="subhead">実数値</span>
+              <div class="stats-grid attack">
+                ${Object.entries(calcDisplayedStats(getPokemon(item.formName || item.rowName), 'atk', item.nature, item.ev)).map(([key, value]) => `
+                  <div class="stat"><span class="k">${({atk:'攻撃',def:'防御',spa:'特攻'})[key]}</span><span class="v">${value}</span></div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="summary-box">
+          <h3>計算結果</h3>
+          <div class="result-grid">
+            <div class="result-cell"><span class="k">ダメージ</span><span class="v" data-role="dmg">${item.result.dmg}</span></div>
+            <div class="result-cell"><span class="k">割合</span><span class="v" data-role="pct">${item.result.pct}</span></div>
+            <div class="result-cell"><span class="k">確定数</span><span class="v" data-role="ko">${item.result.ko}</span></div>
+          </div>
+          <div class="result-cell" style="margin-top:8px;"><span class="k">範囲</span><span class="v" data-role="range">${item.result.range}</span></div>
+          <div class="rolls" data-role="rolls" style="margin-top:8px;">${item.result.rolls}</div>
+          <div class="status-line" data-role="status" style="margin-top:8px;">${item.result.status}</div>
         </div>
       </div>
-      <div class="stats-grid atk">
-        ${Object.entries(stats).map(([key, value]) => `<div class="stat"><div class="k">${{atk:'攻撃',def:'防御',spa:'特攻'}[key]}</div><div class="v">${value}</div></div>`).join('')}
-      </div>
-      ${resultHtml(card.result)}
     </section>
-  `;
+  `).join('');
+  bindSelectedRankingEvents();
 }
-function bindRankingCardEvents(){
-  document.querySelectorAll('[data-remove-name]').forEach(btn => btn.addEventListener('click', () => toggleRankingPokemon(btn.dataset.removeName)));
-  document.querySelectorAll('[data-card-mega]').forEach(btn => btn.addEventListener('click', () => {
-    const name = btn.dataset.cardMega;
-    const form = btn.dataset.megaForm;
-    const card = STATE.ranking.cards[name];
-    if(!card) return;
-    card.formName = form;
-    const row = getRankingRow(name);
-    card.abilityOptions = resolveAbilityOptions(form, (row?.abilities || []).map(stripRate));
-    if(!card.abilityOptions.includes(card.ability)) card.ability = card.abilityOptions[0] || '';
-    card.moveOptions = resolveMoveOptionsForPokemon(form, row?.moves || []);
-    if(!card.moveOptions.includes(card.move)) card.move = card.moveOptions[0] || '';
-    renderRankingCards();
-    scheduleResults();
-  }));
-  document.querySelectorAll('[data-card-nature]').forEach(select => select.addEventListener('change', () => {
-    const card = STATE.ranking.cards[select.dataset.cardNature]; if(!card) return; card.nature = select.value; renderRankingCards(); scheduleResults();
-  }));
-  document.querySelectorAll('[data-card-ability]').forEach(select => select.addEventListener('change', () => {
-    const card = STATE.ranking.cards[select.dataset.cardAbility]; if(!card) return; card.ability = select.value; scheduleResults();
-  }));
-  document.querySelectorAll('[data-card-move]').forEach(select => select.addEventListener('change', () => {
-    const card = STATE.ranking.cards[select.dataset.cardMove]; if(!card) return; card.move = select.value; card.freeMove = ''; renderRankingCards(); scheduleResults();
-  }));
-  document.querySelectorAll('[data-card-free-move]').forEach(input => {
-    const commit = () => { const card = STATE.ranking.cards[input.dataset.cardFreeMove]; if(!card) return; card.freeMove = input.value.trim(); scheduleResults(); };
-    input.addEventListener('change', commit); input.addEventListener('blur', commit);
+function bindSelectedRankingEvents(){
+  const wrap = el('ranking-selected-list');
+  wrap.querySelectorAll('[data-action]').forEach(node => {
+    const action = node.dataset.action;
+    const key = node.dataset.key;
+    node.addEventListener(action === 'free-move' ? 'input' : 'change', (e) => handleSelectedAction(action, key, e.target));
+    if(action === 'remove' || action === 'mega'){
+      node.addEventListener('click', (e) => handleSelectedAction(action, key, e.currentTarget));
+    }
   });
-  document.querySelectorAll('[data-card-ev]').forEach(input => input.addEventListener('change', () => {
-    const card = STATE.ranking.cards[input.dataset.cardEv]; if(!card) return; card.ev[input.dataset.evKey] = clamp32(input.value); renderRankingCards(); scheduleResults();
-  }));
 }
-function renderRankingCards(){
-  const names = selectedRankingNames();
-  const box = el('ranking-cards');
-  if(!names.length){ box.innerHTML = '<div class="placeholder">右上の候補一覧からポケモンを選ぶと、ここにまとめて並びます。</div>'; return; }
-  box.innerHTML = `<div class="cards-grid">${names.map(rankingCardMarkup).join('')}</div>`;
-  bindRankingCardEvents();
+function handleSelectedAction(action, key, target){
+  const item = STATE.rankingSelected.find(x => x.key === key);
+  if(!item) return;
+  if(action === 'remove'){
+    STATE.rankingSelected = STATE.rankingSelected.filter(x => x.key !== key);
+    renderRankingList();
+    renderSelectedRankingList();
+    syncAllResultsSoon();
+    return;
+  }
+  if(action === 'nature') item.nature = target.value;
+  if(action === 'ability') item.ability = target.value;
+  if(action === 'move'){
+    item.move = target.value;
+    item.freeMove = '';
+  }
+  if(action === 'free-move') item.freeMove = target.value.trim();
+  if(action === 'ev') item.ev[target.dataset.evKey] = clamp32(target.value);
+  if(action === 'mega'){
+    item.formName = target.dataset.form;
+    item.abilityOptions = resolveAbilityOptions(item.formName, (STATE.data.rankingRows.find(r => r.name === item.rowName)?.abilities || []).map(stripRate));
+    if(!item.abilityOptions.includes(item.ability)) item.ability = item.abilityOptions[0] || '';
+    item.moveOptions = resolveMoveOptionsForPokemon(item.formName, STATE.data.rankingRows.find(r => r.name === item.rowName)?.moves || []);
+    if(!item.moveOptions.includes(item.move)) item.move = item.moveOptions[0] || '';
+  }
+  if(action !== 'remove'){
+    renderSelectedRankingList();
+    syncAllResultsSoon();
+  }
 }
-
-let resultTimer = null;
-function scheduleResults(){ clearTimeout(resultTimer); resultTimer = setTimeout(syncAllResults, 120); }
+function renderResultInto(prefix, result){
+  el(`${prefix}-dmg`).textContent = result.dmg;
+  el(`${prefix}-range`).textContent = result.range;
+  el(`${prefix}-pct`).textContent = result.pct;
+  el(`${prefix}-ko`).innerHTML = result.ko;
+  el(`${prefix}-rolls`).innerHTML = result.rolls;
+  el(`${prefix}-status`).textContent = result.status;
+}
+function clearResult(resultObj, message, status){
+  resultObj.dmg = '—';
+  resultObj.range = message || '条件を選ぶと結果が出ます。';
+  resultObj.pct = '—';
+  resultObj.ko = '—';
+  resultObj.rolls = '16乱数はここに表示されます。';
+  resultObj.status = status || '条件を見直してください。';
+}
 async function waitForCalcFrame(){
   const frame = el('calc-frame');
   const ensureLoaded = async() => {
     const win = frame.contentWindow;
     if(!win) throw new Error('calc frame not found');
-    if(typeof win.loadGameData !== 'function') await new Promise(resolve => frame.addEventListener('load', resolve, {once:true}));
+    if(typeof win.loadGameData !== 'function'){
+      await new Promise(resolve => frame.addEventListener('load', resolve, {once:true}));
+    }
     const readyWin = frame.contentWindow;
     if(typeof readyWin.loadGameData === 'function') await readyWin.loadGameData();
     if(typeof readyWin.loadAbilitiesData === 'function') await readyWin.loadAbilitiesData();
@@ -662,51 +773,82 @@ function fillDefenderIntoFrame(win){
   win.recalcDef();
   return true;
 }
-async function calculateForState(attackerName, attackerState){
+async function computeResult(attackerName, stateObj){
   const defenderName = STATE.defender.formName || STATE.defender.baseName;
-  const moveName = normalizeMoveInput(attackerState.freeMove) || attackerState.move || '';
+  const moveName = normalizeMoveInput(stateObj.freeMove) || stateObj.move;
   if(!attackerName || !defenderName || !moveName){
-    return {message:'攻撃側・防御側・技をそろえると結果が出ます。'};
+    return {dmg:'—', range:'攻撃側・防御側・技を選んでください。', pct:'—', ko:'—', rolls:'16乱数はここに表示されます。', status:'条件が足りていません。'};
   }
   if(!STATE.frameReady) await waitForCalcFrame();
   const win = el('calc-frame').contentWindow;
   syncFrameModes(win);
-  if(!fillAttackerIntoFrame(win, attackerName, attackerState)) return {message:'攻撃側の反映に失敗しました。'};
-  if(!fillDefenderIntoFrame(win)) return {message:'防御側の反映に失敗しました。'};
+  if(!fillAttackerIntoFrame(win, attackerName, stateObj)){
+    return {dmg:'—', range:'攻撃側の反映に失敗しました。', pct:'—', ko:'—', rolls:'16乱数はここに表示されます。', status:'ポケモン名か技名を確認してください。'};
+  }
+  if(!fillDefenderIntoFrame(win)){
+    return {dmg:'—', range:'防御側の反映に失敗しました。', pct:'—', ko:'—', rolls:'16乱数はここに表示されます。', status:'防御側の設定を確認してください。'};
+  }
   const ok = win.calcDamage({silent:true});
-  if(!ok) return {message:'この条件ではダメージを計算できませんでした。'};
+  if(!ok){
+    return {dmg:'—', range:'この条件では計算できませんでした。', pct:'—', ko:'—', rolls:'16乱数はここに表示されます。', status:'技が攻撃技か確認してください。'};
+  }
   return {
-    dmgNum: win.el('dmg-num')?.textContent?.trim() || '—',
-    rangeText: win.el('dmg-range')?.textContent?.trim() || '—',
-    pctText: win.el('dmg-pct')?.textContent?.trim() || '—',
-    koHtml: win.el('ko-tag')?.innerHTML?.trim() || '—',
-    rollsHtml: win.el('dmg-rolls')?.innerHTML?.trim() || '—',
-    barWidth: win.el('dmg-bar')?.style?.width || '0%'
+    dmg: win.el('dmg-num')?.textContent?.trim() || '—',
+    range: win.el('dmg-range')?.textContent?.trim() || '—',
+    pct: win.el('dmg-pct')?.textContent?.trim() || '—',
+    ko: win.el('ko-tag')?.innerHTML?.trim() || '—',
+    rolls: win.el('dmg-rolls')?.innerHTML?.trim() || '—',
+    status: '既存ダメージ計算と同じロジックで自動反映しています。'
   };
+}
+let syncTimer = null;
+function syncAllResultsSoon(){
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncAllResults, 90);
 }
 async function syncAllResults(){
   if(!STATE.data) return;
-  const runId = ++STATE.calcRunId;
-  const names = selectedRankingNames();
-  for(const name of names){
-    const card = STATE.ranking.cards[name];
-    card.result = await calculateForState(card.formName || card.rowName, card);
-    if(runId !== STATE.calcRunId) return;
+  const token = ++STATE.renderToken;
+  try{
+    STATE.free.result = await computeResult(STATE.free.formName || STATE.free.baseName, STATE.free);
+    if(token !== STATE.renderToken) return;
+    renderResultInto('free-result', STATE.free.result);
+    for(const item of STATE.rankingSelected){
+      item.result = await computeResult(item.formName || item.rowName, item);
+      if(token !== STATE.renderToken) return;
+      const card = document.querySelector(`.selected-card[data-key="${CSS.escape(item.key)}"]`);
+      if(card){
+        const set = (role, value, html=false) => {
+          const node = card.querySelector(`[data-role="${role}"]`);
+          if(!node) return;
+          if(html) node.innerHTML = value; else node.textContent = value;
+        };
+        set('dmg', item.result.dmg);
+        set('pct', item.result.pct);
+        set('ko', item.result.ko, true);
+        set('range', item.result.range);
+        set('rolls', item.result.rolls, true);
+        set('status', item.result.status);
+      }
+    }
+  }catch(err){
+    console.error(err);
+    clearResult(STATE.free.result, '読み込み中にエラーが出ました。', 'calc.html の読み込みやデータ反映に失敗しました。');
+    renderResultInto('free-result', STATE.free.result);
+    STATE.rankingSelected.forEach(item => {
+      clearResult(item.result, '読み込み中にエラーが出ました。', 'calc.html の読み込みやデータ反映に失敗しました。');
+    });
+    renderSelectedRankingList();
   }
-  STATE.free.result = await calculateForState(STATE.free.formName || STATE.free.baseName, STATE.free);
-  if(runId !== STATE.calcRunId) return;
-  renderRankingCards();
-  renderFreeResult();
 }
-
 async function loadData(){
   const [pokemon, moves, season, ranking, abilities, pokemonMoves] = await Promise.all([
-    fetch('pokemon.json').then(r=>r.json()),
-    fetch('moves.json').then(r=>r.json()),
-    fetch('season.json').then(r=>r.json()),
-    fetch('season_ranking_single.json').then(r=>r.json()),
-    fetch('abilities.json').then(r=>r.json()),
-    fetch('pokemon_moves.json').then(r=>r.json())
+    fetch('pokemon.json').then(r => r.json()),
+    fetch('moves.json').then(r => r.json()),
+    fetch('season.json').then(r => r.json()),
+    fetch('season_ranking_single.json').then(r => r.json()),
+    fetch('abilities.json').then(r => r.json()),
+    fetch('pokemon_moves.json').then(r => r.json())
   ]);
   const pokemonByName = Object.fromEntries((pokemon || []).map(p => [p.name, p]));
   const allPokemonNames = (pokemon || []).map(p => p.name);
@@ -721,15 +863,13 @@ async function loadData(){
     megaMap[base].push(p.name);
   });
   Object.values(megaMap).forEach(arr => arr.sort((a,b)=>a.localeCompare(b,'ja')));
-  const rankingRows = Array.isArray(ranking?.rows) ? ranking.rows : [];
   return {
     pokemonByName,
     allPokemonNames,
     innerNames,
     movesByName,
     damagingMoveNames,
-    rankingRows,
-    rankingMap: Object.fromEntries(rankingRows.map(row => [row.name, row])),
+    rankingRows: Array.isArray(ranking?.rows) ? ranking.rows : [],
     abilityMap: abilities || {},
     pokemonMoves: pokemonMoves?.pokemon || {},
     megaMap
@@ -738,50 +878,51 @@ async function loadData(){
 function bindStaticEvents(){
   el('defender-name').addEventListener('change', e => applyDefenderPokemon(e.target.value));
   el('defender-name').addEventListener('blur', e => applyDefenderPokemon(e.target.value));
-  el('defender-nature').addEventListener('change', () => { STATE.defender.nature = el('defender-nature').value; renderDefenderStats(); scheduleResults(); });
-  el('defender-ability').addEventListener('change', () => { STATE.defender.ability = el('defender-ability').value; scheduleResults(); });
+  el('defender-nature').addEventListener('change', () => { STATE.defender.nature = el('defender-nature').value; renderDefender(); syncAllResultsSoon(); });
+  el('defender-ability').addEventListener('change', () => { STATE.defender.ability = el('defender-ability').value; syncAllResultsSoon(); });
   el('free-pokemon').addEventListener('change', e => applyFreePokemon(e.target.value));
   el('free-pokemon').addEventListener('blur', e => applyFreePokemon(e.target.value));
-  const freeMoveCommit = () => { STATE.free.freeMove = el('free-move-free').value.trim(); scheduleResults(); };
-  el('free-move-free').addEventListener('change', freeMoveCommit);
-  el('free-move-free').addEventListener('blur', freeMoveCommit);
-  el('clear-selection').addEventListener('click', () => { STATE.ranking.selectedNames = []; renderRankingList(); renderRankingCards(); scheduleResults(); });
+  el('free-nature').addEventListener('change', () => { STATE.free.nature = el('free-nature').value; renderFree(); syncAllResultsSoon(); });
+  el('free-ability').addEventListener('change', () => { STATE.free.ability = el('free-ability').value; syncAllResultsSoon(); });
+  el('free-move').addEventListener('change', () => { STATE.free.move = el('free-move').value; STATE.free.freeMove = ''; el('free-move-free').value = ''; syncAllResultsSoon(); });
+  el('free-move-free').addEventListener('input', () => { STATE.free.freeMove = el('free-move-free').value.trim(); syncAllResultsSoon(); });
+  el('clear-ranking-selection').addEventListener('click', () => { STATE.rankingSelected = []; renderRankingList(); renderSelectedRankingList(); syncAllResultsSoon(); });
 }
 async function init(){
-  createNatureOptions(el('defender-nature'), 'がんばりや');
-  createNatureOptions(el('free-nature'), 'がんばりや');
-  buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); scheduleResults(); });
-  buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFreeStats(); scheduleResults(); });
-  renderStatBoxes('defender-stats', {hp:'—',atk:'—',def:'—',spd:'—'});
-  renderStatBoxes('free-stats', {atk:'—',def:'—',spa:'—'}, true);
-  renderFreeResult();
-  renderModeButtons();
+  el('defender-nature').innerHTML = createNatureOptions(STATE.defender.nature);
+  el('free-nature').innerHTML = createNatureOptions(STATE.free.nature);
+  buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefender(); syncAllResultsSoon(); });
+  buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFree(); syncAllResultsSoon(); });
+  renderStatCells('defender-stats', {hp:'—',atk:'—',def:'—',spd:'—'});
+  renderStatCells('free-stats', {atk:'—',def:'—',spa:'—'});
   bindStaticEvents();
+  renderModeButtons();
+  renderSelectedRankingList();
   STATE.data = await loadData();
   renderDamagingMoveDatalist();
   renderPokemonDatalist();
   updateModeStatus();
   renderRankingList();
-  renderRankingCards();
-  const defaultNames = STATE.data.rankingRows.slice(0, 3).map(row => row.name);
-  STATE.ranking.selectedNames = defaultNames.slice();
-  defaultNames.forEach(name => ensureRankingCard(name));
-  renderRankingList();
-  renderRankingCards();
-  if(getAllowedNames().length) applyDefenderPokemon(getAllowedNames()[0]);
+  const defaultDef = getAllowedNames()[0] || '';
+  if(defaultDef) applyDefenderPokemon(defaultDef);
   const freeDefault = getAllowedNames().find(name => !String(name).startsWith('メガ')) || getAllowedNames()[0] || '';
   if(freeDefault) applyFreePokemon(freeDefault);
-  renderFreeForm();
-  renderDefenderStats();
-  scheduleResults();
+  const initialRows = STATE.data.rankingRows.slice(0,3);
+  STATE.rankingSelected = initialRows.map(makeRankingState);
+  renderRankingList();
+  renderSelectedRankingList();
+  renderDefender();
+  renderFree();
+  syncAllResultsSoon();
 }
 
-document.getElementById('calc-frame').addEventListener('load', () => { if(STATE.data) scheduleResults(); });
+document.getElementById('calc-frame').addEventListener('load', () => {
+  if(STATE.data) syncAllResultsSoon();
+});
 init().catch(err => {
   console.error(err);
   el('mode-status').textContent = 'データ読み込みに失敗しました。';
-  el('free-result').innerHTML = resultHtml({message:'更新用データの読み込みに失敗しました。'});
-  el('ranking-cards').innerHTML = '<div class="placeholder">更新用データの読み込みに失敗しました。</div>';
+  el('free-result-status').textContent = '必要データを確認してください。';
 });
 </script>
 </body>
