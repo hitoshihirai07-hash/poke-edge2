@@ -818,13 +818,20 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
               </select>
             </div>
             <div>
+              <label class="corr-item">フィールド</label>
+              <select class="corr-select" id="atk-field">
+                <option value="">なし</option>
+                <option value="electric">エレキフィールド</option>
+                <option value="grassy">グラスフィールド</option>
+                <option value="psychic">サイコフィールド</option>
+                <option value="misty">ミストフィールド</option>
+              </select>
+            </div>
+            <div>
               <label class="corr-item">手助け・その他</label>
               <select class="corr-select" id="atk-other">
                 <option value="1">なし ×1.0</option>
                 <option value="1.5_help">てだすけ ×1.5</option>
-                <option value="1.33_inazuma">でんきフィールド（でんき） ×1.33</option>
-                <option value="1.3_grass">グラスフィールド（くさ） ×1.3</option>
-                <option value="1.3_psycho">サイコフィールド（エスパー） ×1.3</option>
               </select>
             </div>
             <div>
@@ -2579,6 +2586,118 @@ function abilityHasListedMove(abilityName,moveName){
   if(!abilityName||!moveName) return false;
   return getAbilityMoveNameSet(abilityName).has(moveName);
 }
+function getMoveDataByName(moveName){
+  if(!moveName) return null;
+  return (MOVES_DATA||[]).find(m=>m&&m.name===moveName) || null;
+}
+function isContactMoveName(moveName){
+  return !!(getMoveDataByName(moveName)?.contact);
+}
+function getActiveFieldName(atkAbilityName='', defAbilityName=''){
+  const manual=el('atk-field')?.value||'';
+  if(manual) return manual;
+  const makerMap={
+    'エレキメイカー':'electric',
+    'グラスメイカー':'grassy',
+    'サイコメイカー':'psychic',
+    'ミストメイカー':'misty'
+  };
+  return makerMap[atkAbilityName] || makerMap[defAbilityName] || '';
+}
+function getFieldLabel(fieldName){
+  const map={electric:'エレキフィールド',grassy:'グラスフィールド',psychic:'サイコフィールド',misty:'ミストフィールド'};
+  return map[fieldName]||'なし';
+}
+function applyFieldModifiers(fieldName, moveName, moveType, abilityExtraInfo){
+  let powerMult=1;
+  let dmgMult=1;
+  if(fieldName==='electric' && moveType==='でんき'){
+    powerMult*=1.3;
+    if(abilityExtraInfo) abilityExtraInfo.push('エレキフィールド: でんき技×1.3');
+  }
+  if(fieldName==='grassy'){
+    if(moveType==='くさ'){
+      powerMult*=1.3;
+      if(abilityExtraInfo) abilityExtraInfo.push('グラスフィールド: くさ技×1.3');
+    }
+    if(['じしん','じならし','マグニチュード'].includes(moveName)){
+      dmgMult*=0.5;
+      if(abilityExtraInfo) abilityExtraInfo.push('グラスフィールド: '+moveName+'半減');
+    }
+  }
+  if(fieldName==='psychic' && moveType==='エスパー'){
+    powerMult*=1.3;
+    if(abilityExtraInfo) abilityExtraInfo.push('サイコフィールド: エスパー技×1.3');
+  }
+  if(fieldName==='misty' && moveType==='ドラゴン'){
+    dmgMult*=0.5;
+    if(abilityExtraInfo) abilityExtraInfo.push('ミストフィールド: ドラゴン技半減');
+  }
+  return {powerMult,dmgMult};
+}
+function applyRepresentativeAttackAbilityMods(atkAbName, moveName, moveType, moveCategory, abilityExtraInfo){
+  let powerMult=1;
+  let atkStatMult=1;
+  let dmgMult=1;
+  if(atkAbName==='かたいツメ' && isContactMoveName(moveName)){
+    powerMult*=1.3;
+    if(abilityExtraInfo) abilityExtraInfo.push('かたいツメ: 直接技×1.3');
+  }
+  if(atkAbName==='アナライズ'){
+    powerMult*=1.3;
+    if(abilityExtraInfo) abilityExtraInfo.push('アナライズ: 技威力×1.3');
+  }
+  if(atkAbName==='どくぼうそう' && moveCategory==='物理'){
+    dmgMult*=1.5;
+    if(abilityExtraInfo) abilityExtraInfo.push('どくぼうそう: 物理技×1.5');
+  }
+  return {powerMult,atkStatMult,dmgMult};
+}
+function getRepresentativeDefenseAbilityMods(defAbName, moveName, moveType, defenseCategory){
+  let immune=false;
+  let defStatMult=1;
+  let dmgMult=1;
+  const info=[];
+  if((defAbName==='ちくでん' || defAbName==='ひらいしん') && moveType==='でんき'){
+    immune=true;
+    info.push(defAbName+': でんき技を無効');
+  }
+  if(defAbName==='よびみず' && moveType==='みず'){
+    immune=true;
+    info.push('よびみず: みず技を無効');
+  }
+  if(defAbName==='そうしょく' && moveType==='くさ'){
+    immune=true;
+    info.push('そうしょく: くさ技を無効');
+  }
+  if(defAbName==='ぼうおん' && abilityHasListedMove('ぼうおん',moveName)){
+    immune=true;
+    info.push('ぼうおん: 音技を無効');
+  }
+  if(defAbName==='あついしぼう' && ['ほのお','こおり'].includes(moveType)){
+    dmgMult*=0.5;
+    info.push('あついしぼう: ほのお/こおり半減');
+  }
+  if(defAbName==='たいねつ' && moveType==='ほのお'){
+    dmgMult*=0.5;
+    info.push('たいねつ: ほのお半減');
+  }
+  if(defAbName==='もふもふ'){
+    if(isContactMoveName(moveName)){
+      dmgMult*=0.5;
+      info.push('もふもふ: 直接技半減');
+    }
+    if(moveType==='ほのお'){
+      dmgMult*=2;
+      info.push('もふもふ: ほのお被ダメ×2');
+    }
+  }
+  if(defAbName==='こおりのりんぷん' && defenseCategory==='特殊'){
+    dmgMult*=0.5;
+    info.push('こおりのりんぷん: 特殊技半減');
+  }
+  return {immune,defStatMult,dmgMult,info};
+}
 function renderAbilityBadges(side,pokeName) {
   const abs=ABILITY_MAP[pokeName]||[], el2=el(side+'-abilities');
   if(!el2) return;
@@ -3037,6 +3156,8 @@ function calcDamage(options={}) {
 
   // ウェザーボール（天候でタイプ変更＋威力2倍）
   const weather=el('atk-weather')?el('atk-weather').value:'';
+  const defAbilityNamePre=el('def-ability')?.value||'';
+  const fieldName=getActiveFieldName(atkAbNamePre, defAbilityNamePre);
   let weatherInfo='';
   if(moveName==='ウェザーボール'&&weather){
     const WB_MAP={'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こおり'};
@@ -3160,16 +3281,18 @@ function calcDamage(options={}) {
     if(typeOk&&techOk) powerMult*=up.mult;
   }
   if(atkOther==='1.5_help') powerMult*=1.5;
-  if(atkOther==='1.33_inazuma'&&mtype==='でんき') powerMult*=1.33;
-  if(atkOther==='1.3_grass'&&mtype==='くさ') powerMult*=1.3;
-  if(atkOther==='1.3_psycho'&&mtype==='エスパー') powerMult*=1.3;
-  const aura = getAuraModifier(mtype, atkAbNamePre, el('def-ability')?.value||'');
+  const fieldMods=applyFieldModifiers(fieldName, moveName, mtype, abilityExtraInfo);
+  powerMult*=fieldMods.powerMult;
+  const aura = getAuraModifier(mtype, atkAbNamePre, defAbilityNamePre);
   if(aura.mult!==1){
     powerMult*=aura.mult;
     abilityExtraInfo.push(aura.info);
   }
 
   let atkStatMult=1;
+  const repAtkMods=applyRepresentativeAttackAbilityMods(atkAbName, moveName, mtype, moveCategory, abilityExtraInfo);
+  powerMult*=repAtkMods.powerMult;
+  atkStatMult*=repAtkMods.atkStatMult;
   if(['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(atkAbName)){
     const typeMap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
     if(typeMap[atkAbName]===mtype) atkStatMult*=1.5;
@@ -3187,6 +3310,9 @@ function calcDamage(options={}) {
   if(atkAlly==='1.5_steel'&&mtype==='はがね') atkStatMult*=1.5;
 
   let dmgMult=1;
+  dmgMult*=fieldMods.dmgMult;
+  dmgMult*=repAtkMods.dmgMult;
+  if(fieldName) abilityExtraInfo.push('場: '+getFieldLabel(fieldName));
   if(atkAbName==='スナイパー') dmgMult*=1.5;
   if(atkAbName==='ちからずく') dmgMult*=1.3;
   if(atkAbName==='いろめがね'&&eff<1) dmgMult*=2;
@@ -3212,11 +3338,15 @@ function calcDamage(options={}) {
   const defAlly=el('def-ally-ability').value||'1';
 
   // 無効化
-  if(defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype){
+  const repDefMods=getRepresentativeDefenseAbilityMods(defAbName, moveName, mtype, defenseCategory);
+  if((defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype) || repDefMods.immune){
     showResult0(defAbName); return true;
   }
 
   let defStatMult=1;
+  defStatMult*=repDefMods.defStatMult;
+  dmgMult*=repDefMods.dmgMult;
+  repDefMods.info.forEach(info=>abilityExtraInfo.push(info));
   if(['マルチスケイル','ファントムガード'].includes(defAbName)) defStatMult*=0.5;
   if(['フィルター','ハードロック'].includes(defAbName)&&eff>=2) defStatMult*=0.75;
   if(defAbName==='ファーコート'&&defenseCategory==='物理') defStatMult*=2;
@@ -3530,17 +3660,23 @@ function calcOneDamage(atkSt,atkBase,defSt,defBase,lv,mtype,mcat,hits,power,item
   const defStat=defenseCategory==='物理'?defSt.def:defSt.spd;
   const defTypes=defBase?[defBase.type1,defBase.type2].filter(Boolean):[];
   const eff=getTypeEff(mtype,defTypes);
+  const defAbilityNamePre=el('def-ability')?.value||'';
+  const fieldName=getActiveFieldName(abilityName, defAbilityNamePre);
   const atkTypes=getEffectiveAtkTypes(atkBase, abilityName, mtype, moveName);
   let stab=atkTypes.includes(mtype)?1.5:1;
   if(stab>1&&abilityName==='てきおうりょく') stab=2.0;
-  const aura = getAuraModifier(mtype, abilityName, el('def-ability')?.value||'');
-  let hitsPower=Math.max(1, Math.floor((power||0) * aura.mult));
+  const aura = getAuraModifier(mtype, abilityName, defAbilityNamePre);
+  const repAtkMods=applyRepresentativeAttackAbilityMods(abilityName, moveName, mtype, moveCategory, null);
+  const fieldMods=applyFieldModifiers(fieldName, moveName, mtype, null);
+  let hitsPower=Math.max(1, Math.floor((power||0) * aura.mult * repAtkMods.powerMult * fieldMods.powerMult));
   let itemMult=1;
   if(itemKey==='hachimaki'&&moveCategory==='物理'&&!isBodyPress) itemMult=1.5;
   else if(itemKey==='megane'&&moveCategory==='特殊') itemMult=1.5;
   else if(itemKey==='inochi') itemMult=1.3;
 
   let abilityDmgMult=1;
+  abilityDmgMult*=repAtkMods.dmgMult;
+  abilityDmgMult*=fieldMods.dmgMult;
   if(abilityName==='そうだいしょう'){
     const fainted=Math.min(5, Math.max(0, parseInt(el('atk-fainted-supreme')?.value||'0')||0));
     abilityDmgMult*=1 + 0.1 * fainted;
@@ -3638,7 +3774,8 @@ function getDamageExportData(){
       type: el('atk-move-type')?.value||'',
       category: el('atk-move-cat')?.value||'',
       power: el('atk-move-pow')?.value||'0',
-      weather: getSelectedLabel('atk-weather')||'なし'
+      weather: getSelectedLabel('atk-weather')||'なし',
+      field: (el('atk-field')?.value ? getSelectedLabel('atk-field') : getFieldLabel(getActiveFieldName(el('atk-ability')?.value||'', el('def-ability')?.value||'')))
     },
     result: {
       damage: (el('dmg-num')?.textContent||'—').trim(),
@@ -3794,6 +3931,8 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
     skinMult=1.2;
   }
   const weather=el('atk-weather')?el('atk-weather').value:'';
+  const defAbilityNamePre=el('def-ability')?.value||'';
+  const fieldName=getActiveFieldName(atkAbilityName, defAbilityNamePre);
   if(moveName==='ウェザーボール'&&weather){
     const WB_MAP={'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こおり'};
     if(WB_MAP[weather]){ mtype=WB_MAP[weather]; power=100; }
@@ -3844,8 +3983,12 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
     const techOk=atkAbilityName!=='テクニシャン'||power<=60;
     if(typeOk&&techOk) powerMult*=up.mult;
   }
-  const aura=getAuraModifier(mtype, atkAbilityName, el('def-ability')?.value||'');
+  const aura=getAuraModifier(mtype, atkAbilityName, defAbilityNamePre);
   if(aura.mult!==1) powerMult*=aura.mult;
+  const fieldMods=applyFieldModifiers(fieldName, moveName, mtype, null);
+  powerMult*=fieldMods.powerMult;
+  const repAtkMods=applyRepresentativeAttackAbilityMods(atkAbilityName, moveName, mtype, moveCategory, null);
+  powerMult*=repAtkMods.powerMult;
   let atkStatMult=1;
   if(['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(atkAbilityName)){
     const typeMap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
@@ -3856,16 +3999,21 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   if(atkAbilityName==='ごりむちゅう'&&moveCategory==='物理') atkStatMult*=1.5;
   if(atkAbilityName==='はりきり'&&moveCategory==='物理') atkStatMult*=1.5;
   let dmgMult=1;
+  dmgMult*=fieldMods.dmgMult;
+  dmgMult*=repAtkMods.dmgMult;
   if(atkAbilityName==='スナイパー') dmgMult*=1.5;
   if(atkAbilityName==='ちからずく') dmgMult*=1.3;
   if(atkAbilityName==='いろめがね'&&eff<1) dmgMult*=2;
   const defAbName=el('def-ability')?.value||'';
   const defAbData=getAbilityByName(defAbName);
+  const repDefMods=getRepresentativeDefenseAbilityMods(defAbName, moveName, mtype, defenseCategory);
   const defItem=el('def-item')?.value||'1';
   const defWall=el('def-wall')?.value||'1';
   const defAlly=el('def-ally-ability')?.value||'1';
-  if(defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype) return null;
+  if((defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype) || repDefMods.immune) return null;
   let defStatMult=1;
+  defStatMult*=repDefMods.defStatMult;
+  dmgMult*=repDefMods.dmgMult;
   if(['マルチスケイル','ファントムガード'].includes(defAbName)) defStatMult*=0.5;
   if(['フィルター','ハードロック'].includes(defAbName)&&eff>=2) defStatMult*=0.75;
   if(defAbName==='ファーコート'&&defenseCategory==='物理') defStatMult*=2;
@@ -4212,7 +4360,7 @@ function onSeasonFilterChange(){
 // ===== イベント設定 =====
 function bindAutoCalcEvents(){
   const ids = [
-    'atk-item','atk-ally-ability','atk-burn','atk-current-hp-pct','atk-fainted-last-respects','atk-fainted-supreme','atk-other','atk-weather',
+    'atk-item','atk-ally-ability','atk-burn','atk-current-hp-pct','atk-fainted-last-respects','atk-fainted-supreme','atk-other','atk-weather','atk-field',
     'def-item','def-wall','def-ally-ability','def-stealth-rock','def-spikes',
     'atk-rank','atk-extra-rank-def','atk-extra-rank-spd','atk-extra-rank-spe','atk-extra-rank-acc','atk-extra-rank-eva',
     'def-rank','def-atk-rank'
