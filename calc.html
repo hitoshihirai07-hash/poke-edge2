@@ -2289,6 +2289,13 @@ function getTopRateName(list){
   const arr = Array.isArray(list) ? list : [];
   return arr.length ? parseRateEntryForCalc(arr[0]).name : '';
 }
+function parseSpreadForInner(s){
+  const text = String(s||'').trim();
+  if(!text) return null;
+  const nums = (text.match(/\d+/g) || []).map(v=>parseInt(v,10)).filter(v=>Number.isFinite(v));
+  if(nums.length < 6) return null;
+  return {hp:nums[0]||0, atk:nums[1]||0, def:nums[2]||0, spa:nums[3]||0, spd:nums[4]||0, spe:nums[5]||0};
+}
 function getInnerScanSeasonNames(){
   const season = getCurrentSeasonKey();
   const names = season && Array.isArray(SEASON_DATA?.[season]) ? SEASON_DATA[season] : (Array.isArray(SEASON_DATA?.['内定']) ? SEASON_DATA['内定'] : []);
