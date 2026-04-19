@@ -1476,15 +1476,47 @@ function normalizePokemonDataset(raw){
   }
   return list.map((row, idx)=>normalizePokemonEntry(row, idx)).filter(Boolean);
 }
+const MOVE_CATEGORY_FORCE_MAP = {
+  'シェルアームズ':'auto',
+  'テラバースト':'特殊',
+};
+function normalizeMoveCategoryValue(moveName, category, effectText='', notesText=''){
+  const name = String(moveName||'').trim();
+  const rawCategory = String(category||'').trim();
+  if(MOVE_CATEGORY_FORCE_MAP[name]) return MOVE_CATEGORY_FORCE_MAP[name];
+  if(rawCategory==='auto'){
+    return name==='テラバースト' ? '特殊' : 'auto';
+  }
+  const text = String(effectText||'') + ' ' + String(notesText||'');
+  if(name==='シェルアームズ' || /物理・特殊それぞれ|物理または特殊|物理もしくは特殊/.test(text)){
+    return 'auto';
+  }
+  return rawCategory;
+}
+function getStaticMoveCategoryLabel(moveName, category){
+  const cat = String(category||'').trim();
+  if(cat==='auto' || moveName==='シェルアームズ') return '可変';
+  return cat || '—';
+}
+function getMoveCategoryLabelForUI(move, atkStats=window._atkStats, defStats=window._defStats){
+  if(!move) return '—';
+  const resolved = getResolvedMoveCategory(move.name||'', move.category||'', atkStats||{}, defStats||{});
+  if(resolved==='auto') return getStaticMoveCategoryLabel(move.name||'', move.category||'');
+  return resolved || getStaticMoveCategoryLabel(move.name||'', move.category||'');
+}
 function normalizeMoveEntry(raw){
   if(!raw || typeof raw !== 'object') return null;
+  const effect = String(raw.effect ?? raw['効果'] ?? '').trim();
+  const notes = String(raw.notes ?? raw.note ?? raw.description ?? raw['説明'] ?? '').trim();
+  const name = String(raw.name ?? raw.display_name ?? raw.move_name ?? raw['名前'] ?? '').trim();
   const out = {
-    name: String(raw.name ?? raw.display_name ?? raw.move_name ?? raw['名前'] ?? '').trim(),
+    name,
     type: String(raw.type ?? raw.move_type ?? raw['タイプ'] ?? '').trim(),
-    category: String(raw.category ?? raw.cat ?? raw['分類'] ?? raw['カテゴリー'] ?? '').trim(),
+    category: normalizeMoveCategoryValue(name, raw.category ?? raw.cat ?? raw['分類'] ?? raw['カテゴリー'] ?? '', effect, notes),
     power: Number(raw.power ?? raw.basePower ?? raw['威力'] ?? 0) || 0,
     hits: String(raw.hits ?? raw.hitCount ?? raw['回数'] ?? '1').trim(),
-    notes: String(raw.notes ?? raw.note ?? raw.description ?? raw['説明'] ?? '').trim(),
+    notes,
+    effect,
     alwaysCrit: String(raw.alwaysCrit ?? raw.always_crit ?? raw['急所固定'] ?? '').trim(),
   };
   if(!out.name) return null;
@@ -1723,7 +1755,7 @@ function isDefenseRefSpecialMove(moveName,mcat){
   return mcat==='特殊' && DEFENSE_REF_SPECIAL_MOVES.has(moveName);
 }
 function getDisplayedMoveCategory(moveName,mcat,atkStatVal=0,spaStatVal=0,defStatVal=0,spdStatVal=0){
-  if(moveName==='シェルアームズ'){
+  if(mcat==='auto' || moveName==='シェルアームズ'){
     const physicalScore = Math.max(1, atkStatVal||0) / Math.max(1, defStatVal||0);
     const specialScore = Math.max(1, spaStatVal||0) / Math.max(1, spdStatVal||0);
     return physicalScore > specialScore ? '物理' : '特殊';
@@ -1731,7 +1763,7 @@ function getDisplayedMoveCategory(moveName,mcat,atkStatVal=0,spaStatVal=0,defSta
   return mcat;
 }
 function getResolvedMoveCategory(moveName,mcat,atkStats,defStats){
-  if(moveName==='シェルアームズ') return getDisplayedMoveCategory(moveName,mcat,atkStats?.atk||0,atkStats?.spa||0,defStats?.def||0,defStats?.spd||0);
+  if(mcat==='auto' || moveName==='シェルアームズ') return getDisplayedMoveCategory(moveName,mcat,atkStats?.atk||0,atkStats?.spa||0,defStats?.def||0,defStats?.spd||0);
   return mcat;
 }
 function getEffectiveDefenseCategory(moveName,mcat,atkStats,defStats){
@@ -1789,10 +1821,10 @@ function normalizeMoveFromPokemonEntry(entry){
   return {
     name: entry.name||'',
     type: entry.type||'',
-    category: entry.category||'',
+    category: normalizeMoveCategoryValue(entry.name||'', entry.category||'', entry.effect||'', entry.description||entry.notes||''),
     power,
     hits: entry.hits||'1',
-    notes: entry.description||'',
+    notes: entry.description||entry.notes||'',
     alwaysCrit: '',
   };
 }
@@ -1841,7 +1873,7 @@ function pickRegisteredMove(pokeName, moveName){
     name: entry.name,
     type: entry.type || '',
     power: parseInt(entry.power)||0,
-    category: entry.category || '',
+    category: normalizeMoveCategoryValue(entry.name || '', entry.category || '', entry.effect || '', entry.notes || ''),
     notes: entry.notes || '',
     hits: entry.hits || '1',
     alwaysCrit: entry.alwaysCrit || ''
@@ -1855,7 +1887,7 @@ function renderSelectedMoveInfo(prefix, m){
     box.textContent='';
     return;
   }
-  const chips = [m.type||'—', m.category||'—'];
+  const chips = [m.type||'—', getMoveCategoryLabelForUI(m)];
   if(m.power || String(m.power)==='0') chips.push('威力 '+(m.power||'0'));
   if(m.hits) chips.push('ヒット '+m.hits);
   box.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">${chips.map(c=>`<span class="quick-chip subtle" style="cursor:default;">${c}</span>`).join('')}</div><div>${m.notes||'説明なし'}</div>`;
@@ -1978,7 +2010,7 @@ function renderDamageSetupPicked(kind){
   if(kind==='move'){
     const move = moveIndex.find(x=>x.name===name) || normalizeMoveFromPokemonEntry((getPokemonKnownMoves(_damageSetupState.atkName||'').find(m=>m.name===name)));
     const type = move?.type || '—';
-    const cat = move?.category || '—';
+    const cat = getStaticMoveCategoryLabel(move?.name || '', move?.category || '');
     const power = move?.power ?? '—';
     box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(type)} / ${escapeHtml(cat)} / 威力 ${escapeHtml(String(power))}</div>`;
     return;
@@ -2019,7 +2051,7 @@ function renderDamageSetupLists(){
       const filtered = (!q && hasAttacker) ? items.filter(m=>m._known) : items;
       moveList.innerHTML = filtered.map(m=>{
         const selected = _damageSetupState.moveName===m.name ? ' is-selected' : '';
-        const extra = [m.type||'—', m.category||'—', `威力 ${m.power ?? '—'}`];
+        const extra = [m.type||'—', getStaticMoveCategoryLabel(m.name||'', m.category||''), `威力 ${m.power ?? '—'}`];
         const known = m._known ? '判明技' : '';
         return `<button type="button" class="damage-setup-item${selected}" onclick="selectDamageSetupOption('move','${encodeJsArg(m.name)}')"><div class="picker-item-name">${escapeHtml(m.name)}</div><div class="damage-setup-item-meta">${escapeHtml(extra.join(' / '))}${known?`<br><span style="color:var(--accent3);">${escapeHtml(known)}</span>`:''}</div></button>`;
       }).join('') || '<div class="quick-note">該当する技がありません。技名を入力して検索してください。</div>';
@@ -2179,193 +2211,6 @@ function parseRateEntryForCalc(s){
 function getCalcSeasonRankingRow(pokeName){
   return (SEASON_RANKING?.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName) || null;
 }
-
-const INNER_ALIAS_TO_SITE_NAME = {
-  'ウォッシュロトム':'ロトム水',
-  'ヒートロトム':'ロトム炎',
-  'フロストロトム':'ロトム氷',
-  'スピンロトム':'ロトム飛',
-  'カットロトム':'ロトム草',
-  'イダイトウ(オス)':'イダイトウ♂',
-  'イダイトウ(メス)':'イダイトウ♀',
-  'フラエッテ(えいえんのはな)':'フラエッテえいえん'
-};
-const INNER_SITE_NAME_TO_RANKING_NAMES = {
-  'ロトム水':['ウォッシュロトム'],
-  'ロトム炎':['ヒートロトム'],
-  'ロトム氷':['フロストロトム'],
-  'ロトム飛':['スピンロトム'],
-  'ロトム草':['カットロトム'],
-  'イダイトウ♂':['イダイトウ(オス)'],
-  'イダイトウ♀':['イダイトウ(メス)'],
-  'フラエッテえいえん':['フラエッテ(えいえんのはな)']
-};
-function uniqInner(arr){
-  return Array.from(new Set((arr||[]).map(v=>String(v||'').trim()).filter(Boolean)));
-}
-function inferBaseRankingNamesForInner(name){
-  if(!name || !String(name).startsWith('メガ')) return [];
-  let base = String(name).replace(/^メガ/,'').replace(/[XY]$/,'');
-  return uniqInner([base]);
-}
-function resolveSiteNamesForInner(name){
-  return [INNER_ALIAS_TO_SITE_NAME[name] || name];
-}
-function resolveRankingLookupNamesForInner(name){
-  const names=[name];
-  const siteNames=resolveSiteNamesForInner(name);
-  siteNames.forEach(siteName=>{
-    names.push(siteName);
-    (INNER_SITE_NAME_TO_RANKING_NAMES[siteName]||[]).forEach(n=>names.push(n));
-  });
-  inferBaseRankingNamesForInner(name).forEach(baseName=>{
-    names.push(baseName);
-    resolveSiteNamesForInner(baseName).forEach(siteName=>{
-      names.push(siteName);
-      (INNER_SITE_NAME_TO_RANKING_NAMES[siteName]||[]).forEach(n=>names.push(n));
-    });
-  });
-  return uniqInner(names);
-}
-function getCalcSeasonRankingRowsForInner(name){
-  const lookup = resolveRankingLookupNamesForInner(name);
-  const baseLookups = inferBaseRankingNamesForInner(name);
-  const seen = new Set();
-  const rows = [];
-  (SEASON_RANKING?.rows||[]).forEach(row=>{
-    const key = [row.battleType,row.rank,row.name,row.siteName].join('::');
-    const matchSelf = lookup.includes(row.name) || lookup.includes(row.siteName);
-    const matchBase = !matchSelf && (baseLookups.includes(row.name) || baseLookups.includes(row.siteName));
-    if((matchSelf || matchBase) && !seen.has(key)){
-      seen.add(key);
-      rows.push(Object.assign({}, row, { rankingSource: matchBase ? 'base' : 'self' }));
-    }
-  });
-  return rows;
-}
-function parseSpreadForInner(s){
-  const m = String(s||'').match(/^(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
-  if(!m) return null;
-  return {hp:+m[1], atk:+m[2], def:+m[3], spa:+m[4], spd:+m[5], spe:+m[6]};
-}
-function getTopRateName(list){
-  const arr = Array.isArray(list) ? list : [];
-  return arr.length ? parseRateEntryForCalc(arr[0]).name : '';
-}
-function getInnerScanSeasonNames(){
-  const season = getCurrentSeasonKey();
-  const names = season && Array.isArray(SEASON_DATA?.[season]) ? SEASON_DATA[season] : (Array.isArray(SEASON_DATA?.['内定']) ? SEASON_DATA['内定'] : []);
-  return uniqInner(names);
-}
-function inferDominantAttackSideForInner(poke, moves){
-  let phys = 0;
-  let spec = 0;
-  (moves||[]).forEach(move=>{
-    const power = parseInt(move?.power)||0;
-    if(power<=0) return;
-    if(move.category==='物理') phys += power;
-    if(move.category==='特殊') spec += power;
-  });
-  if(phys===0 && spec===0){
-    if((poke?.atk||0) > (poke?.spa||0)) return 'physical';
-    if((poke?.spa||0) > (poke?.atk||0)) return 'special';
-    return 'mixed';
-  }
-  if(phys===spec) return (poke?.atk||0) >= (poke?.spa||0) ? 'physical' : 'special';
-  return phys > spec ? 'physical' : 'special';
-}
-function inferInnerScanNature(poke, moves){
-  const side = inferDominantAttackSideForInner(poke, moves);
-  if(side==='physical') return 'いじっぱり';
-  if(side==='special') return 'ひかえめ';
-  return 'がんばりや';
-}
-function inferInnerScanSpread(poke, moves){
-  const side = inferDominantAttackSideForInner(poke, moves);
-  const spread = {hp:0, atk:0, def:0, spa:0, spd:0, spe:0};
-  if(side==='physical') spread.atk = 32;
-  else if(side==='special') spread.spa = 32;
-  else {
-    if((poke?.atk||0) >= (poke?.spa||0)) spread.atk = 32;
-    else spread.spa = 32;
-  }
-  if((poke?.spe||0) >= 60) spread.spe = 32;
-  else spread.hp = 32;
-  return spread;
-}
-function calcProfileStatsFromInner(poke, lv, iv, ev, natureName){
-  const nat = PERSONALITIES[natureName] || PERSONALITIES['がんばりや'];
-  return {
-    hp: calcHP(poke.hp,iv,parseInt(ev.hp)||0,lv,true),
-    atk: calcStat(poke.atk,iv,parseInt(ev.atk)||0,lv,nat.atk,true),
-    def: calcStat(poke.def,iv,parseInt(ev.def)||0,lv,nat.def,true),
-    spa: calcStat(poke.spa,iv,parseInt(ev.spa)||0,lv,nat.spa,true),
-    spd: calcStat(poke.spd,iv,parseInt(ev.spd)||0,lv,nat.spd,true),
-    spe: calcStat(poke.spe,iv,parseInt(ev.spe)||0,lv,nat.spe,true)
-  };
-}
-function getInnerScanMovesFromRows(rows){
-  const result=[];
-  const seen=new Set();
-  (rows||[]).forEach(row=>{
-    (row?.moves||[]).map(parseRateEntryForCalc).forEach(entry=>{
-      const exact = moveIndex.find(m=>m.name===entry.name);
-      if(!exact || seen.has(exact.name) || exact.category==='変化' || (parseInt(exact.power)||0)<=0) return;
-      seen.add(exact.name);
-      result.push({name:exact.name,type:exact.type,category:exact.category,power:parseInt(exact.power)||0,hits:exact.hits||'1',notes:exact.notes||'',alwaysCrit:exact.alwaysCrit||''});
-    });
-  });
-  return result;
-}
-function getInnerScanMovesFromPokemonData(pokeName){
-  const result=[];
-  const seen=new Set();
-  const names = uniqInner([pokeName, ...inferBaseRankingNamesForInner(pokeName)]);
-  names.forEach(name=>{
-    getPokemonKnownMoves(name).forEach(entry=>{
-      const m = normalizeMoveFromPokemonEntry(entry);
-      if(!m || !m.name || seen.has(m.name) || m.category==='変化' || (parseInt(m.power)||0)<=0) return;
-      seen.add(m.name);
-      result.push({name:m.name,type:m.type,category:m.category,power:parseInt(m.power)||0,hits:m.hits||'1',notes:m.notes||'',alwaysCrit:m.alwaysCrit||''});
-    });
-  });
-  return result;
-}
-function buildInnerScanProfile(pokeName){
-  const poke = pokeIndex.find(p=>p.name===pokeName);
-  if(!poke) return null;
-  const rankingRows = getCalcSeasonRankingRowsForInner(pokeName);
-  const primaryRow = rankingRows.find(r=>r.rankingSource==='self') || rankingRows[0] || null;
-  let moves = getInnerScanMovesFromRows(rankingRows);
-  if(!moves.length) moves = getInnerScanMovesFromPokemonData(pokeName);
-  if(!moves.length) return null;
-  const exactAbilities = getPokemonAbilityCandidates(pokeName);
-  const rankingAbilities = uniqInner((primaryRow?.abilities||[]).map(getTopRateName));
-  const abilityCandidates = exactAbilities.length ? exactAbilities : (rankingAbilities.length ? rankingAbilities : ['']);
-  const rankingItems = uniqInner((primaryRow?.items||[]).map(getTopRateName));
-  const itemCandidates = rankingItems.length ? rankingItems : [''];
-  const natureName = getTopRateName(primaryRow?.natures) || inferInnerScanNature(poke, moves);
-  const spread = parseSpreadForInner(primaryRow?.spreads?.[0]) || inferInnerScanSpread(poke, moves);
-  const lv = 50;
-  const iv = 31;
-  const stats = calcProfileStatsFromInner(poke, lv, iv, spread, natureName);
-  return {
-    pokeName,
-    displayName: pokeName,
-    poke,
-    lv,
-    iv,
-    nature: natureName,
-    ev: spread,
-    stats,
-    moves: moves.slice(0,6),
-    abilityCandidates: abilityCandidates.slice(0,6),
-    itemCandidates: itemCandidates.slice(0,6)
-  };
-}
-function getInnerScanSourceProfiles(){
-  return getInnerScanSeasonNames().map(buildInnerScanProfile).filter(Boolean);
-}
 function getBelongingsNameSet(){
   return new Set((BELONGINGS_DATA||[]).map(item=>String(item?.name||'').trim()).filter(Boolean));
 }
@@ -2373,7 +2218,15 @@ function getPokemonAbilityCandidates(pokeName){
   return [...new Set((ABILITY_MAP[pokeName]||[]).map(v=>String(v||'').trim()).filter(Boolean))];
 }
 function getInnerScanSourceRecords(){
-  return getInnerScanSourceProfiles();
+  const season=getCurrentSeasonKey();
+  const allowSet=season && Array.isArray(SEASON_DATA?.[season]) ? new Set(SEASON_DATA[season]) : null;
+  return (REGISTERED_CALC_POKES||[]).filter(rec=>{
+    const resolved = resolveInnerScanPokemon(rec);
+    const baseName=String(resolved?.name || rec?.pokeName || rec?.displayName || '').trim();
+    if(!baseName) return false;
+    if(allowSet && !allowSet.has(baseName)) return false;
+    return true;
+  });
 }
 function resolveInnerScanPokemon(rec){
   const exactNames = [rec?.pokeName, rec?.displayName].map(v=>String(v||'').trim()).filter(Boolean);
@@ -2502,7 +2355,7 @@ function setupMoveSearch(inputId,dropId,onSelect) {
         drop.classList.add('show');
         return;
       }
-      drop.innerHTML=res.map(m=>`<div class="drop-item" onclick="moveDrop('${inputId}','${dropId}','${String(m.name||'').replace(/'/g,"\'")}')">${m.name} <span style="font-size:10px;color:var(--text2);">[${m.type}/${m.category}] ${m.notes==='体重依存'?'体重依存':'威力'+m.power}</span></div>`).join('');
+      drop.innerHTML=res.map(m=>`<div class="drop-item" onclick="moveDrop('${inputId}','${dropId}','${String(m.name||'').replace(/'/g,"\'")}')">${m.name} <span style="font-size:10px;color:var(--text2);">[${m.type}/${getStaticMoveCategoryLabel(m.name||'', m.category||'')}] ${m.notes==='体重依存'?'体重依存':'威力'+m.power}</span></div>`).join('');
       drop.classList.add('show');
     },150);
   });
@@ -3930,20 +3783,22 @@ async function checkRegisteredMajorKOs(){
     if(list) list.innerHTML='';
     return;
   }
-  const sourceProfiles=getInnerScanSourceProfiles();
-  if(!sourceProfiles.length){
-    if(summary) summary.textContent='現在の内定ポケモンから計算に使える候補が見つかりませんでした。';
+  const sourceRecords=getInnerScanSourceRecords();
+  if(!sourceRecords.length){
+    if(summary) summary.textContent='ポケモン登録の中に、現在の内定ポケモンがありません。';
     if(list) list.innerHTML='';
     return;
   }
   const rows=[];
-  for(const profile of sourceProfiles){
-    const poke = profile.poke;
-    const stats = Object.assign({lv:profile.lv}, profile.stats||{});
-    const moves = profile.moves || [];
-    if(!poke || !moves.length) continue;
-    const abilityCandidates = Array.isArray(profile.abilityCandidates) && profile.abilityCandidates.length ? profile.abilityCandidates : [''];
-    const itemCandidates = Array.isArray(profile.itemCandidates) && profile.itemCandidates.length ? profile.itemCandidates : [''];
+  for(const rec of sourceRecords){
+    const poke = resolveInnerScanPokemon(rec);
+    if(!poke) continue;
+    const stats = getRecordCalcStats(rec, poke);
+    stats.lv = Math.max(1, parseInt(rec?.lv)||50);
+    const moves = getRecordMajorMoves(rec, poke);
+    if(!moves.length) continue;
+    const abilityCandidates = getInnerScanCandidateAbilities(rec, poke);
+    const itemCandidates = getInnerScanCandidateItems(rec, poke);
     for(const move of moves){
       let best=null;
       for(const ability of abilityCandidates){
@@ -3951,9 +3806,9 @@ async function checkRegisteredMajorKOs(){
           const dmg = calcInnerScanDamage(poke, stats, move, ability, mapRecordItemToCalcKey(itemName, move.type));
           if(!dmg) continue;
           const candidate={
-            displayName: profile.displayName || profile.pokeName || poke.name,
+            displayName: rec.displayName || rec.pokeName,
             moveName: move.name,
-            adjustment: `Lv${profile.lv||50} / ${profile.nature||'がんばりや'} / ${formatSpreadText(profile.ev||{})} / 特性 ${ability||'なし'} / 持ち物 ${itemName||'なし'}`,
+            adjustment: `Lv${stats.lv} / ${rec.nature||'がんばりや'} / ${formatSpreadText(rec.ev||{})} / 特性 ${ability||'なし'} / 持ち物 ${itemName||'なし'}`,
             damage: `${dmg.mn}〜${dmg.mx}`,
             percent: `${dmg.pctMn}〜${dmg.pctMx}%`,
             ko: dmg.ko,
@@ -4095,7 +3950,8 @@ async function exportDamageResultImage(){
     ctx.fillText(data.move.name,492,238);
     let mx=492;
     if(data.move.type) mx += drawPill(ctx,data.move.type,mx,260,getTypeColor(data.move.type), data.move.type==='でんき'||data.move.type==='電気'?'#000':'#fff') + 8;
-    if(data.move.category) mx += drawPill(ctx,data.move.category,mx,260,'#243356','#d8e8ff') + 8;
+    const moveCategoryLabel = getMoveCategoryLabelForUI(data.move);
+    if(moveCategoryLabel) mx += drawPill(ctx,moveCategoryLabel,mx,260,'#243356','#d8e8ff') + 8;
     drawPill(ctx,'威力 '+data.move.power,Math.min(mx,1000),260,'#1a2540','#d8e8ff');
 
     drawRoundedRect(ctx,492,320,640,160,20,'rgba(0,200,240,0.08)','rgba(0,200,240,0.35)');
