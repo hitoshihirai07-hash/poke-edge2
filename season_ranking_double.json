@@ -284,7 +284,7 @@
     },
     {
       "rank": 6,
-      "name": "イダイトウ(オス)",
+      "name": "イダイトウ♂",
       "siteName": "イダイトウ♂",
       "battleType": "double",
       "moves": [
@@ -452,7 +452,7 @@
     },
     {
       "rank": 9,
-      "name": "ウォッシュロトム",
+      "name": "ロトム水",
       "siteName": "ロトム水",
       "battleType": "double",
       "moves": [
@@ -508,7 +508,7 @@
     },
     {
       "rank": 10,
-      "name": "フラエッテ(えいえんのはな)",
+      "name": "フラエッテえいえん",
       "siteName": "フラエッテえいえん",
       "battleType": "double",
       "moves": [
