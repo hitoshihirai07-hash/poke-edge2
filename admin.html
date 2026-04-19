@@ -1214,7 +1214,9 @@ function toggleTheme() {
 
     const columns = historyHeaders.map((header, index) => ({
       key: index === 0 ? 'current' : header,
-      label: header
+      label: header,
+      sourceKey: header,
+      isLatest: index === 0
     }));
 
     const rows = data.rows.map(r => {
@@ -1223,8 +1225,12 @@ function toggleTheme() {
       const ranks = {};
       historyHeaders.forEach((header, index) => {
         const value = normalizeRankValue(r[header]);
-        if(index === 0) ranks.current = value;
-        if(index !== 0) ranks[header] = value;
+        if(index === 0) {
+          ranks.current = value;
+          ranks[header] = value;
+        } else {
+          ranks[header] = value;
+        }
       });
       return {
         rank: parseInt(r['順位'], 10) || 0,

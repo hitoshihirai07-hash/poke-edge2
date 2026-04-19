@@ -1012,9 +1012,31 @@ document.addEventListener('DOMContentLoaded',function(){
     return currentHistoryBattle === 'double' ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY;
   }
 
+  function historyRankSortValue(value) {
+    const raw = String(value == null ? '' : value).trim();
+    if(!raw) return Number.POSITIVE_INFINITY;
+    const num = Number(raw);
+    return Number.isFinite(num) ? num : Number.POSITIVE_INFINITY;
+  }
+
+  function compareHistoryRowsByColumns(a, b, columns) {
+    const orderedColumns = Array.isArray(columns) && columns.length ? columns : [{key:'current'}];
+    for(const col of orderedColumns) {
+      const key = col && col.key ? col.key : 'current';
+      const av = historyRankSortValue(a && a.ranks ? a.ranks[key] : '');
+      const bv = historyRankSortValue(b && b.ranks ? b.ranks[key] : '');
+      if(av !== bv) return av - bv;
+    }
+    const ar = historyRankSortValue(a ? a.rank : '');
+    const br = historyRankSortValue(b ? b.rank : '');
+    if(ar !== br) return ar - br;
+    return String(a && a.name || '').localeCompare(String(b && b.name || ''), 'ja');
+  }
+
   function rankHistoryRowsForCurrentView() {
     const data = getHistoryData();
     const source = Array.isArray(data.rows) ? data.rows : [];
+    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current'}];
     const q = (document.getElementById('name-search')?.value || '').trim();
     return source.filter(row => {
       const siteNames = resolveSiteNames(row.name || row.siteName || '');
@@ -1024,11 +1046,7 @@ document.addEventListener('DOMContentLoaded',function(){
         if(!hay.includes(q)) return false;
       }
       return true;
-    }).sort((a,b) => {
-      const av = a && a.ranks && a.ranks.current != null ? a.ranks.current : 999999;
-      const bv = b && b.ranks && b.ranks.current != null ? b.ranks.current : 999999;
-      return av - bv;
-    });
+    }).sort((a,b) => compareHistoryRowsByColumns(a, b, columns));
   }
 
   function formatHistoryRank(value) {
