@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>更新まとめ：耐久調整ツール追加・計算履歴・アナライザー整理 | PokeEdge</title>
+<title>PokeEdge 更新まとめ：耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</title>
 <meta name="description" content="PokeEdgeの最近の更新内容をまとめました。耐久調整ツールの追加、ダメージ計算の履歴と1発判定、選出率記録とアナライザー統合など、主な変更点を紹介します。">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="更新まとめ：耐久調整ツール追加・計算履歴・アナライザー整理 | PokeEdge">
-<meta property="og:description" content="耐久調整ツール追加やダメージ計算強化、アナライザー整理などの更新をまとめて紹介します。">
+<meta property="og:title" content="PokeEdge 更新まとめ：耐久調整ツール追加・ダメージ計算強化・アナライザー整理など">
+<meta property="og:description" content="耐久調整ツール追加、ダメージ計算の履歴と1発判定、アナライザー整理など最近の主な更新内容をまとめました。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-endure-history-analyzer.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-endure-history-analyzer.html">
@@ -81,7 +81,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
 .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);} .hamburger.open span:nth-child(2){opacity:0;} .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);} .nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;} .nav-overlay.show{display:block;}
 @media(max-width:768px){.header-nav{display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);background:rgba(7,9,15,0.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);} .header-nav.open{display:flex;} .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left;letter-spacing:1px;} .nav-btn:last-child{border-bottom:none;} .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);} .hamburger{display:flex;}}
-
 .side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
 .side-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
 .side-title{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:10px}
@@ -95,7 +94,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .side-title{color:#3f566b}
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
-
 </style>
 </head>
 <body>
@@ -124,55 +122,70 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">技選択判定</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../stats.html">選出率記録</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a></div></div></aside>
-
 <div class="main">
   <div class="breadcrumb">
     <a href="../index.html">トップ</a><span class="sep">/</span>
     <a href="../blog.html">記事一覧</a><span class="sep">/</span>
-    <span>最近の更新まとめ</span>
+    <span>PokeEdge 更新まとめ</span>
   </div>
-
   <div class="article-header">
     <div class="article-meta">
       <span class="article-date">2026.04.19</span>
       <span class="article-tag guide">ガイド</span>
       <span class="article-tag tool">更新まとめ</span>
     </div>
-    <h1 class="article-h1">更新まとめ：耐久調整ツール追加・計算履歴・アナライザー整理</h1>
-    <p class="article-lead">最近の更新で、共有しやすさと確認しやすさを中心に機能を足しました。今回の追加は、ダメージ計算の画像作成、ポケモンやパーティー登録の画像作成、そして各ポケモンで現在判明している技の確認です。対戦前の整理にも、あとで見返す記録にも使いやすくなっています。</p>
+    <h1 class="article-h1">PokeEdge 更新まとめ　耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</h1>
+    <p class="article-lead">PokeEdgeを使っていただいている方向けに、最近の主な更新内容をまとめました。今回は新しく使えるようになった機能だけでなく、これまで別れていた機能の整理や、見やすさ・使いやすさの調整も入れています。対戦中の確認、育成時の調整、対戦後の振り返りまで、前より流れよく使える形を目指して更新しました。</p>
   </div>
-
   <div class="article-body">
-    <h2>画像作成を追加しました</h2>
-    <p>まず大きいのは、結果や登録内容をそのまま画像としてまとめやすくしたことです。ダメージ計算は、計算結果を文字で並べるだけだと少し見返しづらくなりがちですが、画像にできると一気に扱いやすくなります。</p>
-    <p>たとえば、対面で確認したかったダメージ感覚を残したいときや、あとで見返す用に保存したいとき、あるいはSNSやnoteで使いたいときにも向いています。毎回同じ条件を打ち直す手間が減るので、地味ですがかなり楽になります。</p>
+    <h2>1. 耐久調整ツールを追加しました</h2>
+    <p>今回の更新で、耐久調整ツールを新しく追加しました。</p>
+    <p>このページでは、まず耐久したい側のポケモンを決めて、そのあとに攻撃側を自由入力やランキング側から選ぶことで、ダメージを自動で並べて確認できます。「この技を耐えるにはどこまで必要か」「この相手の主力技に対して乱数をずらせるか」といった確認を、これまでよりまとめて見やすくしました。</p>
+    <p>ランキング側は複数ポケモンを並べて見られるようにしているので、1体ずつ切り替えなくても主要な相手をまとめて確認しやすくなっています。また、自由入力側でも細かく条件を変えられるようにしているため、実際の使用感に近い形で調整しやすくなりました。</p>
+    <p>さらに、耐久側の内容をいつでも確認しやすいように、小さめの表示ウインドウも追加しています。表示・非表示を切り替えながら、ポケモンや性格、特性、努力値などをその場で変えられるようにしているので、下の比較結果を見ながら調整しやすくなっています。</p>
 
-    <h3>ダメージ計算の画像作成</h3>
-    <p><a href="../calc.html">ダメージ計算</a>では、計算結果を1枚の画像としてまとめやすくしました。どの技でどれくらい入るかを、あとから見返しやすい形で残せます。特に、調整メモや対戦前の確認用として使いやすい部分です。</p>
+    <h2>2. ダメージ計算に計算履歴を追加しました</h2>
+    <p>あわせて、耐久側に対して確定1発・乱数1発で落ちる相手も確認できるようにしました。</p>
+    <p>ダメージ計算ページには、計算履歴を保存してあとから見返せる機能を追加しました。</p>
+    <p>対戦中や育成中は、少し条件を変えながら何度も確認することが多いと思います。そのたびに前の内容をやり直すのは手間になりやすいので、結果を残して比較しやすい形にしています。</p>
+    <p>あわせて、現在の耐久側に対して、内定ポケモンの主要技から</p>
+    <ul>
+      <li>確定1発で落ちるもの</li>
+      <li>乱数1発で落ちるもの</li>
+    </ul>
+    <p>を確認できる表示も追加しました。</p>
+    <p>単発のダメージを見るだけではなく、実際に危険な相手やラインをざっくり把握しやすくなったので、耐久調整や構築の見直しに使いやすくなっています。</p>
 
-    <h3>ポケモン・パーティー登録の画像作成</h3>
-    <p><a href="../pokemon.html">ポケモン登録</a>や<a href="../party.html">パーティ管理</a>でも、内容を画像としてまとめやすくしています。自分用の記録として残すのはもちろん、構成を共有したいときにも使いやすいです。文字だけのメモよりも、あとで「あのとき何を使っていたか」を追いやすくなります。</p>
+    <h2>3. 選出率記録をバトルアナライザーとまとめました</h2>
+    <p>これまで分かれていた選出率記録まわりは、バトルアナライザー側にまとめました。</p>
+    <p>実際の流れとしては、</p>
+    <ul>
+      <li>対戦内容を記録する</li>
+      <li>相手や自分の選出傾向を見る</li>
+      <li>初手や採用率などを振り返る</li>
+    </ul>
+    <p>という使い方になることが多いため、別ページで分かれているよりも、ひとつの流れで見られる方が使いやすいと考えて整理しました。</p>
+    <p>これによって、対戦記録を残すページと、その記録を見返して分析するページの行き来が減り、使い方がわかりやすくなっています。</p>
 
-    <h2>使用可能ポケモンで判明技を確認しやすくしました</h2>
-    <p><a href="../season.html">使用可能ポケモン</a>では、各ポケモンごとに現在判明している技を確認できるようにしました。チャンピオンズ内でどの技が見えているかを、ポケモン単位で追いやすくする狙いです。</p>
-    <p>これによって、対戦前にざっと候補を見たいときや、まだ情報が揃いきっていない段階で「今の時点では何が分かっているか」を確認したいときに使いやすくなりました。完全な辞典のように重くするより、今見たい情報に早く触れる方向を優先しています。</p>
+    <h2>4. そのほかの更新</h2>
+    <p>今回の更新では、大きい機能追加以外にも、細かい調整をいくつか入れています。</p>
+    <p>まず、ダメージ計算では特性や補正まわりの見直しを進めました。これまで抜けや反映不足があった部分について、順次対応を進めています。特に倍率に関わる要素や、技データ側の判定を参照する部分は、今後も必要に応じて調整を続ける予定です。</p>
+    <p>また、サイト全体では移動しやすさも見直しました。ページ間の導線をわかりやすくしたことで、ダメージ計算、耐久調整、技選択判定、パーティ管理、アナライザーなどを行き来しやすくしています。</p>
+    <p>表示面では、ライト表示時の見やすさも調整しました。明るい表示にしたときに文字が沈みやすかった部分を見直し、少しでも読みやすく使いやすい形に寄せています。</p>
 
     <div class="note-box">
-      <strong>今回の追加で使いやすくなった場面</strong><br>
-      ・ダメージ計算の結果を1枚で残したいとき<br>
-      ・登録したポケモンやパーティーを共有したいとき<br>
-      ・各ポケモンの判明技を対戦前にざっと確認したいとき
+      <strong>今回の主な変更点</strong><br>
+      ・耐久調整ツールの追加<br>
+      ・ダメージ計算の履歴保存と1発判定表示<br>
+      ・選出率記録とバトルアナライザーの整理<br>
+      ・導線や見やすさの細かな調整
     </div>
 
-    <h2>今回の更新は「使ったあとに残しやすい」「あとから見返しやすい」が中心です</h2>
-    <p>今回の更新は、派手な新モードというより、普段使いの流れを少しずつ整える方向です。使った結果を画像で残せるようにすること、登録内容をまとめやすくすること、判明技をポケモンごとに確認しやすくすること。この3つは別々に見えて、実際にはかなりつながっています。</p>
-    <p>対戦前に確認する、対戦中に使う、終わったあとに振り返る。その流れのどこでも扱いやすくするための更新として、今回の3つをまとめて入れました。少しずつですが、使うたびに面倒が減る形に寄せていきます。</p>
-
-    <h2>最後に</h2>
-    <p>最近追加した内容をまとめると、ダメージ計算の画像作成、ポケモンやパーティー登録の画像作成、そして各ポケモンの現在判明している技の確認です。どれも、対戦準備や共有、記録のしやすさに直結する部分です。</p>
-    <p>気になるところがあれば、まずは<a href="../calc.html">ダメージ計算</a>、<a href="../party.html">パーティ管理</a>、<a href="../pokemon.html">ポケモン登録</a>、<a href="../season.html">使用可能ポケモン</a>あたりから触ってみてください。ひとつずつでも、だいぶ使い勝手が変わっているはずです。</p>
+    <h2>まとめ</h2>
+    <p>今回の更新では、新しく耐久調整ツールを追加したことに加えて、ダメージ計算の確認しやすさ、記録の見返しやすさ、アナライザーまわりの整理も進めました。</p>
+    <p>PokeEdgeは、単発で計算するだけのページではなく、<br>「調べる」「比較する」「記録する」「振り返る」<br>をひとつの流れで使いやすくしていきたいと考えています。</p>
+    <p>今後も、使いながら気になった部分や、ここを見やすくしてほしいという点があれば、少しずつ反映していく予定です。</p>
   </div>
-
   <div class="related-section">
     <div class="related-title">RELATED ARTICLES</div>
     <div class="related-list">
@@ -182,13 +195,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     </div>
   </div>
 </div>
-
 <footer>
   <div class="footer-logo">PokeEdge</div>
   <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
   <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
-
 <script>
 var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
 function applyTheme(theme){var vars=THEMES[theme]||THEMES.dark;var root=document.documentElement.style;for(var k in vars)root.setProperty(k,vars[k]);localStorage.setItem('pokeedge_theme',theme);var btn=document.getElementById('theme-btn');if(btn)btn.textContent=theme==='light'?'🌙':'☀️';document.documentElement.setAttribute('data-theme',theme);}function toggleTheme(){var current=localStorage.getItem('pokeedge_theme')||'dark';applyTheme(current==='dark'?'light':'dark');}
@@ -197,8 +208,6 @@ function toggleNav(){const nav=document.querySelector('.header-nav');const hb=do
 function closeNav(){const nav=document.querySelector('.header-nav');const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
 document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){if(window.innerWidth<=768)closeNav();});});});
 </script>
-<script>
-window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });
-</script>
+<script>window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });</script>
 </body>
 </html>
