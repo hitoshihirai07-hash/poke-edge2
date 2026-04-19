@@ -277,9 +277,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
           <label>メガ進化</label>
           <div class="mega-row" id="defender-mega"></div>
         </div>
-        <div>
-          <label for="defender-ability">特性</label>
-          <select id="defender-ability"></select>
+        <div class="field-grid">
+          <div>
+            <label for="defender-ability">特性</label>
+            <select id="defender-ability"></select>
+          </div>
+          <div>
+            <label for="defender-item">持ち物</label>
+            <select id="defender-item"></select>
+          </div>
         </div>
         <div>
           <label>努力値（Champions 0〜32）</label>
@@ -320,20 +326,34 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
             <select id="free-ability"></select>
           </div>
           <div>
-            <label for="free-move">技候補</label>
-            <select id="free-move"></select>
+            <label for="free-item">持ち物</label>
+            <select id="free-item"></select>
           </div>
         </div>
         <div class="field-grid">
           <div>
+            <label for="free-move">技候補</label>
+            <select id="free-move"></select>
+          </div>
+          <div>
             <label for="free-weather">天候</label>
             <select id="free-weather"></select>
           </div>
-          <div>
-            <label for="free-move-free">技入力</label>
-            <input id="free-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
-            <div class="sub">候補にない攻撃技もここで確認できます。</div>
+        </div>
+        <div class="field-grid">
+          <div id="free-last-respects-wrap" style="display:none;">
+            <label for="free-fainted-last-respects">倒れた味方の数（おはかまいり）</label>
+            <select id="free-fainted-last-respects"></select>
           </div>
+          <div id="free-supreme-wrap" style="display:none;">
+            <label for="free-fainted-supreme">倒れた味方の数（そうだいしょう）</label>
+            <select id="free-fainted-supreme"></select>
+          </div>
+        </div>
+        <div>
+          <label for="free-move-free">技入力</label>
+          <input id="free-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
+          <div class="sub">候補にない攻撃技もここで確認できます。</div>
         </div>
         <div>
           <label>努力値（Champions 0〜32）</label>
@@ -434,9 +454,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
       <label>メガ進化</label>
       <div class="mega-row" id="floating-defender-mega"></div>
     </div>
-    <div>
-      <label for="floating-defender-ability">特性</label>
-      <select id="floating-defender-ability"></select>
+    <div class="defender-window-grid">
+      <div>
+        <label for="floating-defender-ability">特性</label>
+        <select id="floating-defender-ability"></select>
+      </div>
+      <div>
+        <label for="floating-defender-item">持ち物</label>
+        <select id="floating-defender-item"></select>
+      </div>
     </div>
     <div>
       <label>努力値</label>
@@ -482,13 +508,30 @@ const WEATHER_OPTIONS = [
   {value:'sand', label:'すなあらし'},
   {value:'snow', label:'ゆき'}
 ];
+const ATTACK_ITEM_OPTIONS = [
+  {value:'none', label:'なし'},
+  {value:'hachimaki', label:'こだわりハチマキ ×1.5（物理）'},
+  {value:'megane', label:'こだわりメガネ ×1.5（特殊）'},
+  {value:'inochi', label:'いのちのたま ×1.3'},
+  {value:'tatsujin', label:'たつじんのおび ×1.2（抜群時）'},
+  {value:'juel', label:'ジュエル ×1.3'},
+  {value:'pangro', label:'タイプ強化 1.2倍'},
+  {value:'hone', label:'ふとい骨 ×2（ポケモン限定）'}
+];
+const DEFENSE_ITEM_OPTIONS = [
+  {value:'1', label:'なし ×1.0'},
+  {value:'def_1.5_kiseki', label:'しんかのきせき ×1.5'},
+  {value:'def_0.5_handi', label:'半減きのみ ×0.5'},
+  {value:'def_2_metaba', label:'メタルパウダー ×2'}
+];
+const FAINTED_COUNT_OPTIONS = [0,1,2];
 const STATE = {
   mode: 'inner',
   data: null,
   frameReady: false,
   updateToken: 0,
-  defender: { baseName: '', formName: '', nature: 'がんばりや', ability: '', ev: {hp:0,atk:0,def:0,spd:0}, abilityOptions: [] },
-  free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', move: '', freeMove: '', weather: '', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [] },
+  defender: { baseName: '', formName: '', nature: 'がんばりや', ability: '', item: '1', ev: {hp:0,atk:0,def:0,spd:0}, abilityOptions: [] },
+  free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', item: 'none', move: '', freeMove: '', weather: '', faintedLastRespects: '0', faintedSupreme: '0', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [] },
   rankingSelected: [],
   rankingConfigs: {},
   defenderWindowOpen: true
@@ -524,6 +567,27 @@ function weatherOptionsHtml(selected=''){
 }
 function getWeatherLabel(value=''){
   return WEATHER_OPTIONS.find(item => item.value===value)?.label || 'なし';
+}
+function optionsHtml(options, selected=''){
+  return (options || []).map(item => `<option value="${escapeHtml(item.value)}" ${String(item.value)===String(selected)?'selected':''}>${escapeHtml(item.label)}</option>`).join('');
+}
+function faintedOptionsHtml(selected='0'){
+  return FAINTED_COUNT_OPTIONS.map(num => `<option value="${num}" ${String(num)===String(selected)?'selected':''}>${num}体</option>`).join('');
+}
+function getSelectedMoveNameFromState(stateObj){
+  return normalizeMoveInput(stateObj?.freeMove) || stateObj?.move || '';
+}
+function shouldShowLastRespectsControl(stateObj){
+  return getSelectedMoveNameFromState(stateObj) === 'おはかまいり';
+}
+function shouldShowSupremeControl(stateObj){
+  return String(stateObj?.ability || '') === 'そうだいしょう';
+}
+function renderSelectOptions(selectId, options, selected){
+  const select = el(selectId);
+  if(!select) return;
+  select.innerHTML = optionsHtml(options, selected);
+  select.value = (options || []).some(item => String(item.value)===String(selected)) ? String(selected) : String(options?.[0]?.value ?? '');
 }
 function getAllowedNames(){
   if(!STATE.data) return [];
@@ -732,6 +796,7 @@ function renderDefenderWindow(){
     scheduleUpdateAllResults();
   });
   populateAbilitySelect('floating-defender-ability', STATE.defender.abilityOptions, STATE.defender.ability, isMegaName(STATE.defender.formName || STATE.defender.baseName));
+  renderSelectOptions('floating-defender-item', DEFENSE_ITEM_OPTIONS, STATE.defender.item || '1');
   buildFloatingDefenderEvInputs();
   renderFloatingDefenderStats();
   if(el('floating-defender-nature')) el('floating-defender-nature').onchange = () => {
@@ -741,6 +806,11 @@ function renderDefenderWindow(){
   };
   if(el('floating-defender-ability')) el('floating-defender-ability').onchange = () => {
     STATE.defender.ability = el('floating-defender-ability').value;
+    renderDefenderSection();
+    scheduleUpdateAllResults();
+  };
+  if(el('floating-defender-item')) el('floating-defender-item').onchange = () => {
+    STATE.defender.item = el('floating-defender-item').value || '1';
     renderDefenderSection();
     scheduleUpdateAllResults();
   };
@@ -775,11 +845,13 @@ function renderDefenderSection(){
     scheduleUpdateAllResults();
   });
   populateAbilitySelect('defender-ability', STATE.defender.abilityOptions, STATE.defender.ability, isMegaName(STATE.defender.formName || STATE.defender.baseName));
+  renderSelectOptions('defender-item', DEFENSE_ITEM_OPTIONS, STATE.defender.item || '1');
   buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); renderDefenderWindow(); scheduleUpdateAllResults(); });
   renderDefenderStats();
   renderDefenderWindow();
   el('defender-nature').onchange = () => { STATE.defender.nature = el('defender-nature').value; renderDefenderStats(); renderDefenderWindow(); scheduleUpdateAllResults(); };
   el('defender-ability').onchange = () => { STATE.defender.ability = el('defender-ability').value; renderDefenderWindow(); scheduleUpdateAllResults(); };
+  el('defender-item').onchange = () => { STATE.defender.item = el('defender-item').value || '1'; renderDefenderWindow(); scheduleUpdateAllResults(); };
 }
 function renderDefenderStats(){
   renderStatBoxes('defender-stats', calcDisplayedStats(getPokemon(STATE.defender.formName || STATE.defender.baseName), 'def', STATE.defender.nature, STATE.defender.ev));
@@ -810,14 +882,28 @@ function renderFreeSection(){
     scheduleUpdateAllResults();
   });
   populateAbilitySelect('free-ability', STATE.free.abilityOptions, STATE.free.ability, isMegaName(STATE.free.formName || STATE.free.baseName));
+  renderSelectOptions('free-item', ATTACK_ITEM_OPTIONS, STATE.free.item || 'none');
   renderMoveSelect('free-move', STATE.free.moveOptions, STATE.free.move);
   el('free-weather').innerHTML = weatherOptionsHtml(STATE.free.weather || '');
+  if(el('free-fainted-last-respects')){
+    el('free-fainted-last-respects').innerHTML = faintedOptionsHtml(STATE.free.faintedLastRespects || '0');
+    el('free-fainted-last-respects').value = String(STATE.free.faintedLastRespects || '0');
+  }
+  if(el('free-fainted-supreme')){
+    el('free-fainted-supreme').innerHTML = faintedOptionsHtml(STATE.free.faintedSupreme || '0');
+    el('free-fainted-supreme').value = String(STATE.free.faintedSupreme || '0');
+  }
+  if(el('free-last-respects-wrap')) el('free-last-respects-wrap').style.display = shouldShowLastRespectsControl(STATE.free) ? '' : 'none';
+  if(el('free-supreme-wrap')) el('free-supreme-wrap').style.display = shouldShowSupremeControl(STATE.free) ? '' : 'none';
   buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFreeStats(); scheduleUpdateAllResults(); });
   renderFreeStats();
   el('free-nature').onchange = () => { STATE.free.nature = el('free-nature').value; renderFreeStats(); scheduleUpdateAllResults(); };
-  el('free-ability').onchange = () => { STATE.free.ability = el('free-ability').value; scheduleUpdateAllResults(); };
-  el('free-move').onchange = () => { STATE.free.move = el('free-move').value; STATE.free.freeMove=''; el('free-move-free').value=''; scheduleUpdateAllResults(); };
+  el('free-ability').onchange = () => { STATE.free.ability = el('free-ability').value; if(el('free-supreme-wrap')) el('free-supreme-wrap').style.display = shouldShowSupremeControl(STATE.free) ? '' : 'none'; scheduleUpdateAllResults(); };
+  el('free-item').onchange = () => { STATE.free.item = el('free-item').value || 'none'; scheduleUpdateAllResults(); };
+  el('free-move').onchange = () => { STATE.free.move = el('free-move').value; STATE.free.freeMove=''; el('free-move-free').value=''; if(el('free-last-respects-wrap')) el('free-last-respects-wrap').style.display = shouldShowLastRespectsControl(STATE.free) ? '' : 'none'; scheduleUpdateAllResults(); };
   el('free-weather').onchange = () => { STATE.free.weather = el('free-weather').value || ''; scheduleUpdateAllResults(); };
+  if(el('free-fainted-last-respects')) el('free-fainted-last-respects').onchange = () => { STATE.free.faintedLastRespects = el('free-fainted-last-respects').value || '0'; scheduleUpdateAllResults(); };
+  if(el('free-fainted-supreme')) el('free-fainted-supreme').onchange = () => { STATE.free.faintedSupreme = el('free-fainted-supreme').value || '0'; scheduleUpdateAllResults(); };
 }
 function renderFreeStats(){
   renderStatBoxes('free-stats', calcDisplayedStats(getPokemon(STATE.free.formName || STATE.free.baseName), 'atk', STATE.free.nature, STATE.free.ev));
@@ -855,7 +941,10 @@ function ensureRankingConfig(name){
     moveOptions: resolveMoveOptionsForPokemon(row.name, row.moves),
     move: '',
     freeMove: '',
+    item: 'none',
     weather: '',
+    faintedLastRespects: '0',
+    faintedSupreme: '0',
     ev: {atk: clamp32(spread.atk), def: clamp32(spread.def), spa: clamp32(spread.spa)}
   };
   const forced = pickForcedAbilityForForm(row.name, rankingAbilities);
@@ -938,23 +1027,43 @@ function rankingCardHtml(name, cfg, row){
               </select>
             </div>
             <div>
+              <label>持ち物</label>
+              <select data-rank-item="${key}">
+                ${ATTACK_ITEM_OPTIONS.map(v => `<option value="${escapeHtml(v.value)}" ${v.value===cfg.item?'selected':''}>${escapeHtml(v.label)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div>
               <label>技候補</label>
               <select data-rank-move="${key}">
                 ${moveOptions.length ? moveOptions.map(v => `<option value="${escapeHtml(v)}" ${v===cfg.move?'selected':''}>${escapeHtml(v)}</option>`).join('') : '<option value="">候補なし</option>'}
               </select>
             </div>
-          </div>
-          <div class="field-grid">
             <div>
               <label>天候</label>
               <select data-rank-weather="${key}">
                 ${weatherOptionsHtml(cfg.weather || '')}
               </select>
             </div>
-            <div>
-              <label>技入力</label>
-              <input type="text" list="damaging-move-list" data-rank-free-move="${key}" value="${escapeHtml(cfg.freeMove || '')}" placeholder="候補にない技名を入力">
+          </div>
+          <div class="field-grid">
+            <div id="rank-last-respects-wrap-${key}" style="display:${shouldShowLastRespectsControl(cfg)?'':'none'};">
+              <label>倒れた味方の数（おはかまいり）</label>
+              <select data-rank-last-respects="${key}">
+                ${FAINTED_COUNT_OPTIONS.map(v => `<option value="${v}" ${String(v)===String(cfg.faintedLastRespects||'0')?'selected':''}>${v}体</option>`).join('')}
+              </select>
             </div>
+            <div id="rank-supreme-wrap-${key}" style="display:${shouldShowSupremeControl(cfg)?'':'none'};">
+              <label>倒れた味方の数（そうだいしょう）</label>
+              <select data-rank-supreme="${key}">
+                ${FAINTED_COUNT_OPTIONS.map(v => `<option value="${v}" ${String(v)===String(cfg.faintedSupreme||'0')?'selected':''}>${v}体</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label>技入力</label>
+            <input type="text" list="damaging-move-list" data-rank-free-move="${key}" value="${escapeHtml(cfg.freeMove || '')}" placeholder="候補にない技名を入力">
           </div>
           <div>
             <label>努力値（Champions 0〜32）</label>
@@ -1024,6 +1133,16 @@ function bindRankingCardEvents(){
       const name = decodeURIComponent(node.dataset.rankAbility.replace(/_/g, '%'));
       const cfg = ensureRankingConfig(name);
       cfg.ability = node.value;
+      const key = safeKey(name);
+      if(el(`rank-supreme-wrap-${key}`)) el(`rank-supreme-wrap-${key}`).style.display = shouldShowSupremeControl(cfg) ? '' : 'none';
+      scheduleUpdateAllResults();
+    });
+  });
+  el('ranking-selected-list').querySelectorAll('[data-rank-item]').forEach(node => {
+    node.addEventListener('change', () => {
+      const name = decodeURIComponent(node.dataset.rankItem.replace(/_/g, '%'));
+      const cfg = ensureRankingConfig(name);
+      cfg.item = node.value || 'none';
       scheduleUpdateAllResults();
     });
   });
@@ -1042,6 +1161,24 @@ function bindRankingCardEvents(){
       const name = decodeURIComponent(node.dataset.rankFreeMove.replace(/_/g, '%'));
       const cfg = ensureRankingConfig(name);
       cfg.freeMove = node.value.trim();
+      const key = safeKey(name);
+      if(el(`rank-last-respects-wrap-${key}`)) el(`rank-last-respects-wrap-${key}`).style.display = shouldShowLastRespectsControl(cfg) ? '' : 'none';
+      scheduleUpdateAllResults();
+    });
+  });
+  el('ranking-selected-list').querySelectorAll('[data-rank-last-respects]').forEach(node => {
+    node.addEventListener('change', () => {
+      const name = decodeURIComponent(node.dataset.rankLastRespects.replace(/_/g, '%'));
+      const cfg = ensureRankingConfig(name);
+      cfg.faintedLastRespects = node.value || '0';
+      scheduleUpdateAllResults();
+    });
+  });
+  el('ranking-selected-list').querySelectorAll('[data-rank-supreme]').forEach(node => {
+    node.addEventListener('change', () => {
+      const name = decodeURIComponent(node.dataset.rankSupreme.replace(/_/g, '%'));
+      const cfg = ensureRankingConfig(name);
+      cfg.faintedSupreme = node.value || '0';
       scheduleUpdateAllResults();
     });
   });
@@ -1137,7 +1274,9 @@ function fillAttackerIntoFrame(win, attackerName, stateObj){
   const move = STATE.data.movesByName[moveName];
   if(!move) return false;
   win.setAtkMove(move);
-  win.el('atk-item').value = 'none';
+  if(win.el('atk-item')) win.el('atk-item').value = stateObj.item || 'none';
+  if(win.el('atk-fainted-last-respects')) win.el('atk-fainted-last-respects').value = String(stateObj.faintedLastRespects || '0');
+  if(win.el('atk-fainted-supreme')) win.el('atk-fainted-supreme').value = String(stateObj.faintedSupreme || '0');
   if(win.el('atk-weather')) win.el('atk-weather').value = stateObj.weather || '';
   win.recalcAtk();
   return true;
@@ -1156,7 +1295,7 @@ function fillDefenderIntoFrame(win){
   win.el('def-ev-def').value = clamp32(STATE.defender.ev.def);
   win.el('def-ev-spd').value = clamp32(STATE.defender.ev.spd);
   if(STATE.defender.ability) win.selectAbility('def', STATE.defender.ability); else win.clearAbilitySide('def');
-  win.el('def-item').value = '1';
+  if(win.el('def-item')) win.el('def-item').value = STATE.defender.item || '1';
   win.el('def-wall').value = '1';
   win.recalcDef();
   return true;
@@ -1270,7 +1409,7 @@ function bindStaticEvents(){
   el('floating-defender-name').addEventListener('blur', e => applyDefenderPokemon(e.target.value));
   el('free-pokemon').addEventListener('change', e => applyFreePokemon(e.target.value));
   el('free-pokemon').addEventListener('blur', e => applyFreePokemon(e.target.value));
-  el('free-move-free').addEventListener('input', () => { STATE.free.freeMove = el('free-move-free').value.trim(); scheduleUpdateAllResults(); });
+  el('free-move-free').addEventListener('input', () => { STATE.free.freeMove = el('free-move-free').value.trim(); if(el('free-last-respects-wrap')) el('free-last-respects-wrap').style.display = shouldShowLastRespectsControl(STATE.free) ? '' : 'none'; scheduleUpdateAllResults(); });
   el('clear-ranking-selection').addEventListener('click', () => {
     STATE.rankingSelected = [];
     renderRankingList();
