@@ -102,6 +102,65 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--muted);letter-spacing:4px;}
 .footer-text{font-size:10px;color:var(--muted);line-height:1.6;}
+
+  .page-shell{max-width:1560px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:18px;align-items:start}
+  .content-main{min-width:0}
+  .side-nav{position:sticky;top:70px;padding:18px 14px 24px}
+  .side-card{background:rgba(22,35,58,.92);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+  .side-card + .side-card{margin-top:12px}
+  .side-title{font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
+  .side-links{display:grid;gap:8px}
+  .side-link{display:block;text-decoration:none;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);font-size:13px;transition:all .18s}
+  .side-link:hover{border-color:var(--accent);color:var(--accent)}
+  .side-link.active{border-color:var(--accent);background:rgba(125,211,252,.10);color:var(--accent);font-weight:700}
+  .side-note{font-size:12px;line-height:1.8;color:var(--muted)}
+  [data-theme="light"] body{background:linear-gradient(180deg,#edf5fa 0%,#dfeef7 100%);color:#102132}
+  [data-theme="light"] header{background:rgba(248,252,255,.96);border-bottom-color:#9abbd1}
+  [data-theme="light"] .header-nav{background:rgba(248,252,255,.98)}
+  [data-theme="light"] .logo{color:#0b6aa6;text-shadow:none}
+  [data-theme="light"] .logo em{color:#e25082}
+  [data-theme="light"] .header-sub,
+  [data-theme="light"] .nav-btn,
+  [data-theme="light"] .footer-logo,
+  [data-theme="light"] .footer-text{color:#3f566b}
+  [data-theme="light"] .nav-btn.active{background:rgba(0,106,163,.08)}
+  [data-theme="light"] .card,
+  [data-theme="light"] .side-card{background:rgba(255,255,255,.96);box-shadow:0 8px 24px rgba(63,86,107,.08);border-color:#a9c4d8}
+  [data-theme="light"] h1,
+  [data-theme="light"] h2,
+  [data-theme="light"] h3,
+  [data-theme="light"] .selected-title{color:#0f2234}
+  [data-theme="light"] .lead,
+  [data-theme="light"] .sub,
+  [data-theme="light"] .status-line,
+  [data-theme="light"] .muted-banner,
+  [data-theme="light"] .rank-chip .meta,
+  [data-theme="light"] .side-note,
+  [data-theme="light"] label,
+  [data-theme="light"] .stat .k,
+  [data-theme="light"] .result-box .k,
+  [data-theme="light"] .result-range,
+  [data-theme="light"] .sub-strong{color:#415a70}
+  [data-theme="light"] .muted-banner{background:#f3f9fd}
+  [data-theme="light"] input[type="text"],
+  [data-theme="light"] input[type="number"],
+  [data-theme="light"] select,
+  [data-theme="light"] .side-link,
+  [data-theme="light"] .btn,
+  [data-theme="light"] .mini-btn,
+  [data-theme="light"] .rank-chip{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
+  [data-theme="light"] .rank-chip{background:#f6fbff}
+  [data-theme="light"] .ev-box,
+  [data-theme="light"] .stat,
+  [data-theme="light"] .result-panel,
+  [data-theme="light"] .result-box,
+  [data-theme="light"] .result-rolls,
+  [data-theme="light"] .selected-card{background:#f7fbfe;border-color:#a9c4d8}
+  [data-theme="light"] .result-big,
+  [data-theme="light"] .result-box .v,
+  [data-theme="light"] .stat .v{color:#102132}
+  [data-theme="light"] .empty{border-color:#a9c4d8;color:#415a70;background:#f7fbfe}
+
 @media(max-width:768px){
   .header-nav{display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);background:rgba(7,9,15,0.98);border-left:1px solid var(--line);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);}
   .header-nav.open{display:flex;}
@@ -111,6 +170,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
   .hamburger{display:flex;}
 }
 
+@media (max-width:1240px){.page-shell{grid-template-columns:1fr}.side-nav{display:none}}
 @media (max-width:1080px){
     .grid-2,.result-grid,.field-grid-4{grid-template-columns:1fr}
     .chooser{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -148,7 +208,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
   </button>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
-<div class="wrap stack">
+<div class="page-shell"><main class="content-main"><div class="wrap stack">
   <section class="card">
     <h1>耐久調整ツール</h1>
     <p class="lead">シングル用の耐久調整ページです。耐久したい側を決めたあと、自由入力やランキング側から攻撃側を選ぶと、自動でダメージを並べて確認できます。</p>
@@ -294,6 +354,27 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
   <datalist id="pokemon-list"></datalist>
   <datalist id="damaging-move-list"></datalist>
   <iframe id="calc-frame" class="hidden-frame" src="calc.html" title="hidden calc"></iframe>
+
+</div></main>
+<aside class="side-nav">
+  <div class="side-card">
+    <div class="side-title">ツール移動</div>
+    <div class="side-links">
+      <a class="side-link" href="calc.html">ダメージ計算</a>
+      <a class="side-link active" href="endure.html">耐久調整</a>
+      <a class="side-link" href="move.html">技選択判定</a>
+      <a class="side-link" href="party.html">パーティ管理</a>
+      <a class="side-link" href="pokemon.html">ポケモン登録</a>
+      <a class="side-link" href="stats.html">選出率記録</a>
+      <a class="side-link" href="scope.html">バトルアナライザー</a>
+      <a class="side-link" href="speed.html">素早さライン</a>
+    </div>
+  </div>
+  <div class="side-card">
+    <div class="side-title">このページ</div>
+    <div class="side-note">耐久したい側を先に決めて、自由入力かランキング側の攻撃候補を並べて見られます。ライト表示でも文字が沈まないよう配色を調整しています。</div>
+  </div>
+</aside>
 </div>
 
 <footer>
