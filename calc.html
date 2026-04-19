@@ -1500,6 +1500,13 @@ function normalizeMoveCategoryValue(moveName, category, effectText='', notesText
   }
   return rawCategory;
 }
+function normalizeContactValue(value){
+  if (value === true || value === false) return value;
+  if (typeof value === 'number') return value !== 0;
+  const s = String(value ?? '').trim().toLowerCase();
+  if (!s) return false;
+  return ['true','1','yes','y','on','接触','あり','有','する','〇','○','o'].includes(s);
+}
 function getStaticMoveCategoryLabel(moveName, category){
   const cat = String(category||'').trim();
   if(cat==='auto' || moveName==='シェルアームズ') return '可変';
@@ -1522,6 +1529,7 @@ function normalizeMoveEntry(raw){
     category: normalizeMoveCategoryValue(name, raw.category ?? raw.cat ?? raw['分類'] ?? raw['カテゴリー'] ?? '', effect, notes),
     power: Number(raw.power ?? raw.basePower ?? raw['威力'] ?? 0) || 0,
     hits: String(raw.hits ?? raw.hitCount ?? raw['回数'] ?? '1').trim(),
+    contact: normalizeContactValue(raw.contact ?? raw.isContact ?? raw['接触'] ?? raw['接触判定'] ?? raw['直接'] ?? raw['contact']),
     notes,
     effect,
     alwaysCrit: String(raw.alwaysCrit ?? raw.always_crit ?? raw['急所固定'] ?? '').trim(),
