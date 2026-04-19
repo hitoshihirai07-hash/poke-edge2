@@ -114,6 +114,28 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
   .side-link:hover{border-color:var(--accent);color:var(--accent)}
   .side-link.active{border-color:var(--accent);background:rgba(125,211,252,.10);color:var(--accent);font-weight:700}
   .side-note{font-size:12px;line-height:1.8;color:var(--muted)}
+  .defender-window{position:fixed;right:292px;bottom:18px;width:320px;z-index:96;background:rgba(22,35,58,.97);border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.28);overflow:hidden}
+  .defender-window.collapsed .defender-window-body{display:none}
+  .defender-window-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 12px 10px;border-bottom:1px solid var(--line)}
+  .defender-window.collapsed .defender-window-head{border-bottom:none}
+  .defender-window-title{font-size:11px;letter-spacing:2px;color:var(--muted)}
+  .defender-window-current{font-size:15px;font-weight:700;color:var(--text);margin-top:3px;line-height:1.4}
+  .defender-window-btn{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--text);padding:7px 12px;border-radius:999px;font-size:12px;cursor:pointer;white-space:nowrap}
+  .defender-window-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .defender-window-body{padding:12px;display:grid;gap:10px;max-height:min(72vh,560px);overflow:auto}
+  .defender-window-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .defender-window label{font-size:11px;margin-bottom:4px}
+  .defender-window input[type="text"],.defender-window input[type="number"],.defender-window select{padding:8px 10px;font-size:13px}
+  .defender-window .mega-row{gap:6px}
+  .defender-window .mini-btn{padding:5px 9px;font-size:11px}
+  .defender-window-evs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .defender-window-ev-box{background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:12px;padding:7px}
+  .defender-window-ev-box span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}
+  .defender-window-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .defender-window-stat{background:rgba(10,16,28,.4);border:1px solid var(--line);border-radius:12px;padding:7px 8px;text-align:center}
+  .defender-window-stat .k{font-size:10px;color:var(--muted)}
+  .defender-window-stat .v{font-size:16px;font-weight:700;margin-top:2px;line-height:1.2}
+  .defender-window-note{font-size:11px;line-height:1.7;color:var(--muted)}
   [data-theme="light"] body{background:linear-gradient(180deg,#edf5fa 0%,#dfeef7 100%);color:#102132}
   [data-theme="light"] header{background:rgba(248,252,255,.96);border-bottom-color:#9abbd1}
   [data-theme="light"] .header-nav{background:rgba(248,252,255,.98)}
@@ -126,6 +148,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
   [data-theme="light"] .nav-btn.active{background:rgba(0,106,163,.08)}
   [data-theme="light"] .card,
   [data-theme="light"] .side-card{background:rgba(255,255,255,.96);box-shadow:0 8px 24px rgba(63,86,107,.08);border-color:#a9c4d8}
+  [data-theme="light"] .defender-window{background:rgba(255,255,255,.98);border-color:#a9c4d8;box-shadow:0 12px 28px rgba(63,86,107,.12)}
+  [data-theme="light"] .defender-window-btn{background:#f5fbff;border-color:#a9c4d8;color:#102132}
+  [data-theme="light"] .defender-window-current{color:#102132}
+  [data-theme="light"] .defender-window-note,
+  [data-theme="light"] .defender-window-title,
+  [data-theme="light"] .defender-window-stat .k,
+  [data-theme="light"] .defender-window-ev-box span{color:#415a70}
+  [data-theme="light"] .defender-window-ev-box,
+  [data-theme="light"] .defender-window-stat{background:#f7fbfe;border-color:#a9c4d8}
+  [data-theme="light"] .defender-window-stat .v{color:#102132}
   [data-theme="light"] h1,
   [data-theme="light"] h2,
   [data-theme="light"] h3,
@@ -171,6 +203,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
 }
 
 @media (max-width:1240px){.page-shell{grid-template-columns:1fr}.side-nav{display:none}}
+@media (max-width:1240px){.defender-window{right:16px;width:min(340px,calc(100vw - 20px));}}
+@media (max-width:720px){.defender-window{right:10px;left:10px;bottom:10px;width:auto}.defender-window-evs,.defender-window-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:1080px){
     .grid-2,.result-grid,.field-grid-4{grid-template-columns:1fr}
     .chooser{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -377,6 +411,45 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
 </aside>
 </div>
 
+<div class="defender-window" id="defender-window">
+  <div class="defender-window-head">
+    <div>
+      <div class="defender-window-title">耐久側を常時表示</div>
+      <div class="defender-window-current" id="defender-window-current">未選択</div>
+    </div>
+    <button type="button" class="defender-window-btn" id="defender-window-btn" onclick="toggleDefenderWindow()">隠す</button>
+  </div>
+  <div class="defender-window-body" id="defender-window-body">
+    <div class="defender-window-grid">
+      <div>
+        <label for="floating-defender-name">ポケモン</label>
+        <input id="floating-defender-name" list="pokemon-list" type="text" placeholder="ポケモン名">
+      </div>
+      <div>
+        <label for="floating-defender-nature">性格</label>
+        <select id="floating-defender-nature"></select>
+      </div>
+    </div>
+    <div>
+      <label>メガ進化</label>
+      <div class="mega-row" id="floating-defender-mega"></div>
+    </div>
+    <div>
+      <label for="floating-defender-ability">特性</label>
+      <select id="floating-defender-ability"></select>
+    </div>
+    <div>
+      <label>努力値</label>
+      <div class="defender-window-evs" id="floating-defender-evs"></div>
+    </div>
+    <div>
+      <label>実数値</label>
+      <div class="defender-window-stats" id="floating-defender-stats"></div>
+    </div>
+    <div class="defender-window-note">ここから耐久側を変えても、上の本体と同時に反映します。</div>
+  </div>
+</div>
+
 <footer>
   <div class="footer-logo">PokeEdge</div>
   <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>耐久ラインを複数候補で並べて確認</div>
@@ -417,7 +490,8 @@ const STATE = {
   defender: { baseName: '', formName: '', nature: 'がんばりや', ability: '', ev: {hp:0,atk:0,def:0,spd:0}, abilityOptions: [] },
   free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', move: '', freeMove: '', weather: '', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [] },
   rankingSelected: [],
-  rankingConfigs: {}
+  rankingConfigs: {},
+  defenderWindowOpen: true
 };
 function el(id){ return document.getElementById(id); }
 function clamp32(v){ const n = parseInt(v,10); return Number.isFinite(n) ? Math.max(0, Math.min(32, n)) : 0; }
@@ -607,6 +681,70 @@ function buildEvInputs(containerId, evKeys, stateObj, onChange){
     });
   });
 }
+function buildFloatingDefenderEvInputs(){
+  const labels = {hp:'HP',atk:'攻撃',def:'防御',spd:'特防'};
+  const container = el('floating-defender-evs');
+  if(!container) return;
+  container.innerHTML = DEF_EV_KEYS.map(key => `
+    <div class="defender-window-ev-box">
+      <span>${labels[key]}</span>
+      <input type="number" min="0" max="32" step="1" data-floating-ev-key="${key}" value="${clamp32(STATE.defender.ev[key] || 0)}">
+    </div>
+  `).join('');
+  container.querySelectorAll('[data-floating-ev-key]').forEach(input => {
+    input.addEventListener('input', () => {
+      STATE.defender.ev[input.dataset.floatingEvKey] = clamp32(input.value);
+      input.value = STATE.defender.ev[input.dataset.floatingEvKey];
+      renderDefenderSection();
+      scheduleUpdateAllResults();
+    });
+  });
+}
+function renderFloatingDefenderStats(){
+  const stats = calcDisplayedStats(getPokemon(STATE.defender.formName || STATE.defender.baseName), 'def', STATE.defender.nature, STATE.defender.ev);
+  const box = el('floating-defender-stats');
+  if(!box) return;
+  box.innerHTML = [
+    {k:'HP',v:stats.hp},{k:'防御',v:stats.def},{k:'特防',v:stats.spd}
+  ].map(stat => `<div class="defender-window-stat"><div class="k">${stat.k}</div><div class="v">${stat.v}</div></div>`).join('');
+}
+function setDefenderWindowOpen(open){
+  STATE.defenderWindowOpen = !!open;
+  const box = el('defender-window');
+  const btn = el('defender-window-btn');
+  if(box) box.classList.toggle('collapsed', !STATE.defenderWindowOpen);
+  if(btn) btn.textContent = STATE.defenderWindowOpen ? '隠す' : '表示';
+}
+function toggleDefenderWindow(){
+  setDefenderWindowOpen(!STATE.defenderWindowOpen);
+}
+function renderDefenderWindow(){
+  const currentName = STATE.defender.formName || STATE.defender.baseName || '未選択';
+  if(el('defender-window-current')) el('defender-window-current').textContent = currentName;
+  if(el('floating-defender-name')) el('floating-defender-name').value = currentName === '未選択' ? '' : currentName;
+  createNatureOptions(el('floating-defender-nature'), STATE.defender.nature);
+  renderMegaButtons('floating-defender-mega', STATE.defender.formName || STATE.defender.baseName, selectedName => {
+    STATE.defender.formName = selectedName;
+    const forced = pickForcedAbilityForForm(selectedName);
+    STATE.defender.abilityOptions = forced.options;
+    STATE.defender.ability = forced.ability;
+    renderDefenderSection();
+    scheduleUpdateAllResults();
+  });
+  populateAbilitySelect('floating-defender-ability', STATE.defender.abilityOptions, STATE.defender.ability, isMegaName(STATE.defender.formName || STATE.defender.baseName));
+  buildFloatingDefenderEvInputs();
+  renderFloatingDefenderStats();
+  if(el('floating-defender-nature')) el('floating-defender-nature').onchange = () => {
+    STATE.defender.nature = el('floating-defender-nature').value;
+    renderDefenderSection();
+    scheduleUpdateAllResults();
+  };
+  if(el('floating-defender-ability')) el('floating-defender-ability').onchange = () => {
+    STATE.defender.ability = el('floating-defender-ability').value;
+    renderDefenderSection();
+    scheduleUpdateAllResults();
+  };
+}
 function renderMegaButtons(containerId, currentName, onSelect){
   const wrap = el(containerId);
   wrap.innerHTML = '';
@@ -637,10 +775,11 @@ function renderDefenderSection(){
     scheduleUpdateAllResults();
   });
   populateAbilitySelect('defender-ability', STATE.defender.abilityOptions, STATE.defender.ability, isMegaName(STATE.defender.formName || STATE.defender.baseName));
-  buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); scheduleUpdateAllResults(); });
+  buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); renderDefenderWindow(); scheduleUpdateAllResults(); });
   renderDefenderStats();
-  el('defender-nature').onchange = () => { STATE.defender.nature = el('defender-nature').value; renderDefenderStats(); scheduleUpdateAllResults(); };
-  el('defender-ability').onchange = () => { STATE.defender.ability = el('defender-ability').value; scheduleUpdateAllResults(); };
+  renderDefenderWindow();
+  el('defender-nature').onchange = () => { STATE.defender.nature = el('defender-nature').value; renderDefenderStats(); renderDefenderWindow(); scheduleUpdateAllResults(); };
+  el('defender-ability').onchange = () => { STATE.defender.ability = el('defender-ability').value; renderDefenderWindow(); scheduleUpdateAllResults(); };
 }
 function renderDefenderStats(){
   renderStatBoxes('defender-stats', calcDisplayedStats(getPokemon(STATE.defender.formName || STATE.defender.baseName), 'def', STATE.defender.nature, STATE.defender.ev));
@@ -1127,6 +1266,8 @@ async function loadData(){
 function bindStaticEvents(){
   el('defender-name').addEventListener('change', e => applyDefenderPokemon(e.target.value));
   el('defender-name').addEventListener('blur', e => applyDefenderPokemon(e.target.value));
+  el('floating-defender-name').addEventListener('change', e => applyDefenderPokemon(e.target.value));
+  el('floating-defender-name').addEventListener('blur', e => applyDefenderPokemon(e.target.value));
   el('free-pokemon').addEventListener('change', e => applyFreePokemon(e.target.value));
   el('free-pokemon').addEventListener('blur', e => applyFreePokemon(e.target.value));
   el('free-move-free').addEventListener('input', () => { STATE.free.freeMove = el('free-move-free').value.trim(); scheduleUpdateAllResults(); });
@@ -1141,7 +1282,7 @@ function bindStaticEvents(){
 async function init(){
   createNatureOptions(el('defender-nature'), 'がんばりや');
   createNatureOptions(el('free-nature'), 'がんばりや');
-  buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); scheduleUpdateAllResults(); });
+  buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); renderDefenderWindow(); scheduleUpdateAllResults(); });
   buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFreeStats(); scheduleUpdateAllResults(); });
   renderStatBoxes('defender-stats', {hp:'—',atk:'—',def:'—',spd:'—'});
   renderStatBoxes('free-stats', {atk:'—',def:'—',spa:'—'});
@@ -1161,6 +1302,7 @@ async function init(){
   if(freeDefault) applyFreePokemon(freeDefault);
   renderFreeSection();
   renderDefenderSection();
+  setDefenderWindowOpen(true);
   scheduleUpdateAllResults();
 }
 document.getElementById('calc-frame').addEventListener('load', () => {
