@@ -173,10 +173,16 @@
             <select id="free-move"></select>
           </div>
         </div>
-        <div>
-          <label for="free-move-free">技入力</label>
-          <input id="free-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
-          <div class="sub">候補にない攻撃技もここで確認できます。</div>
+        <div class="field-grid">
+          <div>
+            <label for="free-weather">天候</label>
+            <select id="free-weather"></select>
+          </div>
+          <div>
+            <label for="free-move-free">技入力</label>
+            <input id="free-move-free" list="damaging-move-list" type="text" placeholder="候補にない技名を入力">
+            <div class="sub">候補にない攻撃技もここで確認できます。</div>
+          </div>
         </div>
         <div>
           <label>努力値（Champions 0〜32）</label>
@@ -252,13 +258,20 @@ const PERSONALITIES = {
 };
 const DEF_EV_KEYS = ['hp','atk','def','spd'];
 const ATK_EV_KEYS = ['atk','def','spa'];
+const WEATHER_OPTIONS = [
+  {value:'', label:'なし'},
+  {value:'sunny', label:'にほんばれ（晴れ）'},
+  {value:'rain', label:'あめ'},
+  {value:'sand', label:'すなあらし'},
+  {value:'snow', label:'ゆき'}
+];
 const STATE = {
   mode: 'inner',
   data: null,
   frameReady: false,
   updateToken: 0,
   defender: { baseName: '', formName: '', nature: 'がんばりや', ability: '', ev: {hp:0,atk:0,def:0,spd:0}, abilityOptions: [] },
-  free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', move: '', freeMove: '', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [] },
+  free: { baseName: '', formName: '', nature: 'がんばりや', ability: '', move: '', freeMove: '', weather: '', ev: {atk:0,def:0,spa:0}, moveOptions: [], abilityOptions: [] },
   rankingSelected: [],
   rankingConfigs: {}
 };
@@ -287,6 +300,12 @@ function safeKey(name){ return encodeURIComponent(String(name || '')).replace(/%
 function createNatureOptions(select, selected){
   select.innerHTML = NATURE_NAMES.map(name => `<option value="${name}">${name}</option>`).join('');
   select.value = selected || 'がんばりや';
+}
+function weatherOptionsHtml(selected=''){
+  return WEATHER_OPTIONS.map(item => `<option value="${item.value}" ${item.value===selected?'selected':''}>${item.label}</option>`).join('');
+}
+function getWeatherLabel(value=''){
+  return WEATHER_OPTIONS.find(item => item.value===value)?.label || 'なし';
 }
 function getAllowedNames(){
   if(!STATE.data) return [];
@@ -385,15 +404,26 @@ function calcDisplayedStats(poke, role, natureName, ev){
     spa: calcStat(poke.spa, 31, clamp32(ev.spa), 50, nat.spa || 1)
   };
 }
-function populateAbilitySelect(selectId, options, selected){
+function populateAbilitySelect(selectId, options, selected, disabled=false){
   const select = el(selectId);
   const list = uniq(['', ...(options || [])]);
   select.innerHTML = list.map(name => `<option value="${escapeHtml(name)}">${name ? escapeHtml(name) : 'なし'}</option>`).join('');
   select.value = list.includes(selected) ? selected : (list[1] || '');
+  select.disabled = !!disabled;
 }
 function resolveAbilityOptions(pokeName, rankingFallback = []){
   const byPokemon = STATE.data.abilityMap[pokeName] || [];
   return uniq([...(rankingFallback || []), ...byPokemon]);
+}
+function pickForcedAbilityForForm(formName, fallback = []){
+  const byPokemon = STATE.data?.abilityMap?.[formName] || [];
+  const options = isMegaName(formName)
+    ? uniq([...(byPokemon || [])])
+    : uniq([...(fallback || []), ...(byPokemon || [])]);
+  return {
+    options,
+    ability: options[0] || ''
+  };
 }
 function isDamagingMoveName(name){
   if(!name) return false;
@@ -456,12 +486,13 @@ function renderDefenderSection(){
   createNatureOptions(el('defender-nature'), STATE.defender.nature);
   renderMegaButtons('defender-mega', STATE.defender.formName || STATE.defender.baseName, selectedName => {
     STATE.defender.formName = selectedName;
-    STATE.defender.abilityOptions = resolveAbilityOptions(selectedName);
-    if(!STATE.defender.abilityOptions.includes(STATE.defender.ability)) STATE.defender.ability = STATE.defender.abilityOptions[0] || '';
+    const forced = pickForcedAbilityForForm(selectedName);
+    STATE.defender.abilityOptions = forced.options;
+    STATE.defender.ability = forced.ability;
     renderDefenderSection();
     scheduleUpdateAllResults();
   });
-  populateAbilitySelect('defender-ability', STATE.defender.abilityOptions, STATE.defender.ability);
+  populateAbilitySelect('defender-ability', STATE.defender.abilityOptions, STATE.defender.ability, isMegaName(STATE.defender.formName || STATE.defender.baseName));
   buildEvInputs('defender-evs', DEF_EV_KEYS, STATE.defender, () => { renderDefenderStats(); scheduleUpdateAllResults(); });
   renderDefenderStats();
   el('defender-nature').onchange = () => { STATE.defender.nature = el('defender-nature').value; renderDefenderStats(); scheduleUpdateAllResults(); };
@@ -476,8 +507,9 @@ function applyDefenderPokemon(name){
   const base = resolveBaseName(normalized);
   STATE.defender.baseName = base;
   STATE.defender.formName = normalized;
-  STATE.defender.abilityOptions = resolveAbilityOptions(normalized);
-  STATE.defender.ability = STATE.defender.abilityOptions[0] || '';
+  const forced = pickForcedAbilityForForm(normalized);
+  STATE.defender.abilityOptions = forced.options;
+  STATE.defender.ability = forced.ability;
   el('defender-name').value = normalized;
   renderDefenderSection();
   scheduleUpdateAllResults();
@@ -486,20 +518,23 @@ function renderFreeSection(){
   createNatureOptions(el('free-nature'), STATE.free.nature);
   renderMegaButtons('free-mega', STATE.free.formName || STATE.free.baseName, selectedName => {
     STATE.free.formName = selectedName;
-    STATE.free.abilityOptions = resolveAbilityOptions(selectedName);
-    if(!STATE.free.abilityOptions.includes(STATE.free.ability)) STATE.free.ability = STATE.free.abilityOptions[0] || '';
+    const forced = pickForcedAbilityForForm(selectedName);
+    STATE.free.abilityOptions = forced.options;
+    STATE.free.ability = forced.ability;
     STATE.free.moveOptions = resolveMoveOptionsForPokemon(selectedName);
     if(!STATE.free.moveOptions.includes(STATE.free.move)) STATE.free.move = STATE.free.moveOptions[0] || '';
     renderFreeSection();
     scheduleUpdateAllResults();
   });
-  populateAbilitySelect('free-ability', STATE.free.abilityOptions, STATE.free.ability);
+  populateAbilitySelect('free-ability', STATE.free.abilityOptions, STATE.free.ability, isMegaName(STATE.free.formName || STATE.free.baseName));
   renderMoveSelect('free-move', STATE.free.moveOptions, STATE.free.move);
+  el('free-weather').innerHTML = weatherOptionsHtml(STATE.free.weather || '');
   buildEvInputs('free-evs', ATK_EV_KEYS, STATE.free, () => { renderFreeStats(); scheduleUpdateAllResults(); });
   renderFreeStats();
   el('free-nature').onchange = () => { STATE.free.nature = el('free-nature').value; renderFreeStats(); scheduleUpdateAllResults(); };
   el('free-ability').onchange = () => { STATE.free.ability = el('free-ability').value; scheduleUpdateAllResults(); };
   el('free-move').onchange = () => { STATE.free.move = el('free-move').value; STATE.free.freeMove=''; el('free-move-free').value=''; scheduleUpdateAllResults(); };
+  el('free-weather').onchange = () => { STATE.free.weather = el('free-weather').value || ''; scheduleUpdateAllResults(); };
 }
 function renderFreeStats(){
   renderStatBoxes('free-stats', calcDisplayedStats(getPokemon(STATE.free.formName || STATE.free.baseName), 'atk', STATE.free.nature, STATE.free.ev));
@@ -509,8 +544,9 @@ function applyFreePokemon(name){
   if(!normalized) return;
   STATE.free.baseName = resolveBaseName(normalized);
   STATE.free.formName = normalized;
-  STATE.free.abilityOptions = resolveAbilityOptions(normalized);
-  STATE.free.ability = STATE.free.abilityOptions[0] || '';
+  const forced = pickForcedAbilityForForm(normalized);
+  STATE.free.abilityOptions = forced.options;
+  STATE.free.ability = forced.ability;
   STATE.free.moveOptions = resolveMoveOptionsForPokemon(normalized);
   STATE.free.move = STATE.free.moveOptions[0] || '';
   STATE.free.freeMove = '';
@@ -531,14 +567,17 @@ function ensureRankingConfig(name){
     rowName: row.name,
     formName: row.name,
     nature,
-    abilityOptions: resolveAbilityOptions(row.name, rankingAbilities),
+    abilityOptions: [],
     ability: '',
     moveOptions: resolveMoveOptionsForPokemon(row.name, row.moves),
     move: '',
     freeMove: '',
+    weather: '',
     ev: {atk: clamp32(spread.atk), def: clamp32(spread.def), spa: clamp32(spread.spa)}
   };
-  cfg.ability = cfg.abilityOptions[0] || '';
+  const forced = pickForcedAbilityForForm(row.name, rankingAbilities);
+  cfg.abilityOptions = forced.options;
+  cfg.ability = forced.ability;
   cfg.move = cfg.moveOptions[0] || '';
   STATE.rankingConfigs[name] = cfg;
   return cfg;
@@ -611,7 +650,7 @@ function rankingCardHtml(name, cfg, row){
           <div class="field-grid">
             <div>
               <label>特性</label>
-              <select data-rank-ability="${key}">
+              <select data-rank-ability="${key}" ${isMegaName(current)?'disabled':''}>
                 ${abilityOptions.map(v => `<option value="${escapeHtml(v)}" ${v===cfg.ability?'selected':''}>${v ? escapeHtml(v) : 'なし'}</option>`).join('')}
               </select>
             </div>
@@ -622,9 +661,17 @@ function rankingCardHtml(name, cfg, row){
               </select>
             </div>
           </div>
-          <div>
-            <label>技入力</label>
-            <input type="text" list="damaging-move-list" data-rank-free-move="${key}" value="${escapeHtml(cfg.freeMove || '')}" placeholder="候補にない技名を入力">
+          <div class="field-grid">
+            <div>
+              <label>天候</label>
+              <select data-rank-weather="${key}">
+                ${weatherOptionsHtml(cfg.weather || '')}
+              </select>
+            </div>
+            <div>
+              <label>技入力</label>
+              <input type="text" list="damaging-move-list" data-rank-free-move="${key}" value="${escapeHtml(cfg.freeMove || '')}" placeholder="候補にない技名を入力">
+            </div>
           </div>
           <div>
             <label>努力値（Champions 0〜32）</label>
@@ -715,6 +762,14 @@ function bindRankingCardEvents(){
       scheduleUpdateAllResults();
     });
   });
+  el('ranking-selected-list').querySelectorAll('[data-rank-weather]').forEach(node => {
+    node.addEventListener('change', () => {
+      const name = decodeURIComponent(node.dataset.rankWeather.replace(/_/g, '%'));
+      const cfg = ensureRankingConfig(name);
+      cfg.weather = node.value || '';
+      scheduleUpdateAllResults();
+    });
+  });
   el('ranking-selected-list').querySelectorAll('[data-rank-ev]').forEach(node => {
     node.addEventListener('input', () => {
       const name = decodeURIComponent(node.dataset.rankEv.replace(/_/g, '%'));
@@ -730,8 +785,9 @@ function bindRankingCardEvents(){
       const name = decodeURIComponent(node.dataset.rankMega.replace(/_/g, '%'));
       const cfg = ensureRankingConfig(name);
       cfg.formName = node.dataset.megaName;
-      cfg.abilityOptions = resolveAbilityOptions(cfg.formName, (getRankingRow(name)?.abilities || []).map(stripRate));
-      if(!cfg.abilityOptions.includes(cfg.ability)) cfg.ability = cfg.abilityOptions[0] || '';
+      const forced = pickForcedAbilityForForm(cfg.formName, (getRankingRow(name)?.abilities || []).map(stripRate));
+      cfg.abilityOptions = forced.options;
+      cfg.ability = forced.ability;
       cfg.moveOptions = resolveMoveOptionsForPokemon(cfg.formName, getRankingRow(name)?.moves || []);
       if(!cfg.moveOptions.includes(cfg.move)) cfg.move = cfg.moveOptions[0] || '';
       renderSelectedRankingCards();
@@ -779,6 +835,7 @@ function syncFrameModes(win){
   if(win.el('atk-mode-classic')) win.el('atk-mode-classic').checked = false;
   if(win.el('def-mode-champions')) win.el('def-mode-champions').checked = true;
   if(win.el('def-mode-classic')) win.el('def-mode-classic').checked = false;
+  if(win.el('atk-weather')) win.el('atk-weather').value = attackerState.weather || '';
   if(typeof win.onAtkModeChange === 'function') win.onAtkModeChange();
   if(typeof win.onDefModeChange === 'function') win.onDefModeChange();
 }
@@ -799,6 +856,7 @@ function fillAttackerIntoFrame(win, attackerName, stateObj){
   if(!move) return false;
   win.setAtkMove(move);
   win.el('atk-item').value = 'none';
+  if(win.el('atk-weather')) win.el('atk-weather').value = attackerState.weather || '';
   win.recalcAtk();
   return true;
 }
@@ -852,7 +910,7 @@ async function calculateMatchup(attackerName, attackerState){
       koHtml: win.el('ko-tag')?.innerHTML?.trim() || '—',
       rollsHtml: win.el('dmg-rolls')?.innerHTML?.trim() || '—',
       barWidth: win.el('dmg-bar')?.style?.width || '0%',
-      status: '既存ダメージ計算と同じロジックで自動反映しています。'
+      status: `既存ダメージ計算と同じロジックで自動反映しています。天候: ${getWeatherLabel(attackerState.weather || '')}`
     };
   }catch(err){
     console.error(err);
@@ -935,6 +993,7 @@ function bindStaticEvents(){
     renderSelectedRankingCards();
     scheduleUpdateAllResults();
   });
+
 }
 async function init(){
   createNatureOptions(el('defender-nature'), 'がんばりや');
