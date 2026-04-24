@@ -172,26 +172,37 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .switch-danger{color:var(--accent2);}
 
 /* 技選択・対面ダメージ */
-.damage-phase-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
-@media(max-width:760px){.damage-phase-grid{grid-template-columns:1fr;}.phase-tabs{overflow-x:auto;}.phase-tab{white-space:nowrap;padding:12px 14px;font-size:12px;}}
-.damage-select-box{background:var(--panel);border:1px solid var(--border);padding:12px;}
-.damage-select-label{font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:6px;}
-.damage-select{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;}
-.damage-select:focus{border-color:var(--accent);}
-.damage-face-card{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
-.damage-face-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:700;margin-bottom:6px;}
-.damage-face-meta{font-size:10px;color:var(--text2);line-height:1.7;}
-.damage-face-arrow{font-family:'Bebas Neue',sans-serif;color:var(--accent3);font-size:20px;letter-spacing:2px;}
-.damage-hp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
-@media(max-width:760px){.damage-hp-grid{grid-template-columns:1fr;}}
-.damage-hp-box{background:var(--bg2);border:1px solid var(--border);padding:10px;}
-.damage-hp-head{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--text2);margin-bottom:6px;}
-.damage-hp-head b{color:var(--text);font-family:'JetBrains Mono',monospace;}
-.damage-hp-range{width:100%;}
-.damage-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:850px){.damage-two-col{grid-template-columns:1fr;}}
+.damage-summary{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
+.damage-summary-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:700;margin-bottom:6px;}
+.damage-summary-meta{font-size:10px;color:var(--text2);line-height:1.7;}
+.damage-pick-line{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center;}
+.damage-pick-chip{border:1px solid var(--border);background:var(--bg2);padding:4px 7px;font-size:10px;font-weight:700;}
+.damage-board{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
+.damage-board-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.damage-board-title{font-size:12px;font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:6px;}
+.damage-board-sub{font-size:10px;color:var(--text2);line-height:1.6;}
+.damage-table-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg2);}
+.damage-matrix{width:100%;min-width:680px;border-collapse:collapse;font-size:10px;}
+.damage-matrix th,.damage-matrix td{border-bottom:1px solid var(--border);border-right:1px solid var(--border);padding:7px 8px;vertical-align:top;}
+.damage-matrix th{background:rgba(255,255,255,0.03);color:var(--text2);font-weight:700;text-align:left;white-space:nowrap;}
+.damage-matrix td:last-child,.damage-matrix th:last-child{border-right:none;}
+.damage-matrix tr:last-child td{border-bottom:none;}
+.damage-attacker-cell{font-weight:700;color:var(--text);min-width:100px;}
+.damage-move-cell{min-width:130px;}
+.damage-move-name{font-weight:700;color:var(--text);margin-bottom:3px;}
+.damage-move-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap;color:var(--text2);font-size:9px;}
+.damage-result-cell{min-width:130px;}
+.damage-result-main{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.damage-result-sub{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:4px;}
+.damage-rank-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:900px){.damage-rank-grid{grid-template-columns:1fr;}}
+@media(max-width:760px){.phase-tabs{overflow-x:auto;}.phase-tab{white-space:nowrap;padding:12px 14px;font-size:12px;}}
+.damage-rank-list{display:flex;flex-direction:column;gap:6px;}
+.damage-rank-card{background:var(--bg2);border:1px solid var(--border);padding:8px;display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;}
+.damage-rank-no{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent3);min-width:26px;text-align:center;line-height:1;}
+.damage-rank-main{font-size:11px;font-weight:700;margin-bottom:4px;}
+.damage-rank-detail{font-size:10px;color:var(--text2);line-height:1.6;}
 .damage-empty-note{background:var(--bg2);border:1px dashed var(--border2);padding:12px;color:var(--text2);font-size:12px;line-height:1.8;}
-.damage-source-note{font-size:10px;color:var(--text2);line-height:1.7;margin-top:8px;}
 
 /* 形勢メーター */
 .gauge-wrap{margin:10px 0;}
@@ -490,45 +501,52 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   <div class="phase-panel" id="phase-3">
     <div class="card">
       <div class="card-title yellow">技選択・対面ダメージ</div>
-      <div class="note">選出フェーズで選んだ自分側・相手側のポケモンを使って、現在の対面だけを計算します。選出がない場合は、このタブ内で対象を選んで確認できます。</div>
+      <div class="note">選出フェーズで選んだ自分側3体・相手側3体を使って、全技の通りを一括表示します。下には自分側のおすすめ技順位と、相手側の警戒技順位を表示します。</div>
     </div>
 
-    <div class="damage-phase-grid">
-      <div class="damage-select-box">
-        <div class="damage-select-label">自分側の判定対象</div>
-        <select id="scope-dmg-my-select" class="damage-select" onchange="renderDamagePhaseRows()"></select>
-        <div id="scope-dmg-my-source" class="damage-source-note"></div>
-      </div>
-      <div class="damage-select-box">
-        <div class="damage-select-label">相手側の判定対象</div>
-        <select id="scope-dmg-opp-select" class="damage-select" onchange="renderDamagePhaseRows()"></select>
-        <div id="scope-dmg-opp-source" class="damage-source-note"></div>
-      </div>
+    <div class="damage-summary" id="scope-dmg-summary">
+      <div class="damage-summary-title">選出中の3体で一括判定</div>
+      <div class="damage-summary-meta">自分側と相手側の選出がそろうと表示されます。</div>
     </div>
 
-    <div class="damage-face-card" id="scope-dmg-face-card">
-      <div class="damage-face-title" id="scope-dmg-face-title">—</div>
-      <div class="damage-face-meta" id="scope-dmg-face-meta">選出またはパーティ入力後に表示されます。</div>
-      <div class="damage-hp-grid">
-        <div class="damage-hp-box">
-          <div class="damage-hp-head"><span>相手の現在HP</span><b id="scope-dmg-opp-hp-label">100%</b></div>
-          <input class="damage-hp-range" id="scope-dmg-opp-hp" type="range" min="1" max="100" value="100" oninput="renderDamagePhaseRows()">
-        </div>
-        <div class="damage-hp-box">
-          <div class="damage-hp-head"><span>自分の現在HP</span><b id="scope-dmg-my-hp-label">100%</b></div>
-          <input class="damage-hp-range" id="scope-dmg-my-hp" type="range" min="1" max="100" value="100" oninput="renderDamagePhaseRows()">
+    <div class="damage-board">
+      <div class="damage-board-head">
+        <div>
+          <div class="damage-board-title"><span>自分の技</span><span>→</span><span>相手選出3体</span></div>
+          <div class="damage-board-sub">自分側の選出ポケモンごとに、攻撃技のダメージを相手3体へまとめて表示します。</div>
         </div>
       </div>
+      <div id="scope-dmg-my-table"><div class="damage-empty-note">選出フェーズで自分側と相手側を選んでください。</div></div>
     </div>
 
-    <div class="damage-two-col">
-      <div class="action-panel">
-        <div class="action-label my">自分の技 → 相手へのダメージ</div>
-        <div id="scope-dmg-my-list"><div class="note">対象を選ぶと表示されます</div></div>
+    <div class="damage-board">
+      <div class="damage-board-head">
+        <div>
+          <div class="damage-board-title"><span>相手の技</span><span>→</span><span>自分選出3体</span></div>
+          <div class="damage-board-sub">相手側の選出ポケモンごとに、攻撃技のダメージを自分3体へまとめて表示します。</div>
+        </div>
       </div>
-      <div class="action-panel">
-        <div class="action-label opp">相手の技 → 自分へのダメージ</div>
-        <div id="scope-dmg-opp-list"><div class="note">対象を選ぶと表示されます</div></div>
+      <div id="scope-dmg-opp-table"><div class="damage-empty-note">選出フェーズで自分側と相手側を選んでください。</div></div>
+    </div>
+
+    <div class="damage-rank-grid">
+      <div class="damage-board">
+        <div class="damage-board-head">
+          <div>
+            <div class="damage-board-title"><span>おすすめ技順位</span></div>
+            <div class="damage-board-sub">相手選出3体への平均ダメージと1発圏の多さで並べます。</div>
+          </div>
+        </div>
+        <div id="scope-dmg-my-ranking"><div class="damage-empty-note">選出がそろうと表示されます。</div></div>
+      </div>
+      <div class="damage-board">
+        <div class="damage-board-head">
+          <div>
+            <div class="damage-board-title"><span>警戒技順位</span></div>
+            <div class="damage-board-sub">自分選出3体への被ダメージと1発圏の多さで並べます。</div>
+          </div>
+        </div>
+        <div id="scope-dmg-opp-ranking"><div class="damage-empty-note">選出がそろうと表示されます。</div></div>
       </div>
     </div>
 
@@ -1415,121 +1433,127 @@ function renderThreatAnalysis(){
 }
 
 // ===== 技選択・対面ダメージ =====
-function getDamageCandidateIndexes(side){
+function getDamageSelectedSlots(side){
   const party = side==='my' ? myParty : oppParty;
   const sel = side==='my' ? mySelect : oppSelect;
-  const source = sel.length ? '選出中のポケモン' : 'パーティ内のポケモン';
-  const indexes = sel.length ? sel.slice() : party.map((_,i)=>i);
-  return {indexes, source};
+  return sel.map((partyIndex, selectedIndex)=>{
+    const slot = party[partyIndex];
+    return slot ? {slot, partyIndex, selectedIndex} : null;
+  }).filter(Boolean).slice(0,3);
 }
-function getCurrentBattlePartyIndex(side){
-  const sel = side==='my' ? mySelect : oppSelect;
-  const activeIdx = side==='my' ? myActiveIdx : oppActiveIdx;
-  return sel[activeIdx];
-}
-function renderDamageSelect(side){
-  const select = document.getElementById('scope-dmg-'+side+'-select');
-  const sourceEl = document.getElementById('scope-dmg-'+side+'-source');
-  if(!select) return;
-  const party = side==='my' ? myParty : oppParty;
-  const prev = select.value;
-  const data = getDamageCandidateIndexes(side);
-  const options = data.indexes.filter(i=>party[i]).map(i=>{
-    const slot = party[i];
-    const selectedMark = (side==='my'?mySelect:oppSelect).includes(i) ? '選出' : '候補';
-    return {value:String(i), label:slot.poke.name+'｜'+selectedMark};
+function getDamageMoveResults(attacker, move, defenders){
+  return defenders.map(def=>{
+    const result = calcMoveDmg(attacker.slot, move, def.slot, 100);
+    return {defender:def, result};
   });
-  select.innerHTML = options.length ? options.map(o=>'<option value="'+o.value+'">'+escapeHtml(o.label)+'</option>').join('') : '<option value="">対象なし</option>';
-  const active = getCurrentBattlePartyIndex(side);
-  if(options.some(o=>o.value===prev)) select.value = prev;
-  else if(active!==undefined && options.some(o=>o.value===String(active))) select.value = String(active);
-  else if(options.length) select.value = options[0].value;
-  if(sourceEl){
-    sourceEl.textContent = options.length ? data.source+'から選択中' : (side==='my' ? '自分側のポケモンを入力してください。' : '相手側のポケモンを入力してください。');
+}
+function formatDamageResult(result){
+  if(!result) return '<span class="damage-result-main">—</span>';
+  return '<div class="damage-result-main">'+result.min+'〜'+result.max+'%</div>'+
+    '<div class="damage-result-sub"><span class="ko-tag '+result.cls+'">'+escapeHtml(result.label)+'</span></div>';
+}
+function formatDamageMoveMeta(move){
+  const type = move.type ? '<span class="tp tp-'+move.type+'">'+move.type+'</span>' : '';
+  const cat = move.category ? '<span>'+escapeHtml(move.category)+'</span>' : '';
+  const rate = move.rate ? '<span>'+move.rate+'%</span>' : '';
+  return '<div class="damage-move-meta">'+type+cat+rate+'</div>';
+}
+function getDamageTable(side){
+  const attackers = side==='my' ? getDamageSelectedSlots('my') : getDamageSelectedSlots('opp');
+  const defenders = side==='my' ? getDamageSelectedSlots('opp') : getDamageSelectedSlots('my');
+  if(!attackers.length || !defenders.length){
+    return '<div class="damage-empty-note">選出フェーズで自分側と相手側のポケモンを選んでください。</div>';
   }
+  const defenderHeads = defenders.map(d=>'<th>'+escapeHtml(d.slot.poke.name)+'<div class="damage-move-meta">HP '+d.slot.stats.hp+' / S '+d.slot.stats.spe+'</div></th>').join('');
+  let rows = '';
+  attackers.forEach(attacker=>{
+    const moves = (attacker.slot.moves || []).filter(m=>m && m.power>0).slice(0,4);
+    if(!moves.length){
+      rows += '<tr><td class="damage-attacker-cell">'+escapeHtml(attacker.slot.poke.name)+'</td><td class="damage-move-cell">攻撃技なし</td>'+defenders.map(()=>'<td class="damage-result-cell">—</td>').join('')+'</tr>';
+      return;
+    }
+    moves.forEach((move, moveIdx)=>{
+      const results = getDamageMoveResults(attacker, move, defenders);
+      rows += '<tr>'+
+        (moveIdx===0 ? '<td class="damage-attacker-cell" rowspan="'+moves.length+'">'+escapeHtml(attacker.slot.poke.name)+'<div class="damage-move-meta">'+typeHTML(attacker.slot.poke)+' S '+attacker.slot.stats.spe+'</div></td>' : '')+
+        '<td class="damage-move-cell"><div class="damage-move-name">'+escapeHtml(move.name)+'</div>'+formatDamageMoveMeta(move)+'</td>'+
+        results.map(x=>'<td class="damage-result-cell">'+formatDamageResult(x.result)+'</td>').join('')+
+        '</tr>';
+    });
+  });
+  return '<div class="damage-table-wrap"><table class="damage-matrix"><thead><tr><th>攻撃側</th><th>技</th>'+defenderHeads+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function scoreDamageAction(attacker, move, defenders){
+  const results = getDamageMoveResults(attacker, move, defenders).filter(x=>x.result);
+  if(!results.length) return null;
+  const maxVals = results.map(x=>x.result.max);
+  const minVals = results.map(x=>x.result.min);
+  const avgMax = maxVals.reduce((a,b)=>a+b,0) / maxVals.length;
+  const avgMin = minVals.reduce((a,b)=>a+b,0) / minVals.length;
+  const best = Math.max.apply(null, maxVals);
+  const oneShot = results.filter(x=>x.result.label.includes('1発')).length;
+  const twoShot = results.filter(x=>x.result.label.includes('2発')).length;
+  const targets = results
+    .slice()
+    .sort((a,b)=>(b.result.max-a.result.max))
+    .slice(0,3)
+    .map(x=>x.defender.slot.poke.name+' '+x.result.min+'〜'+x.result.max+'%')
+    .join(' / ');
+  const score = avgMax + oneShot*28 + twoShot*8 + best*0.15;
+  return {attacker, move, results, avgMax, avgMin, best, oneShot, twoShot, targets, score};
+}
+function getDamageRanking(side){
+  const attackers = side==='my' ? getDamageSelectedSlots('my') : getDamageSelectedSlots('opp');
+  const defenders = side==='my' ? getDamageSelectedSlots('opp') : getDamageSelectedSlots('my');
+  if(!attackers.length || !defenders.length) return [];
+  const list = [];
+  attackers.forEach(attacker=>{
+    (attacker.slot.moves || []).filter(m=>m && m.power>0).slice(0,4).forEach(move=>{
+      const scored = scoreDamageAction(attacker, move, defenders);
+      if(scored) list.push(scored);
+    });
+  });
+  return list.sort((a,b)=>b.score-a.score).slice(0,8);
+}
+function renderDamageRanking(side){
+  const ranking = getDamageRanking(side);
+  if(!ranking.length) return '<div class="damage-empty-note">選出中ポケモンの攻撃技が見つかると表示されます。</div>';
+  const accent = side==='my' ? 'var(--accent3)' : 'var(--accent2)';
+  return '<div class="damage-rank-list">'+ranking.map((r,i)=>{
+    const lead = side==='my' ? 'おすすめ' : '警戒';
+    const one = r.oneShot ? ' / 1発圏 '+r.oneShot+'体' : '';
+    const two = r.twoShot ? ' / 2発圏 '+r.twoShot+'体' : '';
+    return '<div class="damage-rank-card">'+
+      '<div class="damage-rank-no" style="color:'+accent+'">'+(i+1)+'</div>'+
+      '<div><div class="damage-rank-main">'+escapeHtml(r.attacker.slot.poke.name)+'：'+escapeHtml(r.move.name)+' <span class="ko-tag '+(side==='my'?'ko2':'ko3')+'">'+lead+'</span></div>'+
+      '<div class="damage-rank-detail">平均 '+Math.round(r.avgMin)+'〜'+Math.round(r.avgMax)+'% / 最高 '+r.best+'%'+one+two+'<br>主な対象: '+escapeHtml(r.targets)+'</div></div>'+
+      '</div>';
+  }).join('')+'</div>';
+}
+function renderDamageSummary(mySlots, oppSlots){
+  const el = document.getElementById('scope-dmg-summary');
+  if(!el) return;
+  const chipList = list => list.length ? list.map(x=>'<span class="damage-pick-chip">'+escapeHtml(x.slot.poke.name)+'</span>').join('') : '<span class="damage-pick-chip">未選出</span>';
+  el.innerHTML = '<div class="damage-summary-title">選出中の3体で一括判定</div>'+
+    '<div class="damage-summary-meta">ダメージは現在の選出3体を基準に100%HPで計算します。バトル中の現在HP確認は「バトルフェーズ」を使ってください。</div>'+
+    '<div class="damage-pick-line"><b style="font-size:10px;color:var(--accent);">自分側</b>'+chipList(mySlots)+'</div>'+
+    '<div class="damage-pick-line"><b style="font-size:10px;color:var(--accent2);">相手側</b>'+chipList(oppSlots)+'</div>';
 }
 function renderDamagePhase(){
-  renderDamageSelect('my');
-  renderDamageSelect('opp');
-  const myHp = document.getElementById('scope-dmg-my-hp');
-  const oppHp = document.getElementById('scope-dmg-opp-hp');
-  const mySelectEl = document.getElementById('scope-dmg-my-select');
-  const oppSelectEl = document.getElementById('scope-dmg-opp-select');
-  if(myHp && mySelectEl){
-    const idx = mySelect.indexOf(parseInt(mySelectEl.value,10));
-    if(idx>=0 && myHP[idx] !== undefined) myHp.value = myHP[idx] || 1;
-  }
-  if(oppHp && oppSelectEl){
-    const idx = oppSelect.indexOf(parseInt(oppSelectEl.value,10));
-    if(idx>=0 && oppHP[idx] !== undefined) oppHp.value = oppHP[idx] || 1;
-  }
-  renderDamagePhaseRows();
-}
-function getDamageSelectedSlot(side){
-  const select = document.getElementById('scope-dmg-'+side+'-select');
-  const party = side==='my' ? myParty : oppParty;
-  const idx = select ? parseInt(select.value,10) : NaN;
-  if(Number.isNaN(idx) || !party[idx]) return null;
-  return {slot:party[idx], partyIndex:idx};
-}
-function getRangeValue(id, fallback){
-  const el = document.getElementById(id);
-  if(!el) return fallback;
-  const v = parseInt(el.value,10);
-  return Number.isFinite(v) ? Math.min(100, Math.max(1, v)) : fallback;
-}
-function renderDamageRows(attacker, defender, defenderHpPct){
-  if(!attacker || !defender) return '<div class="damage-empty-note">判定対象が不足しています。</div>';
-  const moves = (attacker.moves || []).filter(m=>m && m.power>0);
-  if(!moves.length) return '<div class="damage-empty-note">攻撃技データがありません。登録技または推定技を確認してください。</div>';
-  const rows = moves.map(m=>{
-    const result = calcMoveDmg(attacker, m, defender, defenderHpPct);
-    return result ? {move:m, result} : null;
-  }).filter(Boolean).sort((a,b)=>b.result.max-a.result.max);
-  if(!rows.length) return '<div class="damage-empty-note">計算できる技がありません。</div>';
-  return rows.map((d,i)=>{
-    const best = i===0 ? '<span class="best-tag">BEST</span>' : '';
-    const rate = d.move.rate ? '<span style="color:var(--text2);font-size:9px;"> '+d.move.rate+'%</span>' : '';
-    const type = d.move.type ? '<span class="tp tp-'+d.move.type+'">'+d.move.type+'</span>' : '';
-    return '<div class="dmg-row"><span class="move-name">'+escapeHtml(d.move.name)+' '+type+rate+'</span>'+
-      '<span class="dmg-pct">'+d.result.min+'〜'+d.result.max+'%</span>'+
-      '<span class="ko-tag '+d.result.cls+'">'+escapeHtml(d.result.label)+'</span>'+best+'</div>';
-  }).join('');
+  const mySlots = getDamageSelectedSlots('my');
+  const oppSlots = getDamageSelectedSlots('opp');
+  renderDamageSummary(mySlots, oppSlots);
+  const myTable = document.getElementById('scope-dmg-my-table');
+  const oppTable = document.getElementById('scope-dmg-opp-table');
+  const myRank = document.getElementById('scope-dmg-my-ranking');
+  const oppRank = document.getElementById('scope-dmg-opp-ranking');
+  if(myTable) myTable.innerHTML = getDamageTable('my');
+  if(oppTable) oppTable.innerHTML = getDamageTable('opp');
+  if(myRank) myRank.innerHTML = renderDamageRanking('my');
+  if(oppRank) oppRank.innerHTML = renderDamageRanking('opp');
 }
 function renderDamagePhaseRows(){
-  const myData = getDamageSelectedSlot('my');
-  const oppData = getDamageSelectedSlot('opp');
-  const myHpPct = getRangeValue('scope-dmg-my-hp', 100);
-  const oppHpPct = getRangeValue('scope-dmg-opp-hp', 100);
-  const myHpLabel = document.getElementById('scope-dmg-my-hp-label');
-  const oppHpLabel = document.getElementById('scope-dmg-opp-hp-label');
-  if(myHpLabel) myHpLabel.textContent = myHpPct+'%';
-  if(oppHpLabel) oppHpLabel.textContent = oppHpPct+'%';
-
-  const title = document.getElementById('scope-dmg-face-title');
-  const meta = document.getElementById('scope-dmg-face-meta');
-  const myList = document.getElementById('scope-dmg-my-list');
-  const oppList = document.getElementById('scope-dmg-opp-list');
-  if(!myData || !oppData){
-    if(title) title.innerHTML = '—';
-    if(meta) meta.textContent = '自分側と相手側のポケモンを入力・選択してください。';
-    if(myList) myList.innerHTML = '<div class="damage-empty-note">自分側と相手側の対象がそろうと表示されます。</div>';
-    if(oppList) oppList.innerHTML = '<div class="damage-empty-note">自分側と相手側の対象がそろうと表示されます。</div>';
-    return;
-  }
-  const mySlot = myData.slot;
-  const oppSlot = oppData.slot;
-  if(title){
-    title.innerHTML = '<span>'+escapeHtml(mySlot.poke.name)+'</span><span class="damage-face-arrow">VS</span><span>'+escapeHtml(oppSlot.poke.name)+'</span>';
-  }
-  if(meta){
-    const faster = mySlot.stats.spe===oppSlot.stats.spe ? '同速' : (mySlot.stats.spe>oppSlot.stats.spe ? '自分が速い' : '相手が速い');
-    meta.innerHTML = '自分: '+typeHTML(mySlot.poke)+' '+escapeHtml(mySlot.ability||'')+' / HP実数値 '+mySlot.stats.hp+' / S '+mySlot.stats.spe+'<br>'+
-      '相手: '+typeHTML(oppSlot.poke)+' '+escapeHtml(oppSlot.ability||'')+' / HP実数値 '+oppSlot.stats.hp+' / S '+oppSlot.stats.spe+'<br>'+
-      '素早さ比較: '+faster;
-  }
-  if(myList) myList.innerHTML = renderDamageRows(mySlot, oppSlot, oppHpPct);
-  if(oppList) oppList.innerHTML = renderDamageRows(oppSlot, mySlot, myHpPct);
+  renderDamagePhase();
 }
 
 // ===== バトルフェーズ描画 =====
