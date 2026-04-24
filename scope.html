@@ -881,13 +881,66 @@ function getContextMegaIndices(side){
   const sel = side==='my' ? mySelect : oppSelect;
   return (sel && sel.length ? sel : party.map((_,i)=>i)).filter(i=>party[i]);
 }
-function getActiveMegaIndexForSide(side){
+let scopeMegaContext = null;
+function isMegaCandidateForSide(side, idx){
   const party = side==='my' ? myParty : oppParty;
-  const indices = getContextMegaIndices(side);
-  const fixed = indices.find(i=>party[i] && party[i].megaMode==='mega' && canSlotMegaEvolve(party[i]));
+  const slot = party[idx];
+  return !!(slot && slot.megaMode !== 'normal' && canSlotMegaEvolve(slot));
+}
+function getMegaCandidateIndicesForSide(side){
+  const party = side==='my' ? myParty : oppParty;
+  return party.map((slot, idx)=>({slot, idx})).filter(x=>x.slot && x.slot.megaMode !== 'normal' && canSlotMegaEvolve(x.slot)).map(x=>x.idx);
+}
+function getPrimaryMegaIndexForSide(side){
+  const party = side==='my' ? myParty : oppParty;
+  const sel = side==='my' ? mySelect : oppSelect;
+  const candidates = getMegaCandidateIndicesForSide(side);
+  if(!candidates.length) return null;
+  const fixed = candidates.find(i=>party[i] && party[i].megaMode==='mega');
   if(fixed!==undefined) return fixed;
-  const auto = indices.find(i=>party[i] && party[i].megaMode!=='normal' && canSlotMegaEvolve(party[i]));
-  return auto===undefined ? null : auto;
+  const selected = candidates.find(i=>sel && sel.includes(i));
+  if(selected!==undefined) return selected;
+  return candidates[0];
+}
+function getActiveMegaIndexForSide(side){
+  if(scopeMegaContext && Object.prototype.hasOwnProperty.call(scopeMegaContext, side)) return scopeMegaContext[side];
+  const party = side==='my' ? myParty : oppParty;
+  const sel = side==='my' ? mySelect : oppSelect;
+  const candidates = getMegaCandidateIndicesForSide(side);
+  if(!candidates.length) return null;
+  const fixed = candidates.find(i=>party[i] && party[i].megaMode==='mega');
+  if(fixed!==undefined){
+    return (!sel || !sel.length || sel.includes(fixed)) ? fixed : null;
+  }
+  if(sel && sel.length){
+    const selected = candidates.find(i=>sel.includes(i));
+    return selected===undefined ? null : selected;
+  }
+  return candidates[0];
+}
+function syncMegaSelectionForSide(side, force){
+  if(side !== 'my') return;
+  const sel = mySelect;
+  const primary = getPrimaryMegaIndexForSide(side);
+  if(primary == null) return;
+  const hadSelection = sel.length > 0;
+  for(let i=sel.length-1;i>=0;i--){
+    if(sel[i] !== primary && isMegaCandidateForSide(side, sel[i])) sel.splice(i,1);
+  }
+  if((force || hadSelection) && !sel.includes(primary)){
+    if(sel.length < 3) sel.unshift(primary);
+    else {
+      const replaceAt = Math.max(0, sel.findIndex(i=>!isMegaCandidateForSide(side, i)));
+      sel[replaceAt] = primary;
+    }
+  }
+  const seen = new Set();
+  for(let i=sel.length-1;i>=0;i--){
+    if(seen.has(sel[i])) sel.splice(i,1);
+    else seen.add(sel[i]);
+  }
+  while(sel.length > 3) sel.pop();
+  normalizeLead(side);
 }
 function isSlotMegaActive(slot){
   if(!slot || !canSlotMegaEvolve(slot) || slot.megaMode==='normal') return false;
@@ -1281,6 +1334,7 @@ function addFromReg(id){
     return md ? Object.assign({}, md) : {name:m.name, type:m.type||'', category:m.category||'', power:parseInt(m.power)||0};
   }).filter(m=>m.power>0);
   myParty.push(buildSlot(poke, {natureName:rec.nature||null, spread:rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:rec.lv||50, moves: moves.length ? moves : getEstimatedAtkMoves(poke), ability:rec.ability||getDefaultAbilityForPokemon(poke), item:rec.item||'', presetKey:'season', profileSource:'registered'}));
+  syncMegaSelectionForSide('my', true);
   renderParty('my');
   autoAnalyze();
 }
@@ -1319,6 +1373,7 @@ async function loadFromParty(id){
     }).filter(mv=>mv.power>0);
     myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves: moves.length ? moves : getEstimatedAtkMoves(poke), ability:m.ability||getDefaultAbilityForPokemon(poke), item:m.item||'', presetKey:'season', profileSource:'saved'}));
   });
+  syncMegaSelectionForSide('my', true);
   renderParty('my');
   autoAnalyze();
 }
@@ -1354,6 +1409,7 @@ function addPoke(side,name){
   if(norm.megaFormName){ opts.megaMode='mega'; opts.megaFormName=norm.megaFormName; opts.item=inferMegaItemNameForForm(norm.megaFormName); }
   if(norm.formMode){ opts.formMode=norm.formMode; }
   party.push(buildSlot(norm.poke || rawPoke, opts));
+  syncMegaSelectionForSide(side, !!opts.megaFormName);
   document.getElementById(side+'-search').value='';
   document.getElementById(side+'-drop').classList.remove('show');
   renderParty(side);
@@ -1378,6 +1434,7 @@ function toggleSelect(side,i){
   const idx=sel.indexOf(i);
   if(idx>=0){sel.splice(idx,1);}
   else if(sel.length<3){sel.push(i);}
+  syncMegaSelectionForSide(side, sel.length>0);
   normalizeLead(side);
   renderParty(side);
   if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
@@ -1476,6 +1533,7 @@ function setSlotItem(side, idx, item){
   slot.item = normalizeItemName(item);
   const formName = getPreferredMegaFormName(slot);
   slot.megaFormName = formName || '';
+  if(formName && slot.megaMode !== 'normal') syncMegaSelectionForSide(side, true);
   if(!formName && slot.megaMode==='mega') slot.megaMode='normal';
   refreshAfterSlotChange(side);
 }
@@ -1487,6 +1545,11 @@ function setSlotMegaMode(side, idx, mode){
   slot.megaMode = mode || 'auto';
   if(slot.megaMode==='mega'){
     party.forEach((s,j)=>{ if(j!==idx && s && s.megaMode==='mega') s.megaMode='normal'; });
+    syncMegaSelectionForSide(side, true);
+  } else if(slot.megaMode==='auto' && canSlotMegaEvolve(slot)){
+    syncMegaSelectionForSide(side, true);
+  } else {
+    syncMegaSelectionForSide(side, false);
   }
   refreshAfterSlotChange(side);
 }
@@ -1557,38 +1620,75 @@ function getCombinations(arr, k){
   return [...withFirst,...withoutFirst];
 }
 
+function isValidRecommendedTeam(team){
+  const primaryMega = getPrimaryMegaIndexForSide('my');
+  const megaInTeam = team.filter(i=>isMegaCandidateForSide('my', i));
+  if(primaryMega != null){
+    if(!team.includes(primaryMega)) return false;
+    return megaInTeam.every(i=>i===primaryMega);
+  }
+  return megaInTeam.length <= 1;
+}
+function getRecommendedTeamMegaIndex(team){
+  const primaryMega = getPrimaryMegaIndexForSide('my');
+  if(primaryMega != null && team.includes(primaryMega)) return primaryMega;
+  const megaInTeam = team.filter(i=>isMegaCandidateForSide('my', i));
+  return megaInTeam.length ? megaInTeam[0] : null;
+}
+function getRecommendationDisplayName(idx, team){
+  const slot = myParty[idx];
+  if(!slot) return '—';
+  const activeMega = getRecommendedTeamMegaIndex(team);
+  if(activeMega===idx && canSlotMegaEvolve(slot) && slot.megaMode !== 'normal'){
+    const species = slot.speciesName || getCanonicalPokemonName(slot.poke && slot.poke.name) || slot.poke?.name || '—';
+    const megaName = getPreferredMegaFormName(slot);
+    if(megaName) return species + '（' + megaName.replace(/^メガ/, 'メガ') + '）';
+  }
+  return getSlotDisplayName(slot);
+}
 function renderRecommendation(){
   if(myParty.length<3){document.getElementById('rec-card').style.display='none';return;}
   document.getElementById('rec-card').style.display='block';
   const indices = myParty.map((_,i)=>i);
-  const combos = getCombinations(indices, Math.min(3, myParty.length));
+  const combos = getCombinations(indices, Math.min(3, myParty.length)).filter(isValidRecommendedTeam);
+  if(!combos.length){
+    document.getElementById('rec-list').innerHTML = '<div class="damage-empty-note">メガ候補の条件に合う選出候補がありません。メガ固定または持ち物を確認してください。</div>';
+    return;
+  }
   const scored = combos.map(team=>{
     let score=0;
-    oppParty.forEach(opp=>{
-      let bestMu = -999;
-      team.forEach(mi=>{
-        const my=myParty[mi];
-        const mu = evaluateMatchup(my, opp);
-        bestMu = Math.max(bestMu, mu.score);
+    const activeMega = getRecommendedTeamMegaIndex(team);
+    scopeMegaContext = {my: activeMega};
+    try{
+      oppParty.forEach(opp=>{
+        let bestMu = -999;
+        team.forEach(mi=>{
+          const my=myParty[mi];
+          const mu = evaluateMatchup(my, opp);
+          bestMu = Math.max(bestMu, mu.score);
+        });
+        score += bestMu;
       });
-      score += bestMu;
-    });
-    // タイプ被りペナルティ
-    const types = new Set();
-    team.forEach(mi=>{
-      const p=myParty[mi].poke;
-      if(p.type1) types.add(p.type1);
-      if(p.type2) types.add(p.type2);
-    });
-    score += types.size * 2; // 多様なタイプにボーナス
+      const types = new Set();
+      team.forEach(mi=>{
+        const calcSlot = resolveSlotForCalc(myParty[mi], 'defense');
+        const p=calcSlot.poke;
+        if(p.type1) types.add(p.type1);
+        if(p.type2) types.add(p.type2);
+      });
+      score += types.size * 2;
+    } finally {
+      scopeMegaContext = null;
+    }
     return {team, score};
   }).sort((a,b)=>b.score-a.score).slice(0,3);
 
   document.getElementById('rec-list').innerHTML = scored.map((s,i)=>{
-    const names = s.team.map(mi=>getSlotDisplayName(myParty[mi]));
+    const names = s.team.map(mi=>getRecommendationDisplayName(mi, s.team));
+    const megaNote = getRecommendedTeamMegaIndex(s.team)!=null ? '<div class="rec-score" style="font-size:9px;color:var(--accent3);">メガ枠1体</div>' : '';
     return '<div class="rec-team" onclick="applySelection(['+s.team.join(',')+'])">'+
       '<div class="rec-rank '+(i===0?'r1':'')+'">'+(i+1)+'</div>'+
-      '<div>'+names.map(n=>'<span class="rec-poke">'+n+'</span>').join(' + ')+'</div>'+
+      '<div>'+names.map(n=>'<span class="rec-poke">'+escapeHtml(n)+'</span>').join(' + ')+'</div>'+megaNote+
       '<div class="rec-score">'+Math.round(s.score)+'pt</div>'+
     '</div>';
   }).join('');
@@ -1596,7 +1696,9 @@ function renderRecommendation(){
 
 function applySelection(indices){
   mySelect = [...indices];
+  syncMegaSelectionForSide('my', true);
   renderParty('my');
+  if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
 }
 
 // ===== 相手脅威分析 =====
