@@ -1804,6 +1804,11 @@ async function renderScopeStats(){
     return map[mon.name];
   }
   battles.forEach(b=>{
+    // 自分側も「選出3体」だけでなく、入力した6体を集計対象にする。
+    const myPartyList = (b.my?.party6&&b.my.party6.length) ? b.my.party6 : (b.my?.select3||[]);
+    myPartyList.forEach(m=>{
+      const d=touchMap(myMap,m); if(d) d.party++;
+    });
     (b.my?.select3||[]).forEach(m=>{
       const d=touchMap(myMap,m); if(!d) return;
       d.sel++;
@@ -1813,7 +1818,7 @@ async function renderScopeStats(){
       const d=touchMap(myMap,b.my.lead); if(d) d.lead++;
     }
 
-    // 相手側は「選出3体」だけでなく、入力した6体も集計対象にする。
+    // 相手側も「選出3体」だけでなく、入力した6体を集計対象にする。
     const oppPartyList = (b.opp?.party6&&b.opp.party6.length) ? b.opp.party6 : (b.opp?.select3||[]);
     oppPartyList.forEach(m=>{
       const d=touchMap(oppMap,m); if(d) d.party++;
@@ -1825,19 +1830,19 @@ async function renderScopeStats(){
       const d=touchMap(oppMap,b.opp.lead); if(d) d.lead++;
     }
   });
-  const myRows=Object.entries(myMap).sort((a,b)=>b[1].sel-a[1].sel || b[1].lead-a[1].lead || a[0].localeCompare(b[0],'ja'));
+  const myRows=Object.entries(myMap).sort((a,b)=>b[1].party-a[1].party || b[1].sel-a[1].sel || b[1].lead-a[1].lead || a[0].localeCompare(b[0],'ja'));
   const oppRows=Object.entries(oppMap).sort((a,b)=>b[1].party-a[1].party || b[1].sel-a[1].sel || b[1].lead-a[1].lead || a[0].localeCompare(b[0],'ja'));
   function typeBadge(type){ return type?'<span class="tp tp-'+escapeHtml(type)+'" style="font-size:7px;">'+escapeHtml(type)+'</span>':''; }
   function rowHtmlMy(name,d){
-    const selPct=Math.round((d.sel||0)/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0;
+    const partyPct=Math.round((d.party||0)/total*100), selPct=Math.round((d.sel||0)/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0;
     const winPct=d.sel?Math.round(d.win/d.sel*100):0;
-    return '<tr><td><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td class="scope-num">'+(d.sel||0)+'/'+total+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td class="scope-num">'+(d.lead||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td><td class="scope-num" style="color:'+(winPct>=50?'var(--green)':'var(--accent2)')+';">'+winPct+'%</td></tr>';
+    return '<tr><td><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td class="scope-num">'+(d.party||0)+'/'+total+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td class="scope-num">'+(d.sel||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td class="scope-num">'+(d.lead||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td><td class="scope-num" style="color:'+(winPct>=50?'var(--green)':'var(--accent2)')+';">'+winPct+'%</td></tr>';
   }
   function rowHtmlOpp(name,d){
     const partyPct=Math.round((d.party||0)/total*100), selPct=Math.round((d.sel||0)/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0;
     return '<tr><td><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td class="scope-num">'+(d.party||0)+'/'+total+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td class="scope-num">'+(d.sel||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td class="scope-num">'+(d.lead||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td></tr>';
   }
-  area.innerHTML='<div class="note">相手側は、実際に出てきた3体だけでなく、入力した相手6体も集計します。</div><div class="scope-stats-grid"><div><div class="scope-stats-head">自分の選出率</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtmlMy(n,d)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtmlOpp(n,d)).join('')+'</tbody></table></div></div>';
+  area.innerHTML='<div class="note">自分側・相手側とも、入力した6体と実際に選出した3体を分けて集計します。</div><div class="scope-stats-grid"><div><div class="scope-stats-head">自分の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtmlMy(n,d)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtmlOpp(n,d)).join('')+'</tbody></table></div></div>';
 }
 async function renderScopeHistory(){
   const battles = await loadBattleRecords();
@@ -1845,7 +1850,13 @@ async function renderScopeHistory(){
   if(!el) return;
   if(!battles.length){ el.innerHTML=''; return; }
   el.innerHTML = battles.slice(0,20).map(b=>{
-    const myTags = (b.my?.select3||[]).map(m=>'<span class="scope-poke-tag '+(m.name===b.my?.lead?.name?'lead-tag':'')+'">'+escapeHtml(m.name)+'</span>').join('');
+    const mySelectedNames = new Set((b.my?.select3||[]).map(m=>m.name));
+    const myPartyList = (b.my?.party6&&b.my.party6.length) ? b.my.party6 : (b.my?.select3||[]);
+    const myTags = myPartyList.map(m=>{
+      const leadCls = m.name===b.my?.lead?.name?' lead-tag':'';
+      const selectedMark = mySelectedNames.has(m.name)?'<span class="lead-mini">選出</span>':'';
+      return '<span class="scope-poke-tag'+leadCls+'">'+escapeHtml(m.name)+selectedMark+'</span>';
+    }).join('');
     const oppSelectedNames = new Set((b.opp?.select3||[]).map(m=>m.name));
     const oppPartyList = (b.opp?.party6&&b.opp.party6.length) ? b.opp.party6 : (b.opp?.select3||[]);
     const oppPartyTags = oppPartyList.map(m=>{
@@ -1856,7 +1867,7 @@ async function renderScopeHistory(){
     return '<div class="scope-history-item '+escapeHtml(b.result||'')+'">'
       + '<div class="scope-history-head"><span class="scope-history-result '+escapeHtml(b.result||'')+'">'+(b.result==='win'?'WIN':(b.result==='draw'?'DRAW':'LOSE'))+'</span><span style="font-size:11px;color:var(--text2);">'+escapeHtml(b.date||'')+'</span><button class="scope-del-btn" onclick="deleteScopeBattleById(\''+escapeJs(String(b._id ?? b.id ?? ''))+'\')">削除</button></div>'
       + '<div class="scope-history-body">'
-      +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">自分の選出'+(b.my?.lead?' / 初手: '+escapeHtml(b.my.lead.name):'')+'</div><div>'+myTags+'</div></div>'
+      +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">自分の6体'+(b.my?.lead?' / 初手: '+escapeHtml(b.my.lead.name):'')+'</div><div>'+myTags+'</div></div>'
       +   '<div style="font-size:18px;color:var(--border2);align-self:center;">vs</div>'
       +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">相手の6体'+(b.opp?.lead?' / 初手: '+escapeHtml(b.opp.lead.name):'')+'</div><div>'+oppPartyTags+'</div></div>'
       + '</div>'
