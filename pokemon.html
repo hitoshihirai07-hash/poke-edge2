@@ -618,7 +618,7 @@ function ensureAegislashDisplayPokemon(list){
   const shield=arr.find(p=>p&&p.name===AEGISLASH_SHIELD_NAME);
   const blade=arr.find(p=>p&&p.name===AEGISLASH_BLADE_NAME);
   const src=shield||blade;
-  if(src) arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true,atk:blade?blade.atk:src.atk,spa:blade?blade.spa:src.spa,def:shield?shield.def:src.def,spd:shield?shield.spd:src.spd}));
+  if(src) arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true}));
   return arr;
 }
 function isVisiblePokemon(p){ return !(p && p._hiddenForm); }

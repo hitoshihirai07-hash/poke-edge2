@@ -1443,7 +1443,7 @@ function ensureAegislashDisplayPokemon(list){
   const blade = arr.find(p=>p && p.name===AEGISLASH_BLADE_NAME);
   const src = shield || blade;
   if(src){
-    arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true,atk:blade?blade.atk:src.atk,spa:blade?blade.spa:src.spa,def:shield?shield.def:src.def,spd:shield?shield.spd:src.spd}));
+    arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true}));
   }
   return arr;
 }
@@ -2127,7 +2127,7 @@ function renderDamageSetupPicked(kind){
     box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(type)} / ${escapeHtml(cat)} / 威力 ${escapeHtml(String(power))}</div>`;
     return;
   }
-  const poke = pokeIndex.find(x=>x.name===name);
+  const poke = findCalcPokemonByName(name);
   const types = [poke?.type1, poke?.type2].filter(Boolean).join(' / ') || 'タイプ不明';
   box.innerHTML = `<strong>${escapeHtml(name)}</strong><div class="damage-setup-item-meta">${escapeHtml(types)}</div>`;
 }
@@ -2221,8 +2221,8 @@ function applyDamageSetupSelection(){
     if(error) error.textContent='攻撃側・防御側・技の3つを選んでから決定してください。';
     return;
   }
-  const atk = pokeIndex.find(x=>x.name===atkName);
-  const def = pokeIndex.find(x=>x.name===defName);
+  const atk = findCalcPokemonByName(atkName);
+  const def = findCalcPokemonByName(defName);
   let move = moveIndex.find(x=>x.name===moveName);
   if(!move){
     const known = getPokemonKnownMoves(atkName).find(m=>m.name===moveName);

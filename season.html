@@ -381,7 +381,7 @@ function buildSeasonDisplayPokemonData(raw){
   });
   if((shield || blade) && !seen.has('ギルガルド')){
     const src=shield||blade;
-    out.push(Object.assign({}, src, {name:'ギルガルド', _aegislashDisplay:true, atk:blade?blade.atk:src.atk, spa:blade?blade.spa:src.spa, def:shield?shield.def:src.def, spd:shield?shield.spd:src.spd, total:(shield?shield.hp:src.hp)+(blade?blade.atk:src.atk)+(shield?shield.def:src.def)+(blade?blade.spa:src.spa)+(shield?shield.spd:src.spd)+(shield?shield.spe:src.spe)}));
+    out.push(Object.assign({}, src, {name:'ギルガルド', _aegislashDisplay:true}));
   }
   return out;
 }
@@ -1144,14 +1144,14 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('detail-name').textContent = ctx.displayName;
     document.getElementById('detail-sub').innerHTML = [
       `No.${escapeHtml(primary.no || '—')}`,
-      `合計 ${escapeHtml(primary.total || 0)}`,
+      ctx.records.length > 1 ? `合計は各フォルム欄で表示` : `合計 ${escapeHtml(primary.total || 0)}`,
       `技 ${escapeHtml(ctx.moves.length)}`,
       rankingNameNote ? escapeHtml(rankingNameNote) : ''
     ].filter(Boolean).join(' / ');
 
     document.getElementById('detail-summary').innerHTML = [
       {label:'No', value:primary.no || '—'},
-      {label:'合計', value:primary.total || 0},
+      {label:'合計', value:ctx.records.length > 1 ? '各フォルム' : (primary.total || 0)},
       {label:'重さ', value:(primary.weight || 0) ? `${primary.weight}` : '—'},
       {label:'技数', value:ctx.moves.length}
     ].map(item => `<div class="detail-summary-item"><b>${escapeHtml(item.value)}</b><span>${escapeHtml(item.label)}</span></div>`).join('');
