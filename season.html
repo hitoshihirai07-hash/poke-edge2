@@ -67,14 +67,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .season-btns{display:flex;gap:5px;flex-wrap:wrap;}
 .season-btn{padding:4px 12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all 0.15s;}
 .season-btn:hover,.season-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
-.search-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:220px;flex:1;}
+.search-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:160px;flex:1;}
 .search-input:focus{border-color:var(--accent);}
-.search-mode-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:112px;}
-.search-mode-select:focus{border-color:var(--accent);}
-.search-clear-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 9px;font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;}
-.search-clear-btn:hover{border-color:var(--accent);color:var(--accent);}
-.search-help{font-size:10px;color:var(--text2);line-height:1.6;flex-basis:100%;}
-.search-hit-note{color:var(--accent3);font-weight:700;}
 
 /* 統計バー */
 .stats-bar{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
@@ -218,57 +212,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
 
-
-
-/* スマホ下部固定ナビ */
-.pe-mobile-bottom-nav{display:none;}
-@media(max-width:768px){
-  body{padding-bottom:74px;}
-  .pe-mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:220;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,9,15,0.98);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,0.24);backdrop-filter:blur(18px);}
-  .pe-mobile-bottom-nav a{display:flex;align-items:center;justify-content:center;min-height:58px;padding:8px 4px;color:var(--text2);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:1px;border-right:1px solid var(--border);}
-  .pe-mobile-bottom-nav a:last-child{border-right:none;}
-  .pe-mobile-bottom-nav a.active{color:var(--accent);background:rgba(0,200,240,0.08);}
-}
-[data-theme="light"] .pe-mobile-bottom-nav{background:rgba(244,251,255,0.98);box-shadow:0 -8px 24px rgba(63,86,107,0.12);}
-
-
-
-/* スマホ検索・カード表示 */
-@media(max-width:768px){
-  .main{padding:12px 10px 88px;}
-  .filter-bar{position:sticky;top:52px;z-index:150;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;margin:-4px -2px 10px;border-left:none;border-right:none;background:rgba(15,20,35,0.98);box-shadow:0 8px 18px rgba(0,0,0,0.18);backdrop-filter:blur(16px);}
-  [data-theme="light"] .filter-bar{background:rgba(244,251,255,0.98);}
-  .filter-label{grid-column:1/-1;}
-  .season-btns{grid-column:1/-1;display:flex;gap:6px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
-  .season-btn{flex:0 0 auto;min-height:34px;padding:6px 12px;}
-  .search-mode-select{min-width:0;width:100%;height:38px;font-size:12px;}
-  .search-input{grid-column:1/-1;min-width:0;width:100%;height:40px;font-size:13px;}
-  .search-clear-btn{height:38px;}
-  .search-help{grid-column:1/-1;font-size:9px;line-height:1.5;}
-  .stats-bar{position:sticky;top:190px;z-index:60;background:rgba(7,9,15,0.92);border:1px solid var(--border);padding:7px 9px;margin-bottom:8px;gap:10px;}
-  [data-theme="light"] .stats-bar{background:rgba(244,251,255,0.94);}
-  #poke-table thead{display:none;}
-  #poke-table,#poke-table tbody,#poke-table tr,#poke-table td{display:block;width:100%;}
-  #poke-table tr{background:var(--panel);border:1px solid var(--border);margin-bottom:9px;padding:9px 10px;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,0.12);}
-  #poke-table tr:hover{background:var(--panel);}
-  #poke-table td{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);white-space:normal;text-align:right;}
-  #poke-table td:last-child{border-bottom:none;}
-  #poke-table td::before{content:attr(data-label);font-size:10px;color:var(--text2);letter-spacing:1px;text-align:left;flex:0 0 auto;}
-  #poke-table td.td-name{display:block;text-align:left;border-bottom:1px solid var(--border);padding-bottom:9px;margin-bottom:4px;}
-  #poke-table td.td-name::before{display:block;margin-bottom:4px;}
-  #poke-table .name-open-btn{font-size:17px;color:var(--accent);}
-  #poke-table .stat-bar-wrap{margin-left:auto;justify-content:flex-end;}
-  .table-wrap{overflow:visible;}
-  .rank-wrap{overflow:visible;}
-  .rank-table{min-width:0;}
-  .rank-table thead{display:none;}
-  .rank-table,.rank-table tbody,.rank-table tr,.rank-table td{display:block;width:100%;}
-  .rank-table tr{background:var(--panel);border:1px solid var(--border);border-radius:10px;margin-bottom:9px;padding:9px 10px;}
-  .rank-table td{display:block;border-bottom:1px solid var(--border);padding:7px 0;white-space:normal;}
-  .rank-table td:last-child{border-bottom:none;}
-  .rank-table td::before{content:attr(data-label);display:block;font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;}
-}
-
 </style>
 </head>
 <body>
@@ -304,18 +247,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <div class="season-btns" id="season-btns">
       <button class="season-btn active" data-season="" onclick="setSeason(this,'')">すべて</button>
     </div>
-    <select class="search-mode-select" id="search-mode" onchange="render()" aria-label="検索対象">
-      <option value="all">全て</option>
-      <option value="name">名前</option>
-      <option value="move">技</option>
-      <option value="ability">特性</option>
-    </select>
-    <select class="search-mode-select" id="type-filter" onchange="render()" aria-label="タイプ絞り込み">
-      <option value="">全タイプ</option>
-    </select>
-    <input class="search-input" id="name-search" type="text" placeholder="名前・技・特性で検索..." oninput="render()">
-    <button class="search-clear-btn" type="button" onclick="clearSeasonSearch()">クリア</button>
-    <div class="search-help">技・特性は検索欄、タイプは選択欄で絞り込めます。タイプを選んだまま名前や技名で追加検索できます。</div>
+    <input class="search-input" id="name-search" type="text" placeholder="ポケモン名で絞り込み..." oninput="render()">
   </div>
 
   <!-- 統計 -->
@@ -428,85 +360,41 @@ function escapeHtml(value) {
     .replace(/'/g,'&#39;');
 }
 
-function isNintei(name) {
-  return SEASON_DATA.seasons.some(s => (SEASON_DATA[s]||[]).includes(name));
-}
-function inSeason(name, season) {
-  if(!season) return true;
-  return (SEASON_DATA[season]||[]).includes(name);
-}
-function seasonsForName(name) {
-  return SEASON_DATA.seasons.filter(s => (SEASON_DATA[s]||[]).includes(name));
-}
 
-function getSeasonSearchMode() {
-  return document.getElementById('search-mode')?.value || 'all';
+function isAegislashSeasonName(name){ return ['ギルガルド','ギルガルド盾','ギルガルド剣'].includes(String(name||'').trim()); }
+function seasonIncludesDisplayPokemon(list, name){
+  if(!Array.isArray(list)) return true;
+  if(list.includes(name)) return true;
+  return isAegislashSeasonName(name) && (list.includes('ギルガルド') || list.includes('ギルガルド盾') || list.includes('ギルガルド剣'));
 }
-
-function getSeasonTypeFilter() {
-  return document.getElementById('type-filter')?.value || '';
-}
-
-function matchesSeasonTypeFilter(p, type) {
-  if(!type) return true;
-  return !!p && (p.type1 === type || p.type2 === type);
-}
-
-function matchesSeasonTypeFilterForRecords(records, type) {
-  if(!type) return true;
-  return (records || []).some(p => matchesSeasonTypeFilter(p, type));
-}
-
-function normalizeSeasonSearchText(value) {
-  return String(value == null ? '' : value).toLowerCase().replace(/[\s　]+/g, '');
-}
-
-function getPokemonMoveTexts(name) {
-  const detail = POKE_MOVES_BY_NAME[name] || { moves: [] };
-  const moves = Array.isArray(detail.moves) ? detail.moves : [];
-  return moves.flatMap(m => [m.name, m.category, m.power, m.accuracy, m.pp, m.hits, m.description]).filter(Boolean);
-}
-
-function getPokemonAbilityTexts(name, includeEffects) {
-  const abilities = Array.isArray(ABILITIES_BY_NAME[name]) ? ABILITIES_BY_NAME[name] : [];
-  const out = abilities.slice();
-  if(includeEffects) {
-    abilities.forEach(ability => {
-      const effect = ABILITY_EFFECTS_BY_NAME[ability] && ABILITY_EFFECTS_BY_NAME[ability].effect ? ABILITY_EFFECTS_BY_NAME[ability].effect : '';
-      if(effect) out.push(effect);
-    });
+function buildSeasonDisplayPokemonData(raw){
+  const source=Array.isArray(raw)?raw:[];
+  const out=[];
+  const seen=new Set();
+  const shield=source.find(p=>p&&p.name==='ギルガルド盾');
+  const blade=source.find(p=>p&&p.name==='ギルガルド剣');
+  source.forEach(p=>{
+    if(!p || !p.name || p.name==='ギルガルド盾' || p.name==='ギルガルド剣') return;
+    if(seen.has(p.name)) return;
+    seen.add(p.name);
+    out.push(p);
+  });
+  if((shield || blade) && !seen.has('ギルガルド')){
+    const src=shield||blade;
+    out.push(Object.assign({}, src, {name:'ギルガルド', _aegislashDisplay:true, atk:blade?blade.atk:src.atk, spa:blade?blade.spa:src.spa, def:shield?shield.def:src.def, spd:shield?shield.spd:src.spd, total:(shield?shield.hp:src.hp)+(blade?blade.atk:src.atk)+(shield?shield.def:src.def)+(blade?blade.spa:src.spa)+(shield?shield.spd:src.spd)+(shield?shield.spe:src.spe)}));
   }
   return out;
 }
 
-function getPokemonSearchFields(p, mode) {
-  if(!p) return [];
-  const nameFields = [p.name, p.no];
-  const moveFields = getPokemonMoveTexts(p.name);
-  const abilityFields = getPokemonAbilityTexts(p.name, mode === 'all');
-  if(mode === 'name') return nameFields;
-  if(mode === 'move') return moveFields;
-  if(mode === 'ability') return abilityFields;
-  return nameFields.concat(moveFields, abilityFields);
+function isNintei(name) {
+  return SEASON_DATA.seasons.some(s => seasonIncludesDisplayPokemon(SEASON_DATA[s]||[], name));
 }
-
-function matchesSeasonSearchFields(fields, query) {
-  const tokens = String(query || '').trim().split(/[\s　]+/).filter(Boolean).map(normalizeSeasonSearchText);
-  if(!tokens.length) return true;
-  const hay = normalizeSeasonSearchText((fields || []).filter(Boolean).join(' '));
-  return tokens.every(token => hay.includes(token));
+function inSeason(name, season) {
+  if(!season) return true;
+  return seasonIncludesDisplayPokemon(SEASON_DATA[season]||[], name);
 }
-
-function matchesSeasonPokemonSearch(p, query, mode) {
-  return matchesSeasonSearchFields(getPokemonSearchFields(p, mode || getSeasonSearchMode()), query);
-}
-
-function clearSeasonSearch() {
-  const input = document.getElementById('name-search');
-  const typeFilter = document.getElementById('type-filter');
-  if(input) input.value = '';
-  if(typeFilter) typeFilter.value = '';
-  render();
+function seasonsForName(name) {
+  return SEASON_DATA.seasons.filter(s => seasonIncludesDisplayPokemon(SEASON_DATA[s]||[], name));
 }
 
 function setSeason(btn, season) {
@@ -526,11 +414,21 @@ function sortBy(key) {
   render();
 }
 
-function statCellHtml(p, key, label) {
+
+function matchesAegislashSeasonSearch(p, q){
+  const text=String(q||'').trim();
+  if(!text) return true;
+  const name=String(p&&p.name||'');
+  if(name.includes(text)) return true;
+  if(isAegislashSeasonName(name)) return ['ギルガルド','ギルガルド盾','ギルガルド剣','シールド','ブレード','剣','盾'].some(v=>v.includes(text)||text.includes(v));
+  return false;
+}
+
+function statCellHtml(p, key) {
   const val = p[key]||0;
   const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
   const color = STAT_COLORS[key]||'var(--text)';
-  return `<td class="td-stat" data-label="${escapeHtml(label||key)}">
+  return `<td class="td-stat">
     <div class="stat-bar-wrap">
       <span style="min-width:28px;text-align:right;">${val}</span>
       <div class="stat-bar-bg"><div class="stat-bar-fg" style="width:${pct}%;background:${color};"></div></div>
@@ -540,12 +438,9 @@ function statCellHtml(p, key, label) {
 
 function render() {
   const q = (document.getElementById('name-search')?.value||'').trim();
-  const searchMode = getSeasonSearchMode();
-  const typeFilter = getSeasonTypeFilter();
   let filtered = POKE_DATA.filter(p => {
     if(currentSeason && !inSeason(p.name, currentSeason)) return false;
-    if(!matchesSeasonTypeFilter(p, typeFilter)) return false;
-    if(q && !matchesSeasonPokemonSearch(p, q, searchMode)) return false;
+    if(q && !matchesAegislashSeasonSearch(p, q)) return false;
     return true;
   });
 
@@ -559,12 +454,6 @@ function render() {
   const totalNintei = POKE_DATA.filter(p => isNintei(p.name)).length;
   document.getElementById('stat-total').textContent = filtered.length;
   document.getElementById('stat-nintei').textContent = totalNintei;
-  const hint = document.querySelector('.detail-hint');
-  if(hint) {
-    const modeLabel = ({all:'全て', name:'名前', move:'技', ability:'特性'})[searchMode] || '全て';
-    const typeNote = typeFilter ? ` / タイプ: ${escapeHtml(typeFilter)}` : '';
-    hint.innerHTML = q ? `<span class="search-hit-note">${escapeHtml(modeLabel)}検索中:</span> ${escapeHtml(q)}${typeNote} / 名前クリックで詳細表示` : `${typeFilter ? `<span class="search-hit-note">タイプ絞り込み:</span> ${escapeHtml(typeFilter)} / ` : ''}名前クリックで詳細表示`;
-  }
 
   if(!filtered.length) {
     document.getElementById('poke-tbody').innerHTML = '<tr><td colspan="11" class="empty">該当するポケモンがいません</td></tr>';
@@ -577,17 +466,17 @@ function render() {
     const t2 = p.type2 ? `<span class="tp tp-${p.type2}">${escapeHtml(p.type2)}</span>` : '';
     const badge = nintei ? '<span class="badge-ok">✓</span>' : '';
     return `<tr class="${nintei?'is-nintei':''}">
-      <td class="td-no" data-label="No">#${String(p.no||'').padStart(4,'0')}</td>
-      <td class="td-name" data-label="名前"><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</button></td>
-      <td data-label="タイプ">${t1}${t2}</td>
-      ${statCellHtml(p,'hp','HP')}
-      ${statCellHtml(p,'atk','攻撃')}
-      ${statCellHtml(p,'def','防御')}
-      ${statCellHtml(p,'spa','特攻')}
-      ${statCellHtml(p,'spd','特防')}
-      ${statCellHtml(p,'spe','素早')}
-      <td class="td-total" data-label="合計">${p.total}</td>
-      <td class="td-badge" data-label="使用可">${badge}</td>
+      <td class="td-no">#${String(p.no||'').padStart(4,'0')}</td>
+      <td class="td-name"><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</button></td>
+      <td>${t1}${t2}</td>
+      ${statCellHtml(p,'hp')}
+      ${statCellHtml(p,'atk')}
+      ${statCellHtml(p,'def')}
+      ${statCellHtml(p,'spa')}
+      ${statCellHtml(p,'spd')}
+      ${statCellHtml(p,'spe')}
+      <td class="td-total">${p.total}</td>
+      <td class="td-badge">${badge}</td>
     </tr>`;
   }).join('');
 
@@ -605,15 +494,6 @@ function buildSeasonBtns() {
     btn.onclick = () => setSeason(btn, s);
     container.appendChild(btn);
   });
-}
-
-function buildTypeFilter() {
-  const select = document.getElementById('type-filter');
-  if(!select) return;
-  const order = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
-  const existing = new Set(POKE_DATA.flatMap(p => [p.type1, p.type2]).filter(Boolean));
-  const types = order.filter(t => existing.has(t)).concat([...existing].filter(t => !order.includes(t)).sort((a,b) => a.localeCompare(b,'ja')));
-  select.innerHTML = '<option value="">全タイプ</option>' + types.map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('');
 }
 
 function normalizePokemonMovesData(raw) {
@@ -691,7 +571,7 @@ function renderDetailMoves() {
   const detail = POKE_MOVES_BY_NAME[currentDetailName] || { moves: [] };
   const moves = Array.isArray(detail.moves) ? detail.moves : [];
   const filtered = !query ? moves : moves.filter(m => {
-    return matchesSeasonSearchFields([m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description], query);
+    return [m.name, m.type, m.category, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query);
   });
   if(!filtered.length) {
     body.innerHTML = `<tr><td colspan="8" class="detail-empty">${moves.length ? '条件に合う技がありません' : '技データがありません'}</td></tr>`;
@@ -727,9 +607,16 @@ window.onload = async () => {
       fetch('abilities.json?v='+Date.now()).then(r=>r.ok ? r.json() : {}).catch(()=>({})),
       fetch('abilities_data.json?v='+Date.now()).then(r=>r.ok ? r.json() : []).catch(()=>[]),
     ]);
-    POKE_DATA = Array.isArray(pd) ? pd : [];
-    POKE_DATA.forEach(p => {
+    const rawPokemonData = Array.isArray(pd) ? pd : [];
+    POKE_BY_NAME = {};
+    rawPokemonData.forEach(p => {
+      if(!p || !p.name) return;
       p.total = (p.hp||0)+(p.atk||0)+(p.def||0)+(p.spa||0)+(p.spd||0)+(p.spe||0);
+      POKE_BY_NAME[p.name] = p;
+    });
+    POKE_DATA = buildSeasonDisplayPokemonData(rawPokemonData);
+    POKE_DATA.forEach(p => {
+      p.total = p.total || ((p.hp||0)+(p.atk||0)+(p.def||0)+(p.spa||0)+(p.spd||0)+(p.spe||0));
       POKE_BY_NAME[p.name] = p;
     });
     SEASON_DATA = sd || {seasons:[]};
@@ -741,7 +628,6 @@ window.onload = async () => {
     alert('データの読み込みに失敗しました。');
   }
   buildSeasonBtns();
-  buildTypeFilter();
   render();
 };
 
@@ -873,27 +759,6 @@ document.addEventListener('DOMContentLoaded',function(){
       (SITE_NAME_TO_RANKING_NAMES[siteName] || []).forEach(n => names.push(n));
     });
     return uniq(names);
-  }
-
-  function buildSearchablePokemonFromName(name) {
-    const siteNames = resolveSiteNames(name || '');
-    return siteNames.map(n => POKE_BY_NAME[n]).filter(Boolean);
-  }
-
-  function matchesSeasonRankingSearch(row, siteNames, query) {
-    const mode = getSeasonSearchMode();
-    const typeFilter = getSeasonTypeFilter();
-    const records = (siteNames && siteNames.length ? siteNames : resolveSiteNames(row.name || row.siteName || '')).map(n => POKE_BY_NAME[n]).filter(Boolean);
-    if(!matchesSeasonTypeFilterForRecords(records, typeFilter)) return false;
-    const nameFields = [row.name, row.siteName].concat(siteNames || []);
-    const abilityFields = (row.abilities || []).concat(records.flatMap(p => getPokemonAbilityTexts(p.name, mode === 'all')));
-    const moveFields = (row.moves || []).concat(records.flatMap(p => getPokemonMoveTexts(p.name)));
-    let fields = [];
-    if(mode === 'name') fields = nameFields;
-    else if(mode === 'ability') fields = abilityFields;
-    else if(mode === 'move') fields = moveFields;
-    else fields = nameFields.concat(abilityFields, moveFields);
-    return matchesSeasonSearchFields(fields, query);
   }
 
   function resolveRankingRowsForName(name) {
@@ -1081,7 +946,8 @@ document.addEventListener('DOMContentLoaded',function(){
       const siteNames = resolveSiteNames(row.name);
       if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
       if(q) {
-        if(!matchesSeasonRankingSearch(row, siteNames, q)) return false;
+        const hay = [row.name, row.siteName].concat(siteNames).join(' ');
+        if(!hay.includes(q)) return false;
       }
       return true;
     }).sort((a,b) => (a.rank || 0) - (b.rank || 0));
@@ -1104,14 +970,14 @@ document.addEventListener('DOMContentLoaded',function(){
 
     tbody.innerHTML = rows.map(row => `
       <tr>
-        <td data-label="順位"><span class="rank-badge">${escapeHtml(row.rank || '—')}</span></td>
-        <td data-label="ポケモン"><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
-        <td data-label="技"><div class="rank-cell-block">${(row.moves || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td data-label="持ち物"><div class="rank-cell-block">${(row.items || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td data-label="特性"><div class="rank-cell-block">${(row.abilities || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td data-label="性格"><div class="rank-cell-block">${(row.natures || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td data-label="努力値"><div class="rank-cell-block">${(row.spreads || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td data-label="更新日">${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</td>
+        <td><span class="rank-badge">${escapeHtml(row.rank || '—')}</span></td>
+        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
+        <td><div class="rank-cell-block">${(row.moves || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.items || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.abilities || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.natures || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.spreads || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td>${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</td>
       </tr>
     `).join('');
   }
@@ -1214,7 +1080,8 @@ document.addEventListener('DOMContentLoaded',function(){
       const siteNames = resolveSiteNames(row.name || row.siteName || '');
       if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
       if(q) {
-        if(!matchesSeasonRankingSearch(row, siteNames, q)) return false;
+        const hay = [row.name, row.siteName].concat(siteNames).join(' ');
+        if(!hay.includes(q)) return false;
       }
       return true;
     }).sort((a,b) => {
@@ -1271,7 +1138,7 @@ document.addEventListener('DOMContentLoaded',function(){
     currentDetailMoves = ctx.moves;
 
     const rankingNameNote = ctx.siteNames.length > 1
-      ? `フォーム: ${ctx.siteNames.join(' / ')}`
+      ? `フォルム種族値: ${ctx.siteNames.map(n => n==='ギルガルド盾'?'シールド':n==='ギルガルド剣'?'ブレード':n).join(' / ')}`
       : ((ctx.displayName !== primary.name) ? `サイト表記: ${primary.name}` : '');
 
     document.getElementById('detail-name').textContent = ctx.displayName;
@@ -1346,26 +1213,6 @@ document.addEventListener('DOMContentLoaded',function(){
     ensureSeasonViews();
     ensureDetailRankingBox();
     loadRankingJson();
-  });
-})();
-</script>
-
-
-<nav class="pe-mobile-bottom-nav" aria-label="スマホ用主要ナビ">
-  <a href="calc.html">計算</a>
-  <a href="endure.html">耐久</a>
-  <a href="move.html">技</a>
-  <a href="scope.html">選出</a>
-  <a href="season.html">検索</a>
-</nav>
-<script>
-(function(){
-  var nav=document.querySelector('.pe-mobile-bottom-nav');
-  if(!nav) return;
-  var page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-  nav.querySelectorAll('a').forEach(function(a){
-    var href=(a.getAttribute('href')||'').toLowerCase();
-    if(page===href) a.classList.add('active');
   });
 })();
 </script>

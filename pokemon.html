@@ -293,19 +293,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
 
-
-
-/* スマホ下部固定ナビ */
-.pe-mobile-bottom-nav{display:none;}
-@media(max-width:768px){
-  body{padding-bottom:74px;}
-  .pe-mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:220;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,9,15,0.98);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,0.24);backdrop-filter:blur(18px);}
-  .pe-mobile-bottom-nav a{display:flex;align-items:center;justify-content:center;min-height:58px;padding:8px 4px;color:var(--text2);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:1px;border-right:1px solid var(--border);}
-  .pe-mobile-bottom-nav a:last-child{border-right:none;}
-  .pe-mobile-bottom-nav a.active{color:var(--accent);background:rgba(0,200,240,0.08);}
-}
-[data-theme="light"] .pe-mobile-bottom-nav{background:rgba(244,251,255,0.98);box-shadow:0 -8px 24px rgba(63,86,107,0.12);}
-
 </style>
 </head>
 <body>
@@ -615,7 +602,69 @@ let ITEMS_DATA   = [];
 let POKEMON_MOVES = {};
 let pokeIndex    = [];
 let moveIndex    = [];
-let _dataLoaded  = false;
+let _dataLoaded = false;
+
+
+// ===== ギルガルドの登録名統一 =====
+const AEGISLASH_BASE_NAME = 'ギルガルド';
+const AEGISLASH_SHIELD_NAME = 'ギルガルド盾';
+const AEGISLASH_BLADE_NAME = 'ギルガルド剣';
+function isAegislashName(name){ return [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME].includes(String(name||'').trim()); }
+function normalizeAegislashDisplayName(name){ return isAegislashName(name) ? AEGISLASH_BASE_NAME : String(name||'').trim(); }
+function markAegislashEntry(p){ if(p && (p.name===AEGISLASH_SHIELD_NAME || p.name===AEGISLASH_BLADE_NAME)) p._hiddenForm = true; return p; }
+function ensureAegislashDisplayPokemon(list){
+  const arr=(list||[]).slice();
+  if(arr.some(p=>p && p.name===AEGISLASH_BASE_NAME)) return arr;
+  const shield=arr.find(p=>p&&p.name===AEGISLASH_SHIELD_NAME);
+  const blade=arr.find(p=>p&&p.name===AEGISLASH_BLADE_NAME);
+  const src=shield||blade;
+  if(src) arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true,atk:blade?blade.atk:src.atk,spa:blade?blade.spa:src.spa,def:shield?shield.def:src.def,spd:shield?shield.spd:src.spd}));
+  return arr;
+}
+function isVisiblePokemon(p){ return !(p && p._hiddenForm); }
+function seasonIncludesDisplayName(list, name){
+  if(!Array.isArray(list)) return true;
+  if(list.includes(name)) return true;
+  return isAegislashName(name) && (list.includes(AEGISLASH_BASE_NAME) || list.includes(AEGISLASH_SHIELD_NAME) || list.includes(AEGISLASH_BLADE_NAME));
+}
+function matchesPokemonNameSearch(p,q){
+  const text=String(q||'').trim();
+  if(!text) return true;
+  if(String(p&&p.name||'').includes(text)) return true;
+  if(isAegislashName(p&&p.name)) return [AEGISLASH_BASE_NAME,AEGISLASH_SHIELD_NAME,AEGISLASH_BLADE_NAME,'剣','盾','ブレード','シールド'].some(v=>v.includes(text)||text.includes(v));
+  return false;
+}
+function findPokemonByDisplayName(name){
+  const n=String(name||'').trim();
+  return pokeIndex.find(p=>p.name===n) || (isAegislashName(n) ? pokeIndex.find(p=>p.name===AEGISLASH_BASE_NAME) : null);
+}
+function getAegislashForms(){ return [pokeIndex.find(p=>p.name===AEGISLASH_SHIELD_NAME), pokeIndex.find(p=>p.name===AEGISLASH_BLADE_NAME)].filter(Boolean); }
+function getLookupNamesForPokemon(name){ return isAegislashName(name) ? [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME] : [String(name||'').trim()].filter(Boolean); }
+function getAbilityOptionsUnified(pokeName){
+  const out=[];
+  getLookupNamesForPokemon(pokeName).forEach(n=>{ const list=ABILITY_MAP&&ABILITY_MAP[n]; if(Array.isArray(list)) list.forEach(v=>{ if(v&&!out.includes(v)) out.push(v); }); });
+  return out;
+}
+function renderDualAegislashStats(containerId){
+  const forms=getAegislashForms();
+  if(!forms.length) return false;
+  const stats=[['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
+  const box=document.getElementById(containerId);
+  if(!box) return false;
+  let html='<div style="display:grid;gap:8px;">';
+  forms.forEach(form=>{
+    html+='<div style="border:1px solid var(--border);background:var(--bg2);padding:8px;">';
+    html+='<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+(form.name===AEGISLASH_BLADE_NAME?'ブレードフォルム':'シールドフォルム')+'</div>';
+    stats.forEach(pair=>{
+      const label=pair[0], key=pair[1], v=form[key]||0;
+      html+='<div class="bstat-row"><div class="bstat-label">'+label+'</div><div class="bstat-bar-bg"><div class="bstat-bar-fg" style="width:'+Math.round(v/255*100)+'%;"></div></div><div class="bstat-val">'+v+'</div></div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  box.innerHTML=html;
+  return true;
+}
 
 async function loadGameData() {
   if(_dataLoaded) return;
@@ -628,7 +677,7 @@ async function loadGameData() {
       fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
       fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
     ]);
-    POKEMON_DATA = pd;
+    POKEMON_DATA = ensureAegislashDisplayPokemon((Array.isArray(pd)?pd:[]).map(markAegislashEntry));
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
@@ -666,8 +715,7 @@ function normalizeNatureName(value){
   return (!v || v==='おとぼけ') ? 'がんばりや' : v;
 }
 function getAbilityOptions(pokeName){
-  const list = ABILITY_MAP && ABILITY_MAP[pokeName];
-  return Array.isArray(list) ? list.filter(Boolean) : [];
+  return getAbilityOptionsUnified(pokeName);
 }
 function renderAbilityOptions(pokeName, selected){
   const sel=document.getElementById('f-ability');
@@ -678,8 +726,11 @@ function renderAbilityOptions(pokeName, selected){
   sel.value = current && options.includes(current) ? current : '';
 }
 function getPokemonKnownMoves(pokeName){
-  const row = POKEMON_MOVES && POKEMON_MOVES[pokeName];
-  return row && Array.isArray(row.moves) ? row.moves : [];
+  for(const lookupName of getLookupNamesForPokemon(pokeName)){
+    const row = POKEMON_MOVES && POKEMON_MOVES[lookupName];
+    if(row && Array.isArray(row.moves) && row.moves.length) return row.moves;
+  }
+  return [];
 }
 function renderMoveQuick(pokeName){
   const wrap=document.getElementById('move-quick');
@@ -878,8 +929,8 @@ function setupPokeSearch() {
     clearTimeout(timer);
     const q=inp.value.trim();
     timer=setTimeout(()=>{
-      const filtered = getTypeFilteredPokes();
-      const res = q ? filtered.filter(p=>p.name.includes(q)).slice(0,12) : filtered.slice(0,12);
+      const filtered = getTypeFilteredPokes().filter(isVisiblePokemon);
+      const res = q ? filtered.filter(p=>matchesPokemonNameSearch(p,q)).slice(0,12) : filtered.slice(0,12);
       if(!res.length){drop.classList.remove('show');return;}
       drop.innerHTML=res.map(p=>{
         const t1=p.type1?`<span class="type-pill tp-${p.type1}">${p.type1}</span>`:'';
@@ -895,22 +946,25 @@ function setupPokeSearch() {
 }
 
 function selectPoke(name) {
-  const p=pokeIndex.find(x=>x.name===name);
+  const p=findPokemonByDisplayName(name);
   if(!p) return;
   currentPokeData=p;
-  document.getElementById('poke-search').value=name;
+  document.getElementById('poke-search').value=normalizeAegislashDisplayName(p.name);
   document.getElementById('poke-drop').classList.remove('show');
-  document.getElementById('edit-pokename').textContent=name;
+  document.getElementById('edit-pokename').textContent=normalizeAegislashDisplayName(p.name);
   const t1=p.type1?`<span class="type-pill tp-${p.type1}">${p.type1}</span>`:'';
   const t2=p.type2?`<span class="type-pill tp-${p.type2}">${p.type2}</span>`:'';
   document.getElementById('edit-types').innerHTML=t1+t2;
-  renderAbilityOptions(p.name, document.getElementById('f-ability')?.value || getAbilityOptions(p.name)[0] || '');
-  renderMoveQuick(p.name);
+  renderAbilityOptions(normalizeAegislashDisplayName(p.name), document.getElementById('f-ability')?.value || getAbilityOptions(normalizeAegislashDisplayName(p.name))[0] || '');
+  renderMoveQuick(normalizeAegislashDisplayName(p.name));
   // 種族値バー
   const statKeys=[{k:'hp',l:'HP',c:'#e53935'},{k:'atk',l:'攻撃',c:'#fb8c00'},{k:'def',l:'防御',c:'#fdd835'},{k:'spa',l:'特攻',c:'#1e88e5'},{k:'spd',l:'特防',c:'#00acc1'},{k:'spe',l:'素早',c:'#43a047'}];
   const box=document.getElementById('base-stats-box');
   box.style.display='block';
-  document.getElementById('base-stats').innerHTML=statKeys.map(s=>{
+  if(isAegislashName(p.name)) {
+    renderDualAegislashStats('base-stats');
+  } else {
+    document.getElementById('base-stats').innerHTML=statKeys.map(s=>{
     const v=p[s.k]||0;
     return `<div class="bstat-row">
       <div class="bstat-label">${s.l}</div>
@@ -918,6 +972,7 @@ function selectPoke(name) {
       <div class="bstat-val">${v}</div>
     </div>`;
   }).join('');
+  }
   recalcReal();
 }
 
@@ -1315,7 +1370,7 @@ async function savePokemon() {
     alert('ポケモンを選択してください');return;
   }
   const nickname=document.getElementById('nickname').value.trim();
-  const pokeName=currentPokeData?currentPokeData.name:(document.getElementById('poke-search').value||'');
+  const pokeName=normalizeAegislashDisplayName(currentPokeData?currentPokeData.name:(document.getElementById('poke-search').value||''));
   const displayName=nickname||pokeName||'名称未設定';
   const record={
     id: currentId,
@@ -1349,12 +1404,13 @@ function loadPokemon(id) {
   const rec=registeredPokes.find(p=>p.id===id);
   if(!rec) return;
   currentId=id;
-  currentPokeData=pokeIndex.find(x=>x.name===rec.pokeName)||null;
+  rec.pokeName = normalizeAegislashDisplayName(rec.pokeName||'');
+  currentPokeData=findPokemonByDisplayName(rec.pokeName)||null;
   currentMoves=[...rec.moves];
   document.getElementById('edit-empty').style.display='none';
   document.getElementById('edit-form').style.display='block';
   document.getElementById('edit-pokename').textContent=rec.displayName;
-  document.getElementById('poke-search').value=rec.pokeName||'';
+  document.getElementById('poke-search').value=normalizeAegislashDisplayName(rec.pokeName||'');
   document.getElementById('nickname').value=rec.nickname||'';
   document.getElementById('f-lv').value=rec.lv||50;
   document.getElementById('f-nature').value=normalizeNatureName(rec.nature);
@@ -1442,8 +1498,9 @@ window.onload = async () => {
 function getSeasonFilteredPokes() {
   const sel = document.getElementById('global-season-filter');
   const season = sel ? sel.value : '';
-  if(!season || !SEASON_DATA || !SEASON_DATA[season]) return pokeIndex;
-  return pokeIndex.filter(p => SEASON_DATA[season].includes(p.name));
+  const visible = pokeIndex.filter(isVisiblePokemon);
+  if(!season || !SEASON_DATA || !SEASON_DATA[season]) return visible;
+  return visible.filter(p => seasonIncludesDisplayName(SEASON_DATA[season], p.name));
 }
 function onSeasonFilterChange() {
   document.querySelectorAll('input.search-input').forEach(inp => {
@@ -1521,25 +1578,5 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 </script>
-
-<nav class="pe-mobile-bottom-nav" aria-label="スマホ用主要ナビ">
-  <a href="calc.html">計算</a>
-  <a href="endure.html">耐久</a>
-  <a href="move.html">技</a>
-  <a href="scope.html">選出</a>
-  <a href="season.html">検索</a>
-</nav>
-<script>
-(function(){
-  var nav=document.querySelector('.pe-mobile-bottom-nav');
-  if(!nav) return;
-  var page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-  nav.querySelectorAll('a').forEach(function(a){
-    var href=(a.getAttribute('href')||'').toLowerCase();
-    if(page===href) a.classList.add('active');
-  });
-})();
-</script>
-
 </body>
 </html>

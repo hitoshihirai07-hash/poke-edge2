@@ -132,6 +132,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .nav-btn:hover{border-color:var(--accent);color:var(--accent);}
 .nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
 
+  background:radial-gradient(ellipse 50% 35% at 10% 5%,rgba(0,200,240,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 25% at 90% 90%,rgba(255,48,96,0.04) 0%,transparent 60%),
 .logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 20px rgba(0,200,240,0.4);flex-shrink:0;}
 .gen-selector{display:flex;gap:3px;margin-left:auto;}
 .gen-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;white-space:nowrap;position:relative;}
@@ -367,8 +369,7 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-slot-list{display:flex;flex-direction:column;gap:6px;}
 .party-slot-btn{
   padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;
-  transition:all 0.18s;position:relative;background:var(--bg2);border:1px solid var(--border);color:var(--text);
-}
+  transition:all 0.18s;position:relative;
 .party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);}
 .party-slot-btn.active{background:rgba(0,200,240,0.06);}
 .party-slot-btn.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
@@ -420,13 +421,13 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .add-total-box{background:var(--bg);border:1px solid var(--border2);padding:14px;margin-top:12px;}
 .add-total-num{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--accent3);line-height:1;}
 .add-total-pct{font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--accent3);margin-top:4px;}
-.add-bar-wrap{height:8px;background:var(--bg);overflow:hidden;margin:8px 0;display:flex;gap:0;}
+.add-bar-wrap{height:8px;background:var(--bg);overflow:hidden;margin:8px 0;display:flex;gap:2px;}
 .add-bar-1{height:100%;background:var(--accent);transition:width 0.5s;}
 .add-bar-2{height:100%;background:var(--accent2);transition:width 0.5s;}
 .add-breakdown{font-size:11px;color:var(--text3);margin-top:8px;line-height:2;}
 .add-ko-tag{display:inline-block;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:6px;}
 .add-ko1{background:var(--accent2);color:#fff;}.add-ko2{background:var(--accent3);color:#000;}.add-ko3{background:var(--text2);color:#fff;}
-footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 /* アクティブタブ不要なので非表示 */
 .tabs{ display:none; }
 
@@ -526,13 +527,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .hp-wrap,.real-stat-box,.corr-section,.search-wrap,.quick-action-row,.quick-chip-wrap{max-width:100%;}
 }
 
-
-/* calc.html: スマホ下部ナビと計算結果バーの重なり防止 */
-@media(max-width:768px){
-  .calc-result-col.mobile-floating{bottom:58px;z-index:210;}
-  body.has-mobile-result{padding-bottom:138px;}
-}
-
 /* ===== ライトモード ===== */
 
 .side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
@@ -548,100 +542,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .side-title{color:#3f566b}
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
-
-
-
-/* スマホ下部固定ナビ */
-.pe-mobile-bottom-nav{display:none;}
-@media(max-width:768px){
-  body{padding-bottom:74px;}
-  .pe-mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:220;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,9,15,0.98);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,0.24);backdrop-filter:blur(18px);}
-  .pe-mobile-bottom-nav a{display:flex;align-items:center;justify-content:center;min-height:58px;padding:8px 4px;color:var(--text2);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:1px;border-right:1px solid var(--border);}
-  .pe-mobile-bottom-nav a:last-child{border-right:none;}
-  .pe-mobile-bottom-nav a.active{color:var(--accent);background:rgba(0,200,240,0.08);}
-}
-[data-theme="light"] .pe-mobile-bottom-nav{background:rgba(244,251,255,0.98);box-shadow:0 -8px 24px rgba(63,86,107,0.12);}
-
-
-
-/* ===== calc.html スマホ入力整理 ===== */
-.mobile-calc-steps{display:none;}
-@media(max-width:760px){
-  .layout{padding:10px 10px 150px;}
-  .main-content{width:100%;}
-  .setup-entry{margin-bottom:8px;}
-  .setup-entry-head{gap:10px;}
-  .setup-entry-title{font-size:11px;}
-  .setup-entry-summary{font-size:11px;line-height:1.7;}
-  .setup-entry-help{display:none;}
-  .setup-entry-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .setup-entry-status{grid-column:1 / -1;text-align:left;}
-  .setup-entry-actions .quick-action-btn{width:100%;min-height:42px;padding:10px 8px;}
-  .mobile-calc-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:52px;z-index:70;padding:8px 0 9px;margin:0 0 10px;background:linear-gradient(180deg,var(--bg) 78%,rgba(7,9,15,0));}
-  .mobile-calc-steps button{min-height:38px;border:1px solid var(--border2);background:rgba(15,20,35,.94);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 3px;border-radius:10px;}
-  .mobile-calc-steps button.active,.mobile-calc-steps button:focus{border-color:var(--accent);color:var(--accent);outline:none;background:rgba(0,200,240,0.08);}
-  .calc-body{display:block;}
-  .calc-grid{display:flex;flex-direction:column;gap:10px;}
-  .calc-grid>.card,.calc-mobile-tech-card{border-radius:14px;padding:0;overflow:hidden;background:var(--panel);}
-  .calc-grid>.card>.card-title,.calc-mobile-tech-card>.card-title{min-height:48px;margin:0;padding:13px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;justify-content:space-between;color:var(--text);font-size:12px;letter-spacing:2px;}
-  .calc-grid>.card>.card-title::after,.calc-mobile-tech-card>.card-title::after{content:'▲';font-size:10px;color:var(--text2);margin-left:auto;transition:transform .18s ease;}
-  .calc-grid>.card.is-collapsed>.card-title::after,.calc-mobile-tech-card.is-collapsed>.card-title::after{transform:rotate(180deg);}
-  .calc-grid>.card.is-collapsed > :not(.card-title),.calc-mobile-tech-card.is-collapsed > :not(.card-title){display:none !important;}
-  .calc-grid>.card > :not(.card-title),.calc-mobile-tech-card > :not(.card-title){padding-left:14px;padding-right:14px;}
-  .calc-grid>.card > label:first-of-type,.calc-mobile-tech-card > label:first-of-type{margin-top:14px;}
-  .calc-grid>.card > :last-child,.calc-mobile-tech-card > :last-child{margin-bottom:14px;}
-  .vs-mid{order:2;padding:0;margin:-2px 0 0;}
-  .swap-btn{width:100%;min-height:42px;border-radius:12px;}
-  .calc-mobile-section-atk{order:1;}
-  .calc-mobile-section-def{order:3;}
-  .calc-mobile-tech-card{order:4;display:block;}
-  .calc-mobile-tech-body{padding:0 14px 14px;}
-  .calc-mobile-tech-body > :first-child{margin-top:12px;}
-  .calc-mobile-tech-body .corr-section{margin-top:10px;}
-  .calc-mobile-tech-body .corr-grid{grid-template-columns:1fr !important;}
-  .corr-grid{grid-template-columns:1fr !important;gap:8px;}
-  .slider-inputs{grid-template-columns:1fr 74px;gap:8px;}
-  .ev-quick-btns{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-  .ev-quick-btn{min-height:34px;}
-  input[type=text],input[type=number],select,.search-input{font-size:16px;min-height:42px;padding:9px 10px;}
-  .quick-chip-wrap{max-height:150px;overflow:auto;-webkit-overflow-scrolling:touch;}
-  .quick-chip,.quick-action-btn{min-height:38px;}
-  .poke-card{margin:8px 0 10px;}
-  .real-stat-box{margin-bottom:10px;}
-  .hp-wrap{padding:10px 14px;margin-top:10px;}
-  .def-hazard-grid{grid-template-columns:1fr;}
-  .main-btn{min-height:46px;border-radius:12px;}
-  .result-box.show{border-radius:14px;}
-  .result-big{font-size:40px;line-height:1.05;}
-  .damage-bar{height:20px;}
-  .calc-result-col.mobile-floating{bottom:58px;z-index:210;border-radius:16px 16px 0 0;}
-  .calc-result-col.mobile-floating.open{max-height:78vh;}
-  .mobile-result-handle{min-height:56px;padding:12px 14px;}
-  body.has-mobile-result{padding-bottom:150px;}
-}
-@media(max-width:380px){.mobile-calc-steps{grid-template-columns:repeat(2,1fr);top:52px;}}
-[data-theme="light"] .mobile-calc-steps button{background:rgba(244,251,255,.96);}
-
-
-
-/* ===== calc.html スマホ入力の広がり防止・コンパクト化 ===== */
-@media(max-width:760px){
-  html,body{max-width:100%;overflow-x:hidden;}
-  .layout,.main-content,.panel,.calc-body,.calc-input-col,.calc-grid,.calc-grid>.card,.calc-mobile-tech-card,.setup-entry{width:100%;max-width:100%;min-width:0;}
-  .layout{padding-left:8px;padding-right:8px;}
-  .setup-entry-head{display:grid;grid-template-columns:1fr;align-items:stretch;}
-  .setup-entry-head > div[style*="min-width"]{min-width:0 !important;width:100% !important;}
-  .setup-entry-actions{min-width:0;width:100%;}
-  .calc-grid>.card:not(.is-collapsed),.calc-mobile-tech-card:not(.is-collapsed){max-height:calc(100dvh - 180px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
-  .calc-grid>.card>.card-title,.calc-mobile-tech-card>.card-title{position:sticky;top:0;z-index:2;}
-  .quick-chip-wrap{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;flex-wrap:unset !important;overflow-x:hidden !important;overflow-y:auto;max-height:132px;min-width:0;padding-bottom:0;}
-  .quick-chip{width:100%;min-width:0;white-space:normal !important;overflow-wrap:anywhere;word-break:break-word;flex:initial !important;text-align:center;padding:7px 6px;}
-  .slider-inputs{grid-template-columns:minmax(0,1fr) 72px;min-width:0;}
-  input[type=range]{width:100%;min-width:0;}
-  .real-stat-row,.hp-wrap,.corr-section,.search-wrap,.quick-action-row{min-width:0;max-width:100%;}
-  .mobile-calc-steps{max-width:100%;}
-}
-@media(max-width:380px){.quick-chip-wrap{grid-template-columns:1fr;}}
 
 </style>
 </head>
@@ -693,19 +593,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       </div>
     </div>
 
-    <div class="mobile-calc-steps" id="mobile-calc-steps" aria-label="スマホ用入力ステップ">
-      <button type="button" data-target="calc-mobile-atk">①攻撃</button>
-      <button type="button" data-target="calc-mobile-def">②防御</button>
-      <button type="button" data-target="calc-mobile-tech-card">③技条件</button>
-      <button type="button" data-action="result">④結果</button>
-    </div>
-
     <div class="calc-body">
     <div class="calc-input-col">
     <div class="calc-grid">
 
       <!-- 攻撃側 -->
-      <div class="card calc-mobile-section calc-mobile-section-atk" id="calc-mobile-atk">
+      <div class="card">
         <div class="card-title">攻撃側</div>
         <label>ポケモン検索</label>
         <div id="season-filter-wrap" style="display:none;margin-bottom:6px;">
@@ -993,7 +886,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <div class="vs-mid"><button type="button" class="swap-btn" onclick="smartSwapSides()">⇄ 攻防を入れ替え</button></div>
 
       <!-- 防御側 -->
-      <div class="card calc-mobile-section calc-mobile-section-def" id="calc-mobile-def">
+      <div class="card">
         <div class="card-title">防御側</div>
         <label>ポケモン検索</label>
         <div class="search-wrap">
@@ -1535,6 +1428,83 @@ let _damageSelectionConfirmed = false;
 let _damageSetupState = { atkName:'', defName:'', moveName:'' };
 
 
+// ===== ギルガルド表示・計算フォルム統一 =====
+const AEGISLASH_BASE_NAME = 'ギルガルド';
+const AEGISLASH_SHIELD_NAME = 'ギルガルド盾';
+const AEGISLASH_BLADE_NAME = 'ギルガルド剣';
+window._defAegislashForm = window._defAegislashForm || 'shield';
+function isAegislashName(name){ return [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME].includes(String(name||'').trim()); }
+function normalizeAegislashDisplayName(name){ return isAegislashName(name) ? AEGISLASH_BASE_NAME : String(name||'').trim(); }
+function markAegislashCalcEntry(p){ if(p && (p.name===AEGISLASH_SHIELD_NAME || p.name===AEGISLASH_BLADE_NAME)) p._hiddenForm = true; return p; }
+function ensureAegislashDisplayPokemon(list){
+  const arr = (list||[]).slice();
+  if(arr.some(p=>p && p.name===AEGISLASH_BASE_NAME)) return arr;
+  const shield = arr.find(p=>p && p.name===AEGISLASH_SHIELD_NAME);
+  const blade = arr.find(p=>p && p.name===AEGISLASH_BLADE_NAME);
+  const src = shield || blade;
+  if(src){
+    arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true,atk:blade?blade.atk:src.atk,spa:blade?blade.spa:src.spa,def:shield?shield.def:src.def,spd:shield?shield.spd:src.spd}));
+  }
+  return arr;
+}
+function isVisibleCalcPokemon(p){ return !(p && p._hiddenForm); }
+function matchesCalcPokemonSearch(p, q){
+  const text = String(q||'').trim();
+  if(!text) return true;
+  if(String(p && p.name || '').includes(text)) return true;
+  if(isAegislashName(p && p.name)) return [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME, 'シールド','ブレード','剣','盾'].some(v=>v.includes(text) || text.includes(v));
+  return false;
+}
+function findCalcPokemonByName(name){
+  const n = String(name||'').trim();
+  return pokeIndex.find(p=>p.name===n) || (isAegislashName(n) ? pokeIndex.find(p=>p.name===AEGISLASH_BASE_NAME) : null);
+}
+function seasonIncludesCalcName(seasonList, name){
+  if(!Array.isArray(seasonList)) return true;
+  if(seasonList.includes(name)) return true;
+  return isAegislashName(name) && (seasonList.includes(AEGISLASH_BASE_NAME) || seasonList.includes(AEGISLASH_SHIELD_NAME) || seasonList.includes(AEGISLASH_BLADE_NAME));
+}
+function getAegislashRawForm(form){
+  const target = form==='blade' ? AEGISLASH_BLADE_NAME : AEGISLASH_SHIELD_NAME;
+  return pokeIndex.find(p=>p.name===target) || pokeIndex.find(p=>p.name===AEGISLASH_BASE_NAME) || null;
+}
+function getCalcPokemonForSide(side, poke){
+  if(!isAegislashName(poke && poke.name)) return poke;
+  if(side==='def') return getAegislashRawForm(window._defAegislashForm==='blade' ? 'blade' : 'shield') || poke;
+  return getAegislashRawForm('blade') || poke;
+}
+function getAegislashLookupNames(name){ return isAegislashName(name) ? [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME] : [String(name||'').trim()].filter(Boolean); }
+function renderAegislashCalcControl(side, poke){
+  const wrap = document.getElementById(side+'-mega-toggle');
+  if(!wrap || !isAegislashName(poke && poke.name)) return false;
+  wrap.innerHTML = '';
+  const title = document.createElement('div');
+  title.style.cssText = 'width:100%;font-size:10px;color:var(--accent3);line-height:1.7;';
+  if(side==='atk' || side==='atk2'){
+    title.textContent = 'ギルガルドは攻撃計算ではブレードフォルム固定で計算します。';
+    wrap.appendChild(title);
+    return true;
+  }
+  title.textContent = 'ギルガルドの被弾フォルムを選択してください。';
+  wrap.appendChild(title);
+  [['shield','シールドで受ける'],['blade','ブレードで受ける']].forEach(([form,label])=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mega-btn' + (window._defAegislashForm===form ? ' mega-back' : '');
+    btn.textContent = label;
+    btn.addEventListener('click',()=>{
+      window._defAegislashForm = form;
+      renderAegislashCalcControl(side, poke);
+      recalcDef();
+      updateDamageSetupSummary();
+      scheduleAutoCalc();
+    });
+    wrap.appendChild(btn);
+  });
+  return true;
+}
+
+
 async function fetchTextWithRetry(url, retries=2){
   let lastErr = null;
   for(let i=0;i<=retries;i++){
@@ -1716,7 +1686,7 @@ function bindPokemonSearchFinalize(inputId){
   const finalize = ()=>{
     const q = (inp.value || '').trim();
     if(!q) return;
-    const exact = pokeIndex.find(p => String(p.name || '').trim() === q);
+    const exact = findCalcPokemonByName(q);
     if(!exact) return;
     if(inputId==='atk-search') initAtkPoke(exact);
     else if(inputId==='def-search') initDefPoke(exact);
@@ -1736,7 +1706,7 @@ async function loadGameData() {
     fetchJsonFlexible('belongings.json', [], false),
     fetchJsonFlexible('pokemon_moves.json', {pokemon:{}}, false),
   ]);
-  POKEMON_DATA = normalizePokemonDataset(pd);
+  POKEMON_DATA = ensureAegislashDisplayPokemon(normalizePokemonDataset(pd).map(markAegislashCalcEntry));
   MOVES_DATA = normalizeMovesDataset(md);
   ABILITY_MAP = normalizeAbilityMap(ad);
   SEASON_DATA = normalizeSeasonData(sd);
@@ -1849,15 +1819,12 @@ function getWeightPower(moveName, atkW, defW) {
 
 // ===== 連続技ヒット数 =====
 function parseHits(raw) {
-  const s = String(raw || '1').trim();
-  const nums = s.match(/\d+/g);
-  if (nums && nums.length >= 2) {
-    const mn = Math.max(1, parseInt(nums[0], 10) || 1);
-    const mx = Math.max(mn, parseInt(nums[1], 10) || mn);
-    return {min: mn, max: mx};
+  const s=String(raw||'1').trim();
+  if(s.includes('〜')||s.includes('~')) {
+    const parts=s.split(/[〜~]/); const mn=parseInt(parts[0])||1, mx=parseInt(parts[1])||mn;
+    return {min:mn,max:mx};
   }
-  const n = nums && nums.length ? (parseInt(nums[0], 10) || 1) : 1;
-  return {min: n, max: n};
+  const n=parseInt(s)||1; return {min:n,max:n};
 }
 function clampNumber(v,min,max){
   const n=Number(v);
@@ -1970,8 +1937,11 @@ function normalizeMoveFromPokemonEntry(entry){
   };
 }
 function getPokemonKnownMoves(name){
-  const row = POKEMON_MOVES[name];
-  return row && Array.isArray(row.moves) ? row.moves : [];
+  for(const lookupName of getAegislashLookupNames(name)){
+    const row = POKEMON_MOVES[lookupName];
+    if(row && Array.isArray(row.moves) && row.moves.length) return row.moves;
+  }
+  return [];
 }
 function renderQuickMoveChips(pokeName){
   const wrap = el('atk-move-quick');
@@ -2039,7 +2009,7 @@ function renderPokemonPickerList(){
   if(!list) return;
   const q = (el('poke-picker-search')?.value||'').trim();
   let items = getSeasonFilteredPokes();
-  if(q) items = items.filter(p=>p.name.includes(q));
+  if(q) items = items.filter(p=>matchesCalcPokemonSearch(p,q));
   list.innerHTML = items.slice(0,400).map(p=>{
     const t1 = p.type1?`<span class="type-pill tp-${p.type1}">${p.type1}</span>`:'';
     const t2 = p.type2?`<span class="type-pill tp-${p.type2}">${p.type2}</span>`:'';
@@ -2060,13 +2030,14 @@ function closePokemonPicker(){
   el('poke-picker-modal')?.classList.remove('show');
 }
 function selectPickerPokemon(name){
-  const p = pokeIndex.find(x=>x.name===name);
+  const p = findCalcPokemonByName(name);
   if(!p) return;
+  const displayName = normalizeAegislashDisplayName(p.name);
   if(_pickerSide==='atk'){
-    el('atk-search').value = name;
+    el('atk-search').value = displayName;
     initAtkPoke(p);
   } else {
-    el('def-search').value = name;
+    el('def-search').value = displayName;
     initDefPoke(p);
   }
   closePokemonPicker();
@@ -2336,8 +2307,9 @@ function smartSwapSides(){
 // ===== 検索 =====
 function getSeasonFilteredPokes() {
   const sel=el('global-season-filter'); const season=sel?sel.value:'';
-  if(!season||!SEASON_DATA||!SEASON_DATA[season]) return pokeIndex;
-  return pokeIndex.filter(p=>SEASON_DATA[season].includes(p.name));
+  const visible = pokeIndex.filter(isVisibleCalcPokemon);
+  if(!season||!SEASON_DATA||!SEASON_DATA[season]) return visible;
+  return visible.filter(p=>seasonIncludesCalcName(SEASON_DATA[season], p.name));
 }
 function getCurrentSeasonKey(){
   const season=(el('global-season-filter')?.value||'').trim();
@@ -2606,7 +2578,7 @@ function setupSearch(inputId,dropId,onSelect) {
     clearTimeout(timer); const q=inp.value.trim();
     if(!q){drop.classList.remove('show');drop.innerHTML='';return;}
     timer=setTimeout(()=>{
-      const res=getSeasonFilteredPokes().filter(p=>String(p.name||'').includes(q)).slice(0,12);
+      const res=getSeasonFilteredPokes().filter(p=>matchesCalcPokemonSearch(p,q)).slice(0,12);
       if(!res.length){
         drop.innerHTML='<div class="drop-item" style="cursor:default;color:var(--text2);">候補がありません</div>';
         drop.classList.add('show');
@@ -2630,7 +2602,8 @@ function setupSearch(inputId,dropId,onSelect) {
 function searchDropSelect(inputId,dropId,name) {
   const inp=el(inputId), drop=el(dropId);
   inp.value=name; drop.classList.remove('show');
-  const p=pokeIndex.find(x=>x.name===name); if(!p) return;
+  const p=findCalcPokemonByName(name); if(!p) return;
+  inp.value=normalizeAegislashDisplayName(p.name);
   if(inp._onSelect){inp._onSelect(p);return;}
   if(inputId==='atk-search') initAtkPoke(p);
   else if(inputId==='def-search') initDefPoke(p);
@@ -2955,7 +2928,7 @@ function initDefPoke(p) {
 
 // ===== 実数値再計算 =====
 function recalcAtk() {
-  const p=window._atkBase; if(!p) return;
+  const p=getCalcPokemonForSide('atk', window._atkBase); if(!p) return;
   const getNum=(id,fallback=0)=>{
     const node=el(id);
     return node ? (parseInt(node.value)||0) : fallback;
@@ -2978,7 +2951,7 @@ function recalcAtk() {
   scheduleAutoCalc();
 }
 function recalcDef() {
-  const p=window._defBase; if(!p) return;
+  const p=getCalcPokemonForSide('def', window._defBase); if(!p) return;
   const lv=parseInt(el('def-lv').value)||50;
   const iv=parseInt(el('def-iv').value)||31;
   const evH=parseInt(el('def-ev-hp').value)||0;
@@ -3705,7 +3678,7 @@ function initAtk2(p){
   });
 }
 function recalcAtk2(){
-  const p=window._atk2Base; if(!p) return;
+  const p=getCalcPokemonForSide('atk2', window._atk2Base); if(!p) return;
   const lv=parseInt(el('atk2-lv').value)||50;
   const iv=parseInt(el('atk2-iv').value)||31;
   const evA=parseInt(el('atk2-ev-atk').value)||0;
@@ -3717,24 +3690,6 @@ function recalcAtk2(){
   window._atk2Stats={atk:atkVal,spa:spaVal};
   if(el('atk2-stat-atk')) el('atk2-stat-atk').textContent=atkVal;
   if(el('atk2-stat-spa')) el('atk2-stat-spa').textContent=spaVal;
-}
-function capDamageRangeToHp(mn,mx,capHp){
-  const cap=Math.max(1, Math.floor(capHp||1));
-  return {mn:Math.min(Math.max(0,mn||0),cap), mx:Math.min(Math.max(0,mx||0),cap)};
-}
-function buildCappedDamageBarSegments(damages,capHp){
-  const cap=Math.max(1, Math.floor(capHp||1));
-  let used=0;
-  return (damages||[]).map(d=>{
-    const raw=Math.max(0, Math.floor(d||0));
-    const visible=Math.max(0, Math.min(raw, cap-used));
-    used+=visible;
-    return Math.min(100, Math.max(0, Math.round(visible/cap*100)));
-  });
-}
-function formatPctRangeByHp(mn,mx,hp){
-  const base=Math.max(1, Math.floor(hp||1));
-  return `${Math.round((mn||0)/base*100)}〜${Math.round((mx||0)/base*100)}%`;
 }
 function calcAddDamage(){
   if(!window._atkStats||!window._defStats){alert('メインの攻撃側・防御側ポケモンを選択してください');return;}
@@ -3763,36 +3718,26 @@ function calcAddDamage(){
   const r1=calcOneDamage(window._atkStats,window._atkBase,window._defStats,window._defBase,lv1,type1,cat1,hits1,pow1,item1,moveName1,atkAbility1);
   const r1b=pow1b?calcOneDamage(window._atkStats,window._atkBase,window._defStats,window._defBase,lv1,type1b,cat1b,hits1b,pow1b,item1b,moveName1b,atkAbility1):null;
   const r2=calcOneDamage(window._atk2Stats,window._atk2Base,window._defStats,window._defBase,lv2,type2,cat2,hits2,pow2,item2,moveName2,'');
-  const firstMn=r1.mn+(r1b?r1b.mn:0);
-  const firstMx=r1.mx+(r1b?r1b.mx:0);
-  const totalMn=firstMn+r2.mn;
-  const totalMx=firstMx+r2.mx;
-  const cappedTotal=capDamageRangeToHp(totalMn,totalMx,judgeHp);
-  const pctMn=Math.round(cappedTotal.mn/judgeHp*100), pctMx=Math.round(cappedTotal.mx/judgeHp*100);
-  const rawPctMn=Math.round(totalMn/judgeHp*100), rawPctMx=Math.round(totalMx/judgeHp*100);
-  const judgeMn=rawPctMn, judgeMx=rawPctMx;
-  const [bar1w,bar2w]=buildCappedDamageBarSegments([firstMx,r2.mx],judgeHp);
-  const isOverCap=totalMx>judgeHp;
+  const totalMn=r1.mn+(r1b?r1b.mn:0)+r2.mn;
+  const totalMx=r1.mx+(r1b?r1b.mx:0)+r2.mx;
+  const pctMn=Math.round(totalMn/hp*100), pctMx=Math.round(totalMx/hp*100);
+  const judgeMn=Math.round(totalMn/judgeHp*100), judgeMx=Math.round(totalMx/judgeHp*100);
+  const bar1w=Math.min(Math.round((r1.mx+(r1b?r1b.mx:0))/hp*100),100);
+  const bar2w=Math.min(Math.round(r2.mx/hp*100),100);
   const addBox=el('add-result');
   if(addBox){
     addBox.style.display='block';
     addBox.classList.add('show');
-    const totalNum=el('add-total-num'); if(totalNum) totalNum.textContent=`${cappedTotal.mn} 〜 ${cappedTotal.mx}`;
-    const totalRange=el('add-total-range');
-    if(totalRange) totalRange.textContent=isOverCap ? `元の合算: ${totalMn}〜${totalMx} / 残HP上限で表示` : '';
-    const totalPct=el('add-total-pct');
-    if(totalPct) totalPct.textContent=hazardInfo.total>0
-      ? `${pctMn}〜${pctMx}%（場ダメ後残HP ${remainingHp} 基準）`
-      : `${pctMn}〜${pctMx}%`;
+    const totalNum=el('add-total-num'); if(totalNum) totalNum.textContent=`${totalMn} 〜 ${totalMx}`;
+    const totalPct=el('add-total-pct'); if(totalPct) totalPct.textContent=hazardInfo.total>0?`${pctMn}〜${pctMx}%（場ダメ後残HP ${remainingHp}）`:`${pctMn}〜${pctMx}%`;
     const bar1=el('add-bar-1'); if(bar1) bar1.style.width=bar1w+'%';
     const bar2=el('add-bar-2'); if(bar2) bar2.style.width=bar2w+'%';
     const breakdown=el('add-breakdown');
     if(breakdown) breakdown.innerHTML=
       (hazardInfo.total>0?`<div>場ダメ: ${hazardInfo.total}（残HP ${remainingHp}/${hp}）</div>`:'')+
-      `<div>1体目: ${r1.mn}〜${r1.mx} (${formatPctRangeByHp(r1.mn,r1.mx,hp)})</div>`+
-      (r1b?`<div>1体目技2: ${r1b.mn}〜${r1b.mx} (${formatPctRangeByHp(r1b.mn,r1b.mx,hp)})</div>`:'')+
-      `<div>2体目: ${r2.mn}〜${r2.mx} (${formatPctRangeByHp(r2.mn,r2.mx,hp)})</div>`+
-      (isOverCap?`<div style="color:var(--accent3);margin-top:4px;">合計表示は残HPを超えないように上限補正しています。</div>`:'');
+      `<div>1体目: ${r1.mn}〜${r1.mx} (${Math.round(r1.mn/hp*100)}〜${Math.round(r1.mx/hp*100)}%)</div>`+
+      (r1b?`<div>1体目技2: ${r1b.mn}〜${r1b.mx} (${Math.round(r1b.mn/hp*100)}〜${Math.round(r1b.mx/hp*100)}%)</div>`:'')+
+      `<div>2体目: ${r2.mn}〜${r2.mx} (${Math.round(r2.mn/hp*100)}〜${Math.round(r2.mx/hp*100)}%)</div>`;
     const koTag=el('add-ko-tag');
     if(koTag){
       if(remainingHp<=0) koTag.innerHTML='<span class="add-ko-tag add-ko1">場ダメでKO</span>';
@@ -4590,7 +4535,6 @@ window.onload = async()=>{
   renderQuickMoveChips('');
   updateDamageSetupSummary();
   initContextUI();
-  initCalcMobileInputLayout();
   initMobileResultUI();
 };
 
@@ -4647,6 +4591,7 @@ function renderMegaToggle(side, poke){
   if(!wrap) return;
   wrap.innerHTML = '';
   if(!poke || !poke.name) return;
+  if(renderAegislashCalcControl(side, poke)) return;
 
   if(isMegaPokemon(poke.name)){
     // メガ → 元に戻すボタン
@@ -4804,150 +4749,6 @@ function initContextUI(){
   updateContextSections();
 }
 
-
-
-// ===== calc.html スマホ入力整理 =====
-const calcMobileLayoutState={techCard:null,techBody:null,techAnchor:null,techNodes:[],bound:false,collapsedInit:false};
-function createCalcMobileTechCard(){
-  if(calcMobileLayoutState.techCard) return calcMobileLayoutState.techCard;
-  const defCard=document.getElementById('calc-mobile-def');
-  if(!defCard) return null;
-  const card=document.createElement('div');
-  card.id='calc-mobile-tech-card';
-  card.className='card calc-mobile-section calc-mobile-tech-card';
-  card.innerHTML='<div class="card-title">技・条件</div><div class="calc-mobile-tech-body"></div>';
-  defCard.insertAdjacentElement('afterend',card);
-  calcMobileLayoutState.techCard=card;
-  calcMobileLayoutState.techBody=card.querySelector('.calc-mobile-tech-body');
-  bindCalcMobileAccordion(card);
-  return card;
-}
-function moveCalcTechNodesToMobile(){
-  const start=document.getElementById('atk-corr-hp-pct');
-  const end=document.getElementById('atk-corr-main');
-  const card=createCalcMobileTechCard();
-  const body=calcMobileLayoutState.techBody;
-  if(!start || !end || !card || !body) return;
-  if(!calcMobileLayoutState.techAnchor){
-    const anchor=document.createComment('calc-mobile-tech-return-anchor');
-    start.parentNode.insertBefore(anchor,start);
-    calcMobileLayoutState.techAnchor=anchor;
-  }
-  if(calcMobileLayoutState.techNodes.length===0){
-    let node=start;
-    while(node){
-      const next=node.nextSibling;
-      calcMobileLayoutState.techNodes.push(node);
-      body.appendChild(node);
-      if(node===end) break;
-      node=next;
-    }
-  }else{
-    calcMobileLayoutState.techNodes.forEach(node=>body.appendChild(node));
-  }
-  card.style.display='block';
-}
-function restoreCalcTechNodesForDesktop(){
-  const card=calcMobileLayoutState.techCard;
-  const anchor=calcMobileLayoutState.techAnchor;
-  if(anchor && calcMobileLayoutState.techNodes.length){
-    let ref=anchor; calcMobileLayoutState.techNodes.forEach(node=>{ref.parentNode.insertBefore(node,ref.nextSibling); ref=node;});
-  }
-  if(card) card.style.display='none';
-}
-function applyCalcMobileInputLayout(){
-  const isMobile=window.matchMedia('(max-width:760px)').matches;
-  const atkCard=document.getElementById('calc-mobile-atk');
-  const defCard=document.getElementById('calc-mobile-def');
-  [atkCard,defCard].forEach(card=>{ if(card){card.classList.add('calc-mobile-section'); bindCalcMobileAccordion(card);} });
-  if(isMobile){
-    moveCalcTechNodesToMobile();
-    initCalcMobileCollapsedState();
-  }else{
-    restoreCalcTechNodesForDesktop();
-    getCalcMobileSections().forEach(card=>card.classList.remove('is-collapsed'));
-    calcMobileLayoutState.collapsedInit=false;
-  }
-}
-function getCalcMobileSections(){
-  return ['calc-mobile-atk','calc-mobile-def','calc-mobile-tech-card'].map(id=>document.getElementById(id)).filter(Boolean);
-}
-function initCalcMobileCollapsedState(){
-  if(!window.matchMedia('(max-width:760px)').matches) return;
-  const sections=getCalcMobileSections();
-  if(!calcMobileLayoutState.collapsedInit){
-    sections.forEach(card=>card.classList.add('is-collapsed'));
-    calcMobileLayoutState.collapsedInit=true;
-  }
-}
-function setActiveCalcMobileStep(id){
-  const steps=document.getElementById('mobile-calc-steps');
-  if(!steps) return;
-  steps.querySelectorAll('button').forEach(btn=>{
-    const active=btn.dataset.target===id;
-    btn.classList.toggle('active',active);
-  });
-}
-function openCalcMobileSection(id){
-  const target=document.getElementById(id);
-  if(!target) return;
-  if(window.matchMedia('(max-width:760px)').matches){
-    getCalcMobileSections().forEach(card=>{
-      if(card===target) card.classList.remove('is-collapsed');
-      else card.classList.add('is-collapsed');
-    });
-    setActiveCalcMobileStep(id);
-  }else{
-    target.classList.remove('is-collapsed');
-  }
-}
-function bindCalcMobileAccordion(card){
-  if(!card || card.dataset.mobileAccordionBound==='1') return;
-  card.dataset.mobileAccordionBound='1';
-  const title=card.querySelector(':scope > .card-title');
-  if(!title) return;
-  title.setAttribute('role','button');
-  title.setAttribute('tabindex','0');
-  const toggle=()=>{
-    if(!window.matchMedia('(max-width:760px)').matches) return;
-    if(card.classList.contains('is-collapsed')) openCalcMobileSection(card.id);
-    else card.classList.add('is-collapsed');
-  };
-  title.addEventListener('click',toggle);
-  title.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
-}
-function scrollCalcMobileTarget(id){
-  const target=document.getElementById(id);
-  if(!target) return;
-  openCalcMobileSection(id);
-  const y=target.getBoundingClientRect().top + window.pageYOffset - 108;
-  window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
-}
-function bindCalcMobileSteps(){
-  if(calcMobileLayoutState.bound) return;
-  calcMobileLayoutState.bound=true;
-  const steps=document.getElementById('mobile-calc-steps');
-  if(!steps) return;
-  steps.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      steps.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      if(btn.dataset.action==='result'){
-        const col=document.getElementById('calc-result-col');
-        if(col && col.classList.contains('mobile-floating')) col.classList.add('open');
-        updateMobileResultSummary();
-        return;
-      }
-      scrollCalcMobileTarget(btn.dataset.target);
-    });
-  });
-}
-function initCalcMobileInputLayout(){
-  applyCalcMobileInputLayout();
-  bindCalcMobileSteps();
-  window.addEventListener('resize', applyCalcMobileInputLayout);
-}
-
 // ===== モバイル下部固定の結果UI =====
 function toggleMobileResult(){
   const col=document.getElementById('calc-result-col');
@@ -5023,25 +4824,5 @@ function toggleTheme(){
 function toggleNav(){var nav=document.querySelector('.header-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.toggle('open');hb.classList.toggle('open');ov.classList.toggle('show');}
 function closeNav(){var nav=document.querySelector('.header-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
 </script>
-
-<nav class="pe-mobile-bottom-nav" aria-label="スマホ用主要ナビ">
-  <a href="calc.html">計算</a>
-  <a href="endure.html">耐久</a>
-  <a href="move.html">技</a>
-  <a href="scope.html">選出</a>
-  <a href="season.html">検索</a>
-</nav>
-<script>
-(function(){
-  var nav=document.querySelector('.pe-mobile-bottom-nav');
-  if(!nav) return;
-  var page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-  nav.querySelectorAll('a').forEach(function(a){
-    var href=(a.getAttribute('href')||'').toLowerCase();
-    if(page===href) a.classList.add('active');
-  });
-})();
-</script>
-
 </body>
 </html>
