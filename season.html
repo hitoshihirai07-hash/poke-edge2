@@ -67,8 +67,14 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .season-btns{display:flex;gap:5px;flex-wrap:wrap;}
 .season-btn{padding:4px 12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all 0.15s;}
 .season-btn:hover,.season-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
-.search-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:160px;flex:1;}
+.search-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:220px;flex:1;}
 .search-input:focus{border-color:var(--accent);}
+.search-mode-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;min-width:112px;}
+.search-mode-select:focus{border-color:var(--accent);}
+.search-clear-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 9px;font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;}
+.search-clear-btn:hover{border-color:var(--accent);color:var(--accent);}
+.search-help{font-size:10px;color:var(--text2);line-height:1.6;flex-basis:100%;}
+.search-hit-note{color:var(--accent3);font-weight:700;}
 
 /* 統計バー */
 .stats-bar{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
@@ -247,7 +253,18 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <div class="season-btns" id="season-btns">
       <button class="season-btn active" data-season="" onclick="setSeason(this,'')">すべて</button>
     </div>
-    <input class="search-input" id="name-search" type="text" placeholder="ポケモン名で絞り込み..." oninput="render()">
+    <select class="search-mode-select" id="search-mode" onchange="render()" aria-label="検索対象">
+      <option value="all">全て</option>
+      <option value="name">名前</option>
+      <option value="move">技</option>
+      <option value="ability">特性</option>
+    </select>
+    <select class="search-mode-select" id="type-filter" onchange="render()" aria-label="タイプ絞り込み">
+      <option value="">全タイプ</option>
+    </select>
+    <input class="search-input" id="name-search" type="text" placeholder="名前・技・特性で検索..." oninput="render()">
+    <button class="search-clear-btn" type="button" onclick="clearSeasonSearch()">クリア</button>
+    <div class="search-help">技・特性は検索欄、タイプは選択欄で絞り込めます。タイプを選んだまま名前や技名で追加検索できます。</div>
   </div>
 
   <!-- 統計 -->
@@ -360,30 +377,69 @@ function escapeHtml(value) {
     .replace(/'/g,'&#39;');
 }
 
+const SEASON_FORM_GROUPS = {
+  'ギルガルド':['ギルガルド盾','ギルガルド剣'],
+  'イルカマン':['イルカマン（ナイーブ）','イルカマン（マイティ）']
+};
+const SEASON_FORM_SEARCH_ALIASES = {
+  'ギルガルド':['ギルガルド','ギルガルド盾','ギルガルド剣','シールド','ブレード','剣','盾'],
+  'イルカマン':['イルカマン','イルカマン（ナイーブ）','イルカマン（マイティ）','ナイーブ','マイティ','通常','変身']
+};
+const SEASON_FORM_LABELS = {
+  'ギルガルド盾':'シールドフォルム',
+  'ギルガルド剣':'ブレードフォルム',
+  'イルカマン（ナイーブ）':'ナイーブフォルム',
+  'イルカマン（マイティ）':'マイティフォルム'
+};
 
-function isAegislashSeasonName(name){ return ['ギルガルド','ギルガルド盾','ギルガルド剣'].includes(String(name||'').trim()); }
-function seasonIncludesDisplayPokemon(list, name){
-  if(!Array.isArray(list)) return true;
-  if(list.includes(name)) return true;
-  return isAegislashSeasonName(name) && (list.includes('ギルガルド') || list.includes('ギルガルド盾') || list.includes('ギルガルド剣'));
-}
-function buildSeasonDisplayPokemonData(raw){
-  const source=Array.isArray(raw)?raw:[];
-  const out=[];
-  const seen=new Set();
-  const shield=source.find(p=>p&&p.name==='ギルガルド盾');
-  const blade=source.find(p=>p&&p.name==='ギルガルド剣');
-  source.forEach(p=>{
-    if(!p || !p.name || p.name==='ギルガルド盾' || p.name==='ギルガルド剣') return;
-    if(seen.has(p.name)) return;
-    seen.add(p.name);
-    out.push(p);
-  });
-  if((shield || blade) && !seen.has('ギルガルド')){
-    const src=shield||blade;
-    out.push(Object.assign({}, src, {name:'ギルガルド', _aegislashDisplay:true}));
+function seasonFormBaseName(name) {
+  const n = String(name || '').trim();
+  if(SEASON_FORM_GROUPS[n]) return n;
+  for(const base in SEASON_FORM_GROUPS) {
+    if(SEASON_FORM_GROUPS[base].includes(n)) return base;
   }
+  return n;
+}
+function seasonGroupedNames(name) {
+  const base = seasonFormBaseName(name);
+  return SEASON_FORM_GROUPS[base] ? SEASON_FORM_GROUPS[base].slice() : [name];
+}
+function seasonSearchAliases(name) {
+  const base = seasonFormBaseName(name);
+  const aliases = SEASON_FORM_SEARCH_ALIASES[base] || [name];
+  return Array.from(new Set(aliases.concat(seasonGroupedNames(name)).filter(Boolean)));
+}
+function seasonIncludesDisplayPokemon(list, name) {
+  if(!Array.isArray(list)) return true;
+  const names = [name, seasonFormBaseName(name)].concat(seasonGroupedNames(name));
+  return names.some(n => list.includes(n));
+}
+function buildSeasonDisplayPokemonData(raw) {
+  const source = Array.isArray(raw) ? raw : [];
+  const out = [];
+  const seen = new Set();
+  const formMemberSet = new Set(Object.values(SEASON_FORM_GROUPS).flat());
+  source.forEach(pokemon => {
+    if(!pokemon || !pokemon.name) return;
+    if(formMemberSet.has(pokemon.name)) return;
+    if(seen.has(pokemon.name)) return;
+    seen.add(pokemon.name);
+    out.push(pokemon);
+  });
+  Object.entries(SEASON_FORM_GROUPS).forEach(([base, forms]) => {
+    if(seen.has(base)) return;
+    const first = forms.map(name => source.find(p => p && p.name === name)).find(Boolean);
+    if(!first) return;
+    seen.add(base);
+    out.push(Object.assign({}, first, {name:base, _seasonFormDisplay:true, _seasonFormBase:base}));
+  });
   return out;
+}
+function seasonFormRecordsForDisplayName(name) {
+  return seasonGroupedNames(name).map(n => POKE_BY_NAME[n]).filter(Boolean);
+}
+function seasonDisplayFormLabel(name) {
+  return SEASON_FORM_LABELS[name] || name;
 }
 
 function isNintei(name) {
@@ -395,6 +451,81 @@ function inSeason(name, season) {
 }
 function seasonsForName(name) {
   return SEASON_DATA.seasons.filter(s => seasonIncludesDisplayPokemon(SEASON_DATA[s]||[], name));
+}
+
+function getSeasonSearchMode() {
+  return document.getElementById('search-mode')?.value || 'all';
+}
+
+function getSeasonTypeFilter() {
+  return document.getElementById('type-filter')?.value || '';
+}
+
+function matchesSeasonTypeFilter(p, type) {
+  if(!type) return true;
+  return !!p && (p.type1 === type || p.type2 === type);
+}
+
+function matchesSeasonTypeFilterForRecords(records, type) {
+  if(!type) return true;
+  return (records || []).some(p => matchesSeasonTypeFilter(p, type));
+}
+
+function normalizeSeasonSearchText(value) {
+  return String(value == null ? '' : value).toLowerCase().replace(/[\s　]+/g, '');
+}
+
+function getPokemonMoveTexts(name) {
+  const names = seasonGroupedNames(name);
+  const texts = [];
+  names.forEach(siteName => {
+    const detail = POKE_MOVES_BY_NAME[siteName] || { moves: [] };
+    const moves = Array.isArray(detail.moves) ? detail.moves : [];
+    moves.forEach(m => texts.push(...[m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description].filter(Boolean)));
+  });
+  return texts;
+}
+
+function getPokemonAbilityTexts(name, includeEffects) {
+  const abilities = Array.from(new Set(seasonGroupedNames(name).flatMap(siteName => Array.isArray(ABILITIES_BY_NAME[siteName]) ? ABILITIES_BY_NAME[siteName] : [])));
+  const out = abilities.slice();
+  if(includeEffects) {
+    abilities.forEach(ability => {
+      const effect = ABILITY_EFFECTS_BY_NAME[ability] && ABILITY_EFFECTS_BY_NAME[ability].effect ? ABILITY_EFFECTS_BY_NAME[ability].effect : '';
+      if(effect) out.push(effect);
+    });
+  }
+  return out;
+}
+
+function getPokemonSearchFields(p, mode) {
+  if(!p) return [];
+  const nameFields = [p.name, p.no].concat(seasonSearchAliases(p.name));
+  const moveFields = getPokemonMoveTexts(p.name);
+  const abilityFields = getPokemonAbilityTexts(p.name, mode === 'all');
+  if(mode === 'name') return nameFields;
+  if(mode === 'move') return moveFields;
+  if(mode === 'ability') return abilityFields;
+  return nameFields.concat(moveFields, abilityFields);
+}
+
+function matchesSeasonSearchFields(fields, query) {
+  const tokens = String(query || '').trim().split(/[\s　]+/).filter(Boolean).map(normalizeSeasonSearchText);
+  if(!tokens.length) return true;
+  const hay = normalizeSeasonSearchText((fields || []).filter(Boolean).join(' '));
+  return tokens.every(token => hay.includes(token));
+}
+
+function matchesSeasonPokemonSearch(p, query, mode) {
+  return matchesSeasonSearchFields(getPokemonSearchFields(p, mode || getSeasonSearchMode()), query);
+}
+
+function clearSeasonSearch() {
+  const input = document.getElementById('name-search');
+  const typeFilter = document.getElementById('type-filter');
+  if(input) input.value = '';
+  if(typeFilter) typeFilter.value = '';
+  render();
 }
 
 function setSeason(btn, season) {
@@ -414,16 +545,6 @@ function sortBy(key) {
   render();
 }
 
-
-function matchesAegislashSeasonSearch(p, q){
-  const text=String(q||'').trim();
-  if(!text) return true;
-  const name=String(p&&p.name||'');
-  if(name.includes(text)) return true;
-  if(isAegislashSeasonName(name)) return ['ギルガルド','ギルガルド盾','ギルガルド剣','シールド','ブレード','剣','盾'].some(v=>v.includes(text)||text.includes(v));
-  return false;
-}
-
 function statCellHtml(p, key) {
   const val = p[key]||0;
   const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
@@ -438,9 +559,12 @@ function statCellHtml(p, key) {
 
 function render() {
   const q = (document.getElementById('name-search')?.value||'').trim();
+  const searchMode = getSeasonSearchMode();
+  const typeFilter = getSeasonTypeFilter();
   let filtered = POKE_DATA.filter(p => {
     if(currentSeason && !inSeason(p.name, currentSeason)) return false;
-    if(q && !matchesAegislashSeasonSearch(p, q)) return false;
+    if(!matchesSeasonTypeFilterForRecords(seasonFormRecordsForDisplayName(p.name).length ? seasonFormRecordsForDisplayName(p.name) : [p], typeFilter)) return false;
+    if(q && !matchesSeasonPokemonSearch(p, q, searchMode)) return false;
     return true;
   });
 
@@ -454,6 +578,12 @@ function render() {
   const totalNintei = POKE_DATA.filter(p => isNintei(p.name)).length;
   document.getElementById('stat-total').textContent = filtered.length;
   document.getElementById('stat-nintei').textContent = totalNintei;
+  const hint = document.querySelector('.detail-hint');
+  if(hint) {
+    const modeLabel = ({all:'全て', name:'名前', move:'技', ability:'特性'})[searchMode] || '全て';
+    const typeNote = typeFilter ? ` / タイプ: ${escapeHtml(typeFilter)}` : '';
+    hint.innerHTML = q ? `<span class="search-hit-note">${escapeHtml(modeLabel)}検索中:</span> ${escapeHtml(q)}${typeNote} / 名前クリックで詳細表示` : `${typeFilter ? `<span class="search-hit-note">タイプ絞り込み:</span> ${escapeHtml(typeFilter)} / ` : ''}名前クリックで詳細表示`;
+  }
 
   if(!filtered.length) {
     document.getElementById('poke-tbody').innerHTML = '<tr><td colspan="11" class="empty">該当するポケモンがいません</td></tr>';
@@ -494,6 +624,15 @@ function buildSeasonBtns() {
     btn.onclick = () => setSeason(btn, s);
     container.appendChild(btn);
   });
+}
+
+function buildTypeFilter() {
+  const select = document.getElementById('type-filter');
+  if(!select) return;
+  const order = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
+  const existing = new Set(POKE_DATA.flatMap(p => [p.type1, p.type2]).filter(Boolean));
+  const types = order.filter(t => existing.has(t)).concat([...existing].filter(t => !order.includes(t)).sort((a,b) => a.localeCompare(b,'ja')));
+  select.innerHTML = '<option value="">全タイプ</option>' + types.map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('');
 }
 
 function normalizePokemonMovesData(raw) {
@@ -571,7 +710,7 @@ function renderDetailMoves() {
   const detail = POKE_MOVES_BY_NAME[currentDetailName] || { moves: [] };
   const moves = Array.isArray(detail.moves) ? detail.moves : [];
   const filtered = !query ? moves : moves.filter(m => {
-    return [m.name, m.type, m.category, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query);
+    return matchesSeasonSearchFields([m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description], query);
   });
   if(!filtered.length) {
     body.innerHTML = `<tr><td colspan="8" class="detail-empty">${moves.length ? '条件に合う技がありません' : '技データがありません'}</td></tr>`;
@@ -616,6 +755,7 @@ window.onload = async () => {
     });
     POKE_DATA = buildSeasonDisplayPokemonData(rawPokemonData);
     POKE_DATA.forEach(p => {
+      if(!p || !p.name) return;
       p.total = p.total || ((p.hp||0)+(p.atk||0)+(p.def||0)+(p.spa||0)+(p.spd||0)+(p.spe||0));
       POKE_BY_NAME[p.name] = p;
     });
@@ -628,6 +768,7 @@ window.onload = async () => {
     alert('データの読み込みに失敗しました。');
   }
   buildSeasonBtns();
+  buildTypeFilter();
   render();
 };
 
@@ -702,7 +843,8 @@ document.addEventListener('DOMContentLoaded',function(){
     'フラエッテ(えいえんのはな)':'フラエッテえいえん'
   };
   const GROUP_NAME_TO_SITE_NAMES = {
-    'ギルガルド':['ギルガルド盾','ギルガルド剣']
+    'ギルガルド':['ギルガルド盾','ギルガルド剣'],
+    'イルカマン':['イルカマン（ナイーブ）','イルカマン（マイティ）']
   };
   const SITE_NAME_TO_RANKING_NAMES = {
     'ロトム水':['ウォッシュロトム'],
@@ -714,7 +856,9 @@ document.addEventListener('DOMContentLoaded',function(){
     'イダイトウ♀':['イダイトウ(メス)'],
     'フラエッテえいえん':['フラエッテ(えいえんのはな)'],
     'ギルガルド盾':['ギルガルド'],
-    'ギルガルド剣':['ギルガルド']
+    'ギルガルド剣':['ギルガルド'],
+    'イルカマン（ナイーブ）':['イルカマン'],
+    'イルカマン（マイティ）':['イルカマン']
   };
 
   let SINGLE_RANKINGS = {rows:[], updatedAt:''};
@@ -759,6 +903,27 @@ document.addEventListener('DOMContentLoaded',function(){
       (SITE_NAME_TO_RANKING_NAMES[siteName] || []).forEach(n => names.push(n));
     });
     return uniq(names);
+  }
+
+  function buildSearchablePokemonFromName(name) {
+    const siteNames = resolveSiteNames(name || '');
+    return siteNames.map(n => POKE_BY_NAME[n]).filter(Boolean);
+  }
+
+  function matchesSeasonRankingSearch(row, siteNames, query) {
+    const mode = getSeasonSearchMode();
+    const typeFilter = getSeasonTypeFilter();
+    const records = (siteNames && siteNames.length ? siteNames : resolveSiteNames(row.name || row.siteName || '')).map(n => POKE_BY_NAME[n]).filter(Boolean);
+    if(!matchesSeasonTypeFilterForRecords(records, typeFilter)) return false;
+    const nameFields = [row.name, row.siteName].concat(siteNames || []);
+    const abilityFields = (row.abilities || []).concat(records.flatMap(p => getPokemonAbilityTexts(p.name, mode === 'all')));
+    const moveFields = (row.moves || []).concat(records.flatMap(p => getPokemonMoveTexts(p.name)));
+    let fields = [];
+    if(mode === 'name') fields = nameFields;
+    else if(mode === 'ability') fields = abilityFields;
+    else if(mode === 'move') fields = moveFields;
+    else fields = nameFields.concat(abilityFields, moveFields);
+    return matchesSeasonSearchFields(fields, query);
   }
 
   function resolveRankingRowsForName(name) {
@@ -946,8 +1111,7 @@ document.addEventListener('DOMContentLoaded',function(){
       const siteNames = resolveSiteNames(row.name);
       if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
       if(q) {
-        const hay = [row.name, row.siteName].concat(siteNames).join(' ');
-        if(!hay.includes(q)) return false;
+        if(!matchesSeasonRankingSearch(row, siteNames, q)) return false;
       }
       return true;
     }).sort((a,b) => (a.rank || 0) - (b.rank || 0));
@@ -1025,7 +1189,7 @@ document.addEventListener('DOMContentLoaded',function(){
     return `<div class="detail-form-grid">${
       records.map(pokemon => `
         <div class="detail-form-card">
-          <div class="detail-form-card-title">${escapeHtml(pokemon.name)}</div>
+          <div class="detail-form-card-title">${escapeHtml(typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(pokemon.name) : pokemon.name)}</div>
           ${stats.map(([label,key]) => {
             const val = pokemon[key] || 0;
             const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
@@ -1080,8 +1244,7 @@ document.addEventListener('DOMContentLoaded',function(){
       const siteNames = resolveSiteNames(row.name || row.siteName || '');
       if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
       if(q) {
-        const hay = [row.name, row.siteName].concat(siteNames).join(' ');
-        if(!hay.includes(q)) return false;
+        if(!matchesSeasonRankingSearch(row, siteNames, q)) return false;
       }
       return true;
     }).sort((a,b) => {
@@ -1138,13 +1301,13 @@ document.addEventListener('DOMContentLoaded',function(){
     currentDetailMoves = ctx.moves;
 
     const rankingNameNote = ctx.siteNames.length > 1
-      ? `フォルム種族値: ${ctx.siteNames.map(n => n==='ギルガルド盾'?'シールド':n==='ギルガルド剣'?'ブレード':n).join(' / ')}`
+      ? `フォルム種族値: ${ctx.siteNames.map(n => typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(n) : n).join(' / ')}`
       : ((ctx.displayName !== primary.name) ? `サイト表記: ${primary.name}` : '');
 
     document.getElementById('detail-name').textContent = ctx.displayName;
     document.getElementById('detail-sub').innerHTML = [
       `No.${escapeHtml(primary.no || '—')}`,
-      ctx.records.length > 1 ? `合計は各フォルム欄で表示` : `合計 ${escapeHtml(primary.total || 0)}`,
+      ctx.records.length > 1 ? `合計 各フォルム表示` : `合計 ${escapeHtml(primary.total || 0)}`,
       `技 ${escapeHtml(ctx.moves.length)}`,
       rankingNameNote ? escapeHtml(rankingNameNote) : ''
     ].filter(Boolean).join(' / ');

@@ -691,48 +691,85 @@ let moveIndex    = [];
 let _dataLoaded  = false;
 
 
-// ===== ギルガルドの登録名統一 =====
+// ===== 特殊フォルムの登録名統一 =====
 const AEGISLASH_BASE_NAME = 'ギルガルド';
 const AEGISLASH_SHIELD_NAME = 'ギルガルド盾';
 const AEGISLASH_BLADE_NAME = 'ギルガルド剣';
-function isAegislashName(name){ return [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME].includes(String(name||'').trim()); }
-function normalizeAegislashDisplayName(name){ return isAegislashName(name) ? AEGISLASH_BASE_NAME : String(name||'').trim(); }
-function markAegislashEntry(p){ if(p && (p.name===AEGISLASH_SHIELD_NAME || p.name===AEGISLASH_BLADE_NAME)) p._hiddenForm = true; return p; }
-function ensureAegislashDisplayPokemon(list){
+const PALAFIN_BASE_NAME = 'イルカマン';
+const PALAFIN_NAIVE_NAME = 'イルカマン（ナイーブ）';
+const PALAFIN_HERO_NAME = 'イルカマン（マイティ）';
+const SPECIAL_FORM_GROUPS = {
+  'ギルガルド': {
+    forms:['ギルガルド盾','ギルガルド剣'],
+    labels:{'ギルガルド盾':'シールドフォルム','ギルガルド剣':'ブレードフォルム'},
+    aliases:['ギルガルド','ギルガルド盾','ギルガルド剣','剣','盾','ブレード','シールド']
+  },
+  'イルカマン': {
+    forms:['イルカマン（ナイーブ）','イルカマン（マイティ）'],
+    labels:{'イルカマン（ナイーブ）':'ナイーブフォルム','イルカマン（マイティ）':'マイティフォルム'},
+    aliases:['イルカマン','イルカマン（ナイーブ）','イルカマン（マイティ）','ナイーブ','マイティ','通常','変身']
+  }
+};
+function getSpecialFormBaseName(name){
+  const n=String(name||'').trim();
+  if(SPECIAL_FORM_GROUPS[n]) return n;
+  for(const base in SPECIAL_FORM_GROUPS){ if(SPECIAL_FORM_GROUPS[base].forms.includes(n)) return base; }
+  return '';
+}
+function isSpecialFormName(name){ return !!getSpecialFormBaseName(name); }
+function normalizeSpecialFormDisplayName(name){ const base=getSpecialFormBaseName(name); return base || String(name||'').trim(); }
+function markSpecialFormEntry(p){ if(p && getSpecialFormBaseName(p.name) && p.name !== getSpecialFormBaseName(p.name)) p._hiddenForm = true; return p; }
+function ensureSpecialFormDisplayPokemon(list){
   const arr=(list||[]).slice();
-  if(arr.some(p=>p && p.name===AEGISLASH_BASE_NAME)) return arr;
-  const shield=arr.find(p=>p&&p.name===AEGISLASH_SHIELD_NAME);
-  const blade=arr.find(p=>p&&p.name===AEGISLASH_BLADE_NAME);
-  const src=shield||blade;
-  if(src) arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true,_hiddenForm:false}));
+  Object.entries(SPECIAL_FORM_GROUPS).forEach(([base,cfg])=>{
+    if(arr.some(p=>p && p.name===base)) return;
+    const src=cfg.forms.map(n=>arr.find(p=>p&&p.name===n)).find(Boolean);
+    if(src) arr.push(Object.assign({}, src, {name:base,_specialFormDisplay:true,_hiddenForm:false}));
+  });
   return arr;
 }
 function isVisiblePokemon(p){ return !(p && p._hiddenForm); }
 function seasonIncludesDisplayName(list, name){
   if(!Array.isArray(list)) return true;
   if(list.includes(name)) return true;
-  return isAegislashName(name) && (list.includes(AEGISLASH_BASE_NAME) || list.includes(AEGISLASH_SHIELD_NAME) || list.includes(AEGISLASH_BLADE_NAME));
+  const base=getSpecialFormBaseName(name);
+  if(!base) return false;
+  return list.includes(base) || (SPECIAL_FORM_GROUPS[base].forms||[]).some(n=>list.includes(n));
 }
 function matchesPokemonNameSearch(p,q){
   const text=String(q||'').trim();
   if(!text) return true;
   if(String(p&&p.name||'').includes(text)) return true;
-  if(isAegislashName(p&&p.name)) return [AEGISLASH_BASE_NAME,AEGISLASH_SHIELD_NAME,AEGISLASH_BLADE_NAME,'剣','盾','ブレード','シールド'].some(v=>v.includes(text)||text.includes(v));
+  const base=getSpecialFormBaseName(p&&p.name);
+  if(base){
+    const aliases=SPECIAL_FORM_GROUPS[base].aliases || [base].concat(SPECIAL_FORM_GROUPS[base].forms||[]);
+    return aliases.some(v=>String(v).includes(text)||text.includes(String(v)));
+  }
   return false;
 }
 function findPokemonByDisplayName(name){
   const n=String(name||'').trim();
-  return pokeIndex.find(p=>p.name===n) || (isAegislashName(n) ? pokeIndex.find(p=>p.name===AEGISLASH_BASE_NAME) : null);
+  const base=getSpecialFormBaseName(n);
+  return pokeIndex.find(p=>p.name===n) || (base ? pokeIndex.find(p=>p.name===base) : null);
 }
-function getAegislashForms(){ return [pokeIndex.find(p=>p.name===AEGISLASH_SHIELD_NAME), pokeIndex.find(p=>p.name===AEGISLASH_BLADE_NAME)].filter(Boolean); }
-function getLookupNamesForPokemon(name){ return isAegislashName(name) ? [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME] : [String(name||'').trim()].filter(Boolean); }
+function getSpecialForms(name){
+  const base=getSpecialFormBaseName(name) || String(name||'').trim();
+  const cfg=SPECIAL_FORM_GROUPS[base];
+  return cfg ? cfg.forms.map(n=>pokeIndex.find(p=>p.name===n)).filter(Boolean) : [];
+}
+function getLookupNamesForPokemon(name){
+  const base=getSpecialFormBaseName(name);
+  return base ? [base].concat(SPECIAL_FORM_GROUPS[base].forms||[]) : [String(name||'').trim()].filter(Boolean);
+}
 function getAbilityOptionsUnified(pokeName){
   const out=[];
   getLookupNamesForPokemon(pokeName).forEach(n=>{ const list=ABILITY_MAP&&ABILITY_MAP[n]; if(Array.isArray(list)) list.forEach(v=>{ if(v&&!out.includes(v)) out.push(v); }); });
   return out;
 }
-function renderDualAegislashStats(containerId){
-  const forms=getAegislashForms();
+function renderDualAegislashStats(containerId, name){
+  const base=getSpecialFormBaseName(name) || AEGISLASH_BASE_NAME;
+  const cfg=SPECIAL_FORM_GROUPS[base] || SPECIAL_FORM_GROUPS[AEGISLASH_BASE_NAME];
+  const forms=getSpecialForms(base);
   if(!forms.length) return false;
   const stats=[['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
   const box=document.getElementById(containerId);
@@ -740,7 +777,7 @@ function renderDualAegislashStats(containerId){
   let html='<div style="display:grid;gap:8px;">';
   forms.forEach(form=>{
     html+='<div style="border:1px solid var(--border);background:var(--bg2);padding:8px;">';
-    html+='<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+(form.name===AEGISLASH_BLADE_NAME?'ブレードフォルム':'シールドフォルム')+'</div>';
+    html+='<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+((cfg.labels&&cfg.labels[form.name])||form.name)+'</div>';
     stats.forEach(pair=>{
       const label=pair[0], key=pair[1], v=form[key]||0;
       html+='<div class="bstat-row"><div class="bstat-label">'+label+'</div><div class="bstat-bar-bg"><div class="bstat-bar-fg" style="width:'+Math.round(v/255*100)+'%;"></div></div><div class="bstat-val">'+v+'</div></div>';
@@ -751,6 +788,12 @@ function renderDualAegislashStats(containerId){
   box.innerHTML=html;
   return true;
 }
+function isAegislashName(name){ return isSpecialFormName(name); }
+function normalizeAegislashDisplayName(name){ return normalizeSpecialFormDisplayName(name); }
+function markAegislashEntry(p){ return markSpecialFormEntry(p); }
+function ensureAegislashDisplayPokemon(list){ return ensureSpecialFormDisplayPokemon(list); }
+function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
+
 
 async function loadGameData() {
   if(_dataLoaded) return;
@@ -763,7 +806,7 @@ async function loadGameData() {
       fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
       fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
     ]);
-    POKEMON_DATA = ensureAegislashDisplayPokemon((Array.isArray(pd)?pd:[]).map(markAegislashEntry));
+    POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
@@ -1111,7 +1154,7 @@ function initAtkPoke(p) {
 function renderBaseStats(side, p) {
   const statBox = document.getElementById(side+'-basestats');
   if(!statBox || !p) return;
-  if(isAegislashName(p && p.name) && renderDualAegislashStats(side+'-basestats')) return;
+  if(isSpecialFormName(p && p.name) && renderDualAegislashStats(side+'-basestats', p.name)) return;
   const stats = [
     {k:'HP', v:p.hp, c:'#e53935'},
     {k:'攻撃', v:p.atk, c:'#fb8c00'},

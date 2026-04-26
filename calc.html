@@ -1428,23 +1428,59 @@ let _damageSelectionConfirmed = false;
 let _damageSetupState = { atkName:'', defName:'', moveName:'' };
 
 
-// ===== ギルガルド表示・計算フォルム統一 =====
+// ===== フォルム表示・計算フォルム統一 =====
 const AEGISLASH_BASE_NAME = 'ギルガルド';
 const AEGISLASH_SHIELD_NAME = 'ギルガルド盾';
 const AEGISLASH_BLADE_NAME = 'ギルガルド剣';
-window._defAegislashForm = window._defAegislashForm || 'shield';
-function isAegislashName(name){ return [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME].includes(String(name||'').trim()); }
-function normalizeAegislashDisplayName(name){ return isAegislashName(name) ? AEGISLASH_BASE_NAME : String(name||'').trim(); }
-function markAegislashCalcEntry(p){ if(p && (p.name===AEGISLASH_SHIELD_NAME || p.name===AEGISLASH_BLADE_NAME)) p._hiddenForm = true; return p; }
-function ensureAegislashDisplayPokemon(list){
-  const arr = (list||[]).slice();
-  if(arr.some(p=>p && p.name===AEGISLASH_BASE_NAME)) return arr;
-  const shield = arr.find(p=>p && p.name===AEGISLASH_SHIELD_NAME);
-  const blade = arr.find(p=>p && p.name===AEGISLASH_BLADE_NAME);
-  const src = shield || blade;
-  if(src){
-    arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true,_hiddenForm:false}));
+const PALAFIN_BASE_NAME = 'イルカマン';
+const PALAFIN_NAIVE_NAME = 'イルカマン（ナイーブ）';
+const PALAFIN_HERO_NAME = 'イルカマン（マイティ）';
+const SPECIAL_FORM_GROUPS = {
+  'ギルガルド': {
+    forms: ['ギルガルド盾','ギルガルド剣'],
+    labels: {'ギルガルド盾':'シールドフォルム','ギルガルド剣':'ブレードフォルム'},
+    aliases: ['ギルガルド','ギルガルド盾','ギルガルド剣','シールド','ブレード','剣','盾'],
+    defaultForm: 'ギルガルド盾',
+    attackFixed: 'ギルガルド剣',
+    defenseDefault: 'ギルガルド盾',
+    defenseStateKey: '_defAegislashForm',
+    attackNote: 'ギルガルドは攻撃計算ではブレードフォルム固定で計算します。',
+    defenseTitle: 'ギルガルドの被弾フォルムを選択してください。',
+    options: [['ギルガルド盾','シールドで受ける'],['ギルガルド剣','ブレードで受ける']]
+  },
+  'イルカマン': {
+    forms: ['イルカマン（ナイーブ）','イルカマン（マイティ）'],
+    labels: {'イルカマン（ナイーブ）':'ナイーブフォルム','イルカマン（マイティ）':'マイティフォルム'},
+    aliases: ['イルカマン','イルカマン（ナイーブ）','イルカマン（マイティ）','ナイーブ','マイティ','通常','変身'],
+    defaultForm: 'イルカマン（ナイーブ）',
+    attackStateKey: '_atkPalafinForm',
+    attack2StateKey: '_atk2PalafinForm',
+    defenseStateKey: '_defPalafinForm',
+    attackTitle: 'イルカマンの攻撃フォルムを選択してください。',
+    defenseTitle: 'イルカマンの被弾フォルムを選択してください。',
+    options: [['イルカマン（ナイーブ）','ナイーブ'],['イルカマン（マイティ）','マイティ']]
   }
+};
+window._defAegislashForm = window._defAegislashForm || AEGISLASH_SHIELD_NAME;
+window._atkPalafinForm = window._atkPalafinForm || PALAFIN_NAIVE_NAME;
+window._atk2PalafinForm = window._atk2PalafinForm || PALAFIN_NAIVE_NAME;
+window._defPalafinForm = window._defPalafinForm || PALAFIN_NAIVE_NAME;
+function getSpecialFormBaseName(name){
+  const n = String(name||'').trim();
+  if(SPECIAL_FORM_GROUPS[n]) return n;
+  for(const base in SPECIAL_FORM_GROUPS){ if(SPECIAL_FORM_GROUPS[base].forms.includes(n)) return base; }
+  return '';
+}
+function isSpecialFormName(name){ return !!getSpecialFormBaseName(name); }
+function normalizeSpecialFormDisplayName(name){ const base=getSpecialFormBaseName(name); return base || String(name||'').trim(); }
+function markSpecialFormCalcEntry(p){ if(p && getSpecialFormBaseName(p.name) && p.name !== getSpecialFormBaseName(p.name)) p._hiddenForm = true; return p; }
+function ensureSpecialFormDisplayPokemon(list){
+  const arr = (list||[]).slice();
+  Object.entries(SPECIAL_FORM_GROUPS).forEach(([base,cfg])=>{
+    if(arr.some(p=>p && p.name===base)) return;
+    const src = cfg.forms.map(n=>arr.find(p=>p && p.name===n)).find(Boolean);
+    if(src) arr.push(Object.assign({}, src, {name:base,_specialFormDisplay:true,_hiddenForm:false}));
+  });
   return arr;
 }
 function isVisibleCalcPokemon(p){ return !(p && p._hiddenForm); }
@@ -1452,50 +1488,77 @@ function matchesCalcPokemonSearch(p, q){
   const text = String(q||'').trim();
   if(!text) return true;
   if(String(p && p.name || '').includes(text)) return true;
-  if(isAegislashName(p && p.name)) return [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME, 'シールド','ブレード','剣','盾'].some(v=>v.includes(text) || text.includes(v));
+  const base = getSpecialFormBaseName(p && p.name);
+  if(base){
+    const aliases = SPECIAL_FORM_GROUPS[base].aliases || [base].concat(SPECIAL_FORM_GROUPS[base].forms||[]);
+    return aliases.some(v=>String(v).includes(text) || text.includes(String(v)));
+  }
   return false;
 }
 function findCalcPokemonByName(name){
   const n = String(name||'').trim();
-  return pokeIndex.find(p=>p.name===n) || (isAegislashName(n) ? pokeIndex.find(p=>p.name===AEGISLASH_BASE_NAME) : null);
+  const base = getSpecialFormBaseName(n);
+  return pokeIndex.find(p=>p.name===n) || (base ? pokeIndex.find(p=>p.name===base) : null);
 }
 function seasonIncludesCalcName(seasonList, name){
   if(!Array.isArray(seasonList)) return true;
   if(seasonList.includes(name)) return true;
-  return isAegislashName(name) && (seasonList.includes(AEGISLASH_BASE_NAME) || seasonList.includes(AEGISLASH_SHIELD_NAME) || seasonList.includes(AEGISLASH_BLADE_NAME));
+  const base = getSpecialFormBaseName(name);
+  if(!base) return false;
+  return seasonList.includes(base) || (SPECIAL_FORM_GROUPS[base].forms||[]).some(n=>seasonList.includes(n));
 }
-function getAegislashRawForm(form){
-  const target = form==='blade' ? AEGISLASH_BLADE_NAME : AEGISLASH_SHIELD_NAME;
-  return pokeIndex.find(p=>p.name===target) || pokeIndex.find(p=>p.name===AEGISLASH_BASE_NAME) || null;
+function getSpecialRawForm(baseOrName, formName){
+  const base = getSpecialFormBaseName(baseOrName) || String(baseOrName||'').trim();
+  const cfg = SPECIAL_FORM_GROUPS[base];
+  if(!cfg) return pokeIndex.find(p=>p.name===baseOrName) || null;
+  const target = formName || cfg.defaultForm;
+  return pokeIndex.find(p=>p.name===target) || pokeIndex.find(p=>p.name===base) || cfg.forms.map(n=>pokeIndex.find(p=>p.name===n)).find(Boolean) || null;
 }
 function getCalcPokemonForSide(side, poke){
-  if(!isAegislashName(poke && poke.name)) return poke;
-  if(side==='def') return getAegislashRawForm(window._defAegislashForm==='blade' ? 'blade' : 'shield') || poke;
-  return getAegislashRawForm('blade') || poke;
+  const base = getSpecialFormBaseName(poke && poke.name);
+  if(!base) return poke;
+  const cfg = SPECIAL_FORM_GROUPS[base];
+  if(base===AEGISLASH_BASE_NAME){
+    if(side==='def') return getSpecialRawForm(base, window._defAegislashForm || cfg.defenseDefault) || poke;
+    return getSpecialRawForm(base, cfg.attackFixed) || poke;
+  }
+  if(base===PALAFIN_BASE_NAME){
+    const key = side==='def' ? cfg.defenseStateKey : (side==='atk2' ? cfg.attack2StateKey : cfg.attackStateKey);
+    return getSpecialRawForm(base, window[key] || cfg.defaultForm) || poke;
+  }
+  return getSpecialRawForm(base, cfg.defaultForm) || poke;
 }
-function getAegislashLookupNames(name){ return isAegislashName(name) ? [AEGISLASH_BASE_NAME, AEGISLASH_SHIELD_NAME, AEGISLASH_BLADE_NAME] : [String(name||'').trim()].filter(Boolean); }
-function renderAegislashCalcControl(side, poke){
+function getSpecialFormLookupNames(name){
+  const base = getSpecialFormBaseName(name);
+  if(!base) return [String(name||'').trim()].filter(Boolean);
+  return [base].concat(SPECIAL_FORM_GROUPS[base].forms || []);
+}
+function renderSpecialFormCalcControl(side, poke){
   const wrap = document.getElementById(side+'-mega-toggle');
-  if(!wrap || !isAegislashName(poke && poke.name)) return false;
+  const base = getSpecialFormBaseName(poke && poke.name);
+  if(!wrap || !base) return false;
+  const cfg = SPECIAL_FORM_GROUPS[base];
   wrap.innerHTML = '';
   const title = document.createElement('div');
   title.style.cssText = 'width:100%;font-size:10px;color:var(--accent3);line-height:1.7;';
-  if(side==='atk' || side==='atk2'){
-    title.textContent = 'ギルガルドは攻撃計算ではブレードフォルム固定で計算します。';
+  if(base===AEGISLASH_BASE_NAME && (side==='atk' || side==='atk2')){
+    title.textContent = cfg.attackNote;
     wrap.appendChild(title);
     return true;
   }
-  title.textContent = 'ギルガルドの被弾フォルムを選択してください。';
+  const isDef = side==='def';
+  title.textContent = isDef ? (cfg.defenseTitle || '被弾フォルムを選択してください。') : (cfg.attackTitle || '攻撃フォルムを選択してください。');
   wrap.appendChild(title);
-  [['shield','シールドで受ける'],['blade','ブレードで受ける']].forEach(([form,label])=>{
+  const stateKey = isDef ? cfg.defenseStateKey : (side==='atk2' ? cfg.attack2StateKey : cfg.attackStateKey);
+  cfg.options.forEach(([formName,label])=>{
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'mega-btn' + (window._defAegislashForm===form ? ' mega-back' : '');
+    btn.className = 'mega-btn' + ((window[stateKey] || cfg.defaultForm)===formName ? ' mega-back' : '');
     btn.textContent = label;
     btn.addEventListener('click',()=>{
-      window._defAegislashForm = form;
-      renderAegislashCalcControl(side, poke);
-      recalcDef();
+      window[stateKey] = formName;
+      renderSpecialFormCalcControl(side, poke);
+      if(side==='def') recalcDef(); else if(side==='atk2') recalcAtk2 && recalcAtk2(); else recalcAtk();
       updateDamageSetupSummary();
       scheduleAutoCalc();
     });
@@ -1503,6 +1566,12 @@ function renderAegislashCalcControl(side, poke){
   });
   return true;
 }
+function isAegislashName(name){ return isSpecialFormName(name); }
+function normalizeAegislashDisplayName(name){ return normalizeSpecialFormDisplayName(name); }
+function markAegislashCalcEntry(p){ return markSpecialFormCalcEntry(p); }
+function ensureAegislashDisplayPokemon(list){ return ensureSpecialFormDisplayPokemon(list); }
+function getAegislashLookupNames(name){ return getSpecialFormLookupNames(name); }
+function renderAegislashCalcControl(side, poke){ return renderSpecialFormCalcControl(side, poke); }
 
 
 async function fetchTextWithRetry(url, retries=2){
@@ -1706,7 +1775,7 @@ async function loadGameData() {
     fetchJsonFlexible('belongings.json', [], false),
     fetchJsonFlexible('pokemon_moves.json', {pokemon:{}}, false),
   ]);
-  POKEMON_DATA = ensureAegislashDisplayPokemon(normalizePokemonDataset(pd).map(markAegislashCalcEntry));
+  POKEMON_DATA = ensureSpecialFormDisplayPokemon(normalizePokemonDataset(pd).map(markSpecialFormCalcEntry));
   MOVES_DATA = normalizeMovesDataset(md);
   ABILITY_MAP = normalizeAbilityMap(ad);
   SEASON_DATA = normalizeSeasonData(sd);
@@ -2603,7 +2672,7 @@ function searchDropSelect(inputId,dropId,name) {
   const inp=el(inputId), drop=el(dropId);
   inp.value=name; drop.classList.remove('show');
   const p=findCalcPokemonByName(name); if(!p) return;
-  inp.value=normalizeAegislashDisplayName(p.name);
+  inp.value=normalizeSpecialFormDisplayName(p.name);
   if(inp._onSelect){inp._onSelect(p);return;}
   if(inputId==='atk-search') initAtkPoke(p);
   else if(inputId==='def-search') initDefPoke(p);
