@@ -257,12 +257,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <option value="all">全て</option>
       <option value="name">名前</option>
       <option value="move">技</option>
-      <option value="type">タイプ</option>
       <option value="ability">特性</option>
     </select>
-    <input class="search-input" id="name-search" type="text" placeholder="名前・技・タイプ・特性で検索..." oninput="render()">
+    <select class="search-mode-select" id="type-filter" onchange="render()" aria-label="タイプ絞り込み">
+      <option value="">全タイプ</option>
+    </select>
+    <input class="search-input" id="name-search" type="text" placeholder="名前・技・特性で検索..." oninput="render()">
     <button class="search-clear-btn" type="button" onclick="clearSeasonSearch()">クリア</button>
-    <div class="search-help">検索対象を切り替えると、技名・技タイプ・ポケモンのタイプ・特性名から使用可能ポケモンを絞り込めます。</div>
+    <div class="search-help">技・特性は検索欄、タイプは選択欄で絞り込めます。タイプを選んだまま名前や技名で追加検索できます。</div>
   </div>
 
   <!-- 統計 -->
@@ -390,6 +392,20 @@ function getSeasonSearchMode() {
   return document.getElementById('search-mode')?.value || 'all';
 }
 
+function getSeasonTypeFilter() {
+  return document.getElementById('type-filter')?.value || '';
+}
+
+function matchesSeasonTypeFilter(p, type) {
+  if(!type) return true;
+  return !!p && (p.type1 === type || p.type2 === type);
+}
+
+function matchesSeasonTypeFilterForRecords(records, type) {
+  if(!type) return true;
+  return (records || []).some(p => matchesSeasonTypeFilter(p, type));
+}
+
 function normalizeSeasonSearchText(value) {
   return String(value == null ? '' : value).toLowerCase().replace(/[\s　]+/g, '');
 }
@@ -397,7 +413,7 @@ function normalizeSeasonSearchText(value) {
 function getPokemonMoveTexts(name) {
   const detail = POKE_MOVES_BY_NAME[name] || { moves: [] };
   const moves = Array.isArray(detail.moves) ? detail.moves : [];
-  return moves.flatMap(m => [m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description]).filter(Boolean);
+  return moves.flatMap(m => [m.name, m.category, m.power, m.accuracy, m.pp, m.hits, m.description]).filter(Boolean);
 }
 
 function getPokemonAbilityTexts(name, includeEffects) {
@@ -415,14 +431,12 @@ function getPokemonAbilityTexts(name, includeEffects) {
 function getPokemonSearchFields(p, mode) {
   if(!p) return [];
   const nameFields = [p.name, p.no];
-  const typeFields = [p.type1, p.type2].filter(Boolean);
   const moveFields = getPokemonMoveTexts(p.name);
   const abilityFields = getPokemonAbilityTexts(p.name, mode === 'all');
   if(mode === 'name') return nameFields;
-  if(mode === 'type') return typeFields;
   if(mode === 'move') return moveFields;
   if(mode === 'ability') return abilityFields;
-  return nameFields.concat(typeFields, moveFields, abilityFields);
+  return nameFields.concat(moveFields, abilityFields);
 }
 
 function matchesSeasonSearchFields(fields, query) {
@@ -438,7 +452,9 @@ function matchesSeasonPokemonSearch(p, query, mode) {
 
 function clearSeasonSearch() {
   const input = document.getElementById('name-search');
+  const typeFilter = document.getElementById('type-filter');
   if(input) input.value = '';
+  if(typeFilter) typeFilter.value = '';
   render();
 }
 
@@ -474,8 +490,10 @@ function statCellHtml(p, key) {
 function render() {
   const q = (document.getElementById('name-search')?.value||'').trim();
   const searchMode = getSeasonSearchMode();
+  const typeFilter = getSeasonTypeFilter();
   let filtered = POKE_DATA.filter(p => {
     if(currentSeason && !inSeason(p.name, currentSeason)) return false;
+    if(!matchesSeasonTypeFilter(p, typeFilter)) return false;
     if(q && !matchesSeasonPokemonSearch(p, q, searchMode)) return false;
     return true;
   });
@@ -492,8 +510,9 @@ function render() {
   document.getElementById('stat-nintei').textContent = totalNintei;
   const hint = document.querySelector('.detail-hint');
   if(hint) {
-    const modeLabel = ({all:'全て', name:'名前', move:'技', type:'タイプ', ability:'特性'})[searchMode] || '全て';
-    hint.innerHTML = q ? `<span class="search-hit-note">${escapeHtml(modeLabel)}検索中:</span> ${escapeHtml(q)} / 名前クリックで詳細表示` : '名前クリックで詳細表示';
+    const modeLabel = ({all:'全て', name:'名前', move:'技', ability:'特性'})[searchMode] || '全て';
+    const typeNote = typeFilter ? ` / タイプ: ${escapeHtml(typeFilter)}` : '';
+    hint.innerHTML = q ? `<span class="search-hit-note">${escapeHtml(modeLabel)}検索中:</span> ${escapeHtml(q)}${typeNote} / 名前クリックで詳細表示` : `${typeFilter ? `<span class="search-hit-note">タイプ絞り込み:</span> ${escapeHtml(typeFilter)} / ` : ''}名前クリックで詳細表示`;
   }
 
   if(!filtered.length) {
@@ -535,6 +554,15 @@ function buildSeasonBtns() {
     btn.onclick = () => setSeason(btn, s);
     container.appendChild(btn);
   });
+}
+
+function buildTypeFilter() {
+  const select = document.getElementById('type-filter');
+  if(!select) return;
+  const order = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
+  const existing = new Set(POKE_DATA.flatMap(p => [p.type1, p.type2]).filter(Boolean));
+  const types = order.filter(t => existing.has(t)).concat([...existing].filter(t => !order.includes(t)).sort((a,b) => a.localeCompare(b,'ja')));
+  select.innerHTML = '<option value="">全タイプ</option>' + types.map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('');
 }
 
 function normalizePokemonMovesData(raw) {
@@ -662,6 +690,7 @@ window.onload = async () => {
     alert('データの読み込みに失敗しました。');
   }
   buildSeasonBtns();
+  buildTypeFilter();
   render();
 };
 
@@ -802,17 +831,17 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function matchesSeasonRankingSearch(row, siteNames, query) {
     const mode = getSeasonSearchMode();
+    const typeFilter = getSeasonTypeFilter();
     const records = (siteNames && siteNames.length ? siteNames : resolveSiteNames(row.name || row.siteName || '')).map(n => POKE_BY_NAME[n]).filter(Boolean);
+    if(!matchesSeasonTypeFilterForRecords(records, typeFilter)) return false;
     const nameFields = [row.name, row.siteName].concat(siteNames || []);
-    const typeFields = records.flatMap(p => [p.type1, p.type2]).filter(Boolean);
     const abilityFields = (row.abilities || []).concat(records.flatMap(p => getPokemonAbilityTexts(p.name, mode === 'all')));
     const moveFields = (row.moves || []).concat(records.flatMap(p => getPokemonMoveTexts(p.name)));
     let fields = [];
     if(mode === 'name') fields = nameFields;
-    else if(mode === 'type') fields = typeFields;
     else if(mode === 'ability') fields = abilityFields;
     else if(mode === 'move') fields = moveFields;
-    else fields = nameFields.concat(typeFields, abilityFields, moveFields);
+    else fields = nameFields.concat(abilityFields, moveFields);
     return matchesSeasonSearchFields(fields, query);
   }
 
