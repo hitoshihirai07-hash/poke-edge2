@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スマホ表示・検索機能・ダメージ計算の修正を行いました | PokeEdge</title>
+<meta name="description" content="PokeEdgeのスマホ表示調整、使用可能ポケモンページの検索・タイプ絞り込み追加、ダメージ計算まわりの一部修正についてまとめました。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="スマホ表示・検索機能・ダメージ計算の修正を行いました | PokeEdge">
+<meta property="og:description" content="PokeEdgeのスマホ表示調整、使用可能ポケモンページの検索・タイプ絞り込み追加、ダメージ計算まわりの一部修正についてまとめました。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-mobile-search-damage-fix.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-mobile-search-damage-fix.html">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-sync.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="apple-touch-icon" href="../favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;--border:#1a2540;--border2:#243356;--accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;--text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,200,240,0.08) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 90% 90%,rgba(255,48,96,0.06) 0%,transparent 60%),linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);background-size:auto,auto,52px 52px,52px 52px;}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 20px rgba(0,200,240,0.4);flex-shrink:0;cursor:pointer;}
+.logo em{color:var(--accent2);font-style:normal;}
+.header-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;flex-shrink:0;}
+.main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:40px 24px 60px;}
+.breadcrumb{font-size:11px;color:var(--text2);margin-bottom:24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.breadcrumb a{color:var(--text2);text-decoration:none;transition:color 0.15s;}
+.breadcrumb a:hover{color:var(--accent);}
+.breadcrumb .sep{color:var(--border2);}
+.article-header{margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+.article-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.article-date{font-size:11px;color:var(--text2);letter-spacing:1px;}
+.article-tag{font-size:9px;letter-spacing:1px;padding:2px 8px;border:1px solid var(--border2);color:var(--text2);}
+.article-tag.guide{border-color:var(--accent);color:var(--accent);}
+.article-tag.tool{border-color:var(--accent3);color:var(--accent3);}
+.article-h1{font-size:22px;font-weight:700;line-height:1.6;color:var(--text);margin-bottom:12px;}
+.article-lead{font-size:14px;color:var(--text3);line-height:2;}
+.article-body{font-size:14px;color:var(--text3);line-height:2.2;}
+.article-body h2{font-size:17px;font-weight:700;color:var(--accent);border-left:3px solid var(--accent);padding-left:12px;margin:40px 0 16px;letter-spacing:1px;}
+.article-body h3{font-size:15px;font-weight:700;color:var(--text);margin:28px 0 12px;}
+.article-body p{margin-bottom:16px;}
+.article-body ul,.article-body ol{margin:12px 0 16px 24px;}
+.article-body li{margin-bottom:8px;}
+.article-body strong{color:var(--text);font-weight:700;}
+.article-body a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(0,200,240,0.24);}
+.article-body a:hover{opacity:0.9;}
+.note-box{background:rgba(0,200,240,0.08);border:1px solid rgba(0,200,240,0.2);padding:16px 18px;margin:22px 0;color:var(--text);}
+.related-section{margin-top:48px;padding-top:28px;border-top:1px solid var(--border);}
+.related-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--accent);margin-bottom:16px;}
+.related-list{display:flex;flex-direction:column;gap:10px;}
+.related-link{display:block;padding:14px 16px;background:var(--panel);border:1px solid var(--border);color:var(--text);text-decoration:none;transition:all 0.18s;}
+.related-link:hover{border-color:var(--accent);transform:translateY(-1px);}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+.footer-text{font-size:10px;color:var(--text2);line-height:1.6;}
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;text-decoration:none;display:inline-block;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);} .hamburger.open span:nth-child(2){opacity:0;} .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);} .nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;} .nav-overlay.show{display:block;}
+@media(max-width:768px){.header-nav{display:none;position:fixed;top:52px;right:0;width:220px;height:calc(100vh - 52px);background:rgba(7,9,15,0.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px);} .header-nav.open{display:flex;} .nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left;letter-spacing:1px;} .nav-btn:last-child{border-bottom:none;} .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);} .hamburger{display:flex;}}
+.side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
+.side-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.side-title{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:10px}
+.side-links{display:grid;gap:8px}
+.side-link{display:block;text-decoration:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text);font-size:13px;transition:all .18s}
+.side-link:hover{border-color:var(--accent);color:var(--accent)}
+.side-link.active{border-color:var(--accent);background:rgba(0,200,240,0.08);color:var(--accent);font-weight:700}
+@media(min-width:1241px){body{padding-right:290px;}}
+@media(max-width:1240px){.side-dock{display:none}body{padding-right:0;}}
+[data-theme="light"] .side-card{background:rgba(255,255,255,.96);border-color:#a9c4d8;box-shadow:0 8px 24px rgba(63,86,107,.08)}
+[data-theme="light"] .side-title{color:#3f566b}
+[data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
+[data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">記事</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="../index.html">トップ</a>
+    <a class="nav-btn" href="../calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="../endure.html">耐久調整</a>
+    <a class="nav-btn" href="../move.html">技選択判定</a>
+    <a class="nav-btn" href="../party.html">パーティ管理</a>
+    <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="../items.html">アイテム</a>
+    <a class="nav-btn" href="../stats.html">選出率記録</a>
+    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
+    <a class="nav-btn" href="../speed.html">素早さライン</a>
+    <a class="nav-btn active" href="../blog.html">記事</a>
+    <a class="nav-btn" href="../policy.html">サイト情報</a>
+  </div>
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+</header>
+<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">技選択判定</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../stats.html">選出率記録</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a></div></div></aside>
+<div class="main">
+  <div class="breadcrumb">
+    <a href="../index.html">トップ</a><span class="sep">/</span>
+    <a href="../blog.html">記事一覧</a><span class="sep">/</span>
+    <span>スマホ表示・検索機能・ダメージ計算の修正</span>
+  </div>
+  <div class="article-header">
+    <div class="article-meta">
+      <span class="article-date">2026.04.26</span>
+      <span class="article-tag guide">ガイド</span>
+      <span class="article-tag tool">更新まとめ</span>
+    </div>
+    <h1 class="article-h1">スマホ表示・検索機能・ダメージ計算の修正を行いました</h1>
+    <p class="article-lead">PokeEdgeの一部ページについて、スマホでの使いやすさ向上と、検索・絞り込み機能の追加、ダメージ計算まわりの修正を行いました。今回の更新では、主にスマホから使う場面を想定して、画面の見やすさや操作のしやすさを調整しています。</p>
+  </div>
+  <div class="article-body">
+    <h2>1. スマホ版の表示を調整しました</h2>
+    <p>ダメージ計算ページを中心に、スマホで操作しやすいよう表示を見直しました。</p>
+    <p>これまでスマホでは、入力項目が縦に長く並びすぎて、攻撃側・防御側・技条件・結果の確認がしづらい場面がありました。</p>
+    <p>今回の修正では、スマホ表示時に入力画面を整理し、必要な項目を確認しやすい形に調整しています。</p>
+    <p>主な変更点は以下です。</p>
+    <ul>
+      <li>攻撃側・防御側・技条件の表示をスマホ向けに整理</li>
+      <li>入力項目が広がりすぎないように調整</li>
+      <li>ボタンや候補表示をスマホで押しやすい形に修正</li>
+      <li>結果表示までの確認がしやすいように調整</li>
+    </ul>
+    <p>PC版の使い方は大きく変えず、スマホで見たときの操作感を中心に改善しています。</p>
+
+    <h2>2. 使用可能ポケモンページに検索・絞り込み機能を追加しました</h2>
+    <p>使用可能ポケモンの確認ページでは、ポケモンを探しやすくするために検索機能と絞り込み機能を追加しました。</p>
+    <p>今回の更新で、以下のような探し方ができます。</p>
+    <ul>
+      <li>ポケモン名で検索</li>
+      <li>技名で検索</li>
+      <li>特性名で検索</li>
+      <li>タイプを選択して絞り込み</li>
+    </ul>
+    <p>タイプについては、文字入力ではなく選択式にしています。そのため、タイプ名を入力する手間を減らし、目的のタイプだけをすぐに絞り込めるようになりました。</p>
+    <p>技検索や特性検索とタイプ絞り込みを組み合わせることで、たとえば「特定の技を覚えるポケモン」「特定タイプの中で候補になるポケモン」などを探しやすくしています。</p>
+
+    <h2>3. ダメージ計算の一部を修正しました</h2>
+    <p>ダメージ計算について、一部条件で表示や計算結果が想定とずれる可能性があった箇所を修正しました。</p>
+    <p>主に、連続技や複数回使用時のダメージ表示まわりを見直しています。</p>
+    <p>修正内容は以下です。</p>
+    <ul>
+      <li>連続技のヒット数を反映する処理を調整</li>
+      <li>複数回使用時の合計ダメージ表示を修正</li>
+      <li>ダメージが相手の残HPを超えて表示される問題を調整</li>
+      <li>技選択判定やバトルアナライザー側の表示にも反映</li>
+    </ul>
+    <p>これにより、複数回当たる技や、同じ技を複数回使った場合の確認が以前より見やすくなっています。</p>
+
+    <div class="note-box">
+      <strong>今回の主な変更点</strong><br>
+      ・スマホ版の表示と操作感を調整<br>
+      ・使用可能ポケモンページに検索とタイプ絞り込みを追加<br>
+      ・連続技や複数回使用時のダメージ表示を修正<br>
+      ・技選択判定とバトルアナライザー側の表示にも一部反映
+    </div>
+
+    <h2>4. 今後について</h2>
+    <p>今回の更新では、新しい大きな機能追加よりも、すでにある機能をスマホでも使いやすくすることと、計算結果の見やすさを整えることを優先しました。</p>
+    <p>今後も、ダメージ計算・技選択判定・バトルアナライザーなど、対戦準備や対戦中の確認に使いやすいように調整を続けていきます。</p>
+    <p>表示の崩れや気になる計算結果があれば、確認しながら修正していきます。</p>
+  </div>
+  <div class="related-section">
+    <div class="related-title">RELATED ARTICLES</div>
+    <div class="related-list">
+      <a class="related-link" href="update-summary-endure-history-analyzer.html">PokeEdge 更新まとめ：耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</a>
+      <a class="related-link" href="move-judge-guide.html">技選択判定の使いこなし方 — どの技を押すか迷ったときの考え方</a>
+      <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="footer-logo">PokeEdge</div>
+  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
+  <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+</footer>
+<script>
+var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
+function applyTheme(theme){var vars=THEMES[theme]||THEMES.dark;var root=document.documentElement.style;for(var k in vars)root.setProperty(k,vars[k]);localStorage.setItem('pokeedge_theme',theme);var btn=document.getElementById('theme-btn');if(btn)btn.textContent=theme==='light'?'🌙':'☀️';document.documentElement.setAttribute('data-theme',theme);}function toggleTheme(){var current=localStorage.getItem('pokeedge_theme')||'dark';applyTheme(current==='dark'?'light':'dark');}
+(function(){var t=localStorage.getItem('pokeedge_theme')||'dark';var vars=THEMES[t]||THEMES.dark;var root=document.documentElement.style;for(var k in vars)root.setProperty(k,vars[k]);document.documentElement.setAttribute('data-theme',t);})();
+function toggleNav(){const nav=document.querySelector('.header-nav');const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.toggle('open');hb.classList.toggle('open');ov.classList.toggle('show');}
+function closeNav(){const nav=document.querySelector('.header-nav');const hb=document.getElementById('hamburger');const ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){if(window.innerWidth<=768)closeNav();});});});
+</script>
+<script>window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });</script>
+</body>
+</html>
