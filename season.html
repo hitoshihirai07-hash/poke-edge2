@@ -218,6 +218,57 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
 
+
+
+/* スマホ下部固定ナビ */
+.pe-mobile-bottom-nav{display:none;}
+@media(max-width:768px){
+  body{padding-bottom:74px;}
+  .pe-mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:220;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,9,15,0.98);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,0.24);backdrop-filter:blur(18px);}
+  .pe-mobile-bottom-nav a{display:flex;align-items:center;justify-content:center;min-height:58px;padding:8px 4px;color:var(--text2);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:1px;border-right:1px solid var(--border);}
+  .pe-mobile-bottom-nav a:last-child{border-right:none;}
+  .pe-mobile-bottom-nav a.active{color:var(--accent);background:rgba(0,200,240,0.08);}
+}
+[data-theme="light"] .pe-mobile-bottom-nav{background:rgba(244,251,255,0.98);box-shadow:0 -8px 24px rgba(63,86,107,0.12);}
+
+
+
+/* スマホ検索・カード表示 */
+@media(max-width:768px){
+  .main{padding:12px 10px 88px;}
+  .filter-bar{position:sticky;top:52px;z-index:150;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;margin:-4px -2px 10px;border-left:none;border-right:none;background:rgba(15,20,35,0.98);box-shadow:0 8px 18px rgba(0,0,0,0.18);backdrop-filter:blur(16px);}
+  [data-theme="light"] .filter-bar{background:rgba(244,251,255,0.98);}
+  .filter-label{grid-column:1/-1;}
+  .season-btns{grid-column:1/-1;display:flex;gap:6px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+  .season-btn{flex:0 0 auto;min-height:34px;padding:6px 12px;}
+  .search-mode-select{min-width:0;width:100%;height:38px;font-size:12px;}
+  .search-input{grid-column:1/-1;min-width:0;width:100%;height:40px;font-size:13px;}
+  .search-clear-btn{height:38px;}
+  .search-help{grid-column:1/-1;font-size:9px;line-height:1.5;}
+  .stats-bar{position:sticky;top:190px;z-index:60;background:rgba(7,9,15,0.92);border:1px solid var(--border);padding:7px 9px;margin-bottom:8px;gap:10px;}
+  [data-theme="light"] .stats-bar{background:rgba(244,251,255,0.94);}
+  #poke-table thead{display:none;}
+  #poke-table,#poke-table tbody,#poke-table tr,#poke-table td{display:block;width:100%;}
+  #poke-table tr{background:var(--panel);border:1px solid var(--border);margin-bottom:9px;padding:9px 10px;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,0.12);}
+  #poke-table tr:hover{background:var(--panel);}
+  #poke-table td{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);white-space:normal;text-align:right;}
+  #poke-table td:last-child{border-bottom:none;}
+  #poke-table td::before{content:attr(data-label);font-size:10px;color:var(--text2);letter-spacing:1px;text-align:left;flex:0 0 auto;}
+  #poke-table td.td-name{display:block;text-align:left;border-bottom:1px solid var(--border);padding-bottom:9px;margin-bottom:4px;}
+  #poke-table td.td-name::before{display:block;margin-bottom:4px;}
+  #poke-table .name-open-btn{font-size:17px;color:var(--accent);}
+  #poke-table .stat-bar-wrap{margin-left:auto;justify-content:flex-end;}
+  .table-wrap{overflow:visible;}
+  .rank-wrap{overflow:visible;}
+  .rank-table{min-width:0;}
+  .rank-table thead{display:none;}
+  .rank-table,.rank-table tbody,.rank-table tr,.rank-table td{display:block;width:100%;}
+  .rank-table tr{background:var(--panel);border:1px solid var(--border);border-radius:10px;margin-bottom:9px;padding:9px 10px;}
+  .rank-table td{display:block;border-bottom:1px solid var(--border);padding:7px 0;white-space:normal;}
+  .rank-table td:last-child{border-bottom:none;}
+  .rank-table td::before{content:attr(data-label);display:block;font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;}
+}
+
 </style>
 </head>
 <body>
@@ -475,11 +526,11 @@ function sortBy(key) {
   render();
 }
 
-function statCellHtml(p, key) {
+function statCellHtml(p, key, label) {
   const val = p[key]||0;
   const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
   const color = STAT_COLORS[key]||'var(--text)';
-  return `<td class="td-stat">
+  return `<td class="td-stat" data-label="${escapeHtml(label||key)}">
     <div class="stat-bar-wrap">
       <span style="min-width:28px;text-align:right;">${val}</span>
       <div class="stat-bar-bg"><div class="stat-bar-fg" style="width:${pct}%;background:${color};"></div></div>
@@ -526,17 +577,17 @@ function render() {
     const t2 = p.type2 ? `<span class="tp tp-${p.type2}">${escapeHtml(p.type2)}</span>` : '';
     const badge = nintei ? '<span class="badge-ok">✓</span>' : '';
     return `<tr class="${nintei?'is-nintei':''}">
-      <td class="td-no">#${String(p.no||'').padStart(4,'0')}</td>
-      <td class="td-name"><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</button></td>
-      <td>${t1}${t2}</td>
-      ${statCellHtml(p,'hp')}
-      ${statCellHtml(p,'atk')}
-      ${statCellHtml(p,'def')}
-      ${statCellHtml(p,'spa')}
-      ${statCellHtml(p,'spd')}
-      ${statCellHtml(p,'spe')}
-      <td class="td-total">${p.total}</td>
-      <td class="td-badge">${badge}</td>
+      <td class="td-no" data-label="No">#${String(p.no||'').padStart(4,'0')}</td>
+      <td class="td-name" data-label="名前"><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</button></td>
+      <td data-label="タイプ">${t1}${t2}</td>
+      ${statCellHtml(p,'hp','HP')}
+      ${statCellHtml(p,'atk','攻撃')}
+      ${statCellHtml(p,'def','防御')}
+      ${statCellHtml(p,'spa','特攻')}
+      ${statCellHtml(p,'spd','特防')}
+      ${statCellHtml(p,'spe','素早')}
+      <td class="td-total" data-label="合計">${p.total}</td>
+      <td class="td-badge" data-label="使用可">${badge}</td>
     </tr>`;
   }).join('');
 
@@ -1053,14 +1104,14 @@ document.addEventListener('DOMContentLoaded',function(){
 
     tbody.innerHTML = rows.map(row => `
       <tr>
-        <td><span class="rank-badge">${escapeHtml(row.rank || '—')}</span></td>
-        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
-        <td><div class="rank-cell-block">${(row.moves || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.items || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.abilities || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.natures || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.spreads || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td>${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</td>
+        <td data-label="順位"><span class="rank-badge">${escapeHtml(row.rank || '—')}</span></td>
+        <td data-label="ポケモン"><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
+        <td data-label="技"><div class="rank-cell-block">${(row.moves || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td data-label="持ち物"><div class="rank-cell-block">${(row.items || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td data-label="特性"><div class="rank-cell-block">${(row.abilities || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td data-label="性格"><div class="rank-cell-block">${(row.natures || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td data-label="努力値"><div class="rank-cell-block">${(row.spreads || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td data-label="更新日">${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</td>
       </tr>
     `).join('');
   }
@@ -1295,6 +1346,26 @@ document.addEventListener('DOMContentLoaded',function(){
     ensureSeasonViews();
     ensureDetailRankingBox();
     loadRankingJson();
+  });
+})();
+</script>
+
+
+<nav class="pe-mobile-bottom-nav" aria-label="スマホ用主要ナビ">
+  <a href="calc.html">計算</a>
+  <a href="endure.html">耐久</a>
+  <a href="move.html">技</a>
+  <a href="scope.html">選出</a>
+  <a href="season.html">検索</a>
+</nav>
+<script>
+(function(){
+  var nav=document.querySelector('.pe-mobile-bottom-nav');
+  if(!nav) return;
+  var page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  nav.querySelectorAll('a').forEach(function(a){
+    var href=(a.getAttribute('href')||'').toLowerCase();
+    if(page===href) a.classList.add('active');
   });
 })();
 </script>

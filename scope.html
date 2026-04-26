@@ -313,6 +313,50 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
 
+
+
+/* スマホ下部固定ナビ */
+.pe-mobile-bottom-nav{display:none;}
+@media(max-width:768px){
+  body{padding-bottom:74px;}
+  .pe-mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:220;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,9,15,0.98);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,0.24);backdrop-filter:blur(18px);}
+  .pe-mobile-bottom-nav a{display:flex;align-items:center;justify-content:center;min-height:58px;padding:8px 4px;color:var(--text2);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:1px;border-right:1px solid var(--border);}
+  .pe-mobile-bottom-nav a:last-child{border-right:none;}
+  .pe-mobile-bottom-nav a.active{color:var(--accent);background:rgba(0,200,240,0.08);}
+}
+[data-theme="light"] .pe-mobile-bottom-nav{background:rgba(244,251,255,0.98);box-shadow:0 -8px 24px rgba(63,86,107,0.12);}
+
+
+
+/* スマホ選出状態バー・カード表示 */
+.scope-mobile-state{display:none;}
+.damage-mobile-cards{display:none;}
+@media(max-width:760px){
+  .main{padding:12px 10px 88px;}
+  .phase-tabs{margin-left:-4px;margin-right:-4px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .phase-tab{padding:11px 12px;font-size:11px;min-width:max-content;}
+  .scope-mobile-state{position:sticky;top:52px;z-index:150;display:grid;grid-template-columns:1fr 1fr;gap:6px;background:rgba(15,20,35,0.98);border:1px solid var(--border);padding:8px;margin:-4px 0 10px;box-shadow:0 8px 18px rgba(0,0,0,0.18);backdrop-filter:blur(16px);}
+  [data-theme="light"] .scope-mobile-state{background:rgba(244,251,255,0.98);}
+  .scope-mobile-chip{background:var(--bg2);border:1px solid var(--border);padding:6px 7px;min-width:0;}
+  .scope-mobile-chip b{display:block;color:var(--accent);font-size:10px;letter-spacing:1px;margin-bottom:3px;}
+  .scope-mobile-chip span{display:block;font-size:10px;color:var(--text);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .scope-stats-table thead{display:none;}
+  .scope-stats-table,.scope-stats-table tbody,.scope-stats-table tr,.scope-stats-table td{display:block;width:100%;}
+  .scope-stats-table tr{background:var(--panel);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;padding:8px 10px;}
+  .scope-stats-table td{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);white-space:normal;}
+  .scope-stats-table td:last-child{border-bottom:none;}
+  .scope-stats-table td::before{content:attr(data-label);font-size:10px;color:var(--text2);letter-spacing:1px;text-align:left;}
+  .scope-bar-wrap{width:72px;}
+  .damage-table-wrap{display:none;}
+  .damage-mobile-cards{display:grid;gap:8px;}
+  .damage-mobile-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 10px;}
+  .damage-mobile-head{font-size:11px;font-weight:700;margin-bottom:6px;color:var(--accent);line-height:1.5;}
+  .damage-mobile-move{font-size:12px;font-weight:700;color:var(--text);}
+  .damage-mobile-meta{font-size:9px;color:var(--text2);line-height:1.5;margin-bottom:6px;}
+  .damage-mobile-target{display:grid;grid-template-columns:minmax(80px,1fr) 1.5fr;gap:8px;align-items:start;border-top:1px solid var(--border);padding-top:7px;margin-top:7px;}
+  .damage-mobile-target-name{font-size:10px;color:var(--text2);line-height:1.5;}
+}
+
 </style>
 </head>
 <body>
@@ -350,6 +394,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     <button class="phase-tab" id="ptab-3" onclick="showPhase(3)"><span class="tab-icon">🎯</span>技選択・対面ダメージ</button>
     <button class="phase-tab" id="ptab-4" onclick="showPhase(4)"><span class="tab-icon">📊</span>選出率記録</button>
     <button class="phase-tab" id="ptab-5" onclick="showPhase(5)"><span class="tab-icon">🧮</span>計算履歴</button>
+  </div>
+
+  <div class="scope-mobile-state" id="scope-mobile-state" aria-live="polite">
+    <div class="scope-mobile-chip"><b>自分</b><span>0/3　初手: —</span></div>
+    <div class="scope-mobile-chip"><b>相手</b><span>0/3　初手: —</span></div>
+    <div class="scope-mobile-chip"><b>メガ候補</b><span>—</span></div>
+    <div class="scope-mobile-chip"><b>確認</b><span>選出フェーズで選択</span></div>
   </div>
 
   <!-- ============ PHASE 1: 選出フェーズ ============ -->
@@ -1024,11 +1075,46 @@ function showPhase(n){
     if(panel) panel.classList.toggle('active',i===n);
     if(tab) tab.classList.toggle('active',i===n);
   });
+  renderScopeMobileState(n);
   if(n===2) renderBattlePhase();
   if(n===3) renderDamagePhase();
   if(n===4){ renderScopeStats(); renderScopeHistory(); }
   if(n===5) renderCalcHistory();
   if(history && history.replaceState) history.replaceState(null,'','#phase-'+n);
+}
+function getCurrentScopePhase(){
+  const active = document.querySelector('.phase-panel.active');
+  const m = active && String(active.id||'').match(/phase-(\d+)/);
+  return m ? parseInt(m[1],10) : 1;
+}
+function getScopeMobileNames(party, sel){
+  return sel.map(i=>party[i]).filter(Boolean).map(s=>s.poke.name).join(' / ') || '未選出';
+}
+function getScopeMobileLeadName(party, lead){
+  return (lead!==null && party[lead]) ? party[lead].poke.name : '—';
+}
+function getScopeMegaMobileLabel(){
+  const all = [];
+  mySelect.forEach(i=>{ if(myParty[i]) all.push(myParty[i]); });
+  const target = all.find(s=>{
+    const item = String(s.item||'');
+    return (s.megaMode && s.megaMode!=='normal') || s.megaFormName || item.includes('ナイト') || (typeof isMegaPokemon==='function' && isMegaPokemon(s.poke.name));
+  });
+  if(!target) return 'なし';
+  if(typeof getSlotDisplayName==='function') return getSlotDisplayName(target,'attack');
+  return target.poke.name;
+}
+function renderScopeMobileState(phase){
+  const el=document.getElementById('scope-mobile-state');
+  if(!el) return;
+  normalizeLead('my');
+  normalizeLead('opp');
+  const phaseNo = phase || getCurrentScopePhase();
+  const phaseLabel = ({1:'選出中',2:'対戦中',3:'技確認',4:'記録確認',5:'履歴確認'})[phaseNo] || '確認中';
+  el.innerHTML = '<div class="scope-mobile-chip"><b>自分 '+mySelect.length+'/3</b><span>'+escapeHtml(getScopeMobileNames(myParty,mySelect))+'｜初手: '+escapeHtml(getScopeMobileLeadName(myParty,myLeadSlot))+'</span></div>'+ 
+    '<div class="scope-mobile-chip"><b>相手 '+oppSelect.length+'/3</b><span>'+escapeHtml(getScopeMobileNames(oppParty,oppSelect))+'｜初手: '+escapeHtml(getScopeMobileLeadName(oppParty,oppLeadSlot))+'</span></div>'+ 
+    '<div class="scope-mobile-chip"><b>メガ候補</b><span>'+escapeHtml(getScopeMegaMobileLabel())+'</span></div>'+ 
+    '<div class="scope-mobile-chip"><b>現在</b><span>'+escapeHtml(phaseLabel)+'</span></div>';
 }
 function getLeadSlotValue(side){
   return side==='my' ? myLeadSlot : oppLeadSlot;
@@ -1248,6 +1334,7 @@ function renderParty(side){
   }).join('')+(party.length<6?'<div class="party-slot"><div class="slot-empty">＋</div></div>':'');
   renderSlotSettings(side);
   renderLeadPicker(side);
+  renderScopeMobileState();
 }
 
 function renderSlotSettings(side){
@@ -1482,22 +1569,25 @@ function getDamageTable(side){
   }
   const defenderHeads = defenders.map(d=>'<th>'+escapeHtml(d.slot.poke.name)+'<div class="damage-move-meta">HP '+d.slot.stats.hp+' / S '+d.slot.stats.spe+'</div></th>').join('');
   let rows = '';
+  let mobileCards = '';
   attackers.forEach(attacker=>{
     const moves = (attacker.slot.moves || []).filter(m=>m && m.power>0).slice(0,4);
     if(!moves.length){
       rows += '<tr><td class="damage-attacker-cell">'+escapeHtml(attacker.slot.poke.name)+'</td><td class="damage-move-cell">攻撃技なし</td>'+defenders.map(()=>'<td class="damage-result-cell">—</td>').join('')+'</tr>';
+      mobileCards += '<div class="damage-mobile-card"><div class="damage-mobile-head">'+escapeHtml(attacker.slot.poke.name)+'</div><div class="damage-mobile-meta">攻撃技なし</div></div>';
       return;
     }
     moves.forEach((move, moveIdx)=>{
       const results = getDamageMoveResults(attacker, move, defenders);
-      rows += '<tr>'+
+      rows += '<tr>'+ 
         (moveIdx===0 ? '<td class="damage-attacker-cell" rowspan="'+moves.length+'">'+escapeHtml(attacker.slot.poke.name)+'<div class="damage-move-meta">'+typeHTML(attacker.slot.poke)+' S '+attacker.slot.stats.spe+'</div></td>' : '')+
-        '<td class="damage-move-cell"><div class="damage-move-name">'+escapeHtml(move.name)+'</div>'+formatDamageMoveMeta(move)+'</td>'+
+        '<td class="damage-move-cell"><div class="damage-move-name">'+escapeHtml(move.name)+'</div>'+formatDamageMoveMeta(move)+'</td>'+ 
         results.map(x=>'<td class="damage-result-cell">'+formatDamageResult(x.result)+'</td>').join('')+
         '</tr>';
+      mobileCards += '<div class="damage-mobile-card"><div class="damage-mobile-head">'+escapeHtml(attacker.slot.poke.name)+'</div><div class="damage-mobile-move">'+escapeHtml(move.name)+'</div><div class="damage-mobile-meta">'+formatDamageMoveMeta(move)+'</div>'+results.map(x=>'<div class="damage-mobile-target"><div class="damage-mobile-target-name">'+escapeHtml(x.defender.slot.poke.name)+'</div><div>'+formatDamageResult(x.result)+'</div></div>').join('')+'</div>';
     });
   });
-  return '<div class="damage-table-wrap"><table class="damage-matrix"><thead><tr><th>攻撃側</th><th>技</th>'+defenderHeads+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  return '<div class="damage-table-wrap"><table class="damage-matrix"><thead><tr><th>攻撃側</th><th>技</th>'+defenderHeads+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="damage-mobile-cards">'+mobileCards+'</div>';
 }
 function scoreDamageAction(attacker, move, defenders){
   const results = getDamageMoveResults(attacker, move, defenders).filter(x=>x.result);
@@ -1852,11 +1942,11 @@ async function renderScopeStats(){
   function rowHtmlMy(name,d){
     const partyPct=Math.round((d.party||0)/total*100), selPct=Math.round((d.sel||0)/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0;
     const winPct=d.sel?Math.round(d.win/d.sel*100):0;
-    return '<tr><td><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td class="scope-num">'+(d.party||0)+'/'+total+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td class="scope-num">'+(d.sel||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td class="scope-num">'+(d.lead||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td><td class="scope-num" style="color:'+(winPct>=50?'var(--green)':'var(--accent2)')+';">'+winPct+'%</td></tr>';
+    return '<tr><td data-label="ポケモン"><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td data-label="6体内" class="scope-num">'+(d.party||0)+'/'+total+'</td><td data-label="6体内率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td data-label="選出" class="scope-num">'+(d.sel||0)+'</td><td data-label="選出率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td data-label="初手" class="scope-num">'+(d.lead||0)+'</td><td data-label="初手率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td><td data-label="勝率" class="scope-num" style="color:'+(winPct>=50?'var(--green)':'var(--accent2)')+';">'+winPct+'%</td></tr>';
   }
   function rowHtmlOpp(name,d){
     const partyPct=Math.round((d.party||0)/total*100), selPct=Math.round((d.sel||0)/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0;
-    return '<tr><td><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td class="scope-num">'+(d.party||0)+'/'+total+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td class="scope-num">'+(d.sel||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td class="scope-num">'+(d.lead||0)+'</td><td><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td></tr>';
+    return '<tr><td data-label="ポケモン"><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td data-label="6体内" class="scope-num">'+(d.party||0)+'/'+total+'</td><td data-label="6体内率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td data-label="選出" class="scope-num">'+(d.sel||0)+'</td><td data-label="選出率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td data-label="初手" class="scope-num">'+(d.lead||0)+'</td><td data-label="初手率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td></tr>';
   }
   area.innerHTML='<div class="note">自分側・相手側とも、入力した6体と実際に選出した3体を分けて集計します。</div><div class="scope-stats-grid"><div><div class="scope-stats-head">自分の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtmlMy(n,d)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtmlOpp(n,d)).join('')+'</tbody></table></div></div>';
 }
@@ -1999,5 +2089,25 @@ window.onload=async()=>{
   showPhase(getCalcPhaseFromHash());
 };
 </script>
+
+<nav class="pe-mobile-bottom-nav" aria-label="スマホ用主要ナビ">
+  <a href="calc.html">計算</a>
+  <a href="endure.html">耐久</a>
+  <a href="move.html">技</a>
+  <a href="scope.html">選出</a>
+  <a href="season.html">検索</a>
+</nav>
+<script>
+(function(){
+  var nav=document.querySelector('.pe-mobile-bottom-nav');
+  if(!nav) return;
+  var page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  nav.querySelectorAll('a').forEach(function(a){
+    var href=(a.getAttribute('href')||'').toLowerCase();
+    if(page===href) a.classList.add('active');
+  });
+})();
+</script>
+
 </body>
 </html>
