@@ -446,11 +446,14 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
 .ev-quick-btns{display:flex;gap:4px;margin-left:6px;flex-shrink:0;}
 .ev-quick-btn{padding:2px 8px;font-size:9px;font-family:'Noto Sans JP',sans-serif;background:var(--bg);border:1px solid var(--border2);color:var(--text2);cursor:pointer;letter-spacing:1px;transition:border-color 0.15s;}
 .ev-quick-btn:hover{border-color:var(--accent);color:var(--accent);}
-/* メガ進化切り替えボタン */
-.mega-btn{padding:3px 10px;font-size:9px;font-family:'Noto Sans JP',sans-serif;background:linear-gradient(135deg,rgba(255,48,96,0.15),rgba(0,200,240,0.1));border:1px solid var(--accent2);color:var(--accent2);cursor:pointer;letter-spacing:1px;transition:all 0.15s;}
-.mega-btn:hover{background:rgba(255,48,96,0.25);border-color:var(--accent2);transform:translateY(-1px);}
-.mega-btn.mega-back{border-color:var(--accent);color:var(--accent);background:linear-gradient(135deg,rgba(0,200,240,0.1),rgba(0,200,240,0.05));}
-.mega-btn.mega-back:hover{background:rgba(0,200,240,0.2);}
+/* メガ進化・フォルム切り替えボタン */
+.mega-btn{padding:6px 12px;font-size:10px;font-family:'Noto Sans JP',sans-serif;background:var(--bg2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;letter-spacing:1px;transition:all 0.15s;border-radius:4px;font-weight:700;}
+.mega-btn:hover{background:rgba(0,200,240,0.08);border-color:var(--accent);color:var(--accent);transform:translateY(-1px);}
+.mega-btn.mega-back,.mega-btn.is-selected{border-color:var(--accent);color:#061018;background:linear-gradient(135deg,var(--accent),#72ecff);box-shadow:0 0 0 1px rgba(0,200,240,0.28),0 0 14px rgba(0,200,240,0.22);}
+.mega-btn.mega-back:hover,.mega-btn.is-selected:hover{background:linear-gradient(135deg,#72ecff,var(--accent));color:#061018;}
+.form-current-label{width:100%;font-size:11px;color:var(--accent);font-weight:700;margin:2px 0 4px;letter-spacing:1px;}
+.form-choice-btn{min-width:110px;text-align:center;}
+@media(max-width:760px){.mega-btn{padding:9px 12px;font-size:12px;min-height:38px;}.form-choice-btn{min-width:0;flex:1 1 130px;}}
 .corr-section-title{font-size:9px;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
 
 /* ハンバーガーメニュー（スマホ） */
@@ -1550,11 +1553,20 @@ function renderSpecialFormCalcControl(side, poke){
   title.textContent = isDef ? (cfg.defenseTitle || '被弾フォルムを選択してください。') : (cfg.attackTitle || '攻撃フォルムを選択してください。');
   wrap.appendChild(title);
   const stateKey = isDef ? cfg.defenseStateKey : (side==='atk2' ? cfg.attack2StateKey : cfg.attackStateKey);
+  const currentForm = window[stateKey] || cfg.defaultForm;
+  const currentOpt = (cfg.options || []).find(([formName]) => formName === currentForm);
+  const currentLabel = currentOpt ? currentOpt[1] : currentForm;
+  const current = document.createElement('div');
+  current.className = 'form-current-label';
+  current.textContent = '現在：' + currentLabel;
+  wrap.appendChild(current);
   cfg.options.forEach(([formName,label])=>{
+    const selected = currentForm === formName;
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'mega-btn' + ((window[stateKey] || cfg.defaultForm)===formName ? ' mega-back' : '');
-    btn.textContent = label;
+    btn.className = 'mega-btn form-choice-btn' + (selected ? ' mega-back is-selected' : '');
+    btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    btn.textContent = selected ? ('✓ ' + label + '（選択中）') : label;
     btn.addEventListener('click',()=>{
       window[stateKey] = formName;
       renderSpecialFormCalcControl(side, poke);
