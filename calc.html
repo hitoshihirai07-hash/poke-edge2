@@ -622,6 +622,27 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 @media(max-width:380px){.mobile-calc-steps{grid-template-columns:repeat(2,1fr);top:52px;}}
 [data-theme="light"] .mobile-calc-steps button{background:rgba(244,251,255,.96);}
 
+
+
+/* ===== calc.html スマホ入力の広がり防止・コンパクト化 ===== */
+@media(max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden;}
+  .layout,.main-content,.panel,.calc-body,.calc-input-col,.calc-grid,.calc-grid>.card,.calc-mobile-tech-card,.setup-entry{width:100%;max-width:100%;min-width:0;}
+  .layout{padding-left:8px;padding-right:8px;}
+  .setup-entry-head{display:grid;grid-template-columns:1fr;align-items:stretch;}
+  .setup-entry-head > div[style*="min-width"]{min-width:0 !important;width:100% !important;}
+  .setup-entry-actions{min-width:0;width:100%;}
+  .calc-grid>.card:not(.is-collapsed),.calc-mobile-tech-card:not(.is-collapsed){max-height:calc(100dvh - 180px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+  .calc-grid>.card>.card-title,.calc-mobile-tech-card>.card-title{position:sticky;top:0;z-index:2;}
+  .quick-chip-wrap{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;flex-wrap:unset !important;overflow-x:hidden !important;overflow-y:auto;max-height:132px;min-width:0;padding-bottom:0;}
+  .quick-chip{width:100%;min-width:0;white-space:normal !important;overflow-wrap:anywhere;word-break:break-word;flex:initial !important;text-align:center;padding:7px 6px;}
+  .slider-inputs{grid-template-columns:minmax(0,1fr) 72px;min-width:0;}
+  input[type=range]{width:100%;min-width:0;}
+  .real-stat-row,.hp-wrap,.corr-section,.search-wrap,.quick-action-row{min-width:0;max-width:100%;}
+  .mobile-calc-steps{max-width:100%;}
+}
+@media(max-width:380px){.quick-chip-wrap{grid-template-columns:1fr;}}
+
 </style>
 </head>
 <body>
@@ -4786,7 +4807,7 @@ function initContextUI(){
 
 
 // ===== calc.html スマホ入力整理 =====
-const calcMobileLayoutState={techCard:null,techBody:null,techAnchor:null,techNodes:[],bound:false};
+const calcMobileLayoutState={techCard:null,techBody:null,techAnchor:null,techNodes:[],bound:false,collapsedInit:false};
 function createCalcMobileTechCard(){
   if(calcMobileLayoutState.techCard) return calcMobileLayoutState.techCard;
   const defCard=document.getElementById('calc-mobile-def');
@@ -4839,7 +4860,46 @@ function applyCalcMobileInputLayout(){
   const atkCard=document.getElementById('calc-mobile-atk');
   const defCard=document.getElementById('calc-mobile-def');
   [atkCard,defCard].forEach(card=>{ if(card){card.classList.add('calc-mobile-section'); bindCalcMobileAccordion(card);} });
-  if(isMobile) moveCalcTechNodesToMobile(); else restoreCalcTechNodesForDesktop();
+  if(isMobile){
+    moveCalcTechNodesToMobile();
+    initCalcMobileCollapsedState();
+  }else{
+    restoreCalcTechNodesForDesktop();
+    getCalcMobileSections().forEach(card=>card.classList.remove('is-collapsed'));
+    calcMobileLayoutState.collapsedInit=false;
+  }
+}
+function getCalcMobileSections(){
+  return ['calc-mobile-atk','calc-mobile-def','calc-mobile-tech-card'].map(id=>document.getElementById(id)).filter(Boolean);
+}
+function initCalcMobileCollapsedState(){
+  if(!window.matchMedia('(max-width:760px)').matches) return;
+  const sections=getCalcMobileSections();
+  if(!calcMobileLayoutState.collapsedInit){
+    sections.forEach(card=>card.classList.add('is-collapsed'));
+    calcMobileLayoutState.collapsedInit=true;
+  }
+}
+function setActiveCalcMobileStep(id){
+  const steps=document.getElementById('mobile-calc-steps');
+  if(!steps) return;
+  steps.querySelectorAll('button').forEach(btn=>{
+    const active=btn.dataset.target===id;
+    btn.classList.toggle('active',active);
+  });
+}
+function openCalcMobileSection(id){
+  const target=document.getElementById(id);
+  if(!target) return;
+  if(window.matchMedia('(max-width:760px)').matches){
+    getCalcMobileSections().forEach(card=>{
+      if(card===target) card.classList.remove('is-collapsed');
+      else card.classList.add('is-collapsed');
+    });
+    setActiveCalcMobileStep(id);
+  }else{
+    target.classList.remove('is-collapsed');
+  }
 }
 function bindCalcMobileAccordion(card){
   if(!card || card.dataset.mobileAccordionBound==='1') return;
@@ -4850,7 +4910,8 @@ function bindCalcMobileAccordion(card){
   title.setAttribute('tabindex','0');
   const toggle=()=>{
     if(!window.matchMedia('(max-width:760px)').matches) return;
-    card.classList.toggle('is-collapsed');
+    if(card.classList.contains('is-collapsed')) openCalcMobileSection(card.id);
+    else card.classList.add('is-collapsed');
   };
   title.addEventListener('click',toggle);
   title.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
@@ -4858,7 +4919,7 @@ function bindCalcMobileAccordion(card){
 function scrollCalcMobileTarget(id){
   const target=document.getElementById(id);
   if(!target) return;
-  target.classList.remove('is-collapsed');
+  openCalcMobileSection(id);
   const y=target.getBoundingClientRect().top + window.pageYOffset - 108;
   window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
 }
