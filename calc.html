@@ -1443,7 +1443,7 @@ function ensureAegislashDisplayPokemon(list){
   const blade = arr.find(p=>p && p.name===AEGISLASH_BLADE_NAME);
   const src = shield || blade;
   if(src){
-    arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true}));
+    arr.push(Object.assign({}, src, {name:AEGISLASH_BASE_NAME,_aegislashDisplay:true,_hiddenForm:false}));
   }
   return arr;
 }
