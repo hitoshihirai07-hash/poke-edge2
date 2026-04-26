@@ -562,6 +562,66 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 }
 [data-theme="light"] .pe-mobile-bottom-nav{background:rgba(244,251,255,0.98);box-shadow:0 -8px 24px rgba(63,86,107,0.12);}
 
+
+
+/* ===== calc.html スマホ入力整理 ===== */
+.mobile-calc-steps{display:none;}
+@media(max-width:760px){
+  .layout{padding:10px 10px 150px;}
+  .main-content{width:100%;}
+  .setup-entry{margin-bottom:8px;}
+  .setup-entry-head{gap:10px;}
+  .setup-entry-title{font-size:11px;}
+  .setup-entry-summary{font-size:11px;line-height:1.7;}
+  .setup-entry-help{display:none;}
+  .setup-entry-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .setup-entry-status{grid-column:1 / -1;text-align:left;}
+  .setup-entry-actions .quick-action-btn{width:100%;min-height:42px;padding:10px 8px;}
+  .mobile-calc-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:52px;z-index:70;padding:8px 0 9px;margin:0 0 10px;background:linear-gradient(180deg,var(--bg) 78%,rgba(7,9,15,0));}
+  .mobile-calc-steps button{min-height:38px;border:1px solid var(--border2);background:rgba(15,20,35,.94);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 3px;border-radius:10px;}
+  .mobile-calc-steps button.active,.mobile-calc-steps button:focus{border-color:var(--accent);color:var(--accent);outline:none;background:rgba(0,200,240,0.08);}
+  .calc-body{display:block;}
+  .calc-grid{display:flex;flex-direction:column;gap:10px;}
+  .calc-grid>.card,.calc-mobile-tech-card{border-radius:14px;padding:0;overflow:hidden;background:var(--panel);}
+  .calc-grid>.card>.card-title,.calc-mobile-tech-card>.card-title{min-height:48px;margin:0;padding:13px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;justify-content:space-between;color:var(--text);font-size:12px;letter-spacing:2px;}
+  .calc-grid>.card>.card-title::after,.calc-mobile-tech-card>.card-title::after{content:'▲';font-size:10px;color:var(--text2);margin-left:auto;transition:transform .18s ease;}
+  .calc-grid>.card.is-collapsed>.card-title::after,.calc-mobile-tech-card.is-collapsed>.card-title::after{transform:rotate(180deg);}
+  .calc-grid>.card.is-collapsed > :not(.card-title),.calc-mobile-tech-card.is-collapsed > :not(.card-title){display:none !important;}
+  .calc-grid>.card > :not(.card-title),.calc-mobile-tech-card > :not(.card-title){padding-left:14px;padding-right:14px;}
+  .calc-grid>.card > label:first-of-type,.calc-mobile-tech-card > label:first-of-type{margin-top:14px;}
+  .calc-grid>.card > :last-child,.calc-mobile-tech-card > :last-child{margin-bottom:14px;}
+  .vs-mid{order:2;padding:0;margin:-2px 0 0;}
+  .swap-btn{width:100%;min-height:42px;border-radius:12px;}
+  .calc-mobile-section-atk{order:1;}
+  .calc-mobile-section-def{order:3;}
+  .calc-mobile-tech-card{order:4;display:block;}
+  .calc-mobile-tech-body{padding:0 14px 14px;}
+  .calc-mobile-tech-body > :first-child{margin-top:12px;}
+  .calc-mobile-tech-body .corr-section{margin-top:10px;}
+  .calc-mobile-tech-body .corr-grid{grid-template-columns:1fr !important;}
+  .corr-grid{grid-template-columns:1fr !important;gap:8px;}
+  .slider-inputs{grid-template-columns:1fr 74px;gap:8px;}
+  .ev-quick-btns{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .ev-quick-btn{min-height:34px;}
+  input[type=text],input[type=number],select,.search-input{font-size:16px;min-height:42px;padding:9px 10px;}
+  .quick-chip-wrap{max-height:150px;overflow:auto;-webkit-overflow-scrolling:touch;}
+  .quick-chip,.quick-action-btn{min-height:38px;}
+  .poke-card{margin:8px 0 10px;}
+  .real-stat-box{margin-bottom:10px;}
+  .hp-wrap{padding:10px 14px;margin-top:10px;}
+  .def-hazard-grid{grid-template-columns:1fr;}
+  .main-btn{min-height:46px;border-radius:12px;}
+  .result-box.show{border-radius:14px;}
+  .result-big{font-size:40px;line-height:1.05;}
+  .damage-bar{height:20px;}
+  .calc-result-col.mobile-floating{bottom:58px;z-index:210;border-radius:16px 16px 0 0;}
+  .calc-result-col.mobile-floating.open{max-height:78vh;}
+  .mobile-result-handle{min-height:56px;padding:12px 14px;}
+  body.has-mobile-result{padding-bottom:150px;}
+}
+@media(max-width:380px){.mobile-calc-steps{grid-template-columns:repeat(2,1fr);top:52px;}}
+[data-theme="light"] .mobile-calc-steps button{background:rgba(244,251,255,.96);}
+
 </style>
 </head>
 <body>
@@ -612,12 +672,19 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       </div>
     </div>
 
+    <div class="mobile-calc-steps" id="mobile-calc-steps" aria-label="スマホ用入力ステップ">
+      <button type="button" data-target="calc-mobile-atk">①攻撃</button>
+      <button type="button" data-target="calc-mobile-def">②防御</button>
+      <button type="button" data-target="calc-mobile-tech-card">③技条件</button>
+      <button type="button" data-action="result">④結果</button>
+    </div>
+
     <div class="calc-body">
     <div class="calc-input-col">
     <div class="calc-grid">
 
       <!-- 攻撃側 -->
-      <div class="card">
+      <div class="card calc-mobile-section calc-mobile-section-atk" id="calc-mobile-atk">
         <div class="card-title">攻撃側</div>
         <label>ポケモン検索</label>
         <div id="season-filter-wrap" style="display:none;margin-bottom:6px;">
@@ -905,7 +972,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <div class="vs-mid"><button type="button" class="swap-btn" onclick="smartSwapSides()">⇄ 攻防を入れ替え</button></div>
 
       <!-- 防御側 -->
-      <div class="card">
+      <div class="card calc-mobile-section calc-mobile-section-def" id="calc-mobile-def">
         <div class="card-title">防御側</div>
         <label>ポケモン検索</label>
         <div class="search-wrap">
@@ -4502,6 +4569,7 @@ window.onload = async()=>{
   renderQuickMoveChips('');
   updateDamageSetupSummary();
   initContextUI();
+  initCalcMobileInputLayout();
   initMobileResultUI();
 };
 
@@ -4713,6 +4781,110 @@ function updateContextSections(){
 
 function initContextUI(){
   updateContextSections();
+}
+
+
+
+// ===== calc.html スマホ入力整理 =====
+const calcMobileLayoutState={techCard:null,techBody:null,techAnchor:null,techNodes:[],bound:false};
+function createCalcMobileTechCard(){
+  if(calcMobileLayoutState.techCard) return calcMobileLayoutState.techCard;
+  const defCard=document.getElementById('calc-mobile-def');
+  if(!defCard) return null;
+  const card=document.createElement('div');
+  card.id='calc-mobile-tech-card';
+  card.className='card calc-mobile-section calc-mobile-tech-card';
+  card.innerHTML='<div class="card-title">技・条件</div><div class="calc-mobile-tech-body"></div>';
+  defCard.insertAdjacentElement('afterend',card);
+  calcMobileLayoutState.techCard=card;
+  calcMobileLayoutState.techBody=card.querySelector('.calc-mobile-tech-body');
+  bindCalcMobileAccordion(card);
+  return card;
+}
+function moveCalcTechNodesToMobile(){
+  const start=document.getElementById('atk-corr-hp-pct');
+  const end=document.getElementById('atk-corr-main');
+  const card=createCalcMobileTechCard();
+  const body=calcMobileLayoutState.techBody;
+  if(!start || !end || !card || !body) return;
+  if(!calcMobileLayoutState.techAnchor){
+    const anchor=document.createComment('calc-mobile-tech-return-anchor');
+    start.parentNode.insertBefore(anchor,start);
+    calcMobileLayoutState.techAnchor=anchor;
+  }
+  if(calcMobileLayoutState.techNodes.length===0){
+    let node=start;
+    while(node){
+      const next=node.nextSibling;
+      calcMobileLayoutState.techNodes.push(node);
+      body.appendChild(node);
+      if(node===end) break;
+      node=next;
+    }
+  }else{
+    calcMobileLayoutState.techNodes.forEach(node=>body.appendChild(node));
+  }
+  card.style.display='block';
+}
+function restoreCalcTechNodesForDesktop(){
+  const card=calcMobileLayoutState.techCard;
+  const anchor=calcMobileLayoutState.techAnchor;
+  if(anchor && calcMobileLayoutState.techNodes.length){
+    let ref=anchor; calcMobileLayoutState.techNodes.forEach(node=>{ref.parentNode.insertBefore(node,ref.nextSibling); ref=node;});
+  }
+  if(card) card.style.display='none';
+}
+function applyCalcMobileInputLayout(){
+  const isMobile=window.matchMedia('(max-width:760px)').matches;
+  const atkCard=document.getElementById('calc-mobile-atk');
+  const defCard=document.getElementById('calc-mobile-def');
+  [atkCard,defCard].forEach(card=>{ if(card){card.classList.add('calc-mobile-section'); bindCalcMobileAccordion(card);} });
+  if(isMobile) moveCalcTechNodesToMobile(); else restoreCalcTechNodesForDesktop();
+}
+function bindCalcMobileAccordion(card){
+  if(!card || card.dataset.mobileAccordionBound==='1') return;
+  card.dataset.mobileAccordionBound='1';
+  const title=card.querySelector(':scope > .card-title');
+  if(!title) return;
+  title.setAttribute('role','button');
+  title.setAttribute('tabindex','0');
+  const toggle=()=>{
+    if(!window.matchMedia('(max-width:760px)').matches) return;
+    card.classList.toggle('is-collapsed');
+  };
+  title.addEventListener('click',toggle);
+  title.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+}
+function scrollCalcMobileTarget(id){
+  const target=document.getElementById(id);
+  if(!target) return;
+  target.classList.remove('is-collapsed');
+  const y=target.getBoundingClientRect().top + window.pageYOffset - 108;
+  window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+}
+function bindCalcMobileSteps(){
+  if(calcMobileLayoutState.bound) return;
+  calcMobileLayoutState.bound=true;
+  const steps=document.getElementById('mobile-calc-steps');
+  if(!steps) return;
+  steps.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      steps.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      if(btn.dataset.action==='result'){
+        const col=document.getElementById('calc-result-col');
+        if(col && col.classList.contains('mobile-floating')) col.classList.add('open');
+        updateMobileResultSummary();
+        return;
+      }
+      scrollCalcMobileTarget(btn.dataset.target);
+    });
+  });
+}
+function initCalcMobileInputLayout(){
+  applyCalcMobileInputLayout();
+  bindCalcMobileSteps();
+  window.addEventListener('resize', applyCalcMobileInputLayout);
 }
 
 // ===== モバイル下部固定の結果UI =====
