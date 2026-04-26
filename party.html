@@ -824,6 +824,99 @@ function renderCompareBaseStats(containerId, name){
 function renderDualAegislashStats(containerId, name){ return renderCompareBaseStats(containerId, name); }
 
 
+async function loadGameData() {
+  if(_dataLoaded) return;
+  try {
+    const [pd, md, ad, sd, idata, pmdata] = await Promise.all([
+      fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
+      fetch('moves.json?v='+Date.now()).then(r=>r.json()),
+      fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
+      fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
+      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
+      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
+    ]);
+    POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
+    MOVES_DATA   = md;
+    ABILITY_MAP  = ad;
+    SEASON_DATA  = sd;
+    ITEMS_DATA   = Array.isArray(idata) ? idata : [];
+    POKEMON_MOVES = pmdata && pmdata.pokemon ? pmdata.pokemon : {};
+    pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
+    moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
+    _dataLoaded  = true;
+  } catch(e) {
+    console.error('データ読み込みエラー:', e);
+    alert('データの読み込みに失敗しました。ページを再読み込みしてください。');
+  }
+}
+
+
+
+
+function normalizeItemName(value){
+  const v=String(value||'').trim();
+  return (!v || v==='なし') ? '' : v;
+}
+function setupItemMasterList(){
+  const list=document.getElementById('item-master-list');
+  if(!list) return;
+  const seen=new Set();
+  const names=[];
+  (ITEMS_DATA||[]).forEach(item=>{
+    const name=String(item&&item.name||'').trim();
+    if(!name || seen.has(name)) return;
+    seen.add(name);
+    names.push(name);
+  });
+  list.innerHTML=['<option value=""></option>'].concat(names.map(name=>`<option value="${name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}"></option>`)).join('');
+}
+function normalizeNatureName(value){
+  const v=String(value||'').trim();
+  return (!v || v==='おとぼけ') ? 'がんばりや' : v;
+}
+function getAbilityOptions(pokeName){
+  return getAbilityOptionsUnified(pokeName);
+}
+function getPokemonKnownMoves(pokeName){
+  for(const lookupName of getLookupNamesForPokemon(pokeName)){
+    const row = POKEMON_MOVES && POKEMON_MOVES[lookupName];
+    if(row && Array.isArray(row.moves) && row.moves.length) return row.moves;
+  }
+  return [];
+}
+const PARTY_ALL_TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
+const MOVE_TYPE_TO_POKE_TYPE = {
+  '炎':'ほのお','水':'みず','電気':'でんき','草':'くさ','氷':'こおり',
+  '格闘':'かくとう','毒':'どく','地面':'じめん','飛行':'ひこう','虫':'むし',
+  '岩':'いわ','悪':'あく','鋼':'はがね',
+  'ノーマル':'ノーマル','エスパー':'エスパー','ゴースト':'ゴースト',
+  'ドラゴン':'ドラゴン','フェアリー':'フェアリー'
+};
+const POKE_TYPE_TO_MOVE_TYPE = Object.fromEntries(Object.entries(MOVE_TYPE_TO_POKE_TYPE).map(([moveType, pokeType]) => [pokeType, moveType]));
+const ABILITY_TYPE_IMMUNITIES = {
+  'ふゆう':['じめん'],
+  'どしょく':['じめん'],
+  'もらいび':['ほのお'],
+  'こんがりボディ':['ほのお'],
+  'ちょすい':['みず'],
+  'よびみず':['みず'],
+  'かんそうはだ':['みず'],
+  'ちくでん':['でんき'],
+  'ひらいしん':['でんき'],
+  'でんきエンジン':['でんき'],
+  'そうしょく':['くさ']
+};
+
+function getAbilityTypeImmunities(abilityName) {
+  const key = String(abilityName||'').trim();
+  return ABILITY_TYPE_IMMUNITIES[key] ? ABILITY_TYPE_IMMUNITIES[key].slice() : [];
+}
+
+function getAbilityImmunityReason(abilityName, attackType) {
+  const imm = getAbilityTypeImmunities(abilityName);
+  return imm.includes(attackType) ? `${abilityName}で${attackType}無効` : '';
+}
+
 function getAdjustedTypeEff(moveType, defTypes, abilityName) {
   const attackType = MOVE_TYPE_TO_POKE_TYPE[moveType] || moveType;
   if(getAbilityTypeImmunities(abilityName).includes(attackType)) return 0;
