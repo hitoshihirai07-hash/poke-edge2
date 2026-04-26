@@ -1742,12 +1742,15 @@ function getWeightPower(moveName, atkW, defW) {
 
 // ===== 連続技ヒット数 =====
 function parseHits(raw) {
-  const s=String(raw||'1').trim();
-  if(s.includes('〜')||s.includes('~')) {
-    const parts=s.split(/[〜~]/); const mn=parseInt(parts[0])||1, mx=parseInt(parts[1])||mn;
-    return {min:mn,max:mx};
+  const s = String(raw || '1').trim();
+  const nums = s.match(/\d+/g);
+  if (nums && nums.length >= 2) {
+    const mn = Math.max(1, parseInt(nums[0], 10) || 1);
+    const mx = Math.max(mn, parseInt(nums[1], 10) || mn);
+    return {min: mn, max: mx};
   }
-  const n=parseInt(s)||1; return {min:n,max:n};
+  const n = nums && nums.length ? (parseInt(nums[0], 10) || 1) : 1;
+  return {min: n, max: n};
 }
 function clampNumber(v,min,max){
   const n=Number(v);
