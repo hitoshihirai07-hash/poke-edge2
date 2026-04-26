@@ -780,7 +780,7 @@ function parseHits(raw){
   }
   const n = nums && nums.length ? (parseInt(nums[0],10) || 1) : 1;
   return {min:n, max:n};
-} : {min:parts[0], max:parts[0]}; }
+}
 function calcHP(base, iv, ev, lv, champions){ if(champions) return Math.floor((Math.floor((base*2+iv)*lv/100)+10+lv))+ev; return Math.floor((Math.floor((base*2+iv+Math.floor(ev/4))*lv/100)+10+lv)); }
 function calcStat(base, iv, ev, lv, nature, champions){ if(champions) return Math.floor((Math.floor((base*2+iv)*lv/100)+5)*nature)+Math.floor(ev*nature); return Math.floor((Math.floor((base*2+iv+Math.floor(ev/4))*lv/100)+5)*nature); }
 function calcFullStats(slot){
