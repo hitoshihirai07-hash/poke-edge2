@@ -132,8 +132,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .nav-btn:hover{border-color:var(--accent);color:var(--accent);}
 .nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
 
-  background:radial-gradient(ellipse 50% 35% at 10% 5%,rgba(0,200,240,0.06) 0%,transparent 60%),
-    radial-gradient(ellipse 40% 25% at 90% 90%,rgba(255,48,96,0.04) 0%,transparent 60%),
 .logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 20px rgba(0,200,240,0.4);flex-shrink:0;}
 .gen-selector{display:flex;gap:3px;margin-left:auto;}
 .gen-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:11px;letter-spacing:1px;transition:all 0.18s;white-space:nowrap;position:relative;}
@@ -369,7 +367,8 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-slot-list{display:flex;flex-direction:column;gap:6px;}
 .party-slot-btn{
   padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;
-  transition:all 0.18s;position:relative;
+  transition:all 0.18s;position:relative;background:var(--bg2);border:1px solid var(--border);color:var(--text);
+}
 .party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);}
 .party-slot-btn.active{background:rgba(0,200,240,0.06);}
 .party-slot-btn.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
@@ -427,7 +426,7 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .add-breakdown{font-size:11px;color:var(--text3);margin-top:8px;line-height:2;}
 .add-ko-tag{display:inline-block;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:6px;}
 .add-ko1{background:var(--accent2);color:#fff;}.add-ko2{background:var(--accent3);color:#000;}.add-ko3{background:var(--text2);color:#fff;}
-footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 /* アクティブタブ不要なので非表示 */
 .tabs{ display:none; }
 
@@ -525,6 +524,13 @@ footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top
   .corr-grid{grid-template-columns:1fr !important;}
   .corr-section{padding:10px 10px 8px;overflow:hidden;}
   .hp-wrap,.real-stat-box,.corr-section,.search-wrap,.quick-action-row,.quick-chip-wrap{max-width:100%;}
+}
+
+
+/* calc.html: スマホ下部ナビと計算結果バーの重なり防止 */
+@media(max-width:768px){
+  .calc-result-col.mobile-floating{bottom:58px;z-index:210;}
+  body.has-mobile-result{padding-bottom:138px;}
 }
 
 /* ===== ライトモード ===== */
