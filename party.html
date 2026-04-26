@@ -766,18 +766,51 @@ function getAbilityOptionsUnified(pokeName){
   getLookupNamesForPokemon(pokeName).forEach(n=>{ const list=ABILITY_MAP&&ABILITY_MAP[n]; if(Array.isArray(list)) list.forEach(v=>{ if(v&&!out.includes(v)) out.push(v); }); });
   return out;
 }
-function renderDualAegislashStats(containerId, name){
-  const base=getSpecialFormBaseName(name) || AEGISLASH_BASE_NAME;
-  const cfg=SPECIAL_FORM_GROUPS[base] || SPECIAL_FORM_GROUPS[AEGISLASH_BASE_NAME];
-  const forms=getSpecialForms(base);
-  if(!forms.length) return false;
+
+function getMegaBaseName(name){
+  const raw=String(name||'').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const baseName=raw.replace(/^メガ/,'').replace(/[XYZ]$/,'');
+  if(!baseName || baseName===raw) return '';
+  return pokeIndex.some(p=>p && p.name===baseName) ? baseName : '';
+}
+function isMegaFormName(name){ return !!getMegaBaseName(name); }
+function getMegaFormsForBase(baseName){
+  const base=String(baseName||'').trim();
+  if(!base) return [];
+  return pokeIndex.filter(p=>p && getMegaBaseName(p.name)===base);
+}
+function getComparableForms(name){
+  const n=String(name||'').trim();
+  const specialBase=getSpecialFormBaseName(n);
+  if(specialBase){
+    const cfg=SPECIAL_FORM_GROUPS[specialBase] || {};
+    return (cfg.forms||[]).map(fn=>({poke:pokeIndex.find(p=>p&&p.name===fn), label:(cfg.labels&&cfg.labels[fn])||fn, kind:'special'})).filter(x=>x.poke);
+  }
+  const megaBase=getMegaBaseName(n) || n;
+  const megaForms=getMegaFormsForBase(megaBase);
+  if(megaForms.length){
+    const normal=pokeIndex.find(p=>p&&p.name===megaBase);
+    const out=[];
+    if(normal) out.push({poke:normal, label:'通常', kind:'normal'});
+    megaForms.forEach(m=>out.push({poke:m, label:m.name, kind:'mega'}));
+    return out;
+  }
+  return [];
+}
+function hasComparableForms(name){ return getComparableForms(name).length>=2; }
+function renderCompareBaseStats(containerId, name){
+  const entries=getComparableForms(name);
+  if(entries.length<2) return false;
   const stats=[['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
   const box=document.getElementById(containerId);
   if(!box) return false;
   let html='<div style="display:grid;gap:8px;">';
-  forms.forEach(form=>{
+  html+='<div style="font-size:10px;color:var(--text2);line-height:1.6;">確認用に、対戦中に切り替わるフォルム・メガ進化前後の数値を分けて表示しています。</div>';
+  entries.forEach(entry=>{
+    const form=entry.poke;
     html+='<div style="border:1px solid var(--border);background:var(--bg2);padding:8px;">';
-    html+='<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+((cfg.labels&&cfg.labels[form.name])||form.name)+'</div>';
+    html+='<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+entry.label+'</div>';
     stats.forEach(pair=>{
       const label=pair[0], key=pair[1], v=form[key]||0;
       html+='<div class="bstat-row"><div class="bstat-label">'+label+'</div><div class="bstat-bar-bg"><div class="bstat-bar-fg" style="width:'+Math.round(v/255*100)+'%;"></div></div><div class="bstat-val">'+v+'</div></div>';
@@ -788,105 +821,8 @@ function renderDualAegislashStats(containerId, name){
   box.innerHTML=html;
   return true;
 }
-function isAegislashName(name){ return isSpecialFormName(name); }
-function normalizeAegislashDisplayName(name){ return normalizeSpecialFormDisplayName(name); }
-function markAegislashEntry(p){ return markSpecialFormEntry(p); }
-function ensureAegislashDisplayPokemon(list){ return ensureSpecialFormDisplayPokemon(list); }
-function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
+function renderDualAegislashStats(containerId, name){ return renderCompareBaseStats(containerId, name); }
 
-
-async function loadGameData() {
-  if(_dataLoaded) return;
-  try {
-    const [pd, md, ad, sd, idata, pmdata] = await Promise.all([
-      fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
-      fetch('moves.json?v='+Date.now()).then(r=>r.json()),
-      fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
-      fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
-      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
-      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
-    ]);
-    POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
-    MOVES_DATA   = md;
-    ABILITY_MAP  = ad;
-    SEASON_DATA  = sd;
-    ITEMS_DATA   = Array.isArray(idata) ? idata : [];
-    POKEMON_MOVES = pmdata && pmdata.pokemon ? pmdata.pokemon : {};
-    pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
-    moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
-    _dataLoaded  = true;
-  } catch(e) {
-    console.error('データ読み込みエラー:', e);
-    alert('データの読み込みに失敗しました。ページを再読み込みしてください。');
-  }
-}
-
-
-
-
-function normalizeItemName(value){
-  const v=String(value||'').trim();
-  return (!v || v==='なし') ? '' : v;
-}
-function setupItemMasterList(){
-  const list=document.getElementById('item-master-list');
-  if(!list) return;
-  const seen=new Set();
-  const names=[];
-  (ITEMS_DATA||[]).forEach(item=>{
-    const name=String(item&&item.name||'').trim();
-    if(!name || seen.has(name)) return;
-    seen.add(name);
-    names.push(name);
-  });
-  list.innerHTML=['<option value=""></option>'].concat(names.map(name=>`<option value="${name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}"></option>`)).join('');
-}
-function normalizeNatureName(value){
-  const v=String(value||'').trim();
-  return (!v || v==='おとぼけ') ? 'がんばりや' : v;
-}
-function getAbilityOptions(pokeName){
-  return getAbilityOptionsUnified(pokeName);
-}
-function getPokemonKnownMoves(pokeName){
-  for(const lookupName of getLookupNamesForPokemon(pokeName)){
-    const row = POKEMON_MOVES && POKEMON_MOVES[lookupName];
-    if(row && Array.isArray(row.moves) && row.moves.length) return row.moves;
-  }
-  return [];
-}
-const PARTY_ALL_TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
-const MOVE_TYPE_TO_POKE_TYPE = {
-  '炎':'ほのお','水':'みず','電気':'でんき','草':'くさ','氷':'こおり',
-  '格闘':'かくとう','毒':'どく','地面':'じめん','飛行':'ひこう','虫':'むし',
-  '岩':'いわ','悪':'あく','鋼':'はがね',
-  'ノーマル':'ノーマル','エスパー':'エスパー','ゴースト':'ゴースト',
-  'ドラゴン':'ドラゴン','フェアリー':'フェアリー'
-};
-const POKE_TYPE_TO_MOVE_TYPE = Object.fromEntries(Object.entries(MOVE_TYPE_TO_POKE_TYPE).map(([moveType, pokeType]) => [pokeType, moveType]));
-const ABILITY_TYPE_IMMUNITIES = {
-  'ふゆう':['じめん'],
-  'どしょく':['じめん'],
-  'もらいび':['ほのお'],
-  'こんがりボディ':['ほのお'],
-  'ちょすい':['みず'],
-  'よびみず':['みず'],
-  'かんそうはだ':['みず'],
-  'ちくでん':['でんき'],
-  'ひらいしん':['でんき'],
-  'でんきエンジン':['でんき'],
-  'そうしょく':['くさ']
-};
-
-function getAbilityTypeImmunities(abilityName) {
-  const key = String(abilityName||'').trim();
-  return ABILITY_TYPE_IMMUNITIES[key] ? ABILITY_TYPE_IMMUNITIES[key].slice() : [];
-}
-
-function getAbilityImmunityReason(abilityName, attackType) {
-  const imm = getAbilityTypeImmunities(abilityName);
-  return imm.includes(attackType) ? `${abilityName}で${attackType}無効` : '';
-}
 
 function getAdjustedTypeEff(moveType, defTypes, abilityName) {
   const attackType = MOVE_TYPE_TO_POKE_TYPE[moveType] || moveType;
@@ -1154,7 +1090,7 @@ function initAtkPoke(p) {
 function renderBaseStats(side, p) {
   const statBox = document.getElementById(side+'-basestats');
   if(!statBox || !p) return;
-  if(isSpecialFormName(p && p.name) && renderDualAegislashStats(side+'-basestats', p.name)) return;
+  if(renderCompareBaseStats(side+'-basestats', p.name)) return;
   const stats = [
     {k:'HP', v:p.hp, c:'#e53935'},
     {k:'攻撃', v:p.atk, c:'#fb8c00'},
@@ -1876,14 +1812,29 @@ function updateRealStats() {
     spd:parseInt(document.getElementById('pe-ev-spd').value)||0,
     spe:parseInt(document.getElementById('pe-ev-spe').value)||0,
   };
-  const stats = [
-    {k:'hp', label:'HP',   val:calcHP(p.hp,   iv, ev.hp,  lv, champ), c:'#e53935'},
-    {k:'atk',label:'攻撃', val:calcStat(p.atk, iv, ev.atk, lv, nat.atk, champ), c:'#fb8c00'},
-    {k:'def',label:'防御', val:calcStat(p.def, iv, ev.def, lv, nat.def||1, champ), c:'#fdd835'},
-    {k:'spa',label:'特攻', val:calcStat(p.spa, iv, ev.spa, lv, nat.spa, champ), c:'#1e88e5'},
-    {k:'spd',label:'特防', val:calcStat(p.spd, iv, ev.spd, lv, nat.spd||1, champ), c:'#00acc1'},
-    {k:'spe',label:'素早', val:calcStat(p.spe, iv, ev.spe, lv, nat.spe||1, champ), c:'#43a047'},
-  ];
+  function buildStats(form){
+    return [
+      {k:'hp', label:'HP',   val:calcHP(form.hp,   iv, ev.hp,  lv, champ), c:'#e53935'},
+      {k:'atk',label:'攻撃', val:calcStat(form.atk, iv, ev.atk, lv, nat.atk, champ), c:'#fb8c00'},
+      {k:'def',label:'防御', val:calcStat(form.def, iv, ev.def, lv, nat.def||1, champ), c:'#fdd835'},
+      {k:'spa',label:'特攻', val:calcStat(form.spa, iv, ev.spa, lv, nat.spa, champ), c:'#1e88e5'},
+      {k:'spd',label:'特防', val:calcStat(form.spd, iv, ev.spd, lv, nat.spd||1, champ), c:'#00acc1'},
+      {k:'spe',label:'素早', val:calcStat(form.spe, iv, ev.spe, lv, nat.spe||1, champ), c:'#43a047'},
+    ];
+  }
+  const entries=getComparableForms(p && p.name);
+  if(entries.length>=2){
+    document.getElementById('pe-real-stats').innerHTML = '<div style="display:grid;gap:8px;">'+entries.map(entry=>{
+      const stats=buildStats(entry.poke);
+      return '<div style="border:1px solid var(--border);background:var(--bg);padding:8px;">'
+        + '<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+entry.label+'</div>'
+        + '<div class="real-stats-grid" style="margin:0;">'+stats.map(s=>
+          '<div class="rs-item"><div class="rs-label">'+s.label+'</div><div class="rs-val" style="color:'+s.c+';">'+s.val+'</div></div>'
+        ).join('')+'</div></div>';
+    }).join('')+'</div>';
+    return;
+  }
+  const stats = buildStats(p);
   document.getElementById('pe-real-stats').innerHTML = stats.map(s=>
     `<div class="rs-item">
       <div class="rs-label">${s.label}</div>

@@ -680,18 +680,51 @@ function getAbilityOptionsUnified(pokeName){
   getLookupNamesForPokemon(pokeName).forEach(n=>{ const list=ABILITY_MAP&&ABILITY_MAP[n]; if(Array.isArray(list)) list.forEach(v=>{ if(v&&!out.includes(v)) out.push(v); }); });
   return out;
 }
-function renderDualAegislashStats(containerId, name){
-  const base=getSpecialFormBaseName(name) || AEGISLASH_BASE_NAME;
-  const cfg=SPECIAL_FORM_GROUPS[base] || SPECIAL_FORM_GROUPS[AEGISLASH_BASE_NAME];
-  const forms=getSpecialForms(base);
-  if(!forms.length) return false;
+
+function getMegaBaseName(name){
+  const raw=String(name||'').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const baseName=raw.replace(/^メガ/,'').replace(/[XYZ]$/,'');
+  if(!baseName || baseName===raw) return '';
+  return pokeIndex.some(p=>p && p.name===baseName) ? baseName : '';
+}
+function isMegaFormName(name){ return !!getMegaBaseName(name); }
+function getMegaFormsForBase(baseName){
+  const base=String(baseName||'').trim();
+  if(!base) return [];
+  return pokeIndex.filter(p=>p && getMegaBaseName(p.name)===base);
+}
+function getComparableForms(name){
+  const n=String(name||'').trim();
+  const specialBase=getSpecialFormBaseName(n);
+  if(specialBase){
+    const cfg=SPECIAL_FORM_GROUPS[specialBase] || {};
+    return (cfg.forms||[]).map(fn=>({poke:pokeIndex.find(p=>p&&p.name===fn), label:(cfg.labels&&cfg.labels[fn])||fn, kind:'special'})).filter(x=>x.poke);
+  }
+  const megaBase=getMegaBaseName(n) || n;
+  const megaForms=getMegaFormsForBase(megaBase);
+  if(megaForms.length){
+    const normal=pokeIndex.find(p=>p&&p.name===megaBase);
+    const out=[];
+    if(normal) out.push({poke:normal, label:'通常', kind:'normal'});
+    megaForms.forEach(m=>out.push({poke:m, label:m.name, kind:'mega'}));
+    return out;
+  }
+  return [];
+}
+function hasComparableForms(name){ return getComparableForms(name).length>=2; }
+function renderCompareBaseStats(containerId, name){
+  const entries=getComparableForms(name);
+  if(entries.length<2) return false;
   const stats=[['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
   const box=document.getElementById(containerId);
   if(!box) return false;
   let html='<div style="display:grid;gap:8px;">';
-  forms.forEach(form=>{
+  html+='<div style="font-size:10px;color:var(--text2);line-height:1.6;">確認用に、対戦中に切り替わるフォルム・メガ進化前後の数値を分けて表示しています。</div>';
+  entries.forEach(entry=>{
+    const form=entry.poke;
     html+='<div style="border:1px solid var(--border);background:var(--bg2);padding:8px;">';
-    html+='<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+((cfg.labels&&cfg.labels[form.name])||form.name)+'</div>';
+    html+='<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+entry.label+'</div>';
     stats.forEach(pair=>{
       const label=pair[0], key=pair[1], v=form[key]||0;
       html+='<div class="bstat-row"><div class="bstat-label">'+label+'</div><div class="bstat-bar-bg"><div class="bstat-bar-fg" style="width:'+Math.round(v/255*100)+'%;"></div></div><div class="bstat-val">'+v+'</div></div>';
@@ -702,6 +735,8 @@ function renderDualAegislashStats(containerId, name){
   box.innerHTML=html;
   return true;
 }
+function renderDualAegislashStats(containerId, name){ return renderCompareBaseStats(containerId, name); }
+
 function isAegislashName(name){ return isSpecialFormName(name); }
 function normalizeAegislashDisplayName(name){ return normalizeSpecialFormDisplayName(name); }
 function markAegislashEntry(p){ return markSpecialFormEntry(p); }
@@ -932,14 +967,29 @@ function recalcReal() {
   const nat=NATURES[document.getElementById('f-nature').value]||{atk:1,def:1,spa:1,spd:1,spe:1};
   const ev=getEVs();
   const pokeChamp = isPokeChampions();
-  const vals=[
-    {k:'hp', label:'HP',   val:calcHP(p.hp,iv,ev.hp,lv,pokeChamp)},
-    {k:'atk',label:'攻撃', val:calcStat(p.atk,iv,ev.atk,lv,nat.atk,pokeChamp)},
-    {k:'def',label:'防御', val:calcStat(p.def,iv,ev.def,lv,nat.def||1,pokeChamp)},
-    {k:'spa',label:'特攻', val:calcStat(p.spa,iv,ev.spa,lv,nat.spa,pokeChamp)},
-    {k:'spd',label:'特防', val:calcStat(p.spd,iv,ev.spd,lv,nat.spd||1,pokeChamp)},
-    {k:'spe',label:'素早', val:calcStat(p.spe,iv,ev.spe,lv,nat.spe||1,pokeChamp)},
-  ];
+  function buildVals(form){
+    return [
+      {k:'hp', label:'HP',   val:calcHP(form.hp,iv,ev.hp,lv,pokeChamp)},
+      {k:'atk',label:'攻撃', val:calcStat(form.atk,iv,ev.atk,lv,nat.atk,pokeChamp)},
+      {k:'def',label:'防御', val:calcStat(form.def,iv,ev.def,lv,nat.def||1,pokeChamp)},
+      {k:'spa',label:'特攻', val:calcStat(form.spa,iv,ev.spa,lv,nat.spa,pokeChamp)},
+      {k:'spd',label:'特防', val:calcStat(form.spd,iv,ev.spd,lv,nat.spd||1,pokeChamp)},
+      {k:'spe',label:'素早', val:calcStat(form.spe,iv,ev.spe,lv,nat.spe||1,pokeChamp)},
+    ];
+  }
+  const entries=getComparableForms(p.name);
+  if(entries.length>=2){
+    document.getElementById('real-grid').innerHTML='<div style="grid-column:1/-1;display:grid;gap:8px;">'+entries.map(entry=>{
+      const vals=buildVals(entry.poke);
+      return '<div style="border:1px solid var(--border);background:var(--bg2);padding:8px;">'
+        + '<div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:6px;">'+entry.label+'</div>'
+        + '<div class="real-grid" style="margin-top:0;">'+vals.map(s=>
+          '<div class="real-item"><div class="real-label">'+s.label+'</div><div class="real-val" style="color:'+STAT_COLORS[s.k]+'">'+s.val+'</div></div>'
+        ).join('')+'</div></div>';
+    }).join('')+'</div>';
+    return;
+  }
+  const vals=buildVals(p);
   document.getElementById('real-grid').innerHTML=vals.map(s=>
     `<div class="real-item">
       <div class="real-label">${s.label}</div>
@@ -1004,8 +1054,8 @@ function selectPoke(name) {
   const statKeys=[{k:'hp',l:'HP',c:'#e53935'},{k:'atk',l:'攻撃',c:'#fb8c00'},{k:'def',l:'防御',c:'#fdd835'},{k:'spa',l:'特攻',c:'#1e88e5'},{k:'spd',l:'特防',c:'#00acc1'},{k:'spe',l:'素早',c:'#43a047'}];
   const box=document.getElementById('base-stats-box');
   box.style.display='block';
-  if(isSpecialFormName(p.name)) {
-    renderDualAegislashStats('base-stats', p.name);
+  if(renderCompareBaseStats('base-stats', p.name)) {
+    // 比較表示済み
   } else {
     document.getElementById('base-stats').innerHTML=statKeys.map(s=>{
     const v=p[s.k]||0;
