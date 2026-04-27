@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PokeEdge | 管理画面</title>
+<meta name="description" content="PokeEdgeの管理画面です。">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://poke-edge.pages.dev/admin.html">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-sync.js"></script>
 <script>
@@ -193,8 +196,7 @@ input[type=file]{display:none;}
   <div class="gate-card">
     <div class="gate-logo">Poke<em>Edge</em></div>
     <div class="gate-sub">ADMIN ACCESS</div>
-    <input class="gate-input" type="password" id="gate-pass" placeholder="管理者パスワード"
-      id="gate-input">
+    <input class="gate-input" type="password" id="gate-input" placeholder="管理者パスワード">
     <button class="gate-btn" id="gate-btn">ENTER</button>
     <div class="gate-err" id="gate-err"></div>
   </div>
@@ -1103,8 +1105,9 @@ async function runAdminCalcCheck(){
 
 function adminExtractArticleLinks(text){
   const links = new Set();
+  const clean = String(text || '').replace(/<!--[\s\S]*?-->/g, '');
   const re = /articles\/[A-Za-z0-9_\-\/]+\.html/g;
-  let m; while((m = re.exec(text))) links.add(m[0]);
+  let m; while((m = re.exec(clean))) links.add(m[0]);
   return [...links].sort();
 }
 async function runAdminArticleCheck(){
