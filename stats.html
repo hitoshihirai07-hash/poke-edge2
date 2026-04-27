@@ -13,6 +13,7 @@
 <link rel="canonical" href="https://poke-edge.pages.dev/stats.html">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-sync.js"></script>
+<script src="usage-tracker.js"></script>
 <script>
 (function(){
   var t=localStorage.getItem('pokeedge_theme')||'dark';
@@ -339,21 +340,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .record-area{display:flex;flex-direction:column;gap:14px;}
 @media(max-width:640px){.result-btns{flex-direction:column;}}
 
-
-.side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
-.side-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
-.side-title{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:10px}
-.side-links{display:grid;gap:8px}
-.side-link{display:block;text-decoration:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text);font-size:13px;transition:all .18s}
-.side-link:hover{border-color:var(--accent);color:var(--accent)}
-.side-link.active{border-color:var(--accent);background:rgba(0,200,240,0.08);color:var(--accent);font-weight:700}
-@media(min-width:1241px){body{padding-right:290px;}}
-@media(max-width:1240px){.side-dock{display:none}body{padding-right:0;}}
-[data-theme="light"] .side-card{background:rgba(255,255,255,.96);border-color:#a9c4d8;box-shadow:0 8px 24px rgba(63,86,107,.08)}
-[data-theme="light"] .side-title{color:#3f566b}
-[data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
-[data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
-
 </style>
 </head>
 <body>
@@ -364,11 +350,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="header-nav" id="main-nav">
     <a class="nav-btn" href="index.html">トップ</a>
     <a class="nav-btn" href="calc.html">ダメージ計算</a>
-    <a class="nav-btn" href="endure.html">耐久調整</a>
     <a class="nav-btn" href="move.html">技選択判定</a>
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
+    <a class="nav-btn active" href="stats.html">選出率記録</a>
     <a class="nav-btn" href="scope.html">バトルアナライザー</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
     <a class="nav-btn" href="speed.html">素早さライン</a>
@@ -383,7 +369,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   </button>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
-<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">技選択判定</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link active" href="stats.html">選出率記録</a><a class="side-link" href="scope.html">バトルアナライザー</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a></div></div></aside>
 
 <div class="main">
   <div class="page-tabs">

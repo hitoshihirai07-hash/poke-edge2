@@ -144,6 +144,47 @@ input[type=file]{display:none;}
 .gate-err{font-size:11px;color:var(--accent2);margin-top:10px;min-height:18px;}
 
 
+/* 管理タブ */
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 16px;position:sticky;top:52px;z-index:20;background:rgba(7,9,15,0.92);backdrop-filter:blur(14px);padding:10px 0;border-bottom:1px solid var(--border);}
+.admin-tab-btn{background:var(--panel);border:1px solid var(--border);color:var(--text2);padding:9px 14px;font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .16s;}
+.admin-tab-btn:hover{border-color:var(--accent);color:var(--accent);}
+.admin-tab-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.08);}
+.admin-tab-panel{display:none;}
+.admin-tab-panel.active{display:block;}
+.admin-check-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0;}
+.admin-check-card{background:var(--bg2);border:1px solid var(--border);padding:13px 14px;min-height:80px;}
+.admin-check-val{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--accent);line-height:1;}
+.admin-check-lbl{font-size:10px;color:var(--text2);letter-spacing:1px;margin-top:6px;line-height:1.5;}
+.admin-check-area{margin-top:12px;}
+.admin-check-block{background:var(--bg2);border:1px solid var(--border);padding:13px 14px;margin-top:10px;}
+.admin-check-title{font-size:11px;color:var(--accent3);letter-spacing:2px;margin-bottom:8px;font-weight:700;}
+.admin-check-list{font-size:11px;color:var(--text3);line-height:1.9;max-height:260px;overflow:auto;padding-right:4px;}
+.admin-check-list .ok{color:var(--green);}.admin-check-list .warn{color:var(--accent3);}.admin-check-list .err{color:var(--accent2);}
+.admin-mini-table{width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;}
+.admin-mini-table th,.admin-mini-table td{border-bottom:1px solid var(--border);padding:7px 8px;text-align:left;vertical-align:top;}
+.admin-mini-table th{color:var(--text2);font-weight:500;background:rgba(255,255,255,.03);position:sticky;top:0;}
+.admin-pill{display:inline-block;border:1px solid var(--border2);padding:2px 7px;margin:2px 4px 2px 0;font-size:10px;color:var(--text2);background:var(--panel);}
+.admin-pill.ok{border-color:rgba(0,230,118,.35);color:var(--green);}.admin-pill.warn{border-color:rgba(255,200,0,.35);color:var(--accent3);}.admin-pill.err{border-color:rgba(255,48,96,.35);color:var(--accent2);}
+
+.analytics-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 14px;}
+.analytics-period-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:7px 12px;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.analytics-period-btn:hover,.analytics-period-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.08);}
+.analytics-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 14px;}
+.analytics-card{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;}
+.analytics-val{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:var(--accent);letter-spacing:1px;}
+.analytics-lbl{font-size:10px;color:var(--text2);letter-spacing:2px;margin-top:6px;}
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+.analytics-table{width:100%;border-collapse:collapse;font-size:11px;}
+.analytics-table th{color:var(--text2);font-weight:400;text-align:left;border-bottom:1px solid var(--border);padding:7px 8px;white-space:nowrap;}
+.analytics-table td{border-bottom:1px solid var(--border);padding:7px 8px;vertical-align:top;}
+.analytics-table .num{text-align:right;font-family:'JetBrains Mono',monospace;color:var(--accent3);}
+.analytics-note{font-size:10px;color:var(--text2);line-height:1.7;margin-top:8px;}
+.analytics-error{background:rgba(255,48,96,.08);border:1px solid rgba(255,48,96,.25);color:var(--accent2);padding:12px;font-size:12px;line-height:1.8;}
+.analytics-sql{white-space:pre-wrap;max-height:260px;overflow:auto;background:#05070c;border:1px solid var(--border);padding:12px;font-size:10px;color:var(--text3);line-height:1.6;margin-top:10px;}
+@media(max-width:760px){.analytics-summary{grid-template-columns:1fr 1fr;}.analytics-grid{grid-template-columns:1fr;}.analytics-table{font-size:10px;}}
+
+@media(max-width:768px){.admin-tabs{top:52px;overflow-x:auto;flex-wrap:nowrap;margin-left:-16px;margin-right:-16px;padding:10px 16px;}.admin-tab-btn{white-space:nowrap;}.main{padding-bottom:30px;}.admin-mini-table{display:block;overflow-x:auto;white-space:nowrap;}}
+
 </style>
 </head>
 <body>
@@ -201,6 +242,19 @@ input[type=file]{display:none;}
   <div style="text-align:right;margin-bottom:20px;">
     <button class="btn btn-gen" onclick="checkStatus()" style="font-size:13px;padding:8px 18px;">🔍 現在のJSON状態を確認</button>
   </div>
+
+
+
+  <div class="admin-tabs" role="tablist" aria-label="管理タブ">
+    <button class="admin-tab-btn active" id="admin-tab-btn-update" type="button" onclick="showAdminTab('update')">更新作業</button>
+    <button class="admin-tab-btn" id="admin-tab-btn-data" type="button" onclick="showAdminTab('data')">データ確認</button>
+    <button class="admin-tab-btn" id="admin-tab-btn-mega" type="button" onclick="showAdminTab('mega')">メガ・フォルム</button>
+    <button class="admin-tab-btn" id="admin-tab-btn-calc" type="button" onclick="showAdminTab('calc')">計算チェック</button>
+    <button class="admin-tab-btn" id="admin-tab-btn-article" type="button" onclick="showAdminTab('article')">記事確認</button>
+    <button class="admin-tab-btn" id="admin-tab-btn-access" type="button" onclick="showAdminTab('access');loadAnalyticsDashboard();">アクセス確認</button>
+  </div>
+
+  <div class="admin-tab-panel active" id="admin-tab-update">
 
   <!-- pokemon.csv → pokemon.json -->
   <div class="section">
@@ -664,7 +718,424 @@ input[type=file]{display:none;}
   </div>
 
 
+  </div>
+
+  <div class="admin-tab-panel" id="admin-tab-data">
+    <div class="section">
+      <div class="sec-title">データ確認</div>
+      <div class="sec-file">公開中データの整合性チェック</div>
+      <div class="sec-cols">ポケモン・技・特性・道具・使用可能ポケモン・順位データを読み込み、名前のズレや未登録データを確認します。</div>
+      <div class="btn-row"><button class="btn btn-gen" type="button" onclick="runAdminDataCheck()">🔍 データ確認を実行</button></div>
+      <div class="log" id="admin-data-log">確認を実行してください</div>
+      <div class="admin-check-area" id="admin-data-area"></div>
+    </div>
+  </div>
+
+  <div class="admin-tab-panel" id="admin-tab-mega">
+    <div class="section">
+      <div class="sec-title">メガ・フォルム確認</div>
+      <div class="sec-file">通常名・メガ後・フォルム違いの対応確認</div>
+      <div class="sec-cols">scope.htmlなどで通常名を基準に管理し、計算時だけメガ・フォルムを使うための確認用です。</div>
+      <div class="btn-row"><button class="btn btn-gen" type="button" onclick="runAdminMegaFormCheck()">🧬 メガ・フォルム確認</button></div>
+      <div class="log" id="admin-mega-log">確認を実行してください</div>
+      <div class="admin-check-area" id="admin-mega-area"></div>
+    </div>
+  </div>
+
+  <div class="admin-tab-panel" id="admin-tab-calc">
+    <div class="section">
+      <div class="sec-title">計算チェック</div>
+      <div class="sec-file">ダメージ計算に関係するデータ確認</div>
+      <div class="sec-cols">連続技・特殊技・重要特性・ナイト系道具など、計算ズレが起きやすい項目を確認します。</div>
+      <div class="btn-row"><button class="btn btn-gen" type="button" onclick="runAdminCalcCheck()">🧮 計算チェックを実行</button></div>
+      <div class="log" id="admin-calc-log">確認を実行してください</div>
+      <div class="admin-check-area" id="admin-calc-area"></div>
+    </div>
+  </div>
+
+  <div class="admin-tab-panel" id="admin-tab-article">
+    <div class="section">
+      <div class="sec-title">記事確認</div>
+      <div class="sec-file">blog.html / sitemap.xml / articles</div>
+      <div class="sec-cols">記事一覧とサイトマップのリンク差分、記事ファイルの取得可否を確認します。</div>
+      <div class="btn-row"><button class="btn btn-gen" type="button" onclick="runAdminArticleCheck()">📝 記事確認を実行</button></div>
+      <div class="log" id="admin-article-log">確認を実行してください</div>
+      <div class="admin-check-area" id="admin-article-area"></div>
+    </div>
+  </div>
+
+
+  <div class="admin-tab-panel" id="admin-tab-access">
+    <div class="section">
+      <div class="sec-title">アクセス確認</div>
+      <div class="sec-file">ページ閲覧数 / 主要操作 / ログイン利用者数</div>
+      <div class="sec-cols">ページ別の閲覧数、操作回数、匿名化したログイン利用者数を確認します。メールアドレスや検索語句は保存しません。</div>
+      <div class="analytics-toolbar">
+        <button class="analytics-period-btn active" type="button" data-period="today" onclick="setAnalyticsPeriod('today')">今日</button>
+        <button class="analytics-period-btn" type="button" data-period="7d" onclick="setAnalyticsPeriod('7d')">7日</button>
+        <button class="analytics-period-btn" type="button" data-period="30d" onclick="setAnalyticsPeriod('30d')">30日</button>
+        <button class="analytics-period-btn" type="button" data-period="all" onclick="setAnalyticsPeriod('all')">全期間</button>
+        <button class="btn btn-gen" type="button" onclick="loadAnalyticsDashboard()" style="margin-left:auto;">🔄 再読み込み</button>
+        <button class="btn btn-del" type="button" onclick="sendAnalyticsTestLog()">🧪 テストログ送信</button>
+      </div>
+      <div class="log" id="admin-access-log">確認を実行してください</div>
+      <div id="admin-access-area"></div>
+    </div>
+  </div>
+
 </div>
+
+<script>
+// ===== 管理タブ・確認機能 =====
+
+let ADMIN_ANALYTICS_PERIOD = 'today';
+const ADMIN_EVENT_LABELS = {
+  page_view:'ページ閲覧', login_seen:'ログイン利用者確認', calc_run:'ダメージ計算実行', calc_add_run:'合計ダメージ計算', calc_record_save:'計算履歴保存',
+  season_search:'使用可能ポケモン検索', season_type_filter:'タイプ絞り込み', season_detail_open:'詳細表示', move_check:'技選択判定',
+  scope_select_decide:'選出決定', scope_record:'対戦記録保存', scope_damage_tab:'技対面タブ表示', party_save:'パーティ保存', party_load:'パーティ読込', pokemon_save:'ポケモン登録保存', endure_run:'耐久調整実行', calc_run_click:'ダメージ計算クリック', move_check_click:'技判定クリック', party_save_click:'パーティ保存クリック', pokemon_save_click:'ポケモン登録クリック', scope_record_click:'対戦記録クリック', endure_run_click:'耐久調整クリック', admin_test:'管理画面テスト'
+};
+function setAnalyticsPeriod(period){
+  ADMIN_ANALYTICS_PERIOD = period || 'today';
+  document.querySelectorAll('.analytics-period-btn').forEach(btn=>btn.classList.toggle('active', btn.dataset.period === ADMIN_ANALYTICS_PERIOD));
+  loadAnalyticsDashboard();
+}
+function adminAnalyticsStartISO(){
+  const now = new Date();
+  if(ADMIN_ANALYTICS_PERIOD === 'all') return null;
+  const d = new Date(now);
+  if(ADMIN_ANALYTICS_PERIOD === 'today') d.setHours(0,0,0,0);
+  if(ADMIN_ANALYTICS_PERIOD === '7d') d.setDate(d.getDate()-7);
+  if(ADMIN_ANALYTICS_PERIOD === '30d') d.setDate(d.getDate()-30);
+  return d.toISOString();
+}
+function adminAnalyticsPeriodLabel(){
+  return ({today:'今日', '7d':'直近7日', '30d':'直近30日', all:'全期間'})[ADMIN_ANALYTICS_PERIOD] || '今日';
+}
+function adminCountMap(rows, keyFn){
+  const m = new Map();
+  (rows||[]).forEach(row=>{ const k = keyFn(row); if(k) m.set(k,(m.get(k)||0)+1); });
+  return [...m.entries()].sort((a,b)=>b[1]-a[1] || String(a[0]).localeCompare(String(b[0])));
+}
+function adminAnalyticsTable(rows, headers){
+  if(!rows.length) return '<div class="note">データがありません。</div>';
+  return '<table class="analytics-table"><thead><tr>' + headers.map(h=>'<th>'+adminEsc(h)+'</th>').join('') + '</tr></thead><tbody>' + rows.map(r=>'<tr>' + r.map((c,i)=>'<td class="'+(i===r.length-1?'num':'')+'">'+adminEsc(c)+'</td>').join('') + '</tr>').join('') + '</tbody></table>';
+}
+function adminPageLabel(page){
+  const map = {
+    'index.html':'トップ','calc.html':'ダメージ計算','endure.html':'耐久調整','move.html':'技選択判定','party.html':'パーティ管理','pokemon.html':'ポケモン登録','items.html':'アイテム','scope.html':'バトルアナライザー','season.html':'使用可能ポケモン','speed.html':'素早さライン','stats.html':'選出率記録','blog.html':'記事一覧','policy.html':'サイト情報'
+  };
+  return (map[page] ? map[page] + ' / ' : '') + page;
+}
+
+async function sendAnalyticsTestLog(){
+  const log = document.getElementById('admin-access-log');
+  try{
+    if(!log) return;
+    log.innerHTML = '<span class="warn">テストログを送信中...</span>';
+    if(typeof getSB !== 'function') throw new Error('Supabase接続が見つかりません。');
+    const sessionKey = 'admin_test_' + Date.now().toString(36);
+    const { error } = await getSB().from('site_analytics_events').insert({
+      page: 'admin.html',
+      event_name: 'admin_test',
+      session_key: sessionKey,
+      user_key: null,
+      logged_in: false,
+      meta: { source: 'admin_test_button' }
+    });
+    if(error) throw error;
+    log.innerHTML = '<span class="ok">✅ テストログを送信しました。再読み込みします。</span>';
+    await loadAnalyticsDashboard();
+  }catch(e){
+    if(log) log.innerHTML = '<span class="err">テストログ送信に失敗しました：' + adminEsc(e.message || e) + '</span>';
+  }
+}
+
+async function loadAnalyticsDashboard(){
+  const log = document.getElementById('admin-access-log');
+  const area = document.getElementById('admin-access-area');
+  if(!log || !area) return;
+  log.innerHTML = '<span class="warn">アクセス情報を読み込み中...</span>';
+  area.innerHTML = '';
+  try{
+    if(typeof getSB !== 'function') throw new Error('Supabase接続が見つかりません。');
+    let q = getSB().from('site_analytics_events').select('created_at,page,event_name,session_key,user_key,logged_in').order('created_at',{ascending:false}).limit(10000);
+    const start = adminAnalyticsStartISO();
+    if(start) q = q.gte('created_at', start);
+    const { data, error } = await q;
+    if(error) throw error;
+    const rows = Array.isArray(data) ? data : [];
+    const pageViews = rows.filter(r=>r.event_name === 'page_view');
+    const operationRows = rows.filter(r=>r.event_name && r.event_name !== 'page_view' && r.event_name !== 'login_seen');
+    const sessions = new Set(rows.map(r=>r.session_key).filter(Boolean));
+    const loggedUsers = new Set(rows.filter(r=>r.logged_in || r.user_key).map(r=>r.user_key).filter(Boolean));
+    const pages = adminCountMap(pageViews, r=>r.page || 'unknown').slice(0,30);
+    const events = adminCountMap(operationRows, r=>r.event_name || 'event').slice(0,30);
+    const loginPages = adminCountMap(rows.filter(r=>r.user_key), r=>r.page || 'unknown').slice(0,20);
+    const summary = '<div class="analytics-summary">' +
+      '<div class="analytics-card"><div class="analytics-val">'+pageViews.length+'</div><div class="analytics-lbl">ページ閲覧数</div></div>' +
+      '<div class="analytics-card"><div class="analytics-val">'+sessions.size+'</div><div class="analytics-lbl">匿名端末数</div></div>' +
+      '<div class="analytics-card"><div class="analytics-val">'+operationRows.length+'</div><div class="analytics-lbl">主要操作数</div></div>' +
+      '<div class="analytics-card"><div class="analytics-val">'+loggedUsers.size+'</div><div class="analytics-lbl">ログイン利用者数</div></div>' +
+      '</div>';
+    const html = summary +
+      '<div class="analytics-note">期間：'+adminEsc(adminAnalyticsPeriodLabel())+'。ログイン利用者数は、ログイン中ユーザーIDを匿名化した値の重複なし件数です。</div>' +
+      '<div class="analytics-grid">' +
+      '<div class="admin-check-block"><div class="admin-check-title">ページ別閲覧数</div>'+adminAnalyticsTable(pages.map(([p,c])=>[adminPageLabel(p), c]), ['ページ','閲覧'])+'</div>' +
+      '<div class="admin-check-block"><div class="admin-check-title">主要操作数</div>'+adminAnalyticsTable(events.map(([e,c])=>[ADMIN_EVENT_LABELS[e] || e, c]), ['操作','回数'])+'</div>' +
+      '<div class="admin-check-block"><div class="admin-check-title">ログイン利用があったページ</div>'+adminAnalyticsTable(loginPages.map(([p,c])=>[adminPageLabel(p), c]), ['ページ','回数'])+'</div>' +
+      '<div class="admin-check-block"><div class="admin-check-title">最近のイベント</div>'+adminAnalyticsTable(rows.slice(0,30).map(r=>[(r.created_at||'').replace('T',' ').slice(0,16), adminPageLabel(r.page||''), ADMIN_EVENT_LABELS[r.event_name] || r.event_name || '']), ['日時','ページ','内容'])+'</div>' +
+      '</div>' + (rows.length >= 10000 ? '<div class="analytics-note">※ 表示上限10000件に達しています。期間を短くすると正確に見やすくなります。</div>' : '');
+    area.innerHTML = html;
+    log.innerHTML = '<span class="ok">✅ アクセス情報を読み込みました。</span>';
+  }catch(e){
+    const sql = `-- Supabase SQL Editorで一度だけ実行してください。\n` +
+`create table if not exists public.site_analytics_events (\n  id bigint generated by default as identity primary key,\n  created_at timestamptz not null default now(),\n  page text not null,\n  event_name text not null,\n  session_key text,\n  user_key text,\n  logged_in boolean not null default false,\n  meta jsonb not null default '{}'::jsonb\n);\nalter table public.site_analytics_events enable row level security;\ncreate policy "analytics_insert_anyone" on public.site_analytics_events for insert to anon, authenticated with check (true);\ncreate policy "analytics_select_anyone" on public.site_analytics_events for select to anon, authenticated using (true);`;
+    log.innerHTML = '<span class="err">アクセス情報を読み込めませんでした。</span>';
+    area.innerHTML = '<div class="analytics-error">site_analytics_events テーブルが未作成、またはRLSポリシー未設定の可能性があります。付属の analytics_schema.sql をSupabase SQL Editorで実行してください。<br>詳細：'+adminEsc(e.message || e)+'</div><pre class="analytics-sql">'+adminEsc(sql)+'</pre>';
+  }
+}
+
+function showAdminTab(name){
+  document.querySelectorAll('.admin-tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-btn').forEach(b=>b.classList.remove('active'));
+  const panel = document.getElementById('admin-tab-' + name);
+  const btn = document.getElementById('admin-tab-btn-' + name);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function adminFetchText(file){
+  const res = await fetch(file + '?v=' + Date.now(), {cache:'no-store'});
+  if(!res.ok) throw new Error(file + ' の取得に失敗: ' + res.status);
+  return await res.text();
+}
+async function adminFetchJSON(file){
+  const text = await adminFetchText(file);
+  return JSON.parse(text);
+}
+function adminEsc(value){
+  return String(value == null ? '' : value).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+}
+function adminListHTML(items, emptyText, cls){
+  if(!items || !items.length) return '<div class="ok">✅ ' + adminEsc(emptyText || '問題なし') + '</div>';
+  return items.slice(0,80).map(x=>'<div class="' + (cls || 'warn') + '">' + adminEsc(x) + '</div>').join('') + (items.length>80 ? '<div class="warn">…他' + (items.length-80) + '件</div>' : '');
+}
+function adminUnique(arr){ return [...new Set((arr||[]).filter(Boolean))]; }
+function adminDuplicateNames(arr, key){
+  const m = new Map();
+  (arr||[]).forEach(x=>{ const n = String(key ? x[key] : x || '').trim(); if(n) m.set(n,(m.get(n)||0)+1); });
+  return [...m.entries()].filter(([,c])=>c>1).map(([n,c])=> n + '（' + c + '件）');
+}
+function adminCardHTML(items){
+  return '<div class="admin-check-grid">' + items.map(x=>'<div class="admin-check-card"><div class="admin-check-val">' + adminEsc(x.value) + '</div><div class="admin-check-lbl">' + adminEsc(x.label) + '</div></div>').join('') + '</div>';
+}
+function adminBlock(title, body){ return '<div class="admin-check-block"><div class="admin-check-title">' + adminEsc(title) + '</div><div class="admin-check-list">' + body + '</div></div>'; }
+const ADMIN_NON_MEGA_PREFIX_NAMES = ['メガヤンマ'];
+const ADMIN_FORM_VARIANT_PREFIX_NAMES = ['メガニャオニクス','メガジガルデ'];
+function adminMegaBaseCandidate(name){
+  return String(name||'').trim().replace(/^メガ/, '').replace(/X$/,'').replace(/Y$/,'').replace(/Z$/,'');
+}
+function adminIsTrueMegaName(name, pokeNameSet){
+  const n = String(name||'').trim();
+  if(!/^メガ/.test(n)) return false;
+  if(ADMIN_NON_MEGA_PREFIX_NAMES.includes(n) || ADMIN_FORM_VARIANT_PREFIX_NAMES.includes(n)) return false;
+  if(pokeNameSet && !pokeNameSet.has(adminMegaBaseCandidate(n))) return false;
+  return true;
+}
+function adminNormalizeBaseName(name){
+  let n = String(name||'').trim();
+  if(!n) return '';
+  if(n === 'ギルガルド剣' || n === 'ギルガルド盾' || n === 'ギルガルドブレード' || n === 'ギルガルドシールド') return 'ギルガルド';
+  if(ADMIN_NON_MEGA_PREFIX_NAMES.includes(n)) return n;
+  if(ADMIN_FORM_VARIANT_PREFIX_NAMES.includes(n)) return n.replace(/^メガ/, '').replace(/X$/,'').replace(/Y$/,'').replace(/Z$/,'');
+  if(/^メガ/.test(n)) return adminMegaBaseCandidate(n);
+  return n;
+}
+function adminMoveNameSet(moves){
+  if(Array.isArray(moves)) return new Set(moves.map(m=>String(m.name||'').trim()).filter(Boolean));
+  return new Set(Object.keys(moves||{}).map(k=>String(k).trim()).filter(Boolean));
+}
+function adminPokemonMoveEntries(pmove){
+  if(!pmove) return [];
+  if(Array.isArray(pmove)) return pmove;
+  const obj = pmove.pokemon || pmove;
+  return Object.keys(obj||{}).map(name => Object.assign({name}, obj[name]||{}));
+}
+function adminSeasonNames(season){
+  const names = [];
+  if(Array.isArray(season)) return season.map(x=>String(x.name||x['名前']||x).trim()).filter(Boolean);
+  Object.keys(season||{}).forEach(k=>{
+    if(k === 'seasons') return;
+    if(Array.isArray(season[k])) season[k].forEach(n=>names.push(String(n||'').trim()));
+  });
+  return adminUnique(names);
+}
+function adminRankingRows(data){
+  if(!data) return [];
+  if(Array.isArray(data)) return data;
+  return Array.isArray(data.rows) ? data.rows : [];
+}
+function adminValueIncludesAny(value, words){
+  const s = String(value||'');
+  return words.some(w=>s.includes(w));
+}
+
+async function runAdminDataCheck(){
+  const log = document.getElementById('admin-data-log');
+  const area = document.getElementById('admin-data-area');
+  log.innerHTML = '<span class="warn">確認中...</span>'; area.innerHTML = '';
+  try{
+    const results = await Promise.all([
+      adminFetchJSON('pokemon.json'), adminFetchJSON('moves.json'), adminFetchJSON('abilities.json'), adminFetchJSON('abilities_data.json'), adminFetchJSON('belongings.json'), adminFetchJSON('pokemon_moves.json'), adminFetchJSON('season.json'), adminFetchJSON('season_ranking_single.json').catch(()=>null), adminFetchJSON('season_ranking_double.json').catch(()=>null)
+    ]);
+    const [pokemon,moves,abilities,abilityData,belongings,pmove,season,rankS,rankD] = results;
+    const pokeNames = new Set((pokemon||[]).map(p=>String(p.name||'').trim()).filter(Boolean));
+    const moveNames = adminMoveNameSet(moves);
+    const abilityNames = new Set((abilityData||[]).map(a=>String(a.name||'').trim()).filter(Boolean));
+    const pmEntries = adminPokemonMoveEntries(pmove);
+    const pmNames = pmEntries.map(p=>String(p.name||'').trim()).filter(Boolean);
+    const seasonNames = adminSeasonNames(season);
+    const rankedRows = [...adminRankingRows(rankS), ...adminRankingRows(rankD)];
+    const rankedNames = rankedRows.map(r=>String(r.siteName||r.name||'').trim()).filter(Boolean);
+    const pmMissingPokemon = pmNames.filter(n=>!pokeNames.has(n));
+    const seasonMissingPokemon = seasonNames.filter(n=>!pokeNames.has(n));
+    const rankMissingPokemon = rankedNames.filter(n=>!pokeNames.has(n));
+    const pmMovesMissing = [];
+    pmEntries.forEach(p=>{
+      (p.moves||[]).forEach(m=>{ const mn = String(m.name||'').trim(); if(mn && !moveNames.has(mn)) pmMovesMissing.push(p.name + '：' + mn); });
+    });
+    const abilityMissing = [];
+    Object.keys(abilities||{}).forEach(name=>{
+      (abilities[name]||[]).forEach(ab=>{ const a=String(ab||'').trim(); if(a && !abilityNames.has(a)) abilityMissing.push(name + '：' + a); });
+    });
+    const seasonNoMoves = seasonNames.filter(n=>!pmNames.includes(n));
+    area.innerHTML = [
+      adminCardHTML([
+        {value:(pokemon||[]).length.toLocaleString(), label:'ポケモン'},
+        {value:(Array.isArray(moves)?moves.length:Object.keys(moves||{}).length).toLocaleString(), label:'技'},
+        {value:pmNames.length.toLocaleString(), label:'技データ付きポケモン'},
+        {value:seasonNames.length.toLocaleString(), label:'使用可能ポケモン'},
+        {value:(belongings||[]).length.toLocaleString(), label:'道具'},
+        {value:rankedRows.length.toLocaleString(), label:'順位データ'}
+      ]),
+      adminBlock('重複チェック', adminListHTML([
+        ...adminDuplicateNames(pokemon,'name').map(x=>'ポケモン: '+x),
+        ...adminDuplicateNames(Array.isArray(moves)?moves:Object.values(moves||{}),'name').map(x=>'技: '+x),
+        ...adminDuplicateNames(belongings,'name').map(x=>'道具: '+x)
+      ], '重複なし')),
+      adminBlock('ポケモン名の未登録', adminListHTML([...pmMissingPokemon.map(x=>'pokemon_moves: '+x), ...seasonMissingPokemon.map(x=>'season: '+x), ...rankMissingPokemon.map(x=>'ranking: '+x)], '未登録なし', 'err')),
+      adminBlock('技名の未登録', adminListHTML(adminUnique(pmMovesMissing), '未登録技なし', 'err')),
+      adminBlock('特性名の未登録', adminListHTML(adminUnique(abilityMissing), '未登録特性なし', 'warn')),
+      adminBlock('使用可能ポケモンの技データ未設定', adminListHTML(seasonNoMoves, '全て技データあり', 'warn'))
+    ].join('');
+    log.innerHTML = '<span class="ok">✅ データ確認が完了しました</span>';
+  }catch(e){ log.innerHTML = '<span class="err">❌ 確認エラー: ' + adminEsc(e.message) + '</span>'; }
+}
+
+async function runAdminMegaFormCheck(){
+  const log = document.getElementById('admin-mega-log');
+  const area = document.getElementById('admin-mega-area');
+  log.innerHTML = '<span class="warn">確認中...</span>'; area.innerHTML = '';
+  try{
+    const [pokemon, belongings] = await Promise.all([adminFetchJSON('pokemon.json'), adminFetchJSON('belongings.json')]);
+    const itemNames = (belongings||[]).map(x=>String(x.name||'').trim()).filter(Boolean);
+    const pokeNameSet = new Set((pokemon||[]).map(p=>String(p.name||'').trim()).filter(Boolean));
+    const megaRows = (pokemon||[]).filter(p=>adminIsTrueMegaName(p.name, pokeNameSet)).map(p=>{
+      const mega = p.name;
+      const base = adminNormalizeBaseName(mega);
+      const baseData = (pokemon||[]).find(x=>x.name === base);
+      const itemCandidates = itemNames.filter(item => item.includes('ナイト') && (item.includes(base) || item.includes(base.replace(/リザードン/,'リザード')) || item.includes(base.replace(/ミュウツー/,'ミュウツ'))));
+      const typeChange = baseData ? [baseData.type1,baseData.type2].filter(Boolean).join('/') + ' → ' + [p.type1,p.type2].filter(Boolean).join('/') : '通常名なし';
+      return {base, mega, item:itemCandidates.join(' / ') || '未検出', typeChange, status: baseData ? 'OK' : '通常名なし'};
+    });
+    const formGroups = {};
+    (pokemon||[]).forEach(p=>{
+      const n = p.name || '';
+      let base = '';
+      if(n.includes('ギルガルド')) base = 'ギルガルド';
+      else if(ADMIN_FORM_VARIANT_PREFIX_NAMES.includes(n)) base = adminNormalizeBaseName(n);
+      else if(/[AHG]$/.test(n)) base = n.replace(/[AHG]$/,'');
+      else if(/^ロトム/.test(n) && n !== 'ロトム') base = 'ロトム';
+      else return;
+      if(!formGroups[base]) formGroups[base] = [];
+      formGroups[base].push(n);
+    });
+    const megaTable = '<table class="admin-mini-table"><thead><tr><th>通常名</th><th>メガ後</th><th>ナイト候補</th><th>タイプ</th><th>状態</th></tr></thead><tbody>' + megaRows.map(r=>'<tr><td>'+adminEsc(r.base)+'</td><td>'+adminEsc(r.mega)+'</td><td>'+adminEsc(r.item)+'</td><td>'+adminEsc(r.typeChange)+'</td><td><span class="admin-pill '+(r.status==='OK'?'ok':'err')+'">'+adminEsc(r.status)+'</span></td></tr>').join('') + '</tbody></table>';
+    const formHTML = Object.keys(formGroups).sort().map(base=>'<div><span class="admin-pill ok">'+adminEsc(base)+'</span>'+formGroups[base].map(n=>'<span class="admin-pill">'+adminEsc(n)+'</span>').join('')+'</div>').join('');
+    const missingBase = megaRows.filter(r=>r.status!=='OK').map(r=>r.mega + ' → ' + r.base);
+    area.innerHTML = adminCardHTML([
+      {value:megaRows.length, label:'メガ形態'},
+      {value:Object.keys(formGroups).length, label:'フォルム違いグループ'},
+      {value:missingBase.length, label:'通常名なし'}
+    ]) + adminBlock('メガ対応一覧', megaTable) + adminBlock('フォルム違い一覧', formHTML || '<div class="warn">対象なし</div>') + adminBlock('要確認', adminListHTML(missingBase, '通常名の欠落なし', 'err'));
+    log.innerHTML = '<span class="ok">✅ メガ・フォルム確認が完了しました</span>';
+  }catch(e){ log.innerHTML = '<span class="err">❌ 確認エラー: ' + adminEsc(e.message) + '</span>'; }
+}
+
+async function runAdminCalcCheck(){
+  const log = document.getElementById('admin-calc-log');
+  const area = document.getElementById('admin-calc-area');
+  log.innerHTML = '<span class="warn">確認中...</span>'; area.innerHTML = '';
+  try{
+    const [moves, abilityData, belongings, pokemon] = await Promise.all([adminFetchJSON('moves.json'), adminFetchJSON('abilities_data.json'), adminFetchJSON('belongings.json'), adminFetchJSON('pokemon.json')]);
+    const moveArr = Array.isArray(moves) ? moves : Object.values(moves||{});
+    const multihit = moveArr.filter(m=>adminValueIncludesAny(m.hits || m['ヒット数'] || '', ['～','〜','~','-']) || Number(m.hits)>1);
+    const nonNumericPower = moveArr.filter(m=>{ const p = String(m.power||'').trim(); return p && p !== '-' && p !== '—' && isNaN(Number(p)); });
+    const keyMoves = ['おはかまいり','ボディプレス','イカサマ','きしかいせい','じたばた'];
+    const moveNames = new Set(moveArr.map(m=>String(m.name||'').trim()).filter(Boolean));
+    const missingMoves = keyMoves.filter(x=>!moveNames.has(x));
+    const abilityNames = new Set((abilityData||[]).map(a=>String(a.name||'').trim()).filter(Boolean));
+    const keyAbilities = ['そうだいしょう','おやこあい','フェアリーオーラ','ダークオーラ','へんげんじざい'];
+    const missingAbilities = keyAbilities.filter(x=>!abilityNames.has(x));
+    const knightItems = (belongings||[]).filter(x=>String(x.name||'').includes('ナイト'));
+    const aegis = (pokemon||[]).filter(p=>String(p.name||'').includes('ギルガルド')).map(p=>p.name);
+    const multiTable = '<table class="admin-mini-table"><thead><tr><th>技名</th><th>タイプ</th><th>分類</th><th>威力</th><th>ヒット数</th></tr></thead><tbody>' + multihit.slice(0,80).map(m=>'<tr><td>'+adminEsc(m.name)+'</td><td>'+adminEsc(m.type)+'</td><td>'+adminEsc(m.category)+'</td><td>'+adminEsc(m.power)+'</td><td>'+adminEsc(m.hits || m['ヒット数'] || '')+'</td></tr>').join('') + '</tbody></table>';
+    area.innerHTML = adminCardHTML([
+      {value:multihit.length, label:'連続技候補'},
+      {value:nonNumericPower.length, label:'威力が数値以外の技'},
+      {value:knightItems.length, label:'ナイト系道具'},
+      {value:aegis.length, label:'ギルガルド形態'}
+    ]) + adminBlock('連続技候補', multiTable || '<div class="warn">対象なし</div>') + adminBlock('威力が数値以外の技', adminListHTML(nonNumericPower.map(m=>m.name + '：' + m.power), '対象なし', 'warn')) + adminBlock('重要技の有無', adminListHTML(missingMoves, '重要技は登録済み', 'err')) + adminBlock('重要特性の有無', adminListHTML(missingAbilities, '重要特性は登録済み', 'warn')) + adminBlock('ナイト系道具', adminListHTML(knightItems.map(x=>x.name), 'ナイト系道具なし', 'warn'));
+    log.innerHTML = '<span class="ok">✅ 計算チェックが完了しました</span>';
+  }catch(e){ log.innerHTML = '<span class="err">❌ 確認エラー: ' + adminEsc(e.message) + '</span>'; }
+}
+
+function adminExtractArticleLinks(text){
+  const links = new Set();
+  const re = /articles\/[A-Za-z0-9_\-\/]+\.html/g;
+  let m; while((m = re.exec(text))) links.add(m[0]);
+  return [...links].sort();
+}
+async function runAdminArticleCheck(){
+  const log = document.getElementById('admin-article-log');
+  const area = document.getElementById('admin-article-area');
+  log.innerHTML = '<span class="warn">確認中...</span>'; area.innerHTML = '';
+  try{
+    const [blog,sitemap] = await Promise.all([adminFetchText('blog.html'), adminFetchText('sitemap.xml')]);
+    const blogLinks = adminExtractArticleLinks(blog);
+    const sitemapLinks = adminExtractArticleLinks(sitemap);
+    const blogSet = new Set(blogLinks), sitemapSet = new Set(sitemapLinks);
+    const notInSitemap = blogLinks.filter(x=>!sitemapSet.has(x));
+    const notInBlog = sitemapLinks.filter(x=>!blogSet.has(x));
+    const allLinks = adminUnique([...blogLinks, ...sitemapLinks]);
+    const fetchResults = await Promise.all(allLinks.map(async link=>{
+      try{ const res = await fetch(link + '?v=' + Date.now(), {cache:'no-store'}); return {link, ok:res.ok, status:res.status}; }
+      catch(e){ return {link, ok:false, status:e.message}; }
+    }));
+    const failed = fetchResults.filter(x=>!x.ok).map(x=>x.link + '（' + x.status + '）');
+    const table = '<table class="admin-mini-table"><thead><tr><th>記事</th><th>blog</th><th>sitemap</th><th>取得</th></tr></thead><tbody>' + allLinks.map(link=>{ const fr=fetchResults.find(x=>x.link===link); return '<tr><td>'+adminEsc(link)+'</td><td>'+(blogSet.has(link)?'<span class="admin-pill ok">あり</span>':'<span class="admin-pill warn">なし</span>')+'</td><td>'+(sitemapSet.has(link)?'<span class="admin-pill ok">あり</span>':'<span class="admin-pill warn">なし</span>')+'</td><td>'+(fr&&fr.ok?'<span class="admin-pill ok">OK</span>':'<span class="admin-pill err">NG</span>')+'</td></tr>'; }).join('') + '</tbody></table>';
+    area.innerHTML = adminCardHTML([
+      {value:blogLinks.length, label:'blog.html掲載'},
+      {value:sitemapLinks.length, label:'sitemap掲載'},
+      {value:allLinks.length, label:'記事リンク合計'},
+      {value:failed.length, label:'取得失敗'}
+    ]) + adminBlock('記事リンク一覧', table) + adminBlock('blog掲載・sitemap未掲載', adminListHTML(notInSitemap, '差分なし', 'warn')) + adminBlock('sitemap掲載・blog未掲載', adminListHTML(notInBlog, '差分なし', 'warn')) + adminBlock('取得失敗', adminListHTML(failed, '全記事取得OK', 'err'));
+    log.innerHTML = '<span class="ok">✅ 記事確認が完了しました</span>';
+  }catch(e){ log.innerHTML = '<span class="err">❌ 確認エラー: ' + adminEsc(e.message) + '</span>'; }
+}
+
+</script>
 
 <script>
 // ===== 状態管理 =====
