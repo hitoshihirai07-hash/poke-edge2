@@ -370,7 +370,6 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-slot-btn{
   padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;
   transition:all 0.18s;position:relative;
-}
 .party-slot-btn:hover,.party-slot-btn.active{border-color:var(--accent);}
 .party-slot-btn.active{background:rgba(0,200,240,0.06);}
 .party-slot-btn.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
@@ -428,7 +427,7 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .add-breakdown{font-size:11px;color:var(--text3);margin-top:8px;line-height:2;}
 .add-ko-tag{display:inline-block;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:6px;}
 .add-ko1{background:var(--accent2);color:#fff;}.add-ko2{background:var(--accent3);color:#000;}.add-ko3{background:var(--text2);color:#fff;}
-footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+footer{position:relative;z-index:1;footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;margin-top:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 /* アクティブタブ不要なので非表示 */
 .tabs{ display:none; }
 
@@ -531,37 +530,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .hp-wrap,.real-stat-box,.corr-section,.search-wrap,.quick-action-row,.quick-chip-wrap{max-width:100%;}
 }
 
-/* ===== ダメージ計算スマホ版の復元・固定 ===== */
-@media(max-width:768px){
-  .calc-body{display:block;}
-  .calc-grid{grid-template-columns:1fr !important;gap:12px;}
-  .vs-mid{display:none;}
-  .setup-entry{padding:12px;margin-bottom:10px;}
-  .setup-entry-head{display:grid;grid-template-columns:1fr;gap:10px;}
-  .setup-entry-actions{display:grid;grid-template-columns:1fr;gap:8px;width:100%;}
-  .setup-entry-actions .quick-action-btn{width:100%;min-height:42px;font-size:12px;}
-  .damage-setup-modal{align-items:flex-start;overflow-y:auto;padding:10px;}
-  .damage-setup-panel{width:100%;max-height:calc(100vh - 20px);}
-  .damage-setup-head{padding:12px 14px;}
-  .damage-setup-body{grid-template-columns:1fr !important;gap:10px;padding:10px;}
-  .damage-setup-col{min-height:auto;}
-  .damage-setup-list{max-height:34vh;}
-  .damage-setup-item{padding:11px 10px;}
-  .damage-setup-footer{display:grid;grid-template-columns:1fr;gap:10px;padding:10px 12px;}
-  .calc-result-col.mobile-floating{max-height:76vh;transform:translateY(calc(100% - 54px));}
-  .mobile-result-handle{min-height:44px;padding:9px 12px;}
-  .mobile-result-scroll{padding:10px 10px 14px;}
-  .dmg-num{font-size:38px;}
-  .dmg-pct{font-size:22px;}
-  .rolls-wrap{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;}
-  .rolls-wrap span{flex:0 0 auto;}
-  .calc-result-actions{display:grid;grid-template-columns:1fr;gap:8px;}
-  .calc-result-actions .save-btn{width:100%;}
-  .add-grid{grid-template-columns:1fr;}
-  body.has-mobile-result{padding-bottom:0;}
-  body.has-mobile-result.mobile-result-ready{padding-bottom:66px;}
-  .calc-result-col.mobile-floating:not(.has-damage-result){display:none;}
-}
 /* ===== ライトモード ===== */
 
 .side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
@@ -1933,26 +1901,15 @@ function getWeightPower(moveName, atkW, defW) {
 
 // ===== 連続技ヒット数 =====
 function parseHits(raw) {
-  const text = String(raw || '1').trim();
-  if(!text) return {min:1, max:1};
-  // moves.json は「2～5」「1～10」のような全角チルダを使うため、ここで必ず吸収する。
-  const normalized = text
-    .replace(/[～〜－—–]/g, '~')
-    .replace(/\s+/g, '');
-  const rangeMatch = normalized.match(/(\d+)~(\d+)/);
-  if(rangeMatch){
-    const a = parseInt(rangeMatch[1], 10) || 1;
-    const b = parseInt(rangeMatch[2], 10) || a;
-    return {min:Math.min(a,b), max:Math.max(a,b)};
+  const s=String(raw||'1').trim();
+  if(s.includes('～')||s.includes('〜')||s.includes('~')) {
+    const parts=s.split(/[～〜~]/);
+    const mn=parseInt(parts[0])||1;
+    const mx=parseInt(parts[1])||mn;
+    return {min:mn,max:mx};
   }
-  const nums = normalized.match(/\d+/g);
-  if(nums && nums.length >= 2){
-    const a = parseInt(nums[0], 10) || 1;
-    const b = parseInt(nums[1], 10) || a;
-    return {min:Math.min(a,b), max:Math.max(a,b)};
-  }
-  const n = nums && nums.length ? (parseInt(nums[0], 10) || 1) : 1;
-  return {min:n, max:n};
+  const n=parseInt(s)||1;
+  return {min:n,max:n};
 }
 function clampNumber(v,min,max){
   const n=Number(v);
@@ -2049,19 +2006,34 @@ function clearSelectedMove(){
   ['atk-move-search','atk-move-pow','atk-move-type','atk-move-cat','atk-move-hits','atk-move-notes','atk-move-crit'].forEach(id=>{ if(el(id)) el(id).value=''; });
   renderSelectedMoveInfo('atk',null);
 }
+function getCalcMoveMaster(moveName){
+  const name = String(moveName||'').trim();
+  if(!name) return null;
+  return (moveIndex||[]).find(m=>m.name===name) || (MOVES_DATA||[]).find(m=>m && m.name===name) || null;
+}
 function normalizeMoveFromPokemonEntry(entry){
   if(!entry) return null;
-  const known = moveIndex.find(m=>m.name===entry.name);
-  if(known) return known;
-  const power = parseInt(String(entry.power||'').replace(/[^0-9-]/g,''))||0;
+  const name = String(entry.name ?? entry.moveName ?? '').trim();
+  if(!name) return null;
+  const known = getCalcMoveMaster(name);
+  const rawNotes = String(entry.description ?? entry.notes ?? entry.effect ?? '').trim();
+  const knownNotes = String(known?.notes ?? known?.effect ?? '').trim();
+  const rawHits = String(entry.hits ?? entry.hitCount ?? entry['回数'] ?? '').trim();
+  const knownHits = String(known?.hits ?? known?.hitCount ?? known?.['回数'] ?? '').trim();
+  const hits = (rawHits && rawHits !== '1') ? rawHits : (knownHits || rawHits || '1');
+  const rawPower = String(entry.power ?? '').trim();
+  const knownPower = known ? parseInt(known.power)||0 : 0;
+  const power = rawPower ? (parseInt(rawPower.replace(/[^0-9-]/g,''))||0) : knownPower;
+  const type = String(entry.type || known?.type || '').trim();
+  const category = normalizeMoveCategoryValue(name, entry.category || known?.category || '', entry.effect || known?.effect || '', rawNotes || knownNotes);
   return {
-    name: entry.name||'',
-    type: entry.type||'',
-    category: normalizeMoveCategoryValue(entry.name||'', entry.category||'', entry.effect||'', entry.description||entry.notes||''),
+    name,
+    type,
+    category,
     power,
-    hits: entry.hits||'1',
-    notes: entry.description||entry.notes||'',
-    alwaysCrit: '',
+    hits,
+    notes: rawNotes || knownNotes,
+    alwaysCrit: String(entry.alwaysCrit ?? known?.alwaysCrit ?? '').trim(),
   };
 }
 function getPokemonKnownMoves(name){
@@ -2107,16 +2079,9 @@ function pickRegisteredMove(pokeName, moveName){
   const moves = (CURRENT_ATK_REGISTERED_RECORD && CURRENT_ATK_REGISTERED_RECORD.pokeName===pokeName && Array.isArray(CURRENT_ATK_REGISTERED_RECORD.moves))
     ? CURRENT_ATK_REGISTERED_RECORD.moves
     : [];
-  const entry = moves.find(m=>m && m.name===moveName);
-  if(entry) setAtkMove({
-    name: entry.name,
-    type: entry.type || '',
-    power: parseInt(entry.power)||0,
-    category: normalizeMoveCategoryValue(entry.name || '', entry.category || '', entry.effect || '', entry.notes || ''),
-    notes: entry.notes || '',
-    hits: entry.hits || '1',
-    alwaysCrit: entry.alwaysCrit || ''
-  });
+  const entry = moves.find(m=>m && m.name===moveName) || {name: moveName};
+  const normalized = normalizeMoveFromPokemonEntry(entry);
+  if(normalized) setAtkMove(normalized);
 }
 function renderSelectedMoveInfo(prefix, m){
   const box = el(prefix+'-move-info');
@@ -3169,6 +3134,7 @@ function updateDefHazardInfo(){
 
 // ===== 技セット =====
 function setAtkMove(m) {
+  m = normalizeMoveFromPokemonEntry(m) || m || {};
   el('atk-move-search').value=m.name;
   el('atk-move-pow').value=m.power||0;
   el('atk-move-type').value=m.type||'';
@@ -3680,16 +3646,9 @@ function calcDamage(options={}) {
         ? `${dmg1Min*hitsInfo.min} 〜 ${dmg1Max*hitsInfo.max}`
         : `${mn} 〜 ${mx}`;
   const extraInfo = [weightInfo, skinInfo, weatherInfo, specialMoveInfo].concat(abilityExtraInfo).concat(parentalBondInfo?[parentalBondInfo]:[]).filter(Boolean).map(s=>' ('+s+')').join('');
-  const hitCountLabel = hitsInfo.min===hitsInfo.max ? String(hitsInfo.min) : `${hitsInfo.min}〜${hitsInfo.max}`;
-  const rangeText = parentalBondActive
-    ? `乱数幅 ${mn}〜${mx}（1hit目） / ${parentalSecondMn}〜${parentalSecondMx}（2hit目） / 合計 ${totalMn}〜${totalMx}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`
-    : isTripleEscalating
-      ? `乱数幅 ${mn}〜${mx}（1hit目） / 合計 ${totalMn}〜${totalMx}（${tripleHits.length}hit）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`
-      : hitsInfo.max>1
-        ? `乱数幅 ${mn}〜${mx}（1hit） / 合計 ${totalMn}〜${totalMx}（${hitCountLabel}hit）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`
-        : `乱数幅 ${mn}〜${mx}（1hit）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`;
-  el('dmg-range').textContent = rangeText;
-
+  el('dmg-range').textContent=parentalBondActive
+    ? `乱数幅 ${mn}〜${mx}（1hit目） / ${parentalSecondMn}〜${parentalSecondMx}（2hit目）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`
+    : `乱数幅 ${mn}〜${mx}（1hit）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`;
   el('dmg-bar').style.width=Math.min(pmx,100)+'%';
   el('dmg-pct').textContent=`${pmn}〜${pmx}%`;
   updateDefHazardInfo();
@@ -4930,15 +4889,12 @@ function toggleMobileResult(){
 }
 function updateMobileResultSummary(){
   const sumEl=document.getElementById('mobile-result-handle-summary');
-  const col=document.getElementById('calc-result-col');
   if(!sumEl) return;
   const pct=(document.getElementById('dmg-pct')?.textContent||'').trim();
   const koRaw=(document.getElementById('ko-tag')?.textContent||'').trim();
   const ko=koRaw.replace(/\s+/g,' ');
   const box=document.getElementById('result-box');
-  const shown=!!(box && box.classList.contains('show'));
-  if(col) col.classList.toggle('has-damage-result', shown);
-  document.body.classList.toggle('mobile-result-ready', shown && window.matchMedia('(max-width:1079px)').matches);
+  const shown=box && box.classList.contains('show');
   if(!shown || !pct || pct==='0%'){
     sumEl.innerHTML='<span style="color:var(--text2);">ダメージ計算結果</span>';
     return;
@@ -4954,12 +4910,10 @@ function applyMobileResultMode(){
     col.classList.add('mobile-floating');
     document.body.classList.add('has-mobile-result');
   } else {
-    col.classList.remove('mobile-floating','open','has-damage-result');
-    document.body.classList.remove('has-mobile-result','mobile-result-ready');
+    col.classList.remove('mobile-floating','open');
+    document.body.classList.remove('has-mobile-result');
   }
-  updateMobileResultSummary();
 }
-
 function initMobileResultUI(){
   applyMobileResultMode();
   window.addEventListener('resize', applyMobileResultMode);

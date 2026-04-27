@@ -829,13 +829,31 @@ function renderMoveQuick(pokeName){
   wrap.innerHTML=moves.slice(0,24).map((m,idx)=>`<button type="button" class="quick-chip" onclick="addKnownMove(${idx})">${m.name}</button>`).join('');
   note.textContent='よく使う候補技を上に出しています。タップで追加できます。';
 }
+function getMoveMasterForRegister(moveName){
+  const name=String(moveName||'').trim();
+  if(!name) return null;
+  return (moveIndex||[]).find(m=>m.name===name) || (MOVES_DATA||[]).find(m=>m && m.name===name) || null;
+}
+function buildRegisteredMoveEntry(m){
+  if(!m) return null;
+  const master=getMoveMasterForRegister(m.name);
+  return {
+    name:m.name,
+    type:m.type || master?.type || '',
+    power:m.power || master?.power || '',
+    category:m.category || master?.category || '',
+    hits:m.hits || master?.hits || '1',
+    notes:m.notes || m.effect || master?.notes || master?.effect || '',
+    alwaysCrit:m.alwaysCrit || master?.alwaysCrit || ''
+  };
+}
 function addKnownMove(idx){
   const moves=getPokemonKnownMoves(currentPokeData?.name||'');
   const m=moves[idx];
   if(!m) return;
   if(currentMoves.length>=4){alert('技は4つまでです');return;}
   if(currentMoves.find(x=>x.name===m.name)){alert('同じ技は登録できません');return;}
-  currentMoves.push({name:m.name,type:m.type,power:m.power||'',category:m.category||''});
+  currentMoves.push(buildRegisteredMoveEntry(m));
   renderMoves();
 }
 
@@ -1100,7 +1118,7 @@ function addMove(idx) {
   if(currentMoves.length>=4){alert('技は4つまでです');return;}
   const m=MOVES_DATA[idx];
   if(currentMoves.find(x=>x.name===m.name)){alert('同じ技は登録できません');return;}
-  currentMoves.push({name:m.name,type:m.type,power:m.power,category:m.category});
+  currentMoves.push(buildRegisteredMoveEntry(m));
   renderMoves();
   document.getElementById('move-search').value='';
   document.getElementById('move-drop').classList.remove('show');
@@ -1500,7 +1518,7 @@ function loadPokemon(id) {
   currentId=id;
   rec.pokeName = normalizeAegislashDisplayName(rec.pokeName||'');
   currentPokeData=findPokemonByDisplayName(rec.pokeName)||null;
-  currentMoves=[...rec.moves];
+  currentMoves=[...(rec.moves||[])].map(m=>buildRegisteredMoveEntry(m)||m);
   document.getElementById('edit-empty').style.display='none';
   document.getElementById('edit-form').style.display='block';
   document.getElementById('edit-pokename').textContent=rec.displayName;
