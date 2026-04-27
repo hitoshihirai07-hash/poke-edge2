@@ -546,6 +546,61 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
 
 
+
+/* ===== calc.html スマホ：攻撃側 / 防御側 切り替え ===== */
+.mobile-calc-side-tabs{display:none;}
+.mobile-side-switch-row{display:none;}
+@media (max-width:900px){
+  .mobile-calc-side-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    position:sticky;
+    top:56px;
+    z-index:30;
+    background:linear-gradient(180deg,var(--bg),rgba(7,9,15,0.94));
+    padding:8px 0 10px;
+    margin:0 0 10px;
+    backdrop-filter:blur(12px);
+  }
+  .mobile-calc-side-tab{
+    border:1px solid var(--border2);
+    background:var(--panel);
+    color:var(--text2);
+    padding:11px 10px;
+    font-family:'Noto Sans JP',sans-serif;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:1px;
+    cursor:pointer;
+    border-radius:12px;
+  }
+  .mobile-calc-side-tab.active{
+    color:#061018;
+    border-color:var(--accent);
+    background:linear-gradient(135deg,var(--accent),#72ecff);
+    box-shadow:0 0 0 1px rgba(0,200,240,0.20),0 8px 22px rgba(0,200,240,0.12);
+  }
+  .calc-side-card{display:none !important;}
+  .calc-side-card.mobile-active{display:block !important;}
+  .mobile-side-switch-row{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px;}
+  .mobile-side-switch-btn{
+    width:100%;
+    border:1px solid var(--border2);
+    background:transparent;
+    color:var(--accent);
+    padding:10px 12px;
+    font-family:'Noto Sans JP',sans-serif;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .mobile-side-switch-btn:active{transform:translateY(1px);}
+}
+[data-theme="light"] .mobile-calc-side-tabs{background:linear-gradient(180deg,var(--bg),rgba(232,244,248,0.94));}
+
 /* ===== calc.html スマホ表示の復旧固定 ===== */
 @media (max-width: 900px){
   html,body{width:100%;max-width:100%;overflow-x:hidden;}
@@ -647,10 +702,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
     <div class="calc-body">
     <div class="calc-input-col">
+      <div class="mobile-calc-side-tabs" role="tablist" aria-label="攻撃側と防御側の切り替え">
+        <button type="button" class="mobile-calc-side-tab active" id="mobile-calc-tab-atk" onclick="setMobileCalcSide('atk')" aria-selected="true">攻撃側</button>
+        <button type="button" class="mobile-calc-side-tab" id="mobile-calc-tab-def" onclick="setMobileCalcSide('def')" aria-selected="false">防御側</button>
+      </div>
     <div class="calc-grid">
 
       <!-- 攻撃側 -->
-      <div class="card">
+      <div class="card calc-side-card calc-side-atk mobile-active">
         <div class="card-title">攻撃側</div>
         <label>ポケモン検索</label>
         <div id="season-filter-wrap" style="display:none;margin-bottom:6px;">
@@ -933,12 +992,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             </div>
           </div>
         </div>
+        <div class="mobile-side-switch-row">
+          <button type="button" class="mobile-side-switch-btn" onclick="setMobileCalcSide('def')">防御側へ移動</button>
+        </div>
       </div>
 
       <div class="vs-mid"><button type="button" class="swap-btn" onclick="smartSwapSides()">⇄ 攻防を入れ替え</button></div>
 
       <!-- 防御側 -->
-      <div class="card">
+      <div class="card calc-side-card calc-side-def">
         <div class="card-title">防御側</div>
         <label>ポケモン検索</label>
         <div class="search-wrap">
@@ -1159,6 +1221,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div id="def-hazard-info" style="background:var(--bg2);border:1px solid var(--border);padding:8px 10px;font-size:11px;color:var(--accent3);min-height:36px;line-height:1.6;">場ダメなし</div>
             </div>
           </div>
+        </div>
+        <div class="mobile-side-switch-row">
+          <button type="button" class="mobile-side-switch-btn" onclick="setMobileCalcSide('atk')">攻撃側へ移動</button>
         </div>
       </div>
     </div>
@@ -4714,6 +4779,7 @@ window.onload = async()=>{
   updateDamageSetupSummary();
   initContextUI();
   initMobileResultUI();
+  initMobileCalcSideTabs();
   applySeasonTransferToCalc();
 };
 
@@ -4929,6 +4995,35 @@ function initContextUI(){
 }
 
 // ===== モバイル下部固定の結果UI =====
+
+function setMobileCalcSide(side){
+  const target = side === 'def' ? 'def' : 'atk';
+  const atkCard = document.querySelector('.calc-side-atk');
+  const defCard = document.querySelector('.calc-side-def');
+  const atkTab = document.getElementById('mobile-calc-tab-atk');
+  const defTab = document.getElementById('mobile-calc-tab-def');
+  if(atkCard) atkCard.classList.toggle('mobile-active', target === 'atk');
+  if(defCard) defCard.classList.toggle('mobile-active', target === 'def');
+  if(atkTab){
+    atkTab.classList.toggle('active', target === 'atk');
+    atkTab.setAttribute('aria-selected', target === 'atk' ? 'true' : 'false');
+  }
+  if(defTab){
+    defTab.classList.toggle('active', target === 'def');
+    defTab.setAttribute('aria-selected', target === 'def' ? 'true' : 'false');
+  }
+  try{ localStorage.setItem('pokeedge_calc_mobile_side', target); }catch(_){ }
+  const tabs = document.querySelector('.mobile-calc-side-tabs');
+  if(window.matchMedia && window.matchMedia('(max-width:900px)').matches && tabs){
+    tabs.scrollIntoView({block:'start', behavior:'smooth'});
+  }
+}
+function initMobileCalcSideTabs(){
+  let saved = 'atk';
+  try{ saved = localStorage.getItem('pokeedge_calc_mobile_side') || 'atk'; }catch(_){ }
+  setMobileCalcSide(saved === 'def' ? 'def' : 'atk');
+}
+
 function toggleMobileResult(){
   const col=document.getElementById('calc-result-col');
   if(!col) return;
