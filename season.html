@@ -1387,6 +1387,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function rankHistoryRowsForCurrentView() {
     const data = getHistoryData();
     const source = Array.isArray(data.rows) ? data.rows : [];
+    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
     const q = (document.getElementById('name-search')?.value || '').trim();
     return source.filter(row => {
       const siteNames = resolveSiteNames(row.name || row.siteName || '');
@@ -1396,8 +1397,10 @@ document.addEventListener('DOMContentLoaded',function(){
       }
       return true;
     }).sort((a,b) => {
-      const av = Number.isFinite(Number(a && a.rank)) && Number(a.rank) > 0 ? Number(a.rank) : Number.MAX_SAFE_INTEGER;
-      const bv = Number.isFinite(Number(b && b.rank)) && Number(b.rank) > 0 ? Number(b.rank) : Number.MAX_SAFE_INTEGER;
+      const avRaw = latestHistoryRank(a, columns);
+      const bvRaw = latestHistoryRank(b, columns);
+      const av = Number.isFinite(Number(avRaw)) && Number(avRaw) > 0 ? Number(avRaw) : Number.MAX_SAFE_INTEGER;
+      const bv = Number.isFinite(Number(bvRaw)) && Number(bvRaw) > 0 ? Number(bvRaw) : Number.MAX_SAFE_INTEGER;
       if(av !== bv) return av - bv;
       return String(a && a.name || '').localeCompare(String(b && b.name || ''), 'ja');
     });
@@ -1406,6 +1409,22 @@ document.addEventListener('DOMContentLoaded',function(){
   function formatHistoryRank(value) {
     if(value == null || value === '') return '—';
     return String(value);
+  }
+
+  function latestHistoryRank(row, columns) {
+    const firstCol = Array.isArray(columns) && columns.length ? columns[0] : null;
+    const key = firstCol && firstCol.key ? firstCol.key : null;
+    const value = key && row && row.ranks ? row.ranks[key] : null;
+    if(value != null && value !== '') return value;
+    return row && row.rank != null ? row.rank : '';
+  }
+
+  function historyColumnLabel(col, index) {
+    const raw = String((col && (col.label || col.key)) || '');
+    if(/^prev\d+$/i.test(raw) || /^current$/i.test(raw)) {
+      return index === 0 ? '最新' : `${index}回前`;
+    }
+    return raw || (index === 0 ? '最新' : `${index}回前`);
   }
 
   function renderRankingHistory() {
@@ -1417,9 +1436,9 @@ document.addEventListener('DOMContentLoaded',function(){
     const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
     const rows = rankHistoryRowsForCurrentView();
     const updated = formatRankingDate(data.updatedAt) || '未取得';
-    meta.textContent = `${currentHistoryBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件 / 列数: ${columns.length}`;
+    meta.textContent = `${currentHistoryBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件 / 左端を最新として表示`;
 
-    head.innerHTML = `<tr><th>最新順位</th><th>ポケモン</th><th>推移</th>${columns.map(col => `<th>${escapeHtml(col.label || col.key || '')}</th>`).join('')}</tr>`;
+    head.innerHTML = `<tr><th>最新順位</th><th>ポケモン</th><th>推移</th>${columns.map((col, index) => `<th>${escapeHtml(historyColumnLabel(col, index))}</th>`).join('')}</tr>`;
 
     if(!rows.length) {
       body.innerHTML = `<tr><td colspan="${columns.length + 3}" class="detail-empty">順位推移データがありません</td></tr>`;
@@ -1428,7 +1447,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
     body.innerHTML = rows.map(row => `
       <tr>
-        <td>${escapeHtml(formatHistoryRank(row.rank))}</td>
+        <td>${escapeHtml(formatHistoryRank(latestHistoryRank(row, columns)))}</td>
         <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
         <td class="rank-history-mini">${sparklineHtml(row, columns, '')}</td>
         ${columns.map(col => `<td>${escapeHtml(formatHistoryRank(row.ranks ? row.ranks[col.key] : null))}</td>`).join('')}
