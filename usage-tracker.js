@@ -9,7 +9,12 @@
   const DEBOUNCE = new Map();
 
   function safePage(){
-    const last = (location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+    let last = (location.pathname.split('/').pop() || 'index').split('?')[0].split('#')[0].trim();
+    const aliases = {
+      index:'index.html', calc:'calc.html', endure:'endure.html', move:'move.html', party:'party.html', pokemon:'pokemon.html', items:'items.html', scope:'scope.html', season:'season.html', speed:'speed.html', stats:'stats.html', blog:'blog.html', policy:'policy.html', admin:'admin.html', auth:'auth.html'
+    };
+    if(!last || last === '/') return 'index.html';
+    if(aliases[last]) return aliases[last];
     return last || 'index.html';
   }
   function getSessionKey(){

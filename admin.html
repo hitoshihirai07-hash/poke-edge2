@@ -172,7 +172,7 @@ input[type=file]{display:none;}
 .analytics-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 14px;}
 .analytics-period-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:7px 12px;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
 .analytics-period-btn:hover,.analytics-period-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.08);}
-.analytics-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 14px;}
+.analytics-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0 14px;}
 .analytics-card{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;}
 .analytics-val{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:var(--accent);letter-spacing:1px;}
 .analytics-lbl{font-size:10px;color:var(--text2);letter-spacing:2px;margin-top:6px;}
@@ -822,11 +822,27 @@ function adminAnalyticsTable(rows, headers){
   if(!rows.length) return '<div class="note">データがありません。</div>';
   return '<table class="analytics-table"><thead><tr>' + headers.map(h=>'<th>'+adminEsc(h)+'</th>').join('') + '</tr></thead><tbody>' + rows.map(r=>'<tr>' + r.map((c,i)=>'<td class="'+(i===r.length-1?'num':'')+'">'+adminEsc(c)+'</td>').join('') + '</tr>').join('') + '</tbody></table>';
 }
-function adminPageLabel(page){
-  const map = {
-    'index.html':'トップ','calc.html':'ダメージ計算','endure.html':'耐久調整','move.html':'技選択判定','party.html':'パーティ管理','pokemon.html':'ポケモン登録','items.html':'アイテム','scope.html':'バトルアナライザー','season.html':'使用可能ポケモン','speed.html':'素早さライン','stats.html':'選出率記録','blog.html':'記事一覧','policy.html':'サイト情報'
+function adminNormalizeAnalyticsPage(page){
+  let raw = String(page || '').trim().split('?')[0].split('#')[0];
+  if(!raw || raw === '/') return 'index.html';
+  raw = raw.replace(/^https?:\/\/[^/]+/,'');
+  raw = raw.replace(/^\/+|\/+$/g,'');
+  if(!raw) return 'index.html';
+  let last = raw.split('/').pop() || 'index';
+  if(last === '') last = 'index';
+  const aliases = {
+    index:'index.html', calc:'calc.html', endure:'endure.html', move:'move.html', party:'party.html', pokemon:'pokemon.html', items:'items.html', scope:'scope.html', season:'season.html', speed:'speed.html', stats:'stats.html', blog:'blog.html', policy:'policy.html', admin:'admin.html', auth:'auth.html'
   };
-  return (map[page] ? map[page] + ' / ' : '') + page;
+  if(aliases[last]) return aliases[last];
+  if(!/\.html$/i.test(last) && aliases[last.replace(/\.html$/i,'')]) return aliases[last.replace(/\.html$/i,'')];
+  return last || 'index.html';
+}
+function adminPageLabel(page){
+  const normalized = adminNormalizeAnalyticsPage(page);
+  const map = {
+    'index.html':'トップ','calc.html':'ダメージ計算','endure.html':'耐久調整','move.html':'技選択判定','party.html':'パーティ管理','pokemon.html':'ポケモン登録','items.html':'アイテム','scope.html':'バトルアナライザー','season.html':'使用可能ポケモン','speed.html':'素早さライン','stats.html':'旧ページ','blog.html':'記事一覧','policy.html':'サイト情報','admin.html':'管理画面','auth.html':'ログイン'
+  };
+  return (map[normalized] ? map[normalized] + ' / ' : '') + normalized;
 }
 
 async function sendAnalyticsTestLog(){
@@ -865,26 +881,33 @@ async function loadAnalyticsDashboard(){
     if(start) q = q.gte('created_at', start);
     const { data, error } = await q;
     if(error) throw error;
-    const rows = Array.isArray(data) ? data : [];
+    let rows = Array.isArray(data) ? data : [];
+    rows = rows.map(r=>Object.assign({}, r, { page: adminNormalizeAnalyticsPage(r.page) }));
     const pageViews = rows.filter(r=>r.event_name === 'page_view');
+    const pageViewsWithoutTop = pageViews.filter(r=>r.page !== 'index.html');
     const operationRows = rows.filter(r=>r.event_name && r.event_name !== 'page_view' && r.event_name !== 'login_seen');
     const sessions = new Set(rows.map(r=>r.session_key).filter(Boolean));
     const loggedUsers = new Set(rows.filter(r=>r.logged_in || r.user_key).map(r=>r.user_key).filter(Boolean));
-    const pages = adminCountMap(pageViews, r=>r.page || 'unknown').slice(0,30);
+    const pages = adminCountMap(pageViewsWithoutTop, r=>r.page || 'unknown').slice(0,30);
+    const allPages = adminCountMap(pageViews, r=>r.page || 'unknown').slice(0,12);
     const events = adminCountMap(operationRows, r=>r.event_name || 'event').slice(0,30);
+    const eventPages = adminCountMap(operationRows, r=>r.page || 'unknown').slice(0,30);
     const loginPages = adminCountMap(rows.filter(r=>r.user_key), r=>r.page || 'unknown').slice(0,20);
     const summary = '<div class="analytics-summary">' +
-      '<div class="analytics-card"><div class="analytics-val">'+pageViews.length+'</div><div class="analytics-lbl">ページ閲覧数</div></div>' +
+      '<div class="analytics-card"><div class="analytics-val">'+pageViews.length+'</div><div class="analytics-lbl">総閲覧数</div></div>' +
+      '<div class="analytics-card"><div class="analytics-val">'+pageViewsWithoutTop.length+'</div><div class="analytics-lbl">トップ除外閲覧</div></div>' +
       '<div class="analytics-card"><div class="analytics-val">'+sessions.size+'</div><div class="analytics-lbl">匿名端末数</div></div>' +
       '<div class="analytics-card"><div class="analytics-val">'+operationRows.length+'</div><div class="analytics-lbl">主要操作数</div></div>' +
       '<div class="analytics-card"><div class="analytics-val">'+loggedUsers.size+'</div><div class="analytics-lbl">ログイン利用者数</div></div>' +
       '</div>';
     const html = summary +
-      '<div class="analytics-note">期間：'+adminEsc(adminAnalyticsPeriodLabel())+'。ログイン利用者数は、ログイン中ユーザーIDを匿名化した値の重複なし件数です。</div>' +
+      '<div class="analytics-note">期間：'+adminEsc(adminAnalyticsPeriodLabel())+'。/calc と calc.html などの表記ゆれは同じページとして集計します。ログイン利用者数は、ログイン中ユーザーIDを匿名化した値の重複なし件数です。</div>' +
       '<div class="analytics-grid">' +
-      '<div class="admin-check-block"><div class="admin-check-title">ページ別閲覧数</div>'+adminAnalyticsTable(pages.map(([p,c])=>[adminPageLabel(p), c]), ['ページ','閲覧'])+'</div>' +
+      '<div class="admin-check-block"><div class="admin-check-title">ページ別閲覧数（トップ除く）</div>'+adminAnalyticsTable(pages.map(([p,c])=>[adminPageLabel(p), c]), ['ページ','閲覧'])+'</div>' +
       '<div class="admin-check-block"><div class="admin-check-title">主要操作数</div>'+adminAnalyticsTable(events.map(([e,c])=>[ADMIN_EVENT_LABELS[e] || e, c]), ['操作','回数'])+'</div>' +
+      '<div class="admin-check-block"><div class="admin-check-title">ページ別主要操作数</div>'+adminAnalyticsTable(eventPages.map(([p,c])=>[adminPageLabel(p), c]), ['ページ','操作'])+'</div>' +
       '<div class="admin-check-block"><div class="admin-check-title">ログイン利用があったページ</div>'+adminAnalyticsTable(loginPages.map(([p,c])=>[adminPageLabel(p), c]), ['ページ','回数'])+'</div>' +
+      '<div class="admin-check-block"><div class="admin-check-title">全ページ閲覧数（参考）</div>'+adminAnalyticsTable(allPages.map(([p,c])=>[adminPageLabel(p), c]), ['ページ','閲覧'])+'</div>' +
       '<div class="admin-check-block"><div class="admin-check-title">最近のイベント</div>'+adminAnalyticsTable(rows.slice(0,30).map(r=>[(r.created_at||'').replace('T',' ').slice(0,16), adminPageLabel(r.page||''), ADMIN_EVENT_LABELS[r.event_name] || r.event_name || '']), ['日時','ページ','内容'])+'</div>' +
       '</div>' + (rows.length >= 10000 ? '<div class="analytics-note">※ 表示上限10000件に達しています。期間を短くすると正確に見やすくなります。</div>' : '');
     area.innerHTML = html;
@@ -945,10 +968,38 @@ function adminIsTrueMegaName(name, pokeNameSet){
   if(pokeNameSet && !pokeNameSet.has(adminMegaBaseCandidate(n))) return false;
   return true;
 }
+const ADMIN_ALLOWED_FORM_GROUPS = {
+  'ギルガルド': ['ギルガルド盾','ギルガルド剣','ギルガルドシールド','ギルガルドブレード'],
+  'イルカマン': ['イルカマン（ナイーブ）','イルカマン（マイティ）','イルカマンナイーブ','イルカマンマイティ']
+};
+function adminCanonicalPokemonName(name){
+  const n = String(name||'').trim();
+  if(!n) return '';
+  for(const base of Object.keys(ADMIN_ALLOWED_FORM_GROUPS)){
+    if(n === base || ADMIN_ALLOWED_FORM_GROUPS[base].includes(n)) return base;
+  }
+  return n;
+}
+function adminPokemonNameKnown(name, nameSet){
+  const n = String(name||'').trim();
+  if(!n) return false;
+  if(nameSet && nameSet.has(n)) return true;
+  const base = adminCanonicalPokemonName(n);
+  const variants = ADMIN_ALLOWED_FORM_GROUPS[base] || [];
+  return variants.some(v=>nameSet && nameSet.has(v));
+}
+function adminAcceptedFormAliasText(name, nameSet){
+  const n = String(name||'').trim();
+  if(!n || !nameSet || nameSet.has(n)) return '';
+  const base = adminCanonicalPokemonName(n);
+  const variants = (ADMIN_ALLOWED_FORM_GROUPS[base] || []).filter(v=>nameSet.has(v));
+  return variants.length ? n + ' → ' + variants.join(' / ') : '';
+}
 function adminNormalizeBaseName(name){
   let n = String(name||'').trim();
   if(!n) return '';
-  if(n === 'ギルガルド剣' || n === 'ギルガルド盾' || n === 'ギルガルドブレード' || n === 'ギルガルドシールド') return 'ギルガルド';
+  const canonical = adminCanonicalPokemonName(n);
+  if(canonical !== n) return canonical;
   if(ADMIN_NON_MEGA_PREFIX_NAMES.includes(n)) return n;
   if(ADMIN_FORM_VARIANT_PREFIX_NAMES.includes(n)) return n.replace(/^メガ/, '').replace(/X$/,'').replace(/Y$/,'').replace(/Z$/,'');
   if(/^メガ/.test(n)) return adminMegaBaseCandidate(n);
@@ -1000,9 +1051,10 @@ async function runAdminDataCheck(){
     const seasonNames = adminSeasonNames(season);
     const rankedRows = [...adminRankingRows(rankS), ...adminRankingRows(rankD)];
     const rankedNames = rankedRows.map(r=>String(r.siteName||r.name||'').trim()).filter(Boolean);
-    const pmMissingPokemon = pmNames.filter(n=>!pokeNames.has(n));
-    const seasonMissingPokemon = seasonNames.filter(n=>!pokeNames.has(n));
-    const rankMissingPokemon = rankedNames.filter(n=>!pokeNames.has(n));
+    const pmMissingPokemon = pmNames.filter(n=>!adminPokemonNameKnown(n, pokeNames));
+    const seasonMissingPokemon = seasonNames.filter(n=>!adminPokemonNameKnown(n, pokeNames));
+    const rankMissingPokemon = rankedNames.filter(n=>!adminPokemonNameKnown(n, pokeNames));
+    const acceptedFormAliases = adminUnique([...pmNames, ...seasonNames, ...rankedNames].map(n=>adminAcceptedFormAliasText(n, pokeNames)).filter(Boolean));
     const pmMovesMissing = [];
     pmEntries.forEach(p=>{
       (p.moves||[]).forEach(m=>{ const mn = String(m.name||'').trim(); if(mn && !moveNames.has(mn)) pmMovesMissing.push(p.name + '：' + mn); });
@@ -1011,7 +1063,8 @@ async function runAdminDataCheck(){
     Object.keys(abilities||{}).forEach(name=>{
       (abilities[name]||[]).forEach(ab=>{ const a=String(ab||'').trim(); if(a && !abilityNames.has(a)) abilityMissing.push(name + '：' + a); });
     });
-    const seasonNoMoves = seasonNames.filter(n=>!pmNames.includes(n));
+    const pmNameSet = new Set(pmNames);
+    const seasonNoMoves = seasonNames.filter(n=>!adminPokemonNameKnown(n, pmNameSet));
     area.innerHTML = [
       adminCardHTML([
         {value:(pokemon||[]).length.toLocaleString(), label:'ポケモン'},
@@ -1027,6 +1080,7 @@ async function runAdminDataCheck(){
         ...adminDuplicateNames(belongings,'name').map(x=>'道具: '+x)
       ], '重複なし')),
       adminBlock('ポケモン名の未登録', adminListHTML([...pmMissingPokemon.map(x=>'pokemon_moves: '+x), ...seasonMissingPokemon.map(x=>'season: '+x), ...rankMissingPokemon.map(x=>'ranking: '+x)], '未登録なし', 'err')),
+      adminBlock('フォルム集約名の許容', adminListHTML(acceptedFormAliases, '集約名の置き換え対象なし', 'ok')),
       adminBlock('技名の未登録', adminListHTML(adminUnique(pmMovesMissing), '未登録技なし', 'err')),
       adminBlock('特性名の未登録', adminListHTML(adminUnique(abilityMissing), '未登録特性なし', 'warn')),
       adminBlock('使用可能ポケモンの技データ未設定', adminListHTML(seasonNoMoves, '全て技データあり', 'warn'))
@@ -1055,7 +1109,8 @@ async function runAdminMegaFormCheck(){
     (pokemon||[]).forEach(p=>{
       const n = p.name || '';
       let base = '';
-      if(n.includes('ギルガルド')) base = 'ギルガルド';
+      const canonical = adminCanonicalPokemonName(n);
+      if(ADMIN_ALLOWED_FORM_GROUPS[canonical]) base = canonical;
       else if(ADMIN_FORM_VARIANT_PREFIX_NAMES.includes(n)) base = adminNormalizeBaseName(n);
       else if(/[AHG]$/.test(n)) base = n.replace(/[AHG]$/,'');
       else if(/^ロトム/.test(n) && n !== 'ロトム') base = 'ロトム';
