@@ -4591,6 +4591,41 @@ function setupEvents(){
   });
 }
 
+
+
+function getSeasonTransferPayloadForCalc(){
+  const params = new URLSearchParams(location.search || '');
+  const fromQuery = params.get('from') === 'season' || params.has('pokemon') || params.has('seasonPokemon');
+  if(fromQuery){
+    return {name: params.get('pokemon') || params.get('seasonPokemon') || '', target: params.get('target') || params.get('side') || 'atk'};
+  }
+  try{
+    const raw = localStorage.getItem('pokeedge_season_transfer');
+    const data = raw ? JSON.parse(raw) : null;
+    if(data && data.source === 'season' && data.tool === 'calc') return {name:data.name || '', target:data.target || 'atk'};
+  }catch(_){ }
+  return null;
+}
+function applySeasonTransferToCalc(){
+  const payload = getSeasonTransferPayloadForCalc();
+  if(!payload || !payload.name) return;
+  const target = String(payload.target || 'atk').toLowerCase();
+  const p = typeof findCalcPokemonByName === 'function' ? findCalcPokemonByName(payload.name) : null;
+  if(!p) return;
+  const displayName = (typeof normalizeAegislashDisplayName === 'function') ? normalizeAegislashDisplayName(p.name) : p.name;
+  if(target === 'def' || target === 'defender'){
+    if(el('def-search')) el('def-search').value = displayName;
+    initDefPoke(p);
+    if(typeof _damageSetupState !== 'undefined') _damageSetupState.defName = p.name;
+  } else {
+    if(el('atk-search')) el('atk-search').value = displayName;
+    initAtkPoke(p);
+    if(typeof _damageSetupState !== 'undefined') _damageSetupState.atkName = p.name;
+  }
+  updateDamageSetupSummary();
+  try{ localStorage.removeItem('pokeedge_season_transfer'); }catch(_){ }
+}
+
 // ===== 初期化 =====
 window.onload = async()=>{
   await loadGameData();
@@ -4618,6 +4653,7 @@ window.onload = async()=>{
   updateDamageSetupSummary();
   initContextUI();
   initMobileResultUI();
+  applySeasonTransferToCalc();
 };
 
 // ===== ランク ＋/− ボタン制御 =====

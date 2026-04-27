@@ -201,6 +201,23 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .detail-form-grid{display:grid;gap:10px;}
 .detail-form-card{border:1px solid var(--border);background:var(--bg);padding:10px 12px;}
 .detail-form-card-title{font-size:12px;color:var(--accent3);margin-bottom:8px;font-weight:700;}
+.detail-link-grid{display:grid;gap:10px;}
+.detail-link-row{display:grid;grid-template-columns:minmax(150px,1fr) auto;gap:8px;align-items:center;}
+.detail-link-row select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;}
+.detail-link-row select:focus{border-color:var(--accent);}
+.detail-link-btn{border:1px solid var(--border);background:rgba(0,200,240,0.08);color:var(--accent);padding:8px 12px;font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap;}
+.detail-link-btn:hover{border-color:var(--accent);background:rgba(0,200,240,0.16);}
+.detail-link-note{font-size:11px;color:var(--text2);line-height:1.7;}
+.detail-move-toggle{margin:10px 0 0;display:flex;justify-content:flex-end;}
+.detail-move-toggle button{border:1px solid var(--border);background:transparent;color:var(--accent);padding:7px 12px;font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;}
+.detail-move-toggle button:hover{border-color:var(--accent);background:rgba(0,200,240,0.08);}
+.rank-spark{margin:8px 0 10px;border:1px solid var(--border);background:rgba(0,0,0,0.12);padding:8px;}
+.rank-spark-title{font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;}
+.rank-spark svg{display:block;width:100%;height:58px;overflow:visible;color:var(--accent);}
+.rank-spark-values{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);line-height:1.5;word-break:break-all;}
+.rank-history-mini{min-width:160px;}
+@media(max-width:640px){.detail-link-row{grid-template-columns:1fr;}.detail-link-btn{width:100%;}.rank-history-mini{min-width:130px;}}
+
 @media(max-width:900px){.rank-table{min-width:820px;}}
 
 
@@ -870,6 +887,8 @@ document.addEventListener('DOMContentLoaded',function(){
   let currentRankingBattle = 'single';
   let currentHistoryBattle = 'single';
   let currentDetailMoves = [];
+  let currentDetailMovesExpanded = false;
+  let currentDetailTransferName = '';
 
   function uniq(arr) {
     return Array.from(new Set((arr || []).filter(Boolean)));
@@ -1092,6 +1111,126 @@ document.addEventListener('DOMContentLoaded',function(){
     detailMain.insertBefore(card, detailMain.firstElementChild);
   }
 
+
+
+  function ensureDetailTransferBox() {
+    const detailSide = document.querySelector('.detail-side');
+    if(!detailSide || document.getElementById('detail-transfer-box')) return;
+    const card = document.createElement('div');
+    card.className = 'detail-card';
+    card.id = 'detail-transfer-box';
+    card.innerHTML = `
+      <div class="detail-card-title">連携</div>
+      <div class="detail-link-grid">
+        <div class="detail-link-note" id="detail-transfer-name">選択中のポケモンを各ツールに反映します。</div>
+        <div class="detail-link-row">
+          <select id="detail-calc-target" aria-label="ダメージ計算の反映先">
+            <option value="atk">ダメージ計算：攻撃側に入れる</option>
+            <option value="def">ダメージ計算：防御側に入れる</option>
+          </select>
+          <button class="detail-link-btn" type="button" onclick="goSeasonTransfer('calc')">移動</button>
+        </div>
+        <div class="detail-link-row">
+          <select id="detail-endure-target" aria-label="耐久調整の反映先">
+            <option value="defender">耐久調整：耐久側に入れる</option>
+            <option value="attacker">耐久調整：攻撃側に入れる</option>
+          </select>
+          <button class="detail-link-btn" type="button" onclick="goSeasonTransfer('endure')">移動</button>
+        </div>
+        <div class="detail-link-row">
+          <select id="detail-pokemon-target" aria-label="ポケモン登録の反映先">
+            <option value="new">ポケモン登録：新規登録フォームに入れる</option>
+          </select>
+          <button class="detail-link-btn" type="button" onclick="goSeasonTransfer('pokemon')">移動</button>
+        </div>
+      </div>
+    `;
+    const statsCard = document.getElementById('detail-stats')?.closest('.detail-card');
+    if(statsCard && statsCard.parentNode) statsCard.parentNode.insertBefore(card, statsCard.nextSibling);
+    else detailSide.appendChild(card);
+  }
+
+  function getSeasonTransferName() {
+    return currentDetailTransferName || currentDetailName || document.getElementById('detail-name')?.textContent || '';
+  }
+
+  function setSeasonTransferName(name) {
+    currentDetailTransferName = String(name || '').trim();
+    const label = document.getElementById('detail-transfer-name');
+    if(label) label.textContent = currentDetailTransferName ? `選択中: ${currentDetailTransferName}` : '選択中のポケモンを各ツールに反映します。';
+  }
+
+  window.goSeasonTransfer = function(tool) {
+    const name = getSeasonTransferName();
+    if(!name) return;
+    let href = '';
+    let target = '';
+    if(tool === 'calc') {
+      target = document.getElementById('detail-calc-target')?.value || 'atk';
+      href = `calc.html?from=season&pokemon=${encodeURIComponent(name)}&target=${encodeURIComponent(target)}`;
+    } else if(tool === 'endure') {
+      target = document.getElementById('detail-endure-target')?.value || 'defender';
+      href = `endure.html?from=season&pokemon=${encodeURIComponent(name)}&target=${encodeURIComponent(target)}`;
+    } else if(tool === 'pokemon') {
+      target = document.getElementById('detail-pokemon-target')?.value || 'new';
+      href = `pokemon.html?from=season&pokemon=${encodeURIComponent(name)}&target=${encodeURIComponent(target)}`;
+    } else {
+      return;
+    }
+    try {
+      localStorage.setItem('pokeedge_season_transfer', JSON.stringify({source:'season', tool, name, target, at:Date.now()}));
+    } catch(_) {}
+    location.href = href;
+  };
+
+  function ensureDetailMoveToggleButton() {
+    const wrap = document.querySelector('.detail-moves-wrap');
+    if(!wrap || document.getElementById('detail-move-toggle-wrap')) return;
+    const box = document.createElement('div');
+    box.className = 'detail-move-toggle';
+    box.id = 'detail-move-toggle-wrap';
+    box.innerHTML = '<button type="button" id="detail-move-toggle-btn">すべて表示</button>';
+    wrap.insertAdjacentElement('afterend', box);
+    const btn = document.getElementById('detail-move-toggle-btn');
+    if(btn) btn.addEventListener('click', function(){ currentDetailMovesExpanded = !currentDetailMovesExpanded; renderDetailMovesPatched(); });
+  }
+
+  function getHistoryRowsForName(name, battle) {
+    const data = battle === 'double' ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY;
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    const lookup = resolveRankingLookupNames(name || '').concat(inferBaseRankingNames(name || ''));
+    return rows.filter(row => lookup.includes(row.name) || lookup.includes(row.siteName));
+  }
+
+  function historyRankValues(row, columns) {
+    const values = [];
+    (columns || []).forEach(col => {
+      const v = row && row.ranks ? Number(row.ranks[col.key]) : NaN;
+      if(Number.isFinite(v) && v > 0) values.push(v);
+    });
+    return values;
+  }
+
+  function sparklineHtml(row, columns, title) {
+    const values = historyRankValues(row, columns);
+    if(values.length < 2) return '';
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    const width = 220, height = 46, pad = 6;
+    const denom = Math.max(1, max - min);
+    const pts = values.map((v,i) => {
+      const x = values.length === 1 ? width / 2 : pad + i * ((width - pad*2) / (values.length - 1));
+      const y = pad + ((v - min) / denom) * (height - pad*2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    const latest = values[0];
+    const oldest = values[values.length-1];
+    const diff = latest - oldest;
+    const trend = diff < 0 ? `上昇 ${Math.abs(diff)}` : diff > 0 ? `下降 ${diff}` : '横ばい';
+    const titleText = title ? `${title} / ` : '';
+    return `<div class="rank-spark"><div class="rank-spark-title">${escapeHtml(titleText)}最新 ${escapeHtml(latest)}位 / ${escapeHtml(trend)}</div><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2"></polyline></svg><div class="rank-spark-values">${values.map(v => `${v}位`).join(' → ')}</div></div>`;
+  }
+
   function setViewMode(mode) {
     currentViewMode = mode === 'ranking' ? 'ranking' : mode === 'history' ? 'history' : 'list';
     const listView = document.getElementById('season-list-view');
@@ -1162,6 +1301,7 @@ document.addEventListener('DOMContentLoaded',function(){
         <h5>${escapeHtml(group.title)}</h5>
         ${group.rows.map(row => `
           <div class="detail-ranking-line"><b>${escapeHtml(row.rank)}位</b>${escapeHtml(row.name || '')}${row.rankingSource === 'base' ? ' <span style="color:var(--accent3)">（元ポケモン順位）</span>' : ''}</div>
+          ${sparklineHtml((getHistoryRowsForName(row.name || '', group.title.includes('ダブル') ? 'double' : 'single') || [])[0], (group.title.includes('ダブル') ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY).columns || [], group.title + 'の推移')}
           <div class="detail-ranking-line">更新日: ${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</div>
           <div class="detail-ranking-line">技: ${escapeHtml((row.moves || []).slice(0,3).join(' / ') || '—')}</div>
           <div class="detail-ranking-line">持ち物: ${escapeHtml((row.items || []).slice(0,3).join(' / ') || '—')}</div>
@@ -1211,17 +1351,24 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   function renderDetailMovesPatched() {
+    ensureDetailMoveToggleButton();
     const body = document.getElementById('detail-moves-body');
     const query = (document.getElementById('detail-move-search').value || '').trim();
     const moves = Array.isArray(currentDetailMoves) ? currentDetailMoves : [];
     const filtered = !query ? moves : moves.filter(m => {
-      return [m.name, m.type, m.category, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query);
+      return [m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query);
     });
+    const limit = 16;
+    const visible = (!query && !currentDetailMovesExpanded) ? filtered.slice(0, limit) : filtered;
+    const btn = document.getElementById('detail-move-toggle-btn');
+    const toggleWrap = document.getElementById('detail-move-toggle-wrap');
+    if(toggleWrap) toggleWrap.style.display = (!query && filtered.length > limit) ? '' : 'none';
+    if(btn) btn.textContent = currentDetailMovesExpanded ? '折りたたむ' : `すべて表示（${filtered.length}件）`;
     if(!filtered.length) {
       body.innerHTML = `<tr><td colspan="8" class="detail-empty">${moves.length ? '条件に合う技がありません' : '技データがありません'}</td></tr>`;
       return;
     }
-    body.innerHTML = filtered.map(m => `<tr>
+    body.innerHTML = visible.map(m => `<tr>
       <td>${escapeHtml(m.name || '—')}</td>
       <td>${m.type ? `<span class="tp tp-${m.type}">${escapeHtml(m.type)}</span>` : '—'}</td>
       <td>${escapeHtml(m.category || '—')}</td>
@@ -1272,10 +1419,10 @@ document.addEventListener('DOMContentLoaded',function(){
     const updated = formatRankingDate(data.updatedAt) || '未取得';
     meta.textContent = `${currentHistoryBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件 / 列数: ${columns.length}`;
 
-    head.innerHTML = `<tr><th>最新順位</th><th>ポケモン</th>${columns.map(col => `<th>${escapeHtml(col.label || col.key || '')}</th>`).join('')}</tr>`;
+    head.innerHTML = `<tr><th>最新順位</th><th>ポケモン</th><th>推移</th>${columns.map(col => `<th>${escapeHtml(col.label || col.key || '')}</th>`).join('')}</tr>`;
 
     if(!rows.length) {
-      body.innerHTML = `<tr><td colspan="${columns.length + 2}" class="detail-empty">順位推移データがありません</td></tr>`;
+      body.innerHTML = `<tr><td colspan="${columns.length + 3}" class="detail-empty">順位推移データがありません</td></tr>`;
       return;
     }
 
@@ -1283,6 +1430,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <tr>
         <td>${escapeHtml(formatHistoryRank(row.rank))}</td>
         <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
+        <td class="rank-history-mini">${sparklineHtml(row, columns, '')}</td>
         ${columns.map(col => `<td>${escapeHtml(formatHistoryRank(row.ranks ? row.ranks[col.key] : null))}</td>`).join('')}
       </tr>
     `).join('');
@@ -1300,6 +1448,10 @@ document.addEventListener('DOMContentLoaded',function(){
     const primary = ctx.primary || ctx.records[0];
     currentDetailName = primary.name;
     currentDetailMoves = ctx.moves;
+    currentDetailMovesExpanded = false;
+    ensureDetailTransferBox();
+    ensureDetailMoveToggleButton();
+    setSeasonTransferName(ctx.displayName || primary.name);
 
     const rankingNameNote = ctx.siteNames.length > 1
       ? `フォルム種族値: ${ctx.siteNames.map(n => typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(n) : n).join(' / ')}`
@@ -1372,10 +1524,14 @@ document.addEventListener('DOMContentLoaded',function(){
   document.addEventListener('DOMContentLoaded', function() {
     ensureSeasonViews();
     ensureDetailRankingBox();
+    ensureDetailTransferBox();
+    ensureDetailMoveToggleButton();
   });
   window.addEventListener('load', function() {
     ensureSeasonViews();
     ensureDetailRankingBox();
+    ensureDetailTransferBox();
+    ensureDetailMoveToggleButton();
     loadRankingJson();
   });
 })();

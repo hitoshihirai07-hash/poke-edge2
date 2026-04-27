@@ -1546,6 +1546,31 @@ function deleteCurrent() {
   if(currentId) deleteById(currentId);
 }
 
+
+
+function getSeasonTransferPayloadForPokemon(){
+  const params = new URLSearchParams(location.search || '');
+  const fromQuery = params.get('from') === 'season' || params.has('pokemon') || params.has('seasonPokemon');
+  if(fromQuery){
+    return {name: params.get('pokemon') || params.get('seasonPokemon') || '', target: params.get('target') || 'new'};
+  }
+  try{
+    const raw = localStorage.getItem('pokeedge_season_transfer');
+    const data = raw ? JSON.parse(raw) : null;
+    if(data && data.source === 'season' && data.tool === 'pokemon') return {name:data.name || '', target:data.target || 'new'};
+  }catch(_){ }
+  return null;
+}
+function applySeasonTransferToPokemon(){
+  const payload = getSeasonTransferPayloadForPokemon();
+  if(!payload || !payload.name) return;
+  const p = typeof findPokemonByDisplayName === 'function' ? findPokemonByDisplayName(payload.name) : null;
+  if(!p) return;
+  newPokemon();
+  selectPoke(payload.name);
+  try{ localStorage.removeItem('pokeedge_season_transfer'); }catch(_){ }
+}
+
 // reg-search: window.onload内でバインド済み
 
 // ===== 初期化 =====
@@ -1585,6 +1610,8 @@ window.onload = async () => {
   // reg-search
   const regSearch = document.getElementById('reg-search');
   if(regSearch) regSearch.addEventListener('input', function(){ renderRegList(this.value); });
+
+  applySeasonTransferToPokemon();
 };
 </script>
 <script>

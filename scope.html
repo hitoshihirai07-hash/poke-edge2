@@ -843,6 +843,77 @@ function getMegaFormsOf(baseName){
   return pokeIndex.filter(p=>p.name===prefix||p.name===prefix+'X'||p.name===prefix+'Y'||p.name===prefix+'Z');
 }
 
+
+const SCOPE_SPECIAL_FORM_GROUPS = {
+  'ギルガルド': {forms:['ギルガルド盾','ギルガルド剣'], defaultForm:'ギルガルド盾'},
+  'イルカマン': {forms:['イルカマン（ナイーブ）','イルカマン（マイティ）'], defaultForm:'イルカマン（ナイーブ）'}
+};
+function getScopeSpecialBaseName(name){
+  const n = String(name || '').trim();
+  if(SCOPE_SPECIAL_FORM_GROUPS[n]) return n;
+  for(const base in SCOPE_SPECIAL_FORM_GROUPS){ if((SCOPE_SPECIAL_FORM_GROUPS[base].forms || []).includes(n)) return base; }
+  return '';
+}
+function normalizeScopeRecordName(name){
+  const n = String(name || '').trim();
+  if(!n) return '';
+  const special = getScopeSpecialBaseName(n);
+  if(special) return special;
+  if(isMegaPokemon(n)) return getBaseName(n) || n;
+  return n;
+}
+function isScopeMegaCandidateName(name){
+  const n = String(name || '').trim();
+  if(!n) return false;
+  if(isMegaPokemon(n)) return true;
+  return getMegaFormsOf(n).length > 0;
+}
+function getScopeFormOptionsForSlot(slot){
+  if(!slot || !slot.poke) return [];
+  const name = slot.poke.name;
+  const special = getScopeSpecialBaseName(name);
+  if(special){
+    return (SCOPE_SPECIAL_FORM_GROUPS[special].forms || []).filter(n=>pokeIndex.some(p=>p.name===n));
+  }
+  const base = isMegaPokemon(name) ? getBaseName(name) : name;
+  const megas = getMegaFormsOf(base).map(p=>p.name);
+  if(megas.length){
+    const names = [];
+    if(pokeIndex.some(p=>p.name===base)) names.push(base);
+    return names.concat(megas);
+  }
+  return [];
+}
+function setSlotForm(side, idx, formName){
+  const party = side==='my' ? myParty : oppParty;
+  const slot = party[idx];
+  const poke = pokeIndex.find(p=>p.name===formName);
+  if(!slot || !poke) return;
+  slot.poke = poke;
+  slot.abilityOptions = getAbilityOptions(poke);
+  if(!slot.abilityOptions.includes(slot.ability)) slot.ability = getDefaultAbilityForPokemon(poke);
+  const profile = getEstimatedProfile(poke);
+  if(slot.profileSource !== 'registered' && slot.profileSource !== 'saved'){
+    slot.natureName = profile.natureName || slot.natureName || 'がんばりや';
+    slot.baseSpread = cloneSpread(profile.spread);
+    slot.profileSource = profile.source;
+  }
+  slot.moves = getEstimatedAtkMoves(poke);
+  rebuildSlotStats(slot);
+  refreshAfterSlotChange(side);
+}
+function hasMegaSelectionConflict(teamIndices){
+  return (teamIndices || []).map(i=>myParty[i]).filter(slot=>slot && slot.poke && isScopeMegaCandidateName(slot.poke.name)).length > 1;
+}
+function scopeRecordPokemonPayload(slot, includeMoves){
+  if(!slot || !slot.poke) return null;
+  const name = normalizeScopeRecordName(slot.poke.name);
+  const payload = {name, type1:slot.poke.type1, type2:slot.poke.type2};
+  if(name !== slot.poke.name) payload.actualName = slot.poke.name;
+  if(includeMoves) payload.moves = cloneBattleMoves(slot.moves);
+  return payload;
+}
+
 function getSeasonRow(pokeName){
   // まず直接検索
   const direct = (SEASON_RANKING.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName);
@@ -1351,7 +1422,9 @@ function renderSlotSettings(side){
     const natureSelect = '<select class="settings-select" onchange="setSlotNature(\''+side+'\','+i+',this.value)">'+natureOptions+'</select>';
     if(side==='opp'){
       const presetOptions = Object.keys(EV_PRESETS).map(key=>'<option value="'+key+'" '+((slot.presetKey||'season')===key?'selected':'')+'>'+EV_PRESETS[key].label+'</option>').join('');
-      return '<div class="settings-row"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+natureSelect+'<select class="settings-select" onchange="setOppPreset('+i+',this.value)">'+presetOptions+'</select></div>';
+      const formOptions = getScopeFormOptionsForSlot(slot);
+      const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\'opp\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(slot.poke.name===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '';
+      return '<div class="settings-row"><div class="settings-name">'+escapeHtml(slot.poke.name)+'</div>'+formSelect+abilitySelect+natureSelect+'<select class="settings-select" onchange="setOppPreset('+i+',this.value)">'+presetOptions+'</select></div>';
     }
     return '<div class="settings-row"><div class="settings-name">'+slot.poke.name+'</div>'+abilitySelect+natureSelect+'<div></div></div>';
   }).join('');
@@ -1434,7 +1507,10 @@ function renderRecommendation(){
   document.getElementById('rec-card').style.display='block';
   const indices = myParty.map((_,i)=>i);
   const combos = getCombinations(indices, Math.min(3, myParty.length));
-  const scored = combos.map(team=>{
+  const validCombos = combos.filter(team=>!hasMegaSelectionConflict(team));
+  const megaConflictCount = combos.length - validCombos.length;
+  const sourceCombos = validCombos.length ? validCombos : combos;
+  const scored = sourceCombos.map(team=>{
     let score=0;
     oppParty.forEach(opp=>{
       let bestMu = -999;
@@ -1456,7 +1532,8 @@ function renderRecommendation(){
     return {team, score};
   }).sort((a,b)=>b.score-a.score).slice(0,3);
 
-  document.getElementById('rec-list').innerHTML = scored.map((s,i)=>{
+  const megaNote = megaConflictCount ? '<div class="note" style="margin-bottom:8px;">メガ候補が複数入る組み合わせは推奨から外しています。</div>' : '';
+  document.getElementById('rec-list').innerHTML = megaNote + scored.map((s,i)=>{
     const names = s.team.map(mi=>myParty[mi].poke.name);
     return '<div class="rec-team" onclick="applySelection(['+s.team.join(',')+'])">'+
       '<div class="rec-rank '+(i===0?'r1':'')+'">'+(i+1)+'</div>'+
@@ -1869,7 +1946,7 @@ function recordLeadFromSelection(side){
   const lead = normalizeLead(side);
   const slot = party[lead ?? sel[0]];
   if(!slot) return null;
-  return {name:slot.poke.name, type1:slot.poke.type1, type2:slot.poke.type2};
+  return scopeRecordPokemonPayload(slot, false);
 }
 function cloneBattleMoves(moves){
   return (moves||[]).filter(m=>m&&m.name).map(m=>({name:m.name,type:m.type||'',category:m.category||'',power:parseInt(m.power)||0}));
@@ -1880,8 +1957,8 @@ async function recordScopeBattle(result){
   if(!mySel.length){ alert('自分の選出を選んでください'); return; }
   if(!oppSel.length){ alert('相手の選出を選んでください'); return; }
   const battle = {id:Date.now(),date:new Date().toLocaleDateString('ja-JP'),result,
-    my:{party6:myParty.filter(Boolean).map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2})),select3:mySel.map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2})),lead:recordLeadFromSelection('my')},
-    opp:{party6:oppParty.filter(Boolean).map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2,moves:cloneBattleMoves(s.moves)})),select3:oppSel.map(s=>({name:s.poke.name,type1:s.poke.type1,type2:s.poke.type2,moves:cloneBattleMoves(s.moves)})),lead:recordLeadFromSelection('opp')}};
+    my:{party6:myParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),select3:mySel.map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),lead:recordLeadFromSelection('my')},
+    opp:{party6:oppParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,true)).filter(Boolean),select3:oppSel.map(s=>scopeRecordPokemonPayload(s,true)).filter(Boolean),lead:recordLeadFromSelection('opp')}};
   await saveBattleRecord(battle);
   await renderScopeStats();
   await renderScopeHistory();
@@ -1906,9 +1983,10 @@ async function renderScopeStats(){
   const myMap={}, oppMap={};
   function touchMap(map, mon){
     if(!mon || !mon.name) return null;
-    if(!map[mon.name]) map[mon.name]={party:0,sel:0,lead:0,win:0,type1:mon.type1||''};
-    if(!map[mon.name].type1 && mon.type1) map[mon.name].type1=mon.type1;
-    return map[mon.name];
+    const key = normalizeScopeRecordName(mon.name);
+    if(!map[key]) map[key]={party:0,sel:0,lead:0,win:0,type1:mon.type1||''};
+    if(!map[key].type1 && mon.type1) map[key].type1=mon.type1;
+    return map[key];
   }
   battles.forEach(b=>{
     // 自分側も「選出3体」だけでなく、入力した6体を集計対象にする。

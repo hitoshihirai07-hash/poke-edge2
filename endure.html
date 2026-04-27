@@ -1523,6 +1523,48 @@ function bindStaticEvents(){
   });
 
 }
+
+
+const ENDURE_TRANSFER_FORM_GROUPS = {
+  'ギルガルド': {defaultForm:'ギルガルド盾', forms:['ギルガルド盾','ギルガルド剣']},
+  'イルカマン': {defaultForm:'イルカマン（ナイーブ）', forms:['イルカマン（ナイーブ）','イルカマン（マイティ）']}
+};
+function resolveEndureTransferName(name){
+  const n = String(name || '').trim();
+  if(!n) return '';
+  if(getPokemon(n)) return n;
+  const group = ENDURE_TRANSFER_FORM_GROUPS[n];
+  if(group && getPokemon(group.defaultForm)) return group.defaultForm;
+  for(const base in ENDURE_TRANSFER_FORM_GROUPS){
+    const cfg = ENDURE_TRANSFER_FORM_GROUPS[base];
+    if((cfg.forms || []).includes(n)) return getPokemon(n) ? n : (getPokemon(cfg.defaultForm) ? cfg.defaultForm : '');
+  }
+  return '';
+}
+function getSeasonTransferPayloadForEndure(){
+  const params = new URLSearchParams(location.search || '');
+  const fromQuery = params.get('from') === 'season' || params.has('pokemon') || params.has('seasonPokemon');
+  if(fromQuery){
+    return {name: params.get('pokemon') || params.get('seasonPokemon') || '', target: params.get('target') || 'defender'};
+  }
+  try{
+    const raw = localStorage.getItem('pokeedge_season_transfer');
+    const data = raw ? JSON.parse(raw) : null;
+    if(data && data.source === 'season' && data.tool === 'endure') return {name:data.name || '', target:data.target || 'defender'};
+  }catch(_){ }
+  return null;
+}
+function applySeasonTransferToEndure(){
+  const payload = getSeasonTransferPayloadForEndure();
+  if(!payload || !payload.name) return;
+  const name = resolveEndureTransferName(payload.name);
+  if(!name) return;
+  const target = String(payload.target || 'defender').toLowerCase();
+  if(target === 'attacker' || target === 'atk' || target === 'free') applyFreePokemon(name);
+  else applyDefenderPokemon(name);
+  try{ localStorage.removeItem('pokeedge_season_transfer'); }catch(_){ }
+}
+
 async function init(){
   createNatureOptions(el('defender-nature'), 'がんばりや');
   createNatureOptions(el('free-nature'), 'がんばりや');
@@ -1547,6 +1589,7 @@ async function init(){
   renderFreeSection();
   renderDefenderSection();
   setDefenderWindowOpen(true);
+  applySeasonTransferToEndure();
   scheduleUpdateAllResults();
 }
 document.getElementById('calc-frame').addEventListener('load', () => {
