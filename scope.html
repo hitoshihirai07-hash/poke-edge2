@@ -444,6 +444,89 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   footer{margin-bottom:20px;}
 }
 
+
+/* scope.html mobile compact redesign: one-slot edit + one-result view */
+.scope-mobile-analysis-tabs,.scope-mobile-damage-tabs{display:none;}
+.scope-mobile-edit-btn{display:none;}
+@media(max-width:768px){
+  .main{padding:10px 10px 88px;}
+  .phase-tabs{display:none!important;}
+  .scope-mobile-phase-tabs{position:static;display:flex;gap:7px;overflow-x:auto;grid-template-columns:none;margin:8px -2px 8px;padding:6px 2px;background:transparent;border:0;box-shadow:none;scrollbar-width:none;}
+  .scope-mobile-phase-tabs::-webkit-scrollbar{display:none;}
+  .scope-mobile-phase-btn{flex:0 0 auto;min-width:82px;border-radius:999px;padding:9px 11px;font-size:11px;white-space:nowrap;}
+  .scope-mobile-state{display:flex;gap:7px;overflow-x:auto;margin:0 -2px 9px;padding:0 2px;background:transparent;border:0;box-shadow:none;scrollbar-width:none;}
+  .scope-mobile-state::-webkit-scrollbar{display:none;}
+  .scope-mobile-chip{flex:0 0 132px;border-radius:12px;padding:7px 8px;}
+  .scope-mobile-select-tabs{position:sticky;top:102px;z-index:80;background:rgba(7,9,15,0.96);border:1px solid var(--border);border-radius:14px;padding:7px;margin:0 0 8px;backdrop-filter:blur(14px);}
+  [data-theme="light"] .scope-mobile-select-tabs{background:rgba(248,251,254,0.96);}
+  .scope-party-columns{display:block!important;}
+  .scope-my-card,.scope-opp-card,.scope-analysis-card{margin-bottom:10px;}
+  .scope-my-card .note,.scope-opp-card .note{display:none;}
+  .party-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px;margin-bottom:8px;}
+  .party-slot{min-height:68px;padding:8px 6px;border-radius:12px;position:relative;}
+  .slot-name{font-size:11px;line-height:1.25;min-height:28px;display:flex;align-items:center;justify-content:center;}
+  .party-slot .tp{font-size:8px;padding:2px 4px;}
+  .slot-sub{display:none;}
+  .slot-remove{top:3px;right:3px;width:18px;height:18px;font-size:12px;}
+  .scope-mobile-edit-btn{display:block;position:absolute;left:5px;bottom:5px;border:1px solid var(--border);border-radius:999px;background:rgba(0,200,240,0.10);color:var(--accent);font-size:9px;font-weight:700;padding:3px 6px;font-family:'Noto Sans JP',sans-serif;}
+  .party-slot.mobile-editing{border-color:var(--accent3);box-shadow:0 0 0 1px rgba(255,200,0,0.16) inset;}
+  .settings-wrap{margin-top:6px;}
+  .settings-row{display:none!important;}
+  .settings-row.mobile-active-edit{display:block!important;border-radius:14px;padding:9px;background:var(--bg2);border:1px solid var(--border);}
+  .settings-row.mobile-active-edit .settings-name{font-size:12px;color:var(--accent);margin-bottom:7px;}
+  .settings-row.mobile-active-edit .settings-main{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  .settings-row.mobile-active-edit .settings-main > *{min-width:0;width:100%;}
+  .settings-row.mobile-active-edit .scope-ev-editor{grid-column:1/-1;}
+  .scope-ev-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;}
+  .scope-ev-field input{height:34px;font-size:13px;}
+  .lead-pick-wrap{margin-top:8px;padding:8px;border-radius:12px;}
+  .lead-pick-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+  .lead-btn{min-height:34px;font-size:10px;padding:5px;}
+  .act-btn{width:100%;min-height:42px;border-radius:12px;}
+  .scope-mobile-analysis-tabs{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 8px;}
+  body.scope-mobile-select-analysis .scope-mobile-analysis-tabs{display:grid;}
+  .scope-mobile-analysis-btn,.scope-mobile-damage-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:12px;padding:9px 6px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;}
+  body.scope-mobile-analysis-rec .scope-mobile-analysis-btn[data-scope-analysis="rec"],
+  body.scope-mobile-analysis-threat .scope-mobile-analysis-btn[data-scope-analysis="threat"],
+  body.scope-mobile-analysis-matrix .scope-mobile-analysis-btn[data-scope-analysis="matrix"]{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.10);}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-rec #matrix-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-rec #threat-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-threat #matrix-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-threat #rec-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #rec-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #threat-card{display:none!important;}
+  .matrix-mobile-targets{grid-template-columns:1fr!important;}
+  .rec-team,.threat-item{padding:9px;border-radius:12px;}
+  .scope-mobile-damage-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 8px;position:sticky;top:102px;z-index:78;background:rgba(7,9,15,0.96);border:1px solid var(--border);border-radius:14px;padding:7px;backdrop-filter:blur(14px);}
+  [data-theme="light"] .scope-mobile-damage-tabs{background:rgba(248,251,254,0.96);}
+  .scope-mobile-damage-btn{font-size:11px;padding:8px 4px;}
+  body.scope-mobile-damage-detail .scope-mobile-damage-btn[data-scope-damage="detail"],
+  body.scope-mobile-damage-my .scope-mobile-damage-btn[data-scope-damage="my"],
+  body.scope-mobile-damage-opp .scope-mobile-damage-btn[data-scope-damage="opp"],
+  body.scope-mobile-damage-rank .scope-mobile-damage-btn[data-scope-damage="rank"]{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.09);}
+  body.scope-mobile-damage-detail .scope-dmg-board-my,
+  body.scope-mobile-damage-detail .scope-dmg-board-opp,
+  body.scope-mobile-damage-detail .damage-rank-grid{display:none!important;}
+  body.scope-mobile-damage-my #scope-dmg-detail-panel,
+  body.scope-mobile-damage-my .scope-dmg-board-opp,
+  body.scope-mobile-damage-my .damage-rank-grid{display:none!important;}
+  body.scope-mobile-damage-opp #scope-dmg-detail-panel,
+  body.scope-mobile-damage-opp .scope-dmg-board-my,
+  body.scope-mobile-damage-opp .damage-rank-grid{display:none!important;}
+  body.scope-mobile-damage-rank #scope-dmg-detail-panel,
+  body.scope-mobile-damage-rank .scope-dmg-board-my,
+  body.scope-mobile-damage-rank .scope-dmg-board-opp{display:none!important;}
+  .damage-detail-grid{grid-template-columns:1fr!important;gap:7px;}
+  .damage-board{padding:10px;border-radius:14px;margin-bottom:10px;}
+  .damage-board-sub,.damage-summary-meta,.damage-empty-note{font-size:10px;line-height:1.45;}
+  .battle-field{grid-template-columns:1fr!important;gap:8px;}
+  .field-vs{display:none!important;}
+  .field-side{padding:10px;border-radius:14px;}
+  .bench-row{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .action-panel{grid-template-columns:1fr!important;gap:8px;}
+  .action-section{padding:9px;border-radius:14px;}
+}
+
 /* mobile shared page navigation */
 .mobile-tool-nav{display:none;}
 @media(max-width:768px){
@@ -526,6 +609,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <button type="button" class="scope-mobile-select-btn" data-scope-select="my" onclick="showScopeMobileSelect('my')">自分</button>
       <button type="button" class="scope-mobile-select-btn" data-scope-select="opp" onclick="showScopeMobileSelect('opp')">相手</button>
       <button type="button" class="scope-mobile-select-btn" data-scope-select="analysis" onclick="showScopeMobileSelect('analysis')">分析</button>
+    </div>
+    <div class="scope-mobile-analysis-tabs" aria-label="スマホ用分析表示切り替え">
+      <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="rec" onclick="showScopeMobileAnalysis('rec')">推奨</button>
+      <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="threat" onclick="showScopeMobileAnalysis('threat')">脅威</button>
+      <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="matrix" onclick="showScopeMobileAnalysis('matrix')">対面</button>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
@@ -677,6 +765,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <div class="note">選出フェーズで選んだ自分側3体・相手側3体を使って、全技の通りを一括表示します。下には自分側のおすすめ技順位と、相手側の警戒技順位を表示します。</div>
     </div>
 
+    <div class="scope-mobile-damage-tabs" aria-label="スマホ用ダメージ表示切り替え">
+      <button type="button" class="scope-mobile-damage-btn" data-scope-damage="detail" onclick="showScopeMobileDamage('detail')">条件</button>
+      <button type="button" class="scope-mobile-damage-btn" data-scope-damage="my" onclick="showScopeMobileDamage('my')">自分技</button>
+      <button type="button" class="scope-mobile-damage-btn" data-scope-damage="opp" onclick="showScopeMobileDamage('opp')">相手技</button>
+      <button type="button" class="scope-mobile-damage-btn" data-scope-damage="rank" onclick="showScopeMobileDamage('rank')">順位</button>
+    </div>
+
     <div class="damage-summary" id="scope-dmg-summary">
       <div class="damage-summary-title">選出中の3体で一括判定</div>
       <div class="damage-summary-meta">自分側と相手側の選出がそろうと表示されます。</div>
@@ -691,7 +786,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       </div>
     </div>
 
-    <div class="damage-board">
+    <div class="damage-board scope-dmg-board-my">
       <div class="damage-board-head">
         <div>
           <div class="damage-board-title"><span>自分の技</span><span>→</span><span>相手選出3体</span></div>
@@ -701,7 +796,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <div id="scope-dmg-my-table"><div class="damage-empty-note">選出フェーズで自分側と相手側を選んでください。</div></div>
     </div>
 
-    <div class="damage-board">
+    <div class="damage-board scope-dmg-board-opp">
       <div class="damage-board-head">
         <div>
           <div class="damage-board-title"><span>相手の技</span><span>→</span><span>自分選出3体</span></div>
@@ -1366,6 +1461,7 @@ let mySelect=[], oppSelect=[];
 let myLeadSlot=null, oppLeadSlot=null;
 let myActiveIdx=0, oppActiveIdx=0;
 let myHP=[100,100,100], oppHP=[100,100,100];
+let scopeMobileEdit = {my:0, opp:0};
 
 // 各パーティスロット: {poke, stats, moves, ability}
 function buildSlot(poke, opts){
@@ -1380,6 +1476,41 @@ function showScopeMobileSelect(mode){
   document.body.classList.add('scope-mobile-select-'+mode);
   document.querySelectorAll('.scope-mobile-select-btn').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.scopeSelect===mode);
+  });
+}
+function showScopeMobileAnalysis(mode){
+  mode = ['rec','threat','matrix'].includes(mode) ? mode : 'rec';
+  document.body.classList.remove('scope-mobile-analysis-rec','scope-mobile-analysis-threat','scope-mobile-analysis-matrix');
+  document.body.classList.add('scope-mobile-analysis-'+mode);
+  document.querySelectorAll('.scope-mobile-analysis-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.scopeAnalysis===mode);
+  });
+}
+function showScopeMobileDamage(mode){
+  mode = ['detail','my','opp','rank'].includes(mode) ? mode : 'my';
+  document.body.classList.remove('scope-mobile-damage-detail','scope-mobile-damage-my','scope-mobile-damage-opp','scope-mobile-damage-rank');
+  document.body.classList.add('scope-mobile-damage-'+mode);
+  document.querySelectorAll('.scope-mobile-damage-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.scopeDamage===mode);
+  });
+}
+function getScopeMobileEditIndex(side){
+  const party = side==='my' ? myParty : oppParty;
+  let idx = scopeMobileEdit[side] || 0;
+  if(!party.length) return -1;
+  if(idx < 0 || idx >= party.length) idx = 0;
+  scopeMobileEdit[side] = idx;
+  return idx;
+}
+function focusScopeMobileEdit(side, idx){
+  const party = side==='my' ? myParty : oppParty;
+  if(!party[idx]) return;
+  scopeMobileEdit[side] = idx;
+  showScopeMobileSelect(side);
+  renderParty(side);
+  requestAnimationFrame(()=>{
+    const el = document.getElementById(side+'-settings');
+    if(el && window.matchMedia && window.matchMedia('(max-width: 768px)').matches) el.scrollIntoView({block:'nearest'});
   });
 }
 
@@ -1398,8 +1529,12 @@ function showPhase(n){
     if(mtab) mtab.classList.toggle('active',i===n);
   });
   renderScopeMobileState(n);
+  if(n===1 && !document.body.classList.contains('scope-mobile-analysis-rec') && !document.body.classList.contains('scope-mobile-analysis-threat') && !document.body.classList.contains('scope-mobile-analysis-matrix')) showScopeMobileAnalysis('rec');
   if(n===2) renderBattlePhase();
-  if(n===3) renderDamagePhase();
+  if(n===3){
+    if(!document.body.classList.contains('scope-mobile-damage-detail') && !document.body.classList.contains('scope-mobile-damage-my') && !document.body.classList.contains('scope-mobile-damage-opp') && !document.body.classList.contains('scope-mobile-damage-rank')) showScopeMobileDamage('my');
+    renderDamagePhase();
+  }
   if(n===4){ renderScopeStats(); renderScopeHistory(); }
   if(n===5) renderCalcHistory();
   if(history && history.replaceState) history.replaceState(null,'','#phase-'+n);
@@ -1620,7 +1755,9 @@ function addPoke(side,name){
   const party=side==='my'?myParty:oppParty;
   if(party.length>=6) return;
   const poke=getScopePokeByName(name); if(!poke) return;
+  const newIdx = party.length;
   party.push(buildSlot(poke));
+  scopeMobileEdit[side] = newIdx;
   document.getElementById(side+'-search').value='';
   document.getElementById(side+'-drop').classList.remove('show');
   renderParty(side);
@@ -1637,6 +1774,8 @@ function removePoke(side,i){
   if(lead===i) setLeadSlotValue(side, null);
   else if(lead!==null && lead>i) setLeadSlotValue(side, lead-1);
   normalizeLead(side);
+  const partyAfter = side==='my' ? myParty : oppParty;
+  if(scopeMobileEdit[side] >= partyAfter.length) scopeMobileEdit[side] = Math.max(0, partyAfter.length-1);
   renderParty(side);
   autoAnalyze();
 }
@@ -1660,8 +1799,10 @@ function renderParty(side){
     const selected=sel.includes(i);
     const isLead=selected && lead===i;
     const presetLabel = side==='opp' && s.presetKey && EV_PRESETS[s.presetKey] ? EV_PRESETS[s.presetKey].label : '';
-    return '<div class="party-slot '+(selected?'selected':'')+' '+(isLead?'lead-slot':'')+'" onclick="toggleSelect(\''+side+'\','+i+')">'+
-      '<button class="slot-remove" onclick="event.stopPropagation();removePoke(\''+side+'\','+i+')">×</button>'+
+    const isMobileEdit = getScopeMobileEditIndex(side)===i;
+    return '<div class="party-slot '+(selected?'selected':'')+' '+(isLead?'lead-slot':'')+' '+(isMobileEdit?'mobile-editing':'')+'" onclick="toggleSelect(\''+side+'\','+i+')">'+
+      '<button class="slot-remove" onclick="event.stopPropagation();removePoke(\''+side+'\','+i+')">×</button>'+ 
+      '<button type="button" class="scope-mobile-edit-btn" onclick="event.stopPropagation();focusScopeMobileEdit(\''+side+'\','+i+')">編集</button>'+
       '<div class="slot-name">'+escapeHtml(getScopeSlotDisplayName(s))+'</div>'+
       '<div>'+typeHTML(s.poke)+'</div>'+
       '<div class="slot-sub">'+(s.ability||'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+(isLead?'<br><span class="lead-mini">初手</span>':'')+'</div>'+
@@ -1689,7 +1830,8 @@ function renderSlotSettings(side){
     const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\''+side+'\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(slot.poke.name===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '<div></div>';
     const spread = getSpreadForSlot(slot);
     const spreadText = 'EV H'+(spread.hp||0)+' A'+(spread.atk||0)+' B'+(spread.def||0)+' C'+(spread.spa||0)+' D'+(spread.spd||0)+' S'+(spread.spe||0);
-    return '<div class="settings-row"><div class="settings-name">'+escapeHtml(getScopeSlotDisplayName(slot))+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div></div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
+    const activeEdit = getScopeMobileEditIndex(side)===i;
+    return '<div class="settings-row '+(activeEdit?'mobile-active-edit':'')+'"><div class="settings-name">編集中：'+escapeHtml(getScopeSlotDisplayName(slot))+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div></div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
   }).join('');
 }
 
@@ -2492,6 +2634,9 @@ window.onload=async()=>{
 
 window.addEventListener('DOMContentLoaded', function(){
   showScopeMobileSelect('my');
+  showScopeMobileAnalysis('rec');
+  showScopeMobileDamage('my');
+  renderScopeMobileState(getCalcPhaseFromHash());
 });
 
 </script>
