@@ -105,6 +105,23 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .nav-btn.active{background:rgba(0,200,240,0.08);border-left:3px solid var(--accent);}
   .hamburger{display:flex;}
 }
+
+/* mobile shared page navigation */
+.mobile-tool-nav{display:none;}
+@media(max-width:768px){
+  .mobile-tool-nav{display:block;position:sticky;top:52px;z-index:72;background:rgba(7,9,15,0.96);border-bottom:1px solid var(--border,rgba(255,255,255,0.12));backdrop-filter:blur(16px);padding:8px 10px;}
+  .mobile-tool-nav-title{font-size:10px;color:var(--text2,#8fa3b8);letter-spacing:2px;margin:0 2px 6px;line-height:1;}
+  .mobile-tool-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 2px;}
+  .mobile-tool-scroll::-webkit-scrollbar{display:none;}
+  .mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border,rgba(255,255,255,0.14));background:var(--bg2,rgba(255,255,255,0.06));color:var(--text,#eaf6ff);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap;}
+  .mobile-tool-link.active{border-color:var(--accent,#00c8f0);background:rgba(0,200,240,0.14);color:var(--accent,#00c8f0);font-weight:700;}
+  .mobile-tool-link:focus-visible{outline:2px solid var(--accent,#00c8f0);outline-offset:2px;}
+}
+@media(min-width:769px){.mobile-tool-nav{display:none!important;}}
+[data-theme="light"] .mobile-tool-nav{background:rgba(248,251,254,0.96);border-bottom-color:#a9c4d8;}
+[data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
+[data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
+
 </style>
 </head>
 <body>
@@ -133,6 +150,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   </button>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
+<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
+  <div class="mobile-tool-nav-title">ツール移動</div>
+  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="index.html">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">技判定</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link active" href="policy.html" aria-current="page">情報</a></div>
+</nav>
+
 
 <div class="main">
   <div class="page-title">サイト情報</div>
