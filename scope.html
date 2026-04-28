@@ -371,6 +371,79 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 }
 
 
+
+
+/* scope.html mobile usability patch */
+.scope-mobile-phase-tabs,.scope-mobile-select-tabs{display:none;}
+.matrix-mobile-cards{display:none;}
+@media(max-width:760px){
+  body{overflow-x:hidden;}
+  .main{padding:10px 10px 96px;}
+  .phase-tabs{display:none!important;}
+  .scope-mobile-phase-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 10px;position:sticky;top:105px;z-index:82;background:rgba(7,9,15,0.96);border:1px solid var(--border);padding:8px;backdrop-filter:blur(16px);}
+  [data-theme="light"] .scope-mobile-phase-tabs{background:rgba(248,251,254,0.96);}
+  .scope-mobile-phase-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:12px;padding:10px 8px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;letter-spacing:1px;line-height:1.25;}
+  .scope-mobile-phase-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.10);}
+  .scope-mobile-phase-btn:last-child:nth-child(odd){grid-column:1/-1;}
+  .scope-mobile-state{position:static;margin:0 0 10px;grid-template-columns:1fr 1fr;}
+  .scope-mobile-select-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 10px;}
+  .scope-mobile-select-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:12px;padding:9px 6px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;}
+  body.scope-mobile-select-my .scope-mobile-select-btn[data-scope-select="my"],
+  body.scope-mobile-select-opp .scope-mobile-select-btn[data-scope-select="opp"],
+  body.scope-mobile-select-analysis .scope-mobile-select-btn[data-scope-select="analysis"]{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.09);}
+  .scope-party-columns{display:block!important;}
+  body.scope-mobile-select-my .scope-opp-card,body.scope-mobile-select-my .scope-analysis-card{display:none!important;}
+  body.scope-mobile-select-opp .scope-my-card,body.scope-mobile-select-opp .scope-analysis-card{display:none!important;}
+  body.scope-mobile-select-analysis .scope-my-card,body.scope-mobile-select-analysis .scope-opp-card{display:none!important;}
+  .card{padding:12px;border-radius:14px;margin-bottom:10px;}
+  .card-title{font-size:10px;margin-bottom:9px;}
+  .sw{position:sticky;top:0;z-index:40;background:var(--panel);padding-bottom:6px;margin-bottom:6px;}
+  .si{min-height:42px;font-size:16px;border-radius:12px;}
+  .dd{max-height:52vh;border-radius:0 0 12px 12px;}
+  .di{min-height:42px;font-size:13px;}
+  .party-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
+  .party-slot{min-height:72px;border-radius:13px;padding:8px 4px;}
+  .slot-name{font-size:11px;line-height:1.35;}
+  .slot-sub{font-size:8px;}
+  .settings-wrap{margin-top:10px;gap:8px;}
+  .settings-row{grid-template-columns:1fr!important;border-radius:13px;padding:10px;}
+  .settings-name{white-space:normal;font-size:12px;}
+  .settings-main{grid-template-columns:1fr 1fr!important;gap:7px;}
+  .settings-select{min-height:38px;border-radius:10px;font-size:12px;}
+  .ev-edit-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px;}
+  .ev-edit-cell{border-radius:10px;padding:6px;}
+  .ev-edit-cell input{min-height:34px;font-size:13px;}
+  .lead-pick-wrap{border-radius:13px;}
+  .lead-pick-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+  .lead-pick-btn{min-height:38px;border-radius:10px;}
+  .matrix-wrap{overflow-x:hidden;}
+  .matrix-table{display:none;}
+  .matrix-mobile-cards{display:grid;gap:8px;}
+  .matrix-mobile-row{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:9px;}
+  .matrix-mobile-name{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+  .matrix-mobile-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
+  .matrix-mobile-target{border:1px solid var(--border);border-radius:10px;padding:7px;background:var(--panel);font-size:10px;line-height:1.4;}
+  .matrix-mobile-target b{display:block;font-size:10px;color:var(--text2);font-weight:500;margin-bottom:3px;}
+  .rec-team{border-radius:12px;align-items:flex-start;}
+  .rec-rank{font-size:20px;}
+  .rec-poke{font-size:11px;line-height:1.5;}
+  .rec-score{font-size:9px;}
+  .battle-field{grid-template-columns:1fr!important;gap:10px;}
+  .field-vs{display:none;}
+  .field-side{border-radius:14px;}
+  .bench-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+  .bench-poke{min-width:0;}
+  .action-panel{display:grid;gap:10px;}
+  .action-section{border-radius:14px;}
+  .damage-detail-grid{grid-template-columns:1fr!important;}
+  .damage-detail-panel{border-radius:14px;}
+  .damage-board,.damage-rank-card,.scope-calc-item,.scope-history-item{border-radius:14px;}
+  .damage-mobile-target{grid-template-columns:1fr;gap:4px;}
+  .scope-record-btns{display:grid;grid-template-columns:1fr;}
+  .scope-record-btn{min-width:0;border-radius:12px;min-height:42px;}
+  footer{margin-bottom:20px;}
+}
+
 /* mobile shared page navigation */
 .mobile-tool-nav{display:none;}
 @media(max-width:768px){
@@ -431,6 +504,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     <button class="phase-tab" id="ptab-5" onclick="showPhase(5)"><span class="tab-icon">🧮</span>計算履歴</button>
   </div>
 
+
+  <div class="scope-mobile-phase-tabs" aria-label="スマホ用アナライザー切り替え">
+    <button class="scope-mobile-phase-btn active" id="mptab-1" onclick="showPhase(1)">選出</button>
+    <button class="scope-mobile-phase-btn" id="mptab-2" onclick="showPhase(2)">バトル</button>
+    <button class="scope-mobile-phase-btn" id="mptab-3" onclick="showPhase(3)">技・ダメージ</button>
+    <button class="scope-mobile-phase-btn" id="mptab-4" onclick="showPhase(4)">記録</button>
+    <button class="scope-mobile-phase-btn" id="mptab-5" onclick="showPhase(5)">履歴</button>
+  </div>
   <div class="scope-mobile-state" id="scope-mobile-state" aria-live="polite">
     <div class="scope-mobile-chip"><b>自分</b><span>0/3　初手: —</span></div>
     <div class="scope-mobile-chip"><b>相手</b><span>0/3　初手: —</span></div>
@@ -441,6 +522,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   <!-- ============ PHASE 1: 選出フェーズ ============ -->
   <div class="phase-panel active" id="phase-1">
     <!-- フィルタ＋パーティ読み込み -->
+    <div class="scope-mobile-select-tabs" aria-label="スマホ用選出入力切り替え">
+      <button type="button" class="scope-mobile-select-btn" data-scope-select="my" onclick="showScopeMobileSelect('my')">自分</button>
+      <button type="button" class="scope-mobile-select-btn" data-scope-select="opp" onclick="showScopeMobileSelect('opp')">相手</button>
+      <button type="button" class="scope-mobile-select-btn" data-scope-select="analysis" onclick="showScopeMobileSelect('analysis')">分析</button>
+    </div>
+
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
       <select id="scope-season-filter" onchange="onScopeSeasonChange()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;">
         <option value="">すべてのポケモン</option>
@@ -453,9 +540,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       </select>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="scope-party-columns" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <!-- 自分パーティ -->
-      <div class="card">
+      <div class="card scope-my-card">
         <div class="card-title">自分のパーティ（最大6体）</div>
         <div class="sw"><input class="si" id="my-search" placeholder="ポケモン名を入力..." oninput="doSearch('my',this.value)" autocomplete="off"><div class="dd" id="my-drop"></div></div>
         <div class="party-grid" id="my-party-grid"></div>
@@ -464,7 +551,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <div class="lead-pick-wrap" id="my-lead-pick-wrap"><div class="lead-pick-label">初手を選択</div><div class="lead-pick-buttons" id="my-lead-buttons"></div></div>
       </div>
       <!-- 相手パーティ -->
-      <div class="card">
+      <div class="card scope-opp-card">
         <div class="card-title red">相手のパーティ（最大6体）</div>
         <div class="sw"><input class="si" id="opp-search" placeholder="相手のポケモン名..." oninput="doSearch('opp',this.value)" autocomplete="off"><div class="dd" id="opp-drop"></div></div>
         <div class="party-grid" id="opp-party-grid"></div>
@@ -475,20 +562,20 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     </div>
 
     <!-- 全対面マトリクス -->
-    <div class="card" id="matrix-card" style="display:none;">
+    <div class="card scope-analysis-card" id="matrix-card" style="display:none;">
       <div class="card-title yellow">全対面マトリクス</div>
       <div class="note">各セルはダメージ%の差分（自分→相手の最大ダメ% − 相手→自分の最大ダメ%）でざっくり有利不利を判定。タップで詳細。</div>
       <div class="matrix-wrap" id="matrix-wrap"></div>
     </div>
 
     <!-- 推奨選出 -->
-    <div class="card" id="rec-card" style="display:none;">
+    <div class="card scope-analysis-card" id="rec-card" style="display:none;">
       <div class="card-title">推奨選出TOP3</div>
       <div id="rec-list"></div>
     </div>
 
     <!-- 相手脅威分析 -->
-    <div class="card" id="threat-card" style="display:none;">
+    <div class="card scope-analysis-card" id="threat-card" style="display:none;">
       <div class="card-title red">相手の脅威分析</div>
       <div id="threat-list"></div>
     </div>
@@ -577,7 +664,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <button class="scope-record-btn lose" onclick="recordScopeBattle('lose')">この対戦を負けで記録</button>
         <button class="scope-record-btn draw" onclick="recordScopeBattle('draw')">この対戦を引き分けで記録</button>
       </div>
-      <div class="note">選出率記録は「選出率記録」、calc.htmlから保存した内容は「計算履歴」で確認できます。</div>
+      <div class="note">この対戦はバトルアナライザー内の記録として保存されます。calc.htmlから保存した内容は「計算履歴」で確認できます。</div>
     </div>
 
     <button class="act-btn secondary" onclick="showPhase(1)">← 選出フェーズに戻る</button>
@@ -1286,6 +1373,16 @@ function buildSlot(poke, opts){
 }
 
 // ===== フェーズ切替 =====
+
+function showScopeMobileSelect(mode){
+  mode = ['my','opp','analysis'].includes(mode) ? mode : 'my';
+  document.body.classList.remove('scope-mobile-select-my','scope-mobile-select-opp','scope-mobile-select-analysis');
+  document.body.classList.add('scope-mobile-select-'+mode);
+  document.querySelectorAll('.scope-mobile-select-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.scopeSelect===mode);
+  });
+}
+
 function getCalcPhaseFromHash(){
   const m = String(location.hash||'').match(/^#phase-(\d)$/);
   const n = m ? parseInt(m[1],10) : 1;
@@ -1297,6 +1394,8 @@ function showPhase(n){
     const tab = document.getElementById('ptab-'+i);
     if(panel) panel.classList.toggle('active',i===n);
     if(tab) tab.classList.toggle('active',i===n);
+    const mtab = document.getElementById('mptab-'+i);
+    if(mtab) mtab.classList.toggle('active',i===n);
   });
   renderScopeMobileState(n);
   if(n===2) renderBattlePhase();
@@ -1651,18 +1750,23 @@ function autoAnalyze(){
 function renderMatrix(){
   document.getElementById('matrix-card').style.display='block';
   let html='<table class="matrix-table"><thead><tr><th></th>';
-  oppParty.forEach(o=>{html+='<th>'+o.poke.name+'</th>';});
+  oppParty.forEach(o=>{html+='<th>'+escapeHtml(getScopeSlotDisplayName(o))+'</th>';});
   html+='</tr></thead><tbody>';
+  let mobile='<div class="matrix-mobile-cards">';
   myParty.forEach((my,mi)=>{
-    html+='<tr><th>'+my.poke.name+'</th>';
+    html+='<tr><th>'+escapeHtml(getScopeSlotDisplayName(my))+'</th>';
+    mobile+='<div class="matrix-mobile-row"><div class="matrix-mobile-name">'+escapeHtml(getScopeSlotDisplayName(my))+'</div><div class="matrix-mobile-targets">';
     oppParty.forEach((opp,oi)=>{
       const mu = evaluateMatchup(my, opp);
       html+='<td class="'+mu.cls+'" title="自→相:'+mu.myBest+'% 相→自:'+mu.oppBest+'%">'+mu.symbol+'</td>';
+      mobile+='<div class="matrix-mobile-target"><b>'+escapeHtml(getScopeSlotDisplayName(opp))+'</b><span class="'+mu.cls+'">'+mu.symbol+'</span><br><small>自→相 '+mu.myBest+'% / 相→自 '+mu.oppBest+'%</small></div>';
     });
+    mobile+='</div></div>';
     html+='</tr>';
   });
   html+='</tbody></table>';
-  document.getElementById('matrix-wrap').innerHTML=html;
+  mobile+='</div>';
+  document.getElementById('matrix-wrap').innerHTML=html+mobile;
 }
 
 // ===== 推奨選出 =====
@@ -2385,6 +2489,11 @@ window.onload=async()=>{
     if(page===href) a.classList.add('active');
   });
 })();
+
+window.addEventListener('DOMContentLoaded', function(){
+  showScopeMobileSelect('my');
+});
+
 </script>
 
 </body>
