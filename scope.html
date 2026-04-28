@@ -98,6 +98,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .party-slot.active-battle{border-color:var(--accent);background:rgba(0,200,240,0.06);}
 .party-slot.fainted{opacity:0.35;}
 .slot-name{font-size:10px;font-weight:700;}
+.slot-form{font-size:8px;color:var(--text2);font-weight:500;line-height:1.25;margin-top:2px;}
 .slot-hp-bar{width:90%;height:3px;background:var(--bg);border-radius:2px;margin-top:2px;}
 .slot-hp-fg{height:100%;border-radius:2px;transition:width 0.3s;}
 .slot-hp-pct{font-size:8px;font-family:'JetBrains Mono',monospace;color:var(--text2);}
@@ -906,6 +907,41 @@ function normalizeScopeRecordName(name){
   if(isMegaPokemon(n)) return getBaseName(n) || n;
   return n;
 }
+
+function getScopeLookupNames(name){
+  const n = String(name || '').trim();
+  const names = [];
+  function add(x){ if(x && !names.includes(x)) names.push(x); }
+  add(n);
+  const special = getScopeSpecialBaseName(n);
+  if(special) add(special);
+  if(isMegaPokemon(n)) add(getBaseName(n));
+  return names;
+}
+function resolveScopeActualPokeName(name){
+  const n = String(name || '').trim();
+  if(!n) return '';
+  if(pokeIndex.some(p=>p.name===n)) return n;
+  const special = getScopeSpecialBaseName(n);
+  if(special && SCOPE_SPECIAL_FORM_GROUPS[special]) return SCOPE_SPECIAL_FORM_GROUPS[special].defaultForm;
+  return n;
+}
+function getScopePokeByName(name){
+  const actual = resolveScopeActualPokeName(name);
+  return pokeIndex.find(p=>p.name===actual) || null;
+}
+function getScopeSlotDisplayName(slot){
+  return slot && slot.poke ? normalizeScopeRecordName(slot.poke.name) : '';
+}
+function getScopeSlotActualNote(slot){
+  if(!slot || !slot.poke) return '';
+  const display = getScopeSlotDisplayName(slot);
+  return display && display !== slot.poke.name ? slot.poke.name : '';
+}
+function isScopeSeasonMember(poke, seasonList){
+  if(!poke || !Array.isArray(seasonList)) return false;
+  return getScopeLookupNames(poke.name).some(n=>seasonList.includes(n));
+}
 function isScopeMegaCandidateName(name){
   const n = String(name || '').trim();
   if(!n) return false;
@@ -983,16 +1019,12 @@ function scopeRecordPokemonPayload(slot, includeMoves){
 }
 
 function getSeasonRow(pokeName){
-  // まず直接検索
-  const direct = (SEASON_RANKING.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName);
-  if(direct && direct.moves && direct.moves.length) return direct;
-  if(direct) return direct; // データが空でもヒットはヒット
-  // メガ進化ポケモンの場合、元ポケモン名で検索
-  if(isMegaPokemon(pokeName)){
-    const baseName = getBaseName(pokeName);
-    if(baseName){
-      return (SEASON_RANKING.rows||[]).find(r=>r.name===baseName || r.siteName===baseName) || null;
-    }
+  // メガ・ギルガルド・イルカマンは、実フォーム名だけでなく代表名でもランキングを参照する
+  const rows = SEASON_RANKING.rows || [];
+  for(const name of getScopeLookupNames(pokeName)){
+    const direct = rows.find(r=>r.name===name || r.siteName===name);
+    if(direct && direct.moves && direct.moves.length) return direct;
+    if(direct) return direct; // データが空でもヒットはヒット
   }
   return null;
 }
@@ -1016,9 +1048,11 @@ function estimateFromSeason(poke){
 }
 
 function getPokemonMovesRow(pokeName){
-  let pmData = POKEMON_MOVES_RAW[pokeName];
-  if(!pmData && isMegaPokemon(pokeName)) pmData = POKEMON_MOVES_RAW[getBaseName(pokeName)];
-  return pmData || null;
+  for(const name of getScopeLookupNames(pokeName)){
+    const pmData = POKEMON_MOVES_RAW[name];
+    if(pmData) return pmData;
+  }
+  return null;
 }
 function normalizePokemonMoveRow(move){
   return {
@@ -1343,7 +1377,8 @@ function renderLeadPicker(side){
     const slot=party[slotIdx];
     if(!slot) return '';
     const active=lead===slotIdx?' active':'';
-    return '<button type="button" class="lead-pick-btn'+active+'" onclick="setLead(\''+side+'\','+slotIdx+')">'+escapeHtml(slot.poke.name)+(lead===slotIdx?'（初手）':'')+'</button>';
+    const disp=getScopeSlotDisplayName(slot); const note=getScopeSlotActualNote(slot);
+    return '<button type="button" class="lead-pick-btn'+active+'" onclick="setLead(\''+side+'\','+slotIdx+')">'+escapeHtml(disp)+(note?' <span class="slot-form">'+escapeHtml(note)+'</span>':'')+(lead===slotIdx?'（初手）':'')+'</button>';
   }).join('');
 }
 function goToBattle(){
@@ -1361,7 +1396,8 @@ function getScopeFilteredPokes(){
   const sel=document.getElementById('scope-season-filter');
   const season=sel?sel.value:'';
   if(!season||!SEASON_DATA||!SEASON_DATA[season]) return pokeIndex;
-  return pokeIndex.filter(p=>SEASON_DATA[season].includes(p.name));
+  const seasonList = SEASON_DATA[season] || [];
+  return pokeIndex.filter(p=>isScopeSeasonMember(p, seasonList));
 }
 function onScopeSeasonChange(){}
 
@@ -1397,7 +1433,7 @@ function addFromReg(id){
   const regs = loadLocal ? loadLocal() : [];
   const rec = regs.find(r=>r.id===id);
   if(!rec) return;
-  const poke = pokeIndex.find(p=>p.name===rec.pokeName);
+  const poke = getScopePokeByName(rec.pokeName);
   if(!poke){alert('ポケモンが見つかりません: '+rec.pokeName);return;}
   // 登録データの性格・努力値から実数値を計算
   const stats = calcAllStats(poke, rec.nature, rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, rec.lv||50);
@@ -1435,7 +1471,7 @@ async function loadFromParty(id){
   myParty = [];
   mySelect = [];
   (d.members||[]).forEach(m=>{
-    const poke = pokeIndex.find(x=>x.name===m.pokeName);
+    const poke = getScopePokeByName(m.pokeName);
     if(!poke) return;
     const stats = calcAllStats(poke, m.nature, m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, m.lv||50);
     const moves = (m.moves||[]).filter(mv=>mv&&mv.name).map(mv=>{
@@ -1473,7 +1509,7 @@ document.addEventListener('click',e=>{
 function addPoke(side,name){
   const party=side==='my'?myParty:oppParty;
   if(party.length>=6) return;
-  const poke=pokeIndex.find(p=>p.name===name); if(!poke) return;
+  const poke=getScopePokeByName(name); if(!poke) return;
   party.push(buildSlot(poke));
   document.getElementById(side+'-search').value='';
   document.getElementById(side+'-drop').classList.remove('show');
@@ -1514,9 +1550,12 @@ function renderParty(side){
     const selected=sel.includes(i);
     const isLead=selected && lead===i;
     const presetLabel = side==='opp' && s.presetKey && EV_PRESETS[s.presetKey] ? EV_PRESETS[s.presetKey].label : '';
+    const displayName = getScopeSlotDisplayName(s);
+    const actualNote = getScopeSlotActualNote(s);
+    const formMini = actualNote ? '<div class="slot-form">'+escapeHtml(actualNote)+'</div>' : '';
     return '<div class="party-slot '+(selected?'selected':'')+' '+(isLead?'lead-slot':'')+'" onclick="toggleSelect(\''+side+'\','+i+')">'+
       '<button class="slot-remove" onclick="event.stopPropagation();removePoke(\''+side+'\','+i+')">×</button>'+
-      '<div class="slot-name">'+s.poke.name+'</div>'+
+      '<div class="slot-name">'+escapeHtml(displayName)+formMini+'</div>'+
       '<div>'+typeHTML(s.poke)+'</div>'+
       '<div class="slot-sub">'+(s.ability||'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+(isLead?'<br><span class="lead-mini">初手</span>':'')+'</div>'+
     '</div>';
@@ -1543,7 +1582,9 @@ function renderSlotSettings(side){
     const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\''+side+'\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(slot.poke.name===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '<div></div>';
     const spread = getSpreadForSlot(slot);
     const spreadText = 'EV H'+(spread.hp||0)+' A'+(spread.atk||0)+' B'+(spread.def||0)+' C'+(spread.spa||0)+' D'+(spread.spd||0)+' S'+(spread.spe||0);
-    return '<div class="settings-row"><div class="settings-name">'+escapeHtml(slot.poke.name)+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div></div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
+    const settingsDisplayName = getScopeSlotDisplayName(slot);
+    const settingsActualNote = getScopeSlotActualNote(slot);
+    return '<div class="settings-row"><div class="settings-name">'+escapeHtml(settingsDisplayName)+(settingsActualNote?'<div class="settings-mini">形態: '+escapeHtml(settingsActualNote)+'</div>':'')+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div></div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
   }).join('');
 }
 
