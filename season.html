@@ -34,7 +34,7 @@
 <style>
 :root{--bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;--border:#1a2540;--border2:#243356;--accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;--text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 35% at 10% 5%,rgba(0,200,240,0.06) 0%,transparent 60%),linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);background-size:auto,52px 52px,52px 52px;}
 header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);cursor:pointer;flex-shrink:0;}
@@ -251,6 +251,66 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-nav{background:rgba(248,251,254,0.96);border-bottom-color:#a9c4d8;}
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
+
+/* ===== スマホ：横スクロールなしカード表示 ===== */
+@media(max-width:768px){
+  .main{padding:14px 10px;}
+  .filter-bar{display:grid;grid-template-columns:1fr;gap:9px;padding:12px;}
+  .season-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
+  .season-btn{width:100%;padding:8px 6px;}
+  .search-input,.search-mode-select{min-width:0;width:100%;}
+  .stats-bar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .stat-item{background:var(--panel);border:1px solid var(--border);padding:8px 10px;}
+  .table-wrap,.rank-wrap,.detail-moves-wrap{overflow:visible;border:none;}
+  #poke-table,.rank-table,.detail-moves-table{display:block;width:100%;min-width:0!important;border-collapse:separate;}
+  #poke-table thead,.rank-table thead,.detail-moves-table thead{display:none;}
+  #poke-table tbody,.rank-table tbody,.detail-moves-table tbody{display:grid;gap:10px;width:100%;}
+  #poke-table tr,.rank-table tr,.detail-moves-table tr{display:block;width:100%;border:1px solid var(--border);background:var(--panel);border-radius:14px;padding:10px 12px;box-shadow:0 8px 18px rgba(0,0,0,.12);}
+  #poke-table tr:hover,.rank-table tr:hover,.detail-moves-table tr:hover{background:var(--panel);}
+  #poke-table td,.rank-table td,.detail-moves-table td{display:grid;grid-template-columns:82px minmax(0,1fr);gap:8px;align-items:start;width:100%;padding:6px 0;border-bottom:1px solid var(--border);white-space:normal!important;text-align:left!important;line-height:1.55;}
+  #poke-table td:last-child,.rank-table td:last-child,.detail-moves-table td:last-child{border-bottom:none;}
+  #poke-table td::before,.rank-table td::before,.detail-moves-table td::before{color:var(--text2);font-size:10px;letter-spacing:1px;line-height:1.6;}
+  #poke-table td:nth-child(1)::before{content:'No';}
+  #poke-table td:nth-child(2)::before{content:'名前';}
+  #poke-table td:nth-child(3)::before{content:'タイプ';}
+  #poke-table td:nth-child(4)::before{content:'HP';}
+  #poke-table td:nth-child(5)::before{content:'攻撃';}
+  #poke-table td:nth-child(6)::before{content:'防御';}
+  #poke-table td:nth-child(7)::before{content:'特攻';}
+  #poke-table td:nth-child(8)::before{content:'特防';}
+  #poke-table td:nth-child(9)::before{content:'素早';}
+  #poke-table td:nth-child(10)::before{content:'合計';}
+  #poke-table td:nth-child(11)::before{content:'内定';}
+  #season-ranking-view .rank-table td:nth-child(1)::before{content:'順位';}
+  #season-ranking-view .rank-table td:nth-child(2)::before{content:'ポケモン';}
+  #season-ranking-view .rank-table td:nth-child(3)::before{content:'技';}
+  #season-ranking-view .rank-table td:nth-child(4)::before{content:'持ち物';}
+  #season-ranking-view .rank-table td:nth-child(5)::before{content:'特性';}
+  #season-ranking-view .rank-table td:nth-child(6)::before{content:'性格';}
+  #season-ranking-view .rank-table td:nth-child(7)::before{content:'努力値';}
+  #season-ranking-view .rank-table td:nth-child(8)::before{content:'更新日';}
+  #season-history-view .rank-table td:nth-child(1)::before{content:'最新順位';}
+  #season-history-view .rank-table td:nth-child(2)::before{content:'ポケモン';}
+  #season-history-view .rank-table td:nth-child(3)::before{content:'推移';}
+  #season-history-view .rank-table td:nth-child(n+4)::before{content:'過去順位';}
+  .detail-moves-table td:nth-child(1)::before{content:'技';}
+  .detail-moves-table td:nth-child(2)::before{content:'タイプ';}
+  .detail-moves-table td:nth-child(3)::before{content:'分類';}
+  .detail-moves-table td:nth-child(4)::before{content:'威力';}
+  .detail-moves-table td:nth-child(5)::before{content:'命中';}
+  .detail-moves-table td:nth-child(6)::before{content:'PP';}
+  .detail-moves-table td:nth-child(7)::before{content:'回数';}
+  .detail-moves-table td:nth-child(8)::before{content:'効果';}
+  .stat-bar-wrap{display:flex;justify-content:flex-end;}
+  .rank-badge{width:max-content;}
+  .rank-spark{margin:0;}
+  .rank-spark svg{height:44px;}
+  .detail-overlay{padding:8px;align-items:flex-start;overflow:auto;}
+  .detail-modal{max-height:none;min-height:calc(100vh - 16px);}
+  .detail-body{overflow:visible;display:block;}
+  .detail-side,.detail-main{display:grid;gap:10px;}
+  .detail-card{padding:12px;}
+}
 
 </style>
 <script src="usage-tracker.js"></script>
