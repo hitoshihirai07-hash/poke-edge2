@@ -341,6 +341,32 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .pokemon-actions .save-btn{min-width:0!important;}
 }
 
+
+.mobile-tool-jump{display:none;}
+@media(max-width:800px){
+  .nav-overlay{z-index:990;}
+  .header-nav{z-index:995!important;}
+  .hamburger{position:relative;z-index:1001;}
+  .mobile-tool-jump{
+    display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    margin:0 0 10px;padding:2px 2px 10px;
+  }
+  .mobile-tool-jump::-webkit-scrollbar{display:none;}
+  .mobile-tool-link{
+    flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text2);
+    border-radius:999px;padding:9px 12px;font-size:11px;font-weight:800;letter-spacing:.5px;white-space:nowrap;
+  }
+  .mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,.13);color:var(--accent);}
+  .mobile-page-select{
+    width:100%;border:1px solid var(--border);border-radius:14px;background:var(--bg2);color:var(--text);
+    padding:12px 10px;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:800;outline:none;
+  }
+  .pokemon-mobile-bottom-actions{grid-template-columns:1.1fr 1fr 1fr!important;}
+}
+[data-theme="light"] .mobile-tool-link{background:#f8fbfe;border-color:#a9c4d8;color:#3f566b;}
+[data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,.08);border-color:#006aa3;color:#006aa3;}
+[data-theme="light"] .mobile-page-select{background:#f8fbfe;border-color:#a9c4d8;color:#102132;}
+
 </style>
 <script src="usage-tracker.js"></script>
 </head>
@@ -379,6 +405,19 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <button type="button" class="mobile-pokemon-tab-btn" data-pokemon-mobile-tab="effort" onclick="switchPokemonMobileTab('effort')">努力値</button>
     <button type="button" class="mobile-pokemon-tab-btn" data-pokemon-mobile-tab="moves" onclick="switchPokemonMobileTab('moves')">技</button>
   </div>
+
+    <nav class="mobile-tool-jump" aria-label="スマホ用ページ移動">
+      <a class="mobile-tool-link" href="calc.html">ダメ計</a>
+      <a class="mobile-tool-link" href="endure.html">耐久</a>
+      <a class="mobile-tool-link" href="move.html">技判定</a>
+      <a class="mobile-tool-link" href="party.html">パーティ</a>
+      <a class="mobile-tool-link active" href="pokemon.html">登録</a>
+      <a class="mobile-tool-link" href="season.html">使用可能</a>
+      <a class="mobile-tool-link" href="speed.html">素早さ</a>
+      <a class="mobile-tool-link" href="scope.html">アナライザー</a>
+      <a class="mobile-tool-link" href="items.html">アイテム</a>
+      <a class="mobile-tool-link" href="blog.html">記事</a>
+    </nav>
 
   <!-- 左: 登録済みポケモンリスト -->
   <div class="reg-panel">
@@ -639,6 +678,19 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 </div>
 
 <div class="pokemon-mobile-bottom-actions" aria-label="スマホ用固定操作">
+  <select class="mobile-page-select" aria-label="ページ移動" onchange="if(this.value){location.href=this.value;this.selectedIndex=0;}">
+    <option value="">ページ移動</option>
+    <option value="calc.html">ダメージ計算</option>
+    <option value="endure.html">耐久調整</option>
+    <option value="move.html">技選択判定</option>
+    <option value="party.html">パーティ管理</option>
+    <option value="pokemon.html">ポケモン登録</option>
+    <option value="season.html">使用可能ポケモン</option>
+    <option value="speed.html">素早さライン</option>
+    <option value="scope.html">バトルアナライザー</option>
+    <option value="items.html">アイテム</option>
+    <option value="blog.html">記事</option>
+  </select>
   <button type="button" class="pokemon-mobile-list" onclick="switchPokemonMobileTab('list')">登録一覧へ</button>
   <button type="button" class="pokemon-mobile-save" onclick="savePokemon()">💾 保存</button>
 </div>
