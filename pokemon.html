@@ -293,6 +293,54 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
 
+
+/* ===== スマホ専用: ポケモン登録タブUI ===== */
+.mobile-pokemon-tabs,
+.pokemon-mobile-bottom-actions{display:none;}
+@media(max-width:800px){
+  body{padding-bottom:88px;}
+  .layout{display:block;padding:12px 10px 90px;}
+  .mobile-pokemon-tabs{
+    position:sticky;top:52px;z-index:80;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+    background:rgba(7,9,15,.96);backdrop-filter:blur(18px);border:1px solid var(--border);
+    border-radius:16px;padding:8px;margin:0 0 10px;box-shadow:0 10px 28px rgba(0,0,0,.18);
+  }
+  .mobile-pokemon-tab-btn{
+    border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:999px;
+    padding:9px 6px;font-size:11px;font-weight:700;letter-spacing:1px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;
+  }
+  .mobile-pokemon-tab-btn.active{border-color:var(--accent);background:rgba(0,200,240,.12);color:var(--accent);}
+  .reg-panel,.edit-panel{position:static;top:auto;padding:14px;border-radius:16px;}
+  .reg-list{max-height:calc(100vh - 220px);}
+  .edit-header{position:sticky;top:112px;z-index:65;background:rgba(15,20,35,.96);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:16px;padding:12px;margin:-4px -2px 12px;}
+  .edit-pokename{font-size:18px;}
+  .edit-header .save-btn{display:none;}
+  .section{margin-bottom:14px;padding-bottom:14px;}
+  .section input,.section select,.section textarea,.search-input{font-size:16px;}
+  .section label{font-size:11px;}
+  .real-grid{grid-template-columns:repeat(2,1fr);}
+  .moves-grid{grid-template-columns:1fr;}
+  .ev-grid{grid-template-columns:1fr;}
+  #edit-form > .section{display:none;}
+  body.pokemon-mobile-tab-list .edit-panel{display:none;}
+  body.pokemon-mobile-tab-list .reg-panel{display:block;}
+  body:not(.pokemon-mobile-tab-list) .reg-panel{display:none;}
+  body.pokemon-mobile-tab-basic #edit-form > .mobile-section-basic,
+  body.pokemon-mobile-tab-effort #edit-form > .mobile-section-effort,
+  body.pokemon-mobile-tab-moves #edit-form > .mobile-section-moves{display:block;}
+  body.pokemon-mobile-tab-moves #edit-form > .pokemon-actions{display:flex!important;}
+  body.pokemon-mobile-tab-list .pokemon-mobile-bottom-actions{display:none;}
+  body:not(.pokemon-mobile-tab-list) .pokemon-mobile-bottom-actions{
+    position:fixed;left:10px;right:10px;bottom:10px;z-index:120;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+    background:rgba(7,9,15,.96);border:1px solid var(--border);border-radius:18px;padding:10px;box-shadow:0 -10px 34px rgba(0,0,0,.35);backdrop-filter:blur(18px);
+  }
+  .pokemon-mobile-bottom-actions button{border:none;border-radius:14px;padding:12px 10px;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:800;cursor:pointer;}
+  .pokemon-mobile-save{background:linear-gradient(135deg,var(--green),#007a40);color:#000;}
+  .pokemon-mobile-list{background:var(--bg2);border:1px solid var(--border);color:var(--text);}
+  .pokemon-actions{gap:8px!important;}
+  .pokemon-actions .save-btn{min-width:0!important;}
+}
+
 </style>
 <script src="usage-tracker.js"></script>
 </head>
@@ -325,6 +373,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">技選択判定</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link active" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link" href="stats.html">選出率記録</a><a class="side-link" href="scope.html">バトルアナライザー</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a></div></div></aside>
 
 <div class="layout">
+  <div class="mobile-pokemon-tabs" id="mobile-pokemon-tabs" aria-label="スマホ用表示切替">
+    <button type="button" class="mobile-pokemon-tab-btn active" data-pokemon-mobile-tab="list" onclick="switchPokemonMobileTab('list')">登録一覧</button>
+    <button type="button" class="mobile-pokemon-tab-btn" data-pokemon-mobile-tab="basic" onclick="switchPokemonMobileTab('basic')">基本</button>
+    <button type="button" class="mobile-pokemon-tab-btn" data-pokemon-mobile-tab="effort" onclick="switchPokemonMobileTab('effort')">努力値</button>
+    <button type="button" class="mobile-pokemon-tab-btn" data-pokemon-mobile-tab="moves" onclick="switchPokemonMobileTab('moves')">技</button>
+  </div>
 
   <!-- 左: 登録済みポケモンリスト -->
   <div class="reg-panel">
@@ -351,7 +405,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div class="edit-pokename" id="edit-pokename">—</div>
           <div id="edit-types" style="display:flex;gap:4px;margin-top:4px;"></div>
         </div>
-        <button class="save-btn" id="btn-save-pokemon">💾 保存</button>
+        <button class="save-btn" id="btn-save-pokemon-top">💾 保存</button>
       </div>
 
       <!-- ポケモン選択 -->
@@ -574,7 +628,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <textarea id="f-memo" placeholder="調整意図・対面・立ち回りなど自由に記述"></textarea>
       </div>
 
-      <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+      <div class="pokemon-actions" style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
         <button class="save-btn" id="btn-save-pokemon" style="flex:1;min-width:160px;">💾 保存</button>
         <button type="button" class="save-btn" id="btn-export-pokemon-image" onclick="exportPokemonCardImage()" style="flex:1;min-width:220px;background:linear-gradient(135deg,var(--accent3),#b88400);color:#000;">📷 型紹介画像を保存</button>
         <button id="btn-delete-pokemon" style="padding:10px 16px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px;">削除</button>
@@ -582,6 +636,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <div id="pokemon-export-status" style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.8;">保存後でも保存前でも、現在の入力内容から型紹介画像を作れます。</div>
     </div>
   </div>
+</div>
+
+<div class="pokemon-mobile-bottom-actions" aria-label="スマホ用固定操作">
+  <button type="button" class="pokemon-mobile-list" onclick="switchPokemonMobileTab('list')">登録一覧へ</button>
+  <button type="button" class="pokemon-mobile-save" onclick="savePokemon()">💾 保存</button>
 </div>
 
 <datalist id="item-master-list"></datalist>
@@ -1058,6 +1117,7 @@ function setupPokeSearch() {
 }
 
 function selectPoke(name) {
+  switchPokemonMobileTabIfMobile('basic');
   const p=findPokemonByDisplayName(name);
   if(!p) return;
   currentPokeData=p;
@@ -1446,6 +1506,7 @@ function renderRegList(filter) {
 
 // ===== 新規作成 =====
 function newPokemon() {
+  switchPokemonMobileTabIfMobile('basic');
   currentId = 'new_'+Date.now();
   currentPokeData = null;
   currentMoves = [];
@@ -1513,6 +1574,7 @@ async function savePokemon() {
 
 // ===== 読み込み =====
 function loadPokemon(id) {
+  switchPokemonMobileTabIfMobile('basic');
   const rec=registeredPokes.find(p=>p.id===id);
   if(!rec) return;
   currentId=id;
@@ -1591,9 +1653,38 @@ function applySeasonTransferToPokemon(){
 
 // reg-search: window.onload内でバインド済み
 
+
+// ===== スマホ用: 登録画面タブ切り替え =====
+function markPokemonMobileSections(){
+  const sections = Array.from(document.querySelectorAll('#edit-form > .section'));
+  if(!sections.length) return;
+  sections.forEach(sec=>sec.classList.remove('mobile-section-basic','mobile-section-effort','mobile-section-moves'));
+  [sections[0], sections[1]].forEach(sec=>sec && sec.classList.add('mobile-section-basic'));
+  [sections[2], sections[3]].forEach(sec=>sec && sec.classList.add('mobile-section-effort'));
+  [sections[4], sections[5]].forEach(sec=>sec && sec.classList.add('mobile-section-moves'));
+}
+function switchPokemonMobileTab(tab){
+  const safe = ['list','basic','effort','moves'].includes(tab) ? tab : 'list';
+  markPokemonMobileSections();
+  document.body.classList.remove('pokemon-mobile-tab-list','pokemon-mobile-tab-basic','pokemon-mobile-tab-effort','pokemon-mobile-tab-moves');
+  document.body.classList.add('pokemon-mobile-tab-'+safe);
+  document.querySelectorAll('[data-pokemon-mobile-tab]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.pokemonMobileTab === safe);
+  });
+  if(window.matchMedia && window.matchMedia('(max-width:800px)').matches){
+    const tabs = document.getElementById('mobile-pokemon-tabs');
+    if(tabs) tabs.scrollIntoView({block:'nearest'});
+  }
+}
+function switchPokemonMobileTabIfMobile(tab){
+  if(window.matchMedia && window.matchMedia('(max-width:800px)').matches) switchPokemonMobileTab(tab);
+}
+
 // ===== 初期化 =====
 window.onload = async () => {
   await loadGameData();
+  markPokemonMobileSections();
+  if(!document.body.classList.contains('pokemon-mobile-tab-list') && !document.body.classList.contains('pokemon-mobile-tab-basic') && !document.body.classList.contains('pokemon-mobile-tab-effort') && !document.body.classList.contains('pokemon-mobile-tab-moves')) switchPokemonMobileTab('list');
   setupItemMasterList();
   await initAuth();
   initSeasonFilter();
@@ -1619,10 +1710,9 @@ window.onload = async () => {
 
   // ボタンバインド（関数定義後に実行）
   const btnNew = document.getElementById('btn-new-pokemon');
-  const btnSave = document.getElementById('btn-save-pokemon');
   const btnDel = document.getElementById('btn-delete-pokemon');
   if(btnNew)  btnNew.addEventListener('click', newPokemon);
-  if(btnSave) btnSave.addEventListener('click', savePokemon);
+  document.querySelectorAll('#btn-save-pokemon,#btn-save-pokemon-top').forEach(btn=>btn.addEventListener('click', savePokemon));
   if(btnDel)  btnDel.addEventListener('click', deleteCurrent);
 
   // reg-search

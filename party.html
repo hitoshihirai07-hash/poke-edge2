@@ -430,6 +430,59 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .side-link{background:#f8fbfe;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .side-link.active{background:rgba(0,106,163,0.08);color:#006aa3;border-color:#006aa3}
 
+
+/* ===== スマホ専用: パーティ管理タブUI ===== */
+.mobile-party-tabs,
+.party-mobile-bottom-actions{display:none;}
+@media(max-width:820px){
+  body{padding-bottom:92px;}
+  .layout{padding:12px 10px 94px;}
+  .main-content{width:100%;}
+  .mobile-party-tabs{
+    position:sticky;top:52px;z-index:80;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+    background:rgba(7,9,15,.96);backdrop-filter:blur(18px);border:1px solid var(--border);
+    border-radius:16px;padding:8px;margin:0 0 10px;box-shadow:0 10px 28px rgba(0,0,0,.18);
+  }
+  .mobile-party-tab-btn{
+    border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:999px;
+    padding:9px 6px;font-size:11px;font-weight:700;letter-spacing:1px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;
+  }
+  .mobile-party-tab-btn.active{border-color:var(--accent);background:rgba(0,200,240,.12);color:var(--accent);}
+  .party-top-actions{gap:8px!important;margin-bottom:10px!important;}
+  .party-top-actions .party-save-btn,
+  .party-top-actions .party-action-btn{display:none;}
+  .party-top-actions a{margin-left:0!important;flex:1;text-align:center;}
+  .party-top-grid{display:block;margin-bottom:12px;}
+  .party-section-box,.saved-parties-section,.party-editor,.cov-wrap,.add-section{border-radius:16px;}
+  .party-slot-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+  .party-slot-btn{padding:9px 8px;min-height:54px;gap:5px;}
+  .party-slot-num{font-size:16px;width:13px;}
+  .party-slot-name{font-size:11px;}
+  .party-slot-types{display:none;}
+  .party-mid-grid,.party-coverage-grid{display:block;margin-bottom:12px;}
+  .party-mid-grid > div:first-child,.party-side-stack,.party-coverage-grid,.saved-parties-section{display:none;}
+  body.party-mobile-tab-six .party-mid-grid,
+  body.party-mobile-tab-six .party-coverage-grid{display:none;}
+  body.party-mobile-tab-six .saved-parties-section{display:block;margin-top:12px;}
+  body.party-mobile-tab-edit .party-mid-grid{display:block;}
+  body.party-mobile-tab-edit .party-mid-grid > div:first-child{display:block;}
+  body.party-mobile-tab-add .party-mid-grid{display:block;}
+  body.party-mobile-tab-add .party-side-stack{display:block;}
+  body.party-mobile-tab-coverage .party-coverage-grid{display:block;}
+  .party-editor-header{position:sticky;top:112px;z-index:65;background:rgba(15,20,35,.96);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:16px;padding:12px;margin:-2px -2px 12px;}
+  .party-editor-pokename{font-size:17px;}
+  #party-editor-content input,#party-editor-content select,#party-editor-content textarea,
+  #party-reg-search,#direct-poke-search{font-size:16px!important;}
+  #party-reg-list,#direct-poke-list{max-height:calc(100vh - 280px)!important;}
+  .party-mobile-bottom-actions{
+    position:fixed;left:10px;right:10px;bottom:10px;z-index:120;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+    background:rgba(7,9,15,.96);border:1px solid var(--border);border-radius:18px;padding:10px;box-shadow:0 -10px 34px rgba(0,0,0,.35);backdrop-filter:blur(18px);
+  }
+  .party-mobile-bottom-actions button{border:none;border-radius:14px;padding:12px 10px;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:800;cursor:pointer;}
+  .party-mobile-save{background:linear-gradient(135deg,var(--green),#007a40);color:#000;}
+  .party-mobile-image{background:linear-gradient(135deg,var(--accent3),#b88400);color:#000;}
+}
+
 </style>
 <script src="usage-tracker.js"></script>
 </head>
@@ -465,8 +518,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <div class="main-content">
   <!-- PARTY -->
   <div class="panel active" id="tab-party">
+    <div class="mobile-party-tabs" id="mobile-party-tabs" aria-label="スマホ用表示切替">
+      <button type="button" class="mobile-party-tab-btn active" data-party-mobile-tab="six" onclick="switchPartyMobileTab('six')">6体</button>
+      <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="edit" onclick="switchPartyMobileTab('edit')">編集</button>
+      <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="add" onclick="switchPartyMobileTab('add')">追加</button>
+      <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="coverage" onclick="switchPartyMobileTab('coverage')">相性</button>
+    </div>
     <!-- ヘッダーバー -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div class="party-top-actions" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <span style="font-size:11px;color:var(--text2);">登録済みポケモンから選んでパーティを編成</span>
       <a href="pokemon.html" style="margin-left:auto;padding:6px 14px;border:1px solid var(--accent);color:var(--accent);font-size:11px;text-decoration:none;letter-spacing:1px;transition:all 0.18s;" onmouseover="this.style.background='rgba(0,200,240,0.07)'" onmouseout="this.style.background='transparent'">＋ ポケモンを登録</a>
       <button class="party-save-btn" onclick="savePartyLocal()">💾 保存</button>
@@ -668,6 +727,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
 </div>
 
+<div class="party-mobile-bottom-actions" aria-label="スマホ用固定操作">
+  <button type="button" class="party-mobile-save" onclick="savePartyLocal()">💾 保存</button>
+  <button type="button" class="party-mobile-image" onclick="exportPartyImage()">📷 画像保存</button>
+</div>
 <datalist id="item-master-list"></datalist>
 
 </div>
@@ -1630,6 +1693,24 @@ let party = []; // 最大6匹（null不使用）
 // party配列: {poke, lv, nature, iv, ev:{hp,atk,def,spa,spd,spe}, moves:[], item, memo}
 let selectedSlot = -1;
 
+
+// ===== スマホ用: パーティ管理タブ切り替え =====
+function switchPartyMobileTab(tab){
+  const safe = ['six','edit','add','coverage'].includes(tab) ? tab : 'six';
+  document.body.classList.remove('party-mobile-tab-six','party-mobile-tab-edit','party-mobile-tab-add','party-mobile-tab-coverage');
+  document.body.classList.add('party-mobile-tab-'+safe);
+  document.querySelectorAll('[data-party-mobile-tab]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.partyMobileTab === safe);
+  });
+  if(window.matchMedia && window.matchMedia('(max-width:820px)').matches){
+    const tabs = document.getElementById('mobile-party-tabs');
+    if(tabs) tabs.scrollIntoView({block:'nearest'});
+  }
+}
+function switchPartyMobileTabIfMobile(tab){
+  if(window.matchMedia && window.matchMedia('(max-width:820px)').matches) switchPartyMobileTab(tab);
+}
+
 // 登録済みポケモンからパーティに追加
 function addToParty(p) {
   if(party.length >= 6) { alert('パーティは6匹までです'); return; }
@@ -1774,6 +1855,8 @@ function addRegPoke(id) {
   });
   renderPartySlotList();
   renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
+  selectSlot(party.length - 1);
+  switchPartyMobileTabIfMobile('edit');
 }
 
 function renderPartySlotList() {
@@ -1819,6 +1902,7 @@ function selectSlot(i) {
   selectedSlot = i;
   const m = party[i];
   if(!m) return;
+  switchPartyMobileTabIfMobile('edit');
   renderPartySlotList();
   const p = m.poke;
   (document.getElementById('party-editor-empty')||{style:{}}).style.display='none';
@@ -2452,7 +2536,7 @@ setupIfExists('atk2-search','atk2-drop');
 if(el('pe-move-search')) setupPeMoveSearch();
 
 // パーティ管理
-if(el('party-slot-list')){ renderPartySlotList(); renderRegPokeList(); renderSavedPartyList(); }
+if(el('party-slot-list')){ switchPartyMobileTab('six'); renderPartySlotList(); renderRegPokeList(); renderSavedPartyList(); }
 
 // ダメージ計算スライダー（要素が存在するページのみ）
 ['atk-lv','def-lv'].forEach(id=>{
