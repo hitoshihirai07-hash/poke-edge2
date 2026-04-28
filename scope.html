@@ -98,7 +98,6 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .party-slot.active-battle{border-color:var(--accent);background:rgba(0,200,240,0.06);}
 .party-slot.fainted{opacity:0.35;}
 .slot-name{font-size:10px;font-weight:700;}
-.slot-form{font-size:8px;color:var(--text2);font-weight:500;line-height:1.25;margin-top:2px;}
 .slot-hp-bar{width:90%;height:3px;background:var(--bg);border-radius:2px;margin-top:2px;}
 .slot-hp-fg{height:100%;border-radius:2px;transition:width 0.3s;}
 .slot-hp-pct{font-size:8px;font-family:'JetBrains Mono',monospace;color:var(--text2);}
@@ -235,23 +234,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 /* パーティ詳細設定 */
 .slot-sub{font-size:8px;color:var(--text2);line-height:1.3;margin-top:2px;}
 .settings-wrap{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
-.settings-row{display:grid;grid-template-columns:minmax(86px,120px) 1fr;gap:8px;align-items:start;padding:8px;background:var(--bg2);border:1px solid var(--border);font-size:10px;}
-.settings-main{display:grid;grid-template-columns:repeat(4,minmax(92px,1fr));gap:6px;align-items:center;}
-.settings-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.5;}
-.settings-mini{font-size:8px;color:var(--text2);font-weight:400;white-space:normal;}
+.settings-row{display:grid;grid-template-columns:minmax(76px,90px) 1fr 1fr 1fr;gap:6px;align-items:center;padding:6px 8px;background:var(--bg2);border:1px solid var(--border);font-size:10px;}
+.settings-row.my-only{grid-template-columns:minmax(76px,90px) 1fr;}
+.settings-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .settings-select{width:100%;background:var(--panel);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;}
 .settings-select:focus{border-color:var(--accent);}
-.ev-edit-grid{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,minmax(48px,1fr));gap:5px;margin-top:2px;}
-.ev-edit-cell{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:3px;background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:3px 4px;}
-.ev-edit-cell span{font-size:8px;color:var(--text2);font-weight:700;}
-.ev-edit-cell input{width:100%;min-width:0;background:var(--panel);border:1px solid var(--border2);color:var(--text);padding:3px 2px;font-size:10px;font-family:'JetBrains Mono',monospace;text-align:center;outline:none;}
-.ev-edit-cell input:focus{border-color:var(--accent);}
-.damage-detail-panel{background:var(--bg2);border:1px solid var(--border);padding:10px;margin:8px 0 10px;}
-.damage-detail-title{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:8px;}
-.damage-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;align-items:end;}
-.damage-detail-field label{display:block;font-size:9px;color:var(--text2);margin-bottom:3px;}
-.damage-detail-field select,.damage-detail-field input{width:100%;background:var(--panel);border:1px solid var(--border2);color:var(--text);padding:5px 6px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;}
-.damage-detail-field select:focus,.damage-detail-field input:focus{border-color:var(--accent);}
 .ability-chip{display:inline-block;font-size:8px;padding:1px 5px;border:1px solid var(--border2);color:var(--accent3);margin-left:6px;}
 
 .scope-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -311,7 +298,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .party-slot.lead-slot{box-shadow:inset 0 0 0 1px rgba(255,200,0,0.4);}
 .lead-mini{display:inline-block;font-size:8px;padding:1px 5px;border:1px solid rgba(255,200,0,0.35);color:var(--accent3);margin-top:2px;}
 
-@media(max-width:700px){.settings-row{grid-template-columns:1fr;}.settings-main{grid-template-columns:1fr 1fr;}.ev-edit-grid{grid-template-columns:repeat(3,1fr);}.damage-detail-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.settings-row{grid-template-columns:1fr;}.settings-row.my-only{grid-template-columns:1fr;}}
 
 .side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
 .side-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
@@ -470,7 +457,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <div class="sw"><input class="si" id="opp-search" placeholder="相手のポケモン名..." oninput="doSearch('opp',this.value)" autocomplete="off"><div class="dd" id="opp-drop"></div></div>
         <div class="party-grid" id="opp-party-grid"></div>
         <div id="opp-settings" class="settings-wrap"></div>
-        <div class="note">相手の6体を入力すると脅威分析と推奨選出が自動計算されます。相手側も特性・性格・努力値を変更できます。</div>
+        <div class="note">相手の6体を入力すると脅威分析と推奨選出が自動計算されます。相手側は特性・性格・努力値プリセットを変更できます。</div>
         <div class="lead-pick-wrap" id="opp-lead-pick-wrap"><div class="lead-pick-label">相手の初手を選択</div><div class="lead-pick-buttons" id="opp-lead-buttons"></div></div>
       </div>
     </div>
@@ -594,15 +581,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     <div class="damage-summary" id="scope-dmg-summary">
       <div class="damage-summary-title">選出中の3体で一括判定</div>
       <div class="damage-summary-meta">自分側と相手側の選出がそろうと表示されます。</div>
-    </div>
-    <div class="damage-detail-panel" id="scope-dmg-detail-panel">
-      <div class="damage-detail-title">詳細条件</div>
-      <div class="damage-detail-grid">
-        <div class="damage-detail-field"><label>天候</label><select id="scope-dmg-weather" onchange="setScopeDamageOption('weather',this.value)"><option value="">なし</option><option value="sunny">晴れ</option><option value="rain">雨</option><option value="sand">砂嵐</option><option value="snow">雪</option></select></div>
-        <div class="damage-detail-field"><label>判定HP</label><select id="scope-dmg-hp" onchange="setScopeDamageOption('defHpPct',this.value)"><option value="100">100%</option><option value="75">75%</option><option value="50">50%</option><option value="25">25%</option></select></div>
-        <div class="damage-detail-field"><label>味方の倒れた数（おはかまいり）</label><input id="scope-dmg-lastrespects" type="number" min="0" max="5" step="1" value="0" onchange="setScopeDamageOption('lastRespects',this.value)" oninput="setScopeDamageOption('lastRespects',this.value)"></div>
-        <div class="damage-detail-field"><label>味方の倒れた数（そうだいしょう）</label><input id="scope-dmg-supreme" type="number" min="0" max="5" step="1" value="0" onchange="setScopeDamageOption('supreme',this.value)" oninput="setScopeDamageOption('supreme',this.value)"></div>
-      </div>
     </div>
 
     <div class="damage-board">
@@ -794,8 +772,7 @@ function estimateStatsDefault(poke){
 
 const DEFAULT_SPREAD = {hp:10,atk:10,def:10,spa:10,spd:10,spe:10};
 const EV_PRESETS = {
-  season:{label:'ランキング推定', spread:null},
-  custom:{label:'自由入力', spread:null},
+  season:{label:'推定のまま', spread:null},
   H32A32:{label:'H32A32', spread:{hp:32,atk:32,def:0,spa:0,spd:0,spe:0}},
   H32B32:{label:'H32B32', spread:{hp:32,atk:0,def:32,spa:0,spd:0,spe:0}},
   H32C32:{label:'H32C32', spread:{hp:32,atk:0,def:0,spa:32,spd:0,spe:0}},
@@ -827,7 +804,7 @@ function getDefaultAbilityForPokemon(poke){
   const sr = getSeasonRow(poke.name);
   if(sr && Array.isArray(sr.abilities) && sr.abilities.length){
     const a = parseRateEntry(sr.abilities[0]).name;
-    if(a && (!opts.length || opts.includes(a))) return a;
+    if(a) return a;
   }
   return opts[0] || '';
 }
@@ -841,7 +818,7 @@ function getEstimatedProfile(poke){
   return {natureName:null, spread:cloneSpread(DEFAULT_SPREAD), source:'default'};
 }
 function getSpreadForSlot(slot){
-  if(slot && slot.presetKey && !['season','custom'].includes(slot.presetKey) && EV_PRESETS[slot.presetKey] && EV_PRESETS[slot.presetKey].spread){
+  if(slot && slot.presetKey && slot.presetKey !== 'season' && EV_PRESETS[slot.presetKey] && EV_PRESETS[slot.presetKey].spread){
     return cloneSpread(EV_PRESETS[slot.presetKey].spread);
   }
   return cloneSpread(slot && slot.baseSpread ? slot.baseSpread : DEFAULT_SPREAD);
@@ -862,7 +839,7 @@ function createSlot(poke, opts){
     moves: opts.moves || getEstimatedAtkMoves(poke),
     abilityOptions: abilityOptions,
     ability: opts.ability || getDefaultAbilityForPokemon(poke),
-    presetKey: opts.presetKey || (Object.prototype.hasOwnProperty.call(opts,'spread') ? 'custom' : 'season'),
+    presetKey: opts.presetKey || 'season',
     profileSource: opts.profileSource || profile.source
   };
   rebuildSlotStats(slot);
@@ -907,54 +884,46 @@ function normalizeScopeRecordName(name){
   if(isMegaPokemon(n)) return getBaseName(n) || n;
   return n;
 }
-
-function getScopeLookupNames(name){
-  const n = String(name || '').trim();
-  const names = [];
-  function add(x){ if(x && !names.includes(x)) names.push(x); }
-  add(n);
-  const special = getScopeSpecialBaseName(n);
-  if(special) add(special);
-  if(isMegaPokemon(n)) add(getBaseName(n));
-  return names;
-}
-function resolveScopeActualPokeName(name){
-  const n = String(name || '').trim();
-  if(!n) return '';
-  if(pokeIndex.some(p=>p.name===n)) return n;
-  const special = getScopeSpecialBaseName(n);
-  if(special && SCOPE_SPECIAL_FORM_GROUPS[special]) return SCOPE_SPECIAL_FORM_GROUPS[special].defaultForm;
-  return n;
-}
-function getScopePokeByName(name){
-  const actual = resolveScopeActualPokeName(name);
-  return pokeIndex.find(p=>p.name===actual) || null;
-}
-function getScopeSlotDisplayName(slot){
-  return slot && slot.poke ? normalizeScopeRecordName(slot.poke.name) : '';
-}
-function getScopeSlotActualNote(slot){
-  if(!slot || !slot.poke) return '';
-  const display = getScopeSlotDisplayName(slot);
-  return display && display !== slot.poke.name ? slot.poke.name : '';
-}
-function isScopeSeasonMember(poke, seasonList){
-  if(!poke || !Array.isArray(seasonList)) return false;
-  return getScopeLookupNames(poke.name).some(n=>seasonList.includes(n));
-}
 function isScopeMegaCandidateName(name){
   const n = String(name || '').trim();
   if(!n) return false;
   if(isMegaPokemon(n)) return true;
   return getMegaFormsOf(n).length > 0;
 }
+function getScopeCompactPokemonName(name){
+  const n = String(name || '').trim();
+  const special = getScopeSpecialBaseName(n);
+  return special || n;
+}
+function getScopeDefaultSpecialFormName(baseName){
+  const group = SCOPE_SPECIAL_FORM_GROUPS[baseName];
+  return group ? (group.defaultForm || (group.forms || [])[0] || baseName) : baseName;
+}
+function getScopePokeByName(name){
+  const n = String(name || '').trim();
+  const specialBase = SCOPE_SPECIAL_FORM_GROUPS[n] ? n : '';
+  const actualName = specialBase ? getScopeDefaultSpecialFormName(specialBase) : n;
+  return pokeIndex.find(p=>p.name===actualName) || pokeIndex.find(p=>getScopeCompactPokemonName(p.name)===n) || null;
+}
+function getScopeSpecialFormPokes(name){
+  const base = getScopeSpecialBaseName(name);
+  if(!base) return [];
+  const forms = SCOPE_SPECIAL_FORM_GROUPS[base].forms || [];
+  return forms.map(fn=>pokeIndex.find(p=>p.name===fn)).filter(Boolean);
+}
+function getScopeSlotDisplayName(slot){
+  return slot && slot.poke ? getScopeCompactPokemonName(slot.poke.name) : '';
+}
+function getScopeDamageEntryName(entry){
+  if(entry && entry.variantName) return entry.variantName;
+  return entry && entry.slot ? getScopeSlotDisplayName(entry.slot) : '';
+}
 function getScopeFormOptionsForSlot(slot){
   if(!slot || !slot.poke) return [];
   const name = slot.poke.name;
-  const special = getScopeSpecialBaseName(name);
-  if(special){
-    return (SCOPE_SPECIAL_FORM_GROUPS[special].forms || []).filter(n=>pokeIndex.some(p=>p.name===n));
-  }
+  // ギルガルド・イルカマンはメガ進化のような事前フォーム選択では扱わない。
+  // 検索/表示は代表名にし、ダメージ確認など必要な場所だけ形態別に展開する。
+  if(getScopeSpecialBaseName(name)) return [];
   const base = isMegaPokemon(name) ? getBaseName(name) : name;
   const megas = getMegaFormsOf(base).map(p=>p.name);
   if(megas.length){
@@ -971,38 +940,14 @@ function setSlotForm(side, idx, formName){
   if(!slot || !poke) return;
   slot.poke = poke;
   slot.abilityOptions = getAbilityOptions(poke);
-  // フォーム・メガ切替後は、前フォームの特性を引きずらず、そのフォームに合う特性へ必ず合わせる
-  slot.ability = getDefaultAbilityForPokemon(poke);
+  if(!slot.abilityOptions.includes(slot.ability)) slot.ability = getDefaultAbilityForPokemon(poke);
   const profile = getEstimatedProfile(poke);
-  if(slot.profileSource !== 'registered' && slot.profileSource !== 'saved' && slot.presetKey !== 'custom'){
+  if(slot.profileSource !== 'registered' && slot.profileSource !== 'saved'){
     slot.natureName = profile.natureName || slot.natureName || 'がんばりや';
     slot.baseSpread = cloneSpread(profile.spread);
     slot.profileSource = profile.source;
   }
   slot.moves = getEstimatedAtkMoves(poke);
-  rebuildSlotStats(slot);
-  refreshAfterSlotChange(side);
-}
-function clampScopeEvValue(value){
-  const n = parseInt(value,10);
-  if(!Number.isFinite(n)) return 0;
-  return Math.max(0, Math.min(32, n));
-}
-function renderEvEditor(side, idx, slot){
-  const spread = getSpreadForSlot(slot);
-  const labels = {hp:'H',atk:'A',def:'B',spa:'C',spd:'D',spe:'S'};
-  return '<div class="ev-edit-grid">'+['hp','atk','def','spa','spd','spe'].map(k=>
-    '<label class="ev-edit-cell"><span>'+labels[k]+'</span><input type="number" min="0" max="32" step="1" value="'+(spread[k]||0)+'" onchange="setSlotEv(\''+side+'\','+idx+',\''+k+'\',this.value)"></label>'
-  ).join('')+'</div>';
-}
-function setSlotEv(side, idx, key, value){
-  const party = side==='my' ? myParty : oppParty;
-  const slot = party[idx];
-  if(!slot || !['hp','atk','def','spa','spd','spe'].includes(key)) return;
-  const current = getSpreadForSlot(slot);
-  current[key] = clampScopeEvValue(value);
-  slot.baseSpread = cloneSpread(current);
-  slot.presetKey = 'custom';
   rebuildSlotStats(slot);
   refreshAfterSlotChange(side);
 }
@@ -1013,18 +958,23 @@ function scopeRecordPokemonPayload(slot, includeMoves){
   if(!slot || !slot.poke) return null;
   const name = normalizeScopeRecordName(slot.poke.name);
   const payload = {name, type1:slot.poke.type1, type2:slot.poke.type2};
-  if(name !== slot.poke.name) payload.actualName = slot.poke.name;
+  if(name !== slot.poke.name && !getScopeSpecialBaseName(slot.poke.name)) payload.actualName = slot.poke.name;
   if(includeMoves) payload.moves = cloneBattleMoves(slot.moves);
   return payload;
 }
 
 function getSeasonRow(pokeName){
-  // メガ・ギルガルド・イルカマンは、実フォーム名だけでなく代表名でもランキングを参照する
-  const rows = SEASON_RANKING.rows || [];
-  for(const name of getScopeLookupNames(pokeName)){
-    const direct = rows.find(r=>r.name===name || r.siteName===name);
-    if(direct && direct.moves && direct.moves.length) return direct;
-    if(direct) return direct; // データが空でもヒットはヒット
+  const compactName = getScopeCompactPokemonName(pokeName);
+  // まず代表名/直接名で検索
+  const direct = (SEASON_RANKING.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName || r.name===compactName || r.siteName===compactName);
+  if(direct && direct.moves && direct.moves.length) return direct;
+  if(direct) return direct; // データが空でもヒットはヒット
+  // メガ進化ポケモンの場合、元ポケモン名で検索
+  if(isMegaPokemon(pokeName)){
+    const baseName = getBaseName(pokeName);
+    if(baseName){
+      return (SEASON_RANKING.rows||[]).find(r=>r.name===baseName || r.siteName===baseName) || null;
+    }
   }
   return null;
 }
@@ -1048,11 +998,10 @@ function estimateFromSeason(poke){
 }
 
 function getPokemonMovesRow(pokeName){
-  for(const name of getScopeLookupNames(pokeName)){
-    const pmData = POKEMON_MOVES_RAW[name];
-    if(pmData) return pmData;
-  }
-  return null;
+  const compactName = getScopeCompactPokemonName(pokeName);
+  let pmData = POKEMON_MOVES_RAW[pokeName] || POKEMON_MOVES_RAW[compactName];
+  if(!pmData && isMegaPokemon(pokeName)) pmData = POKEMON_MOVES_RAW[getBaseName(pokeName)];
+  return pmData || null;
 }
 function normalizePokemonMoveRow(move){
   return {
@@ -1112,28 +1061,6 @@ function parseHits(raw){
   }
   const n = nums && nums.length ? (parseInt(nums[0],10) || 1) : 1;
   return {min:n, max:n};
-}
-const SCOPE_DAMAGE_OPTIONS = {weather:'', defHpPct:100, lastRespects:0, supreme:0};
-function setScopeDamageOption(key, value){
-  if(key==='weather') SCOPE_DAMAGE_OPTIONS.weather = String(value || '');
-  else if(key==='defHpPct') SCOPE_DAMAGE_OPTIONS.defHpPct = Math.max(1, Math.min(100, parseInt(value,10)||100));
-  else if(key==='lastRespects') SCOPE_DAMAGE_OPTIONS.lastRespects = Math.max(0, Math.min(5, parseInt(value,10)||0));
-  else if(key==='supreme') SCOPE_DAMAGE_OPTIONS.supreme = Math.max(0, Math.min(5, parseInt(value,10)||0));
-  renderDamagePhase();
-}
-function getWeatherLabelForScope(value){
-  return ({sunny:'晴れ', rain:'雨', sand:'砂嵐', snow:'雪'})[value] || 'なし';
-}
-function isScopeContactMove(move){
-  return !!(move && (move.contact === true || String(move.contact).toLowerCase() === 'true' || String(move.contact) === '○'));
-}
-function getScopeDamageOptionNotes(atkSlot, move, usedType, usedPower){
-  const notes = [];
-  if(SCOPE_DAMAGE_OPTIONS.weather) notes.push('天候:'+getWeatherLabelForScope(SCOPE_DAMAGE_OPTIONS.weather));
-  if(move && move.name==='おはかまいり') notes.push('おはかまいり威力'+usedPower);
-  if(atkSlot && atkSlot.ability==='そうだいしょう') notes.push('そうだいしょう+'+(SCOPE_DAMAGE_OPTIONS.supreme*10)+'%');
-  if(move && move.name==='ウェザーボール' && SCOPE_DAMAGE_OPTIONS.weather) notes.push('ウェザーボール:'+usedType+' 威力'+usedPower);
-  return notes;
 }
 function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct, extraMod, hitsInfo){
   const hits = hitsInfo || {min:1,max:1};
@@ -1202,9 +1129,6 @@ function getAbilityDamageAdjustments(atkSlot, move, defSlot, baseEff, defHpPct){
   if(atkAbility==='がんじょうあご' && BITE_MOVES.has(move.name)) mod *= 1.5;
   if(atkAbility==='てつのこぶし' && PUNCH_MOVES.has(move.name)) mod *= 1.2;
   if(atkAbility==='きれあじ' && SLICING_MOVES.has(move.name)) mod *= 1.5;
-  if(atkAbility==='かたいツメ' && isScopeContactMove(move)) mod *= 1.3;
-  if(atkAbility==='メガランチャー' && ['あくのはどう','はどうだん','みずのはどう','りゅうのはどう'].includes(move.name)) mod *= 1.5;
-  if(atkAbility==='そうだいしょう') mod *= (1 + 0.1 * (SCOPE_DAMAGE_OPTIONS.supreme || 0));
 
   return {eff, mod, nullifyReason};
 }
@@ -1213,41 +1137,17 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
   const atkPoke = atkSlot.poke, atkStats = atkSlot.stats;
   const defPoke = defSlot.poke, defStats = defSlot.stats;
   const defTypes = [defPoke.type1,defPoke.type2].filter(Boolean);
-  let atkTypes = [atkPoke.type1,atkPoke.type2].filter(Boolean);
-  let mtype = move.type || '';
-  let power = parseInt(move.power,10) || 0;
-  const moveName = move.name || '';
-  const weather = SCOPE_DAMAGE_OPTIONS.weather || '';
-  if(moveName==='おはかまいり') power = 50 + (SCOPE_DAMAGE_OPTIONS.lastRespects || 0) * 50;
-  if(moveName==='ウェザーボール' && weather){
-    const WB_MAP = {sunny:'ほのお', rain:'みず', sand:'いわ', snow:'こおり'};
-    if(WB_MAP[weather]){ mtype = WB_MAP[weather]; power = 100; }
-  }
-  const baseEff = typeEff(mtype, defTypes);
-  const adjustedMove = Object.assign({}, move, {type:mtype, power});
-  const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100);
+  const atkTypes = [atkPoke.type1,atkPoke.type2].filter(Boolean);
+  const baseEff = typeEff(move.type, defTypes);
+  const adjust = getAbilityDamageAdjustments(atkSlot, move, defSlot, baseEff, defHpPct||100);
   if(adjust.eff===0){
-    return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null', detailNotes:getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power)};
+    return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null'};
   }
-  let stab = atkTypes.includes(mtype) ? ((atkSlot.ability==='てきおうりょく') ? 2 : 1.5) : 1;
-  let aSt = adjustedMove.category==='物理' ? atkStats.atk : atkStats.spa;
-  let dSt = adjustedMove.category==='物理' ? defStats.def : defStats.spd;
-  if(moveName==='ボディプレス') aSt = atkStats.def;
-  if(moveName==='サイコショック') dSt = defStats.def;
-  if(weather==='snow' && defTypes.includes('こおり') && adjustedMove.category==='物理') dSt = Math.floor(dSt * 1.5);
-  if(weather==='sand' && defTypes.includes('いわ') && adjustedMove.category==='特殊') dSt = Math.floor(dSt * 1.5);
-  let weatherDmgMod = 1;
-  if(weather==='sunny'){
-    if(mtype==='ほのお') weatherDmgMod = 1.5;
-    else if(mtype==='みず') weatherDmgMod = 0.5;
-  } else if(weather==='rain'){
-    if(mtype==='みず') weatherDmgMod = 1.5;
-    else if(mtype==='ほのお') weatherDmgMod = 0.5;
-  }
-  const hitsInfo = parseHits(adjustedMove.hits || '1');
-  const result = calcDmgRange(aSt, dSt, power, atkStats.lv, adjust.eff, stab, defStats.hp, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100, adjust.mod * weatherDmgMod, hitsInfo);
-  if(result) result.detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power);
-  return result;
+  const stab = atkTypes.includes(move.type) ? ((atkSlot.ability==='てきおうりょく') ? 2 : 1.5) : 1;
+  const aSt = move.category==='物理' ? atkStats.atk : atkStats.spa;
+  const dSt = move.category==='物理' ? defStats.def : defStats.spd;
+  const hitsInfo = parseHits(move.hits || '1');
+  return calcDmgRange(aSt, dSt, move.power, atkStats.lv, adjust.eff, stab, defStats.hp, defHpPct||100, adjust.mod, hitsInfo);
 }
 
 // ===== 対面評価 =====
@@ -1311,10 +1211,10 @@ function getCurrentScopePhase(){
   return m ? parseInt(m[1],10) : 1;
 }
 function getScopeMobileNames(party, sel){
-  return sel.map(i=>party[i]).filter(Boolean).map(s=>s.poke.name).join(' / ') || '未選出';
+  return sel.map(i=>party[i]).filter(Boolean).map(s=>getScopeSlotDisplayName(s)).join(' / ') || '未選出';
 }
 function getScopeMobileLeadName(party, lead){
-  return (lead!==null && party[lead]) ? party[lead].poke.name : '—';
+  return (lead!==null && party[lead]) ? getScopeSlotDisplayName(party[lead]) : '—';
 }
 function getScopeMegaMobileLabel(){
   const all = [];
@@ -1377,8 +1277,7 @@ function renderLeadPicker(side){
     const slot=party[slotIdx];
     if(!slot) return '';
     const active=lead===slotIdx?' active':'';
-    const disp=getScopeSlotDisplayName(slot); const note=getScopeSlotActualNote(slot);
-    return '<button type="button" class="lead-pick-btn'+active+'" onclick="setLead(\''+side+'\','+slotIdx+')">'+escapeHtml(disp)+(note?' <span class="slot-form">'+escapeHtml(note)+'</span>':'')+(lead===slotIdx?'（初手）':'')+'</button>';
+    return '<button type="button" class="lead-pick-btn'+active+'" onclick="setLead(\''+side+'\','+slotIdx+')">'+escapeHtml(getScopeSlotDisplayName(slot))+(lead===slotIdx?'（初手）':'')+'</button>';
   }).join('');
 }
 function goToBattle(){
@@ -1396,8 +1295,8 @@ function getScopeFilteredPokes(){
   const sel=document.getElementById('scope-season-filter');
   const season=sel?sel.value:'';
   if(!season||!SEASON_DATA||!SEASON_DATA[season]) return pokeIndex;
-  const seasonList = SEASON_DATA[season] || [];
-  return pokeIndex.filter(p=>isScopeSeasonMember(p, seasonList));
+  const allowed = SEASON_DATA[season] || [];
+  return pokeIndex.filter(p=>allowed.includes(p.name) || allowed.includes(getScopeCompactPokemonName(p.name)));
 }
 function onScopeSeasonChange(){}
 
@@ -1487,14 +1386,26 @@ async function loadFromParty(id){
 // ===== ポケモン検索 =====
 function doSearch(side,q){
   const drop=document.getElementById(side+'-drop');
-  if(!q.trim()){drop.classList.remove('show');return;}
+  const query = q.trim();
+  if(!query){drop.classList.remove('show');return;}
   const pool = getScopeFilteredPokes();
-  const res=pool.filter(p=>p.name.includes(q.trim())).slice(0,20);
-  if(!res.length){drop.classList.remove('show');return;}
-  drop.innerHTML=res.map(p=>{
+  const seen = new Set();
+  const res=[];
+  pool.forEach(p=>{
+    const displayName = getScopeCompactPokemonName(p.name);
+    if(seen.has(displayName)) return;
+    if(!p.name.includes(query) && !displayName.includes(query)) return;
+    const displayPoke = getScopePokeByName(displayName) || p;
+    seen.add(displayName);
+    res.push({name:displayName, poke:displayPoke});
+  });
+  const limited=res.slice(0,20);
+  if(!limited.length){drop.classList.remove('show');return;}
+  drop.innerHTML=limited.map(entry=>{
+    const p = entry.poke;
     const t1=p.type1?'<span class="tp tp-'+p.type1+'">'+p.type1+'</span>':'';
     const t2=p.type2?'<span class="tp tp-'+p.type2+'">'+p.type2+'</span>':'';
-    return '<div class="di" onclick="addPoke(\''+side+'\',\''+p.name.replace(/'/g,"\\'")+'\')">'+ p.name+' '+t1+t2+'</div>';
+    return '<div class="di" onclick="addPoke(\''+side+'\',\''+entry.name.replace(/'/g,"\\'")+'\')">'+ escapeHtml(entry.name)+' '+t1+t2+'</div>';
   }).join('');
   drop.classList.add('show');
 }
@@ -1550,12 +1461,9 @@ function renderParty(side){
     const selected=sel.includes(i);
     const isLead=selected && lead===i;
     const presetLabel = side==='opp' && s.presetKey && EV_PRESETS[s.presetKey] ? EV_PRESETS[s.presetKey].label : '';
-    const displayName = getScopeSlotDisplayName(s);
-    const actualNote = getScopeSlotActualNote(s);
-    const formMini = actualNote ? '<div class="slot-form">'+escapeHtml(actualNote)+'</div>' : '';
     return '<div class="party-slot '+(selected?'selected':'')+' '+(isLead?'lead-slot':'')+'" onclick="toggleSelect(\''+side+'\','+i+')">'+
       '<button class="slot-remove" onclick="event.stopPropagation();removePoke(\''+side+'\','+i+')">×</button>'+
-      '<div class="slot-name">'+escapeHtml(displayName)+formMini+'</div>'+
+      '<div class="slot-name">'+escapeHtml(getScopeSlotDisplayName(s))+'</div>'+
       '<div>'+typeHTML(s.poke)+'</div>'+
       '<div class="slot-sub">'+(s.ability||'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+(isLead?'<br><span class="lead-mini">初手</span>':'')+'</div>'+
     '</div>';
@@ -1572,19 +1480,17 @@ function renderSlotSettings(side){
   if(!party.length){ wrap.innerHTML=''; return; }
   wrap.innerHTML = party.map((slot,i)=>{
     const opts = [...new Set([...(slot.abilityOptions||[]), slot.ability].filter(Boolean))];
-    const abilityOptions = opts.length ? opts.map(a=>'<option value="'+escapeHtml(a)+'" '+(slot.ability===a?'selected':'')+'>'+escapeHtml(a)+'</option>').join('') : '<option value="">なし</option>';
+    const abilityOptions = opts.length ? opts.map(a=>'<option value="'+a+'" '+(slot.ability===a?'selected':'')+'>'+a+'</option>').join('') : '<option value="">なし</option>';
     const abilitySelect = '<select class="settings-select" onchange="setSlotAbility(\''+side+'\','+i+',this.value)">'+abilityOptions+'</select>';
-    const natureOptions = NATURE_NAMES.map(n=>'<option value="'+escapeHtml(n)+'" '+((slot.natureName||'がんばりや')===n?'selected':'')+'>'+escapeHtml(n)+'</option>').join('');
+    const natureOptions = NATURE_NAMES.map(n=>'<option value="'+n+'" '+((slot.natureName||'がんばりや')===n?'selected':'')+'>'+n+'</option>').join('');
     const natureSelect = '<select class="settings-select" onchange="setSlotNature(\''+side+'\','+i+',this.value)">'+natureOptions+'</select>';
-    const presetOptions = Object.keys(EV_PRESETS).map(key=>'<option value="'+key+'" '+((slot.presetKey||'season')===key?'selected':'')+'>'+EV_PRESETS[key].label+'</option>').join('');
-    const presetSelect = '<select class="settings-select" onchange="setSlotPreset(\''+side+'\','+i+',this.value)">'+presetOptions+'</select>';
-    const formOptions = getScopeFormOptionsForSlot(slot);
-    const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\''+side+'\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(slot.poke.name===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '<div></div>';
-    const spread = getSpreadForSlot(slot);
-    const spreadText = 'EV H'+(spread.hp||0)+' A'+(spread.atk||0)+' B'+(spread.def||0)+' C'+(spread.spa||0)+' D'+(spread.spd||0)+' S'+(spread.spe||0);
-    const settingsDisplayName = getScopeSlotDisplayName(slot);
-    const settingsActualNote = getScopeSlotActualNote(slot);
-    return '<div class="settings-row"><div class="settings-name">'+escapeHtml(settingsDisplayName)+(settingsActualNote?'<div class="settings-mini">形態: '+escapeHtml(settingsActualNote)+'</div>':'')+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div></div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
+    if(side==='opp'){
+      const presetOptions = Object.keys(EV_PRESETS).map(key=>'<option value="'+key+'" '+((slot.presetKey||'season')===key?'selected':'')+'>'+EV_PRESETS[key].label+'</option>').join('');
+      const formOptions = getScopeFormOptionsForSlot(slot);
+      const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\'opp\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(slot.poke.name===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '';
+      return '<div class="settings-row"><div class="settings-name">'+escapeHtml(getScopeSlotDisplayName(slot))+'</div>'+formSelect+abilitySelect+natureSelect+'<select class="settings-select" onchange="setOppPreset('+i+',this.value)">'+presetOptions+'</select></div>';
+    }
+    return '<div class="settings-row"><div class="settings-name">'+escapeHtml(getScopeSlotDisplayName(slot))+'</div>'+abilitySelect+natureSelect+'<div></div></div>';
   }).join('');
 }
 
@@ -1611,22 +1517,13 @@ function setSlotNature(side, idx, natureName){
   refreshAfterSlotChange(side);
 }
 
-function setSlotPreset(side, idx, presetKey){
-  const party = side==='my' ? myParty : oppParty;
-  const slot = party[idx];
+function setOppPreset(idx, presetKey){
+  const slot = oppParty[idx];
   if(!slot) return;
   slot.presetKey = presetKey || 'season';
-  if(slot.presetKey === 'season'){
-    const profile = getEstimatedProfile(slot.poke);
-    slot.baseSpread = cloneSpread(profile.spread);
-    slot.profileSource = profile.source;
-  } else if(slot.presetKey !== 'custom' && EV_PRESETS[slot.presetKey] && EV_PRESETS[slot.presetKey].spread){
-    slot.baseSpread = cloneSpread(EV_PRESETS[slot.presetKey].spread);
-  }
   rebuildSlotStats(slot);
-  refreshAfterSlotChange(side);
+  refreshAfterSlotChange('opp');
 }
-function setOppPreset(idx, presetKey){ setSlotPreset('opp', idx, presetKey); }
 
 // ===== 自動分析 =====
 function autoAnalyze(){
@@ -1645,10 +1542,10 @@ function autoAnalyze(){
 function renderMatrix(){
   document.getElementById('matrix-card').style.display='block';
   let html='<table class="matrix-table"><thead><tr><th></th>';
-  oppParty.forEach(o=>{html+='<th>'+o.poke.name+'</th>';});
+  oppParty.forEach(o=>{html+='<th>'+escapeHtml(getScopeSlotDisplayName(o))+'</th>';});
   html+='</tr></thead><tbody>';
   myParty.forEach((my,mi)=>{
-    html+='<tr><th>'+my.poke.name+'</th>';
+    html+='<tr><th>'+escapeHtml(getScopeSlotDisplayName(my))+'</th>';
     oppParty.forEach((opp,oi)=>{
       const mu = evaluateMatchup(my, opp);
       html+='<td class="'+mu.cls+'" title="自→相:'+mu.myBest+'% 相→自:'+mu.oppBest+'%">'+mu.symbol+'</td>';
@@ -1701,7 +1598,7 @@ function renderRecommendation(){
 
   const megaNote = megaConflictCount ? '<div class="note" style="margin-bottom:8px;">メガ候補が複数入る組み合わせは推奨から外しています。</div>' : '';
   document.getElementById('rec-list').innerHTML = megaNote + scored.map((s,i)=>{
-    const names = s.team.map(mi=>myParty[mi].poke.name);
+    const names = s.team.map(mi=>getScopeSlotDisplayName(myParty[mi]));
     return '<div class="rec-team" onclick="applySelection(['+s.team.join(',')+'])">'+
       '<div class="rec-rank '+(i===0?'r1':'')+'">'+(i+1)+'</div>'+
       '<div>'+names.map(n=>'<span class="rec-poke">'+n+'</span>').join(' + ')+'</div>'+
@@ -1719,7 +1616,7 @@ function applySelection(indices){
 function renderThreatAnalysis(){
   document.getElementById('threat-card').style.display='block';
   const html = oppParty.map(opp=>{
-    const sr = getSeasonRow(opp.poke.name);
+    const sr = getSeasonRow(getScopeSlotDisplayName(opp));
     const isMega = isMegaPokemon(opp.poke.name);
     const baseName = isMega ? getBaseName(opp.poke.name) : null;
     let detail = '';
@@ -1770,11 +1667,11 @@ function renderThreatAnalysis(){
     }
 
     // 対処可能な味方
-    const handlers = myParty.filter(my=>evaluateMatchup(my, opp).score>=10).map(my=>my.poke.name);
+    const handlers = myParty.filter(my=>evaluateMatchup(my, opp).score>=10).map(my=>getScopeSlotDisplayName(my));
     if(handlers.length) detail += '<div class="safe">→ '+handlers.join(', ')+' で対処可能</div>';
     else if(myParty.length) detail += '<div class="warn">⚠ 有利な対面がありません！</div>';
 
-    return '<div class="threat-card"><div class="threat-name">'+opp.poke.name+' '+typeHTML(opp.poke)+'</div><div class="threat-detail">'+detail+'</div></div>';
+    return '<div class="threat-card"><div class="threat-name">'+escapeHtml(getScopeSlotDisplayName(opp))+' '+typeHTML(opp.poke)+'</div><div class="threat-detail">'+detail+'</div></div>';
   }).join('');
   document.getElementById('threat-list').innerHTML = html;
 }
@@ -1788,17 +1685,40 @@ function getDamageSelectedSlots(side){
     return slot ? {slot, partyIndex, selectedIndex} : null;
   }).filter(Boolean).slice(0,3);
 }
+function makeScopeDamageVariant(entry, formPoke){
+  const source = entry.slot;
+  const spread = getSpreadForSlot(source);
+  const variant = Object.assign({}, source, {
+    poke: formPoke,
+    abilityOptions: getAbilityOptions(formPoke),
+    moves: source.moves && source.moves.length ? source.moves : getEstimatedAtkMoves(formPoke)
+  });
+  if(!variant.abilityOptions.includes(variant.ability)) variant.ability = getDefaultAbilityForPokemon(formPoke);
+  variant.stats = calcAllStats(formPoke, source.natureName || 'がんばりや', spread, source.lv || 50);
+  return Object.assign({}, entry, {slot:variant, variantName:formPoke.name, variantBaseName:getScopeCompactPokemonName(formPoke.name)});
+}
+function expandDamageSelectedSlots(entries){
+  const expanded = [];
+  (entries || []).forEach(entry=>{
+    const forms = getScopeSpecialFormPokes(entry.slot && entry.slot.poke && entry.slot.poke.name);
+    if(forms.length){
+      forms.forEach(formPoke=>expanded.push(makeScopeDamageVariant(entry, formPoke)));
+    } else {
+      expanded.push(entry);
+    }
+  });
+  return expanded;
+}
 function getDamageMoveResults(attacker, move, defenders){
   return defenders.map(def=>{
-    const result = calcMoveDmg(attacker.slot, move, def.slot, SCOPE_DAMAGE_OPTIONS.defHpPct || 100);
+    const result = calcMoveDmg(attacker.slot, move, def.slot, 100);
     return {defender:def, result};
   });
 }
 function formatDamageResult(result){
   if(!result) return '<span class="damage-result-main">—</span>';
-  const details = result.detailNotes && result.detailNotes.length ? '<div class="damage-move-meta">'+result.detailNotes.map(escapeHtml).join(' / ')+'</div>' : '';
   return '<div class="damage-result-main">'+result.min+'〜'+result.max+'%</div>'+
-    '<div class="damage-result-sub"><span class="ko-tag '+result.cls+'">'+escapeHtml(result.label)+'</span></div>'+details;
+    '<div class="damage-result-sub"><span class="ko-tag '+result.cls+'">'+escapeHtml(result.label)+'</span></div>';
 }
 function formatDamageMoveMeta(move){
   const type = move.type ? '<span class="tp tp-'+move.type+'">'+move.type+'</span>' : '';
@@ -1808,29 +1728,29 @@ function formatDamageMoveMeta(move){
   return '<div class="damage-move-meta">'+type+cat+hits+rate+'</div>';
 }
 function getDamageTable(side){
-  const attackers = side==='my' ? getDamageSelectedSlots('my') : getDamageSelectedSlots('opp');
-  const defenders = side==='my' ? getDamageSelectedSlots('opp') : getDamageSelectedSlots('my');
+  const attackers = expandDamageSelectedSlots(side==='my' ? getDamageSelectedSlots('my') : getDamageSelectedSlots('opp'));
+  const defenders = expandDamageSelectedSlots(side==='my' ? getDamageSelectedSlots('opp') : getDamageSelectedSlots('my'));
   if(!attackers.length || !defenders.length){
     return '<div class="damage-empty-note">選出フェーズで自分側と相手側のポケモンを選んでください。</div>';
   }
-  const defenderHeads = defenders.map(d=>'<th>'+escapeHtml(d.slot.poke.name)+'<div class="damage-move-meta">HP '+d.slot.stats.hp+' / S '+d.slot.stats.spe+'</div></th>').join('');
+  const defenderHeads = defenders.map(d=>'<th>'+escapeHtml(getScopeDamageEntryName(d))+'<div class="damage-move-meta">HP '+d.slot.stats.hp+' / S '+d.slot.stats.spe+'</div></th>').join('');
   let rows = '';
   let mobileCards = '';
   attackers.forEach(attacker=>{
     const moves = (attacker.slot.moves || []).filter(m=>m && m.power>0).slice(0,4);
     if(!moves.length){
-      rows += '<tr><td class="damage-attacker-cell">'+escapeHtml(attacker.slot.poke.name)+'</td><td class="damage-move-cell">攻撃技なし</td>'+defenders.map(()=>'<td class="damage-result-cell">—</td>').join('')+'</tr>';
-      mobileCards += '<div class="damage-mobile-card"><div class="damage-mobile-head">'+escapeHtml(attacker.slot.poke.name)+'</div><div class="damage-mobile-meta">攻撃技なし</div></div>';
+      rows += '<tr><td class="damage-attacker-cell">'+escapeHtml(getScopeDamageEntryName(attacker))+'</td><td class="damage-move-cell">攻撃技なし</td>'+defenders.map(()=>'<td class="damage-result-cell">—</td>').join('')+'</tr>';
+      mobileCards += '<div class="damage-mobile-card"><div class="damage-mobile-head">'+escapeHtml(getScopeDamageEntryName(attacker))+'</div><div class="damage-mobile-meta">攻撃技なし</div></div>';
       return;
     }
     moves.forEach((move, moveIdx)=>{
       const results = getDamageMoveResults(attacker, move, defenders);
       rows += '<tr>'+ 
-        (moveIdx===0 ? '<td class="damage-attacker-cell" rowspan="'+moves.length+'">'+escapeHtml(attacker.slot.poke.name)+'<div class="damage-move-meta">'+typeHTML(attacker.slot.poke)+' S '+attacker.slot.stats.spe+'</div></td>' : '')+
+        (moveIdx===0 ? '<td class="damage-attacker-cell" rowspan="'+moves.length+'">'+escapeHtml(getScopeDamageEntryName(attacker))+'<div class="damage-move-meta">'+typeHTML(attacker.slot.poke)+' S '+attacker.slot.stats.spe+'</div></td>' : '')+
         '<td class="damage-move-cell"><div class="damage-move-name">'+escapeHtml(move.name)+'</div>'+formatDamageMoveMeta(move)+'</td>'+ 
         results.map(x=>'<td class="damage-result-cell">'+formatDamageResult(x.result)+'</td>').join('')+
         '</tr>';
-      mobileCards += '<div class="damage-mobile-card"><div class="damage-mobile-head">'+escapeHtml(attacker.slot.poke.name)+'</div><div class="damage-mobile-move">'+escapeHtml(move.name)+'</div><div class="damage-mobile-meta">'+formatDamageMoveMeta(move)+'</div>'+results.map(x=>'<div class="damage-mobile-target"><div class="damage-mobile-target-name">'+escapeHtml(x.defender.slot.poke.name)+'</div><div>'+formatDamageResult(x.result)+'</div></div>').join('')+'</div>';
+      mobileCards += '<div class="damage-mobile-card"><div class="damage-mobile-head">'+escapeHtml(getScopeDamageEntryName(attacker))+'</div><div class="damage-mobile-move">'+escapeHtml(move.name)+'</div><div class="damage-mobile-meta">'+formatDamageMoveMeta(move)+'</div>'+results.map(x=>'<div class="damage-mobile-target"><div class="damage-mobile-target-name">'+escapeHtml(getScopeDamageEntryName(x.defender))+'</div><div>'+formatDamageResult(x.result)+'</div></div>').join('')+'</div>';
     });
   });
   return '<div class="damage-table-wrap"><table class="damage-matrix"><thead><tr><th>攻撃側</th><th>技</th>'+defenderHeads+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="damage-mobile-cards">'+mobileCards+'</div>';
@@ -1849,14 +1769,14 @@ function scoreDamageAction(attacker, move, defenders){
     .slice()
     .sort((a,b)=>(b.result.max-a.result.max))
     .slice(0,3)
-    .map(x=>x.defender.slot.poke.name+' '+x.result.min+'〜'+x.result.max+'%')
+    .map(x=>getScopeDamageEntryName(x.defender)+' '+x.result.min+'〜'+x.result.max+'%')
     .join(' / ');
   const score = avgMax + oneShot*28 + twoShot*8 + best*0.15;
   return {attacker, move, results, avgMax, avgMin, best, oneShot, twoShot, targets, score};
 }
 function getDamageRanking(side){
-  const attackers = side==='my' ? getDamageSelectedSlots('my') : getDamageSelectedSlots('opp');
-  const defenders = side==='my' ? getDamageSelectedSlots('opp') : getDamageSelectedSlots('my');
+  const attackers = expandDamageSelectedSlots(side==='my' ? getDamageSelectedSlots('my') : getDamageSelectedSlots('opp'));
+  const defenders = expandDamageSelectedSlots(side==='my' ? getDamageSelectedSlots('opp') : getDamageSelectedSlots('my'));
   if(!attackers.length || !defenders.length) return [];
   const list = [];
   attackers.forEach(attacker=>{
@@ -1877,7 +1797,7 @@ function renderDamageRanking(side){
     const two = r.twoShot ? ' / 2発圏 '+r.twoShot+'体' : '';
     return '<div class="damage-rank-card">'+
       '<div class="damage-rank-no" style="color:'+accent+'">'+(i+1)+'</div>'+
-      '<div><div class="damage-rank-main">'+escapeHtml(r.attacker.slot.poke.name)+'：'+escapeHtml(r.move.name)+' <span class="ko-tag '+(side==='my'?'ko2':'ko3')+'">'+lead+'</span></div>'+
+      '<div><div class="damage-rank-main">'+escapeHtml(getScopeDamageEntryName(r.attacker))+'：'+escapeHtml(r.move.name)+' <span class="ko-tag '+(side==='my'?'ko2':'ko3')+'">'+lead+'</span></div>'+
       '<div class="damage-rank-detail">平均 '+Math.round(r.avgMin)+'〜'+Math.round(r.avgMax)+'% / 最高 '+r.best+'%'+one+two+'<br>主な対象: '+escapeHtml(r.targets)+'</div></div>'+
       '</div>';
   }).join('')+'</div>';
@@ -1885,10 +1805,9 @@ function renderDamageRanking(side){
 function renderDamageSummary(mySlots, oppSlots){
   const el = document.getElementById('scope-dmg-summary');
   if(!el) return;
-  const chipList = list => list.length ? list.map(x=>'<span class="damage-pick-chip">'+escapeHtml(x.slot.poke.name)+'</span>').join('') : '<span class="damage-pick-chip">未選出</span>';
-  const cond = '天候 '+getWeatherLabelForScope(SCOPE_DAMAGE_OPTIONS.weather)+' / 判定HP '+(SCOPE_DAMAGE_OPTIONS.defHpPct||100)+'% / おはかまいり '+(SCOPE_DAMAGE_OPTIONS.lastRespects||0)+'体 / そうだいしょう '+(SCOPE_DAMAGE_OPTIONS.supreme||0)+'体';
+  const chipList = list => list.length ? list.map(x=>'<span class="damage-pick-chip">'+escapeHtml(getScopeSlotDisplayName(x.slot))+'</span>').join('') : '<span class="damage-pick-chip">未選出</span>';
   el.innerHTML = '<div class="damage-summary-title">選出中の3体で一括判定</div>'+
-    '<div class="damage-summary-meta">ダメージは現在の選出3体と詳細条件を基準に計算します。'+escapeHtml(cond)+'</div>'+
+    '<div class="damage-summary-meta">ダメージは現在の選出3体を基準に100%HPで計算します。バトル中の現在HP確認は「バトルフェーズ」を使ってください。</div>'+
     '<div class="damage-pick-line"><b style="font-size:10px;color:var(--accent);">自分側</b>'+chipList(mySlots)+'</div>'+
     '<div class="damage-pick-line"><b style="font-size:10px;color:var(--accent2);">相手側</b>'+chipList(oppSlots)+'</div>';
 }
@@ -1926,7 +1845,7 @@ function renderBattleField(side){
   const active = party[sel[activeIdx]];
   if(!active) return;
 
-  document.getElementById(side+'-active-name').textContent = active.poke.name;
+  document.getElementById(side+'-active-name').textContent = getScopeSlotDisplayName(active);
   document.getElementById(side+'-active-types').innerHTML = typeHTML(active.poke) + (active.ability ? '<span class="ability-chip">'+active.ability+'</span>' : '');
   const pct = hp[activeIdx]||100;
   document.getElementById(side+'-hp-fill').style.width = pct+'%';
@@ -1942,7 +1861,7 @@ function renderBattleField(side){
     const s = party[pi];
     if(!s) return '';
     const faint = hp[i]<=0;
-    return '<div class="bench-slot '+(faint?'fainted':'')+'" onclick="switchActive(\''+side+'\','+i+')">'+s.poke.name+'<br><span style="font-size:8px;">'+hp[i]+'%</span></div>';
+    return '<div class="bench-slot '+(faint?'fainted':'')+'" onclick="switchActive(\''+side+'\','+i+')">'+escapeHtml(getScopeSlotDisplayName(s))+'<br><span style="font-size:8px;">'+hp[i]+'%</span></div>';
   }).join('');
 }
 
@@ -2030,7 +1949,7 @@ function calcBattleActions(){
       });
       const safety = worstDmg<25?'switch-safe':worstDmg<50?'switch-warn':'switch-danger';
       const safeLabel = worstDmg<25?'✓安全':worstDmg<50?'△注意':'×危険';
-      return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">→ '+benchSlot.poke.name+'</span>'+
+      return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">→ '+escapeHtml(getScopeSlotDisplayName(benchSlot))+'</span>'+
         '<span class="dmg-pct">被ダメ最大 '+worstDmg+'%</span>'+
         '<span class="'+safety+'">'+safeLabel+'</span>'+
         '<span style="font-size:9px;color:var(--text2);">('+worstMove+')</span></div>';
@@ -2054,7 +1973,7 @@ function calcBattleActions(){
         if(r && r.max > myBest){myBest=r.max; myBestMove=m.name;}
       });
       const tag = myBest>=50?'mu-win':myBest>=25?'mu-even':'mu-lose';
-      return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">相手→ '+benchOpp.poke.name+'</span>'+
+      return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">相手→ '+escapeHtml(getScopeSlotDisplayName(benchOpp))+'</span>'+
         '<span class="dmg-pct">自分のベスト '+myBest+'%</span>'+
         '<span class="'+tag+'">'+(myBest>=50?'◎有利':myBest>=25?'△互角':'×不利')+'</span>'+
         '<span style="font-size:9px;color:var(--text2);">('+myBestMove+')</span></div>';
