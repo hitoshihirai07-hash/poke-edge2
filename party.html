@@ -909,6 +909,12 @@ function renderCompareBaseStats(containerId, name){
 }
 function renderDualAegislashStats(containerId, name){ return renderCompareBaseStats(containerId, name); }
 
+function isAegislashName(name){ return isSpecialFormName(name); }
+function normalizeAegislashDisplayName(name){ return normalizeSpecialFormDisplayName(name); }
+function markAegislashEntry(p){ return markSpecialFormEntry(p); }
+function ensureAegislashDisplayPokemon(list){ return ensureSpecialFormDisplayPokemon(list); }
+function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
+
 
 async function loadGameData() {
   if(_dataLoaded) return;
