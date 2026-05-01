@@ -1550,6 +1550,26 @@ document.addEventListener('DOMContentLoaded',function(){
     </tr>`).join('');
   }
 
+  function hasUsableHistoryData(data) {
+    return !!(data && Array.isArray(data.columns) && data.columns.length && Array.isArray(data.rows) && data.rows.length);
+  }
+
+  function hasAnyRankingHistoryData() {
+    return hasUsableHistoryData(SINGLE_RANKING_HISTORY) || hasUsableHistoryData(DOUBLE_RANKING_HISTORY);
+  }
+
+  function syncHistoryViewAvailability() {
+    const tab = document.querySelector('.view-tab[data-view="history"]');
+    const panel = document.getElementById('season-history-view');
+    const hasHistory = hasAnyRankingHistoryData();
+    if(tab) tab.style.display = hasHistory ? '' : 'none';
+    if(panel) panel.style.display = hasHistory ? '' : 'none';
+    if(!hasHistory && currentViewMode === 'history') {
+      const hasRanking = (Array.isArray(SINGLE_RANKINGS.rows) && SINGLE_RANKINGS.rows.length) || (Array.isArray(DOUBLE_RANKINGS.rows) && DOUBLE_RANKINGS.rows.length);
+      setViewMode(hasRanking ? 'ranking' : 'list');
+    }
+  }
+
   function getHistoryData() {
     return currentHistoryBattle === 'double' ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY;
   }
@@ -1684,6 +1704,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const originalRender = window.render;
   window.render = function() {
     if(typeof originalRender === 'function') originalRender();
+    syncHistoryViewAvailability();
     renderRankings();
     renderRankingHistory();
   };
@@ -1715,12 +1736,14 @@ document.addEventListener('DOMContentLoaded',function(){
     ensureDetailRankingBox();
     ensureDetailTransferBox();
     ensureDetailMoveToggleButton();
+    syncHistoryViewAvailability();
   });
   window.addEventListener('load', function() {
     ensureSeasonViews();
     ensureDetailRankingBox();
     ensureDetailTransferBox();
     ensureDetailMoveToggleButton();
+    syncHistoryViewAvailability();
     loadRankingJson();
   });
 })();
