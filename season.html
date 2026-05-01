@@ -1473,11 +1473,11 @@ document.addEventListener('DOMContentLoaded',function(){
           <div class="detail-ranking-line"><b>${escapeHtml(row.rank)}位</b>${escapeHtml(row.name || '')}${row.rankingSource === 'base' ? ' <span style="color:var(--accent3)">（元ポケモン順位）</span>' : ''}</div>
           ${sparklineHtml((getHistoryRowsForName(row.name || '', group.title.includes('ダブル') ? 'double' : 'single') || [])[0], (group.title.includes('ダブル') ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY).columns || [], group.title + 'の推移')}
           <div class="detail-ranking-line">更新日: ${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</div>
-          <div class="detail-ranking-line">技: ${escapeHtml((row.moves || []).slice(0,3).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">持ち物: ${escapeHtml((row.items || []).slice(0,3).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">特性: ${escapeHtml((row.abilities || []).slice(0,3).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">性格: ${escapeHtml((row.natures || []).slice(0,3).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">努力値: ${escapeHtml((row.spreads || []).slice(0,3).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">技: ${escapeHtml((row.moves || []).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">持ち物: ${escapeHtml((row.items || []).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">特性: ${escapeHtml((row.abilities || []).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">性格: ${escapeHtml((row.natures || []).join(' / ') || '—')}</div>
+          <div class="detail-ranking-line">努力値: ${escapeHtml((row.spreads || []).join(' / ') || '—')}</div>
         `).join('')}
       </div>
     `).join('');
@@ -1548,26 +1548,6 @@ document.addEventListener('DOMContentLoaded',function(){
       <td>${escapeHtml(m.hits || '—')}</td>
       <td>${escapeHtml(m.description || '—')}</td>
     </tr>`).join('');
-  }
-
-  function hasUsableHistoryData(data) {
-    return !!(data && Array.isArray(data.columns) && data.columns.length && Array.isArray(data.rows) && data.rows.length);
-  }
-
-  function hasAnyRankingHistoryData() {
-    return hasUsableHistoryData(SINGLE_RANKING_HISTORY) || hasUsableHistoryData(DOUBLE_RANKING_HISTORY);
-  }
-
-  function syncHistoryViewAvailability() {
-    const tab = document.querySelector('.view-tab[data-view="history"]');
-    const panel = document.getElementById('season-history-view');
-    const hasHistory = hasAnyRankingHistoryData();
-    if(tab) tab.style.display = hasHistory ? '' : 'none';
-    if(panel) panel.style.display = hasHistory ? '' : 'none';
-    if(!hasHistory && currentViewMode === 'history') {
-      const hasRanking = (Array.isArray(SINGLE_RANKINGS.rows) && SINGLE_RANKINGS.rows.length) || (Array.isArray(DOUBLE_RANKINGS.rows) && DOUBLE_RANKINGS.rows.length);
-      setViewMode(hasRanking ? 'ranking' : 'list');
-    }
   }
 
   function getHistoryData() {
@@ -1704,7 +1684,6 @@ document.addEventListener('DOMContentLoaded',function(){
   const originalRender = window.render;
   window.render = function() {
     if(typeof originalRender === 'function') originalRender();
-    syncHistoryViewAvailability();
     renderRankings();
     renderRankingHistory();
   };
@@ -1736,14 +1715,12 @@ document.addEventListener('DOMContentLoaded',function(){
     ensureDetailRankingBox();
     ensureDetailTransferBox();
     ensureDetailMoveToggleButton();
-    syncHistoryViewAvailability();
   });
   window.addEventListener('load', function() {
     ensureSeasonViews();
     ensureDetailRankingBox();
     ensureDetailTransferBox();
     ensureDetailMoveToggleButton();
-    syncHistoryViewAvailability();
     loadRankingJson();
   });
 })();
