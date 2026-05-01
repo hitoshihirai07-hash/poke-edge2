@@ -725,7 +725,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <button type="button" class="assist-secondary-btn" onclick="syncBulkInputsFromCurrentEVs(true)">現在の努力値を取り込む</button>
               <button type="button" class="primary" onclick="runBulkRecommend()">耐久調整</button>
             </div>
-            <div id="bulk-summary" class="assist-result">現在の努力値を取り込むか、そのまま数値を入れて「耐久調整」を押してください。</div>
+            <div id="bulk-summary" class="assist-result">現在の努力値を取り込むか、そのまま数値を入れて「耐久調整」を押してください。努力値は自動変更せず、おすすめ候補だけ表示します。</div>
             <div class="assist-mini">総合耐久指数表（上位候補）</div>
             <div class="assist-table-wrap">
               <table class="assist-table">
@@ -1234,7 +1234,7 @@ function syncBulkInputsFromCurrentEVs(force){
     const body=document.getElementById('bulk-candidate-body');
     if(body) body.innerHTML='<tr><td colspan="7" style="color:var(--text2);">耐久調整後、ここに上位候補を表示します。</td></tr>';
     const summary=document.getElementById('bulk-summary');
-    if(summary) summary.textContent='現在の努力値を取り込みました。必要なら数値を微調整してから「耐久調整」を押してください。';
+    if(summary) summary.textContent='現在の努力値を取り込みました。必要なら数値を微調整してから「耐久調整」を押してください。努力値は自動変更せず、おすすめ候補だけ表示します。';
   }
 }
 function getBulkNatureCandidates(pokeName, physRatio){
@@ -1338,16 +1338,10 @@ function runBulkRecommend(){
     return;
   }
   const best=unique[0];
-  document.getElementById('f-nature').value=best.nature;
-  ['hp','atk','def','spa','spd','spe'].forEach(stat=>{
-    document.getElementById('ev-'+stat+'-r').value=best.ev[stat]||0;
-    document.getElementById('ev-'+stat).value=best.ev[stat]||0;
-  });
-  updateEVRemain();
-  recalcReal();
   if(summary){
     const remain=limit-best.used;
-    summary.innerHTML=`おすすめは <strong style="color:var(--accent3);">${escapeHtml(best.nature)}</strong> / 努力値 <strong style="color:var(--accent);">${best.ev.hp}-${best.ev.atk}-${best.ev.def}-${best.ev.spa}-${best.ev.spd}-${best.ev.spe}</strong> です。残り努力値を耐久へ回し、${Math.round(physRatio*100)}% : ${Math.round((1-physRatio)*100)}% の比率で最も伸びる案を自動反映しました。${remain>0 ? ` まだ ${remain} 余りがあります。` : ''}`;
+    const currentEv=getEVs();
+    summary.innerHTML=`現在の努力値 <strong style="color:var(--text);">${currentEv.hp}-${currentEv.atk}-${currentEv.def}-${currentEv.spa}-${currentEv.spd}-${currentEv.spe}</strong> はそのままにしています。おすすめは <strong style="color:var(--accent3);">${escapeHtml(best.nature)}</strong> / 努力値 <strong style="color:var(--accent);">${best.ev.hp}-${best.ev.atk}-${best.ev.def}-${best.ev.spa}-${best.ev.spd}-${best.ev.spe}</strong> です。${Math.round(physRatio*100)}% : ${Math.round((1-physRatio)*100)}% の受け比率で伸びやすい上位候補を下に表示しました。${remain>0 ? ` まだ ${remain} 余りがあります。` : ''}`;
   }
   if(body){
     body.innerHTML=unique.map((cand,idx)=>`<tr>
