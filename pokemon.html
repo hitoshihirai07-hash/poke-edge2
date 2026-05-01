@@ -689,49 +689,51 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       </div>
 
 
-      <!-- ランキングおすすめ / おまかせ総合耐久調整 -->
+      <!-- ランキングおすすめ -->
       <div class="section">
-        <div class="sec-title">ランキングおすすめ / おまかせ総合耐久調整</div>
-        <div class="assist-grid">
-          <div class="assist-card">
-            <div class="assist-head">ランキングからおすすめを表示</div>
-            <div class="assist-note">選択中のポケモンについて、シングル / ダブルの上位候補を表示します。技・持ち物・特性・性格・努力値候補をそのまま反映できます。</div>
-            <div class="assist-mode-row">
-              <span class="assist-mini">参照ルール</span>
-              <button type="button" id="ranking-mode-single" class="assist-chip-btn active" onclick="setRankingAssistMode('single')">シングル</button>
-              <button type="button" id="ranking-mode-double" class="assist-chip-btn" onclick="setRankingAssistMode('double')">ダブル</button>
-            </div>
-            <div id="ranking-reco-status" class="assist-result">ポケモンを選ぶと、ここにランキング上位の候補を表示します。</div>
-            <div class="assist-block"><div class="assist-mini">技おすすめ</div><div id="ranking-reco-moves" class="quick-chip-wrap"></div></div>
-            <div class="assist-block"><div class="assist-mini">持ち物おすすめ</div><div id="ranking-reco-items" class="quick-chip-wrap"></div></div>
-            <div class="assist-block"><div class="assist-mini">特性おすすめ</div><div id="ranking-reco-abilities" class="quick-chip-wrap"></div></div>
-            <div class="assist-block"><div class="assist-mini">性格おすすめ</div><div id="ranking-reco-natures" class="quick-chip-wrap"></div></div>
-            <div class="assist-block"><div class="assist-mini">努力値おすすめ</div><div id="ranking-reco-spreads" class="quick-chip-wrap"></div></div>
+        <div class="sec-title">ランキングおすすめ</div>
+        <div class="assist-card">
+          <div class="assist-head">ランキングからおすすめを表示</div>
+          <div class="assist-note">選択中のポケモンについて、シングル / ダブルの上位候補を表示します。技・持ち物・特性・性格・努力値候補をそのまま反映できます。</div>
+          <div class="assist-mode-row">
+            <span class="assist-mini">参照ルール</span>
+            <button type="button" id="ranking-mode-single" class="assist-chip-btn active" onclick="setRankingAssistMode('single')">シングル</button>
+            <button type="button" id="ranking-mode-double" class="assist-chip-btn" onclick="setRankingAssistMode('double')">ダブル</button>
           </div>
+          <div id="ranking-reco-status" class="assist-result">ポケモンを選ぶと、ここにランキング上位の候補を表示します。</div>
+          <div class="assist-block"><div class="assist-mini">技おすすめ</div><div id="ranking-reco-moves" class="quick-chip-wrap"></div></div>
+          <div class="assist-block"><div class="assist-mini">持ち物おすすめ</div><div id="ranking-reco-items" class="quick-chip-wrap"></div></div>
+          <div class="assist-block"><div class="assist-mini">特性おすすめ</div><div id="ranking-reco-abilities" class="quick-chip-wrap"></div></div>
+          <div class="assist-block"><div class="assist-mini">性格おすすめ</div><div id="ranking-reco-natures" class="quick-chip-wrap"></div></div>
+          <div class="assist-block"><div class="assist-mini">努力値おすすめ</div><div id="ranking-reco-spreads" class="quick-chip-wrap"></div></div>
+        </div>
+      </div>
 
-          <div class="assist-card">
-            <div class="assist-head">おまかせ総合耐久調整</div>
-            <div class="assist-note">今入力している努力値をそのまま基準にして、余っている努力値をHP / 防御 / 特防へどう回すと総合耐久指数が伸びやすいかを表示します。攻撃・特攻・素早さだけでなく、すでに入っているHP / 防御 / 特防もそのまま意識して候補を出します。</div>
-            <div>
-              <label>物理・特殊の攻撃を受ける比率</label>
-              <input type="range" id="bulk-ratio" min="0" max="100" value="50" oninput="updateBulkRatioLabel()">
-              <div class="ratio-line"><span id="bulk-ratio-phys">物理 50%</span><span id="bulk-ratio-spec">特殊 50%</span></div>
-            </div>
-            <div class="bulk-actions">
-              <button type="button" class="primary" onclick="runBulkRecommend()">耐久調整</button>
-            </div>
-            <div id="bulk-summary" class="assist-result">今入力している努力値を基準に、そのままおすすめ候補だけ表示します。努力値は自動変更しません。</div>
-            <div class="assist-mini">総合耐久指数表（上位候補）</div>
-            <div class="assist-table-wrap">
-              <table class="assist-table bulk-candidate-table">
-                <thead>
-                  <tr><th>順位</th><th>性格</th><th>努力値</th><th>実数値</th><th>指数</th><th>HP調整</th><th>反映</th></tr>
-                </thead>
-                <tbody id="bulk-candidate-body">
-                  <tr><td colspan="7" style="color:var(--text2);">耐久調整後、ここに上位候補を表示します。</td></tr>
-                </tbody>
-              </table>
-            </div>
+      <!-- おまかせ総合耐久調整 -->
+      <div class="section">
+        <div class="sec-title">おまかせ総合耐久調整</div>
+        <div class="assist-card">
+          <div class="assist-head">おまかせ総合耐久調整</div>
+          <div class="assist-note">今入力している努力値をそのまま基準にして、余っている努力値をHP / 防御 / 特防へどう回すと総合耐久指数が伸びやすいかを表示します。攻撃・特攻・素早さだけでなく、すでに入っているHP / 防御 / 特防もそのまま意識して候補を出します。</div>
+          <div>
+            <label>物理・特殊の攻撃を受ける比率</label>
+            <input type="range" id="bulk-ratio" min="0" max="100" value="50" oninput="updateBulkRatioLabel()">
+            <div class="ratio-line"><span id="bulk-ratio-phys">物理 50%</span><span id="bulk-ratio-spec">特殊 50%</span></div>
+          </div>
+          <div class="bulk-actions">
+            <button type="button" class="primary" onclick="runBulkRecommend()">耐久調整</button>
+          </div>
+          <div id="bulk-summary" class="assist-result">今入力している努力値を基準に、そのままおすすめ候補だけ表示します。努力値は自動変更しません。</div>
+          <div class="assist-mini">総合耐久指数表（上位候補）</div>
+          <div class="assist-table-wrap">
+            <table class="assist-table bulk-candidate-table">
+              <thead>
+                <tr><th>順位</th><th>性格</th><th>努力値</th><th>実数値</th><th>指数</th><th>HP調整</th><th>反映</th></tr>
+              </thead>
+              <tbody id="bulk-candidate-body">
+                <tr><td colspan="7" style="color:var(--text2);">耐久調整後、ここに上位候補を表示します。</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -2127,8 +2129,8 @@ function markPokemonMobileSections(){
   if(!sections.length) return;
   sections.forEach(sec=>sec.classList.remove('mobile-section-basic','mobile-section-effort','mobile-section-moves'));
   [sections[0], sections[1]].forEach(sec=>sec && sec.classList.add('mobile-section-basic'));
-  [sections[2], sections[3]].forEach(sec=>sec && sec.classList.add('mobile-section-effort'));
-  [sections[4], sections[5]].forEach(sec=>sec && sec.classList.add('mobile-section-moves'));
+  [sections[2], sections[3], sections[4]].forEach(sec=>sec && sec.classList.add('mobile-section-effort'));
+  [sections[5], sections[6]].forEach(sec=>sec && sec.classList.add('mobile-section-moves'));
 }
 function switchPokemonMobileTab(tab){
   const safe = ['list','basic','effort','moves'].includes(tab) ? tab : 'list';
