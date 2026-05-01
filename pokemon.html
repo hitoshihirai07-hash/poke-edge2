@@ -221,8 +221,16 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
 .ev-over{color:var(--accent2)!important;}
 
 /* ランキングおすすめ / おまかせ耐久 */
-.assist-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:12px;}
+.assist-grid{display:grid;grid-template-columns:1fr;gap:12px;}
 .assist-card{background:var(--bg2);border:1px solid var(--border);padding:12px;display:grid;gap:10px;}
+@media(min-width:801px){
+  .assist-card{padding:14px;}
+  .bulk-candidate-table{min-width:760px;table-layout:auto;}
+  .bulk-candidate-table th,.bulk-candidate-table td{padding:8px 10px;font-size:12px;vertical-align:middle;}
+  .bulk-candidate-table th{font-size:11px;}
+  .bulk-candidate-table .bulk-ev-cell,.bulk-candidate-table .bulk-real-cell{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;white-space:normal;line-height:1.6;}
+  .bulk-candidate-table .bulk-subline{display:inline;font-size:11px;}
+}
 .assist-head{font-size:11px;font-weight:700;color:var(--accent3);letter-spacing:1px;}
 .assist-note{font-size:10px;color:var(--text2);line-height:1.8;}
 .assist-mini{font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;}
@@ -239,6 +247,9 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
 .assist-table{width:100%;border-collapse:collapse;min-width:620px;}
 .assist-table th,.assist-table td{border-bottom:1px solid var(--border);padding:7px 8px;font-size:11px;text-align:left;white-space:nowrap;}
 .assist-table th{font-size:10px;color:var(--text2);background:rgba(0,0,0,0.12);position:sticky;top:0;}
+.bulk-candidate-table .bulk-ev-cell,.bulk-candidate-table .bulk-real-cell{white-space:normal;line-height:1.5;}
+.bulk-candidate-table .bulk-ev-cell strong,.bulk-candidate-table .bulk-real-cell strong{color:var(--text);font-weight:700;}
+.bulk-candidate-table .bulk-subline{display:block;font-size:10px;color:var(--text2);} 
 .assist-tag{display:inline-block;padding:2px 7px;border:1px solid var(--border2);font-size:10px;color:var(--text3);}
 .assist-tag.good{border-color:var(--green);color:var(--green);}
 .assist-tag.warn{border-color:var(--accent3);color:var(--accent3);}
@@ -253,6 +264,15 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
 @media(max-width:800px){
   .assist-grid{grid-template-columns:1fr;}
   .assist-subgrid,.assist-inline-grid{grid-template-columns:1fr;}
+  .bulk-candidate-table{min-width:0;table-layout:fixed;}
+  .bulk-candidate-table th,.bulk-candidate-table td{padding:6px 5px;font-size:10px;white-space:normal;word-break:break-word;vertical-align:top;}
+  .bulk-candidate-table th:nth-child(5),.bulk-candidate-table td:nth-child(5),
+  .bulk-candidate-table th:nth-child(6),.bulk-candidate-table td:nth-child(6){display:none;}
+  .bulk-candidate-table th:nth-child(1),.bulk-candidate-table td:nth-child(1){width:34px;}
+  .bulk-candidate-table th:nth-child(2),.bulk-candidate-table td:nth-child(2){width:64px;}
+  .bulk-candidate-table th:nth-child(7),.bulk-candidate-table td:nth-child(7){width:58px;}
+  .bulk-candidate-table .assist-secondary-btn{padding:7px 8px;font-size:10px;white-space:nowrap;}
+  .bulk-candidate-table .bulk-subline{font-size:9px;}
 }
 
 /* 技 */
@@ -703,7 +723,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <div id="bulk-summary" class="assist-result">今入力している努力値を基準に、そのままおすすめ候補だけ表示します。努力値は自動変更しません。</div>
             <div class="assist-mini">総合耐久指数表（上位候補）</div>
             <div class="assist-table-wrap">
-              <table class="assist-table">
+              <table class="assist-table bulk-candidate-table">
                 <thead>
                   <tr><th>順位</th><th>性格</th><th>努力値</th><th>実数値</th><th>指数</th><th>HP調整</th><th>反映</th></tr>
                 </thead>
@@ -1237,6 +1257,12 @@ function describeBulkHpTuning(hpStat){
   if(hpStat % 16 === 15) tags.push('16n-1');
   return tags.length ? tags.join(' / ') : '—';
 }
+function formatBulkEvCell(ev){
+  return `<div class="bulk-ev-cell"><strong>H${ev.hp} A${ev.atk} B${ev.def}</strong><span class="bulk-subline">C${ev.spa} D${ev.spd} S${ev.spe}</span></div>`;
+}
+function formatBulkRealCell(real){
+  return `<div class="bulk-real-cell"><strong>H${real.hp} B${real.def}</strong><span class="bulk-subline">D${real.spd}</span></div>`;
+}
 function runBulkRecommend(){
   if(!currentPokeData){ alert('先にポケモンを選択してください'); return; }
   const limit=isPokeChampions() ? 66 : 510;
@@ -1315,8 +1341,8 @@ function runBulkRecommend(){
     body.innerHTML=unique.map((cand,idx)=>`<tr>
       <td>${idx+1}</td>
       <td>${escapeHtml(cand.nature)}</td>
-      <td>${cand.ev.hp}-${cand.ev.atk}-${cand.ev.def}-${cand.ev.spa}-${cand.ev.spd}-${cand.ev.spe}</td>
-      <td>${cand.real.hp}-${cand.real.def}-${cand.real.spd}</td>
+      <td>${formatBulkEvCell(cand.ev)}</td>
+      <td>${formatBulkRealCell(cand.real)}</td>
       <td>${Math.round(cand.score).toLocaleString('ja-JP')}</td>
       <td>${cand.hpTune==='—' ? '<span class="assist-tag">—</span>' : cand.hpTune.split(' / ').map(tag=>`<span class="assist-tag ${tag==='16n-1'?'warn':'good'}">${tag}</span>`).join(' ')}</td>
       <td><button type="button" class="assist-secondary-btn" onclick="applyBulkCandidate(${idx})">反映</button></td>
