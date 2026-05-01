@@ -576,11 +576,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;padding:8px;background:var(--bg2);border:1px solid var(--border);">
           <span style="font-size:10px;color:var(--text2);letter-spacing:1px;">ゲーム:</span>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
-            <input type="radio" name="poke-game-mode" id="poke-mode-classic" value="classic" checked onchange="onPokeModeChange()">
+            <input type="radio" name="poke-game-mode" id="poke-mode-classic" value="classic" onchange="onPokeModeChange()">
             <span style="font-size:11px;color:var(--text);">従来作（最大252）</span>
           </label>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
-            <input type="radio" name="poke-game-mode" id="poke-mode-champions" value="champions" onchange="onPokeModeChange()">
+            <input type="radio" name="poke-game-mode" id="poke-mode-champions" value="champions" checked onchange="onPokeModeChange()">
             <span style="font-size:11px;color:var(--accent3);">Champions（最大32）</span>
           </label>
         </div>
@@ -1549,6 +1549,13 @@ function newPokemon() {
   document.getElementById('iv-disp').textContent=31;
   document.getElementById('base-stats-box').style.display='none';
   document.getElementById('real-grid').innerHTML='';
+  const classicRadio = document.getElementById('poke-mode-classic');
+  const championsRadio = document.getElementById('poke-mode-champions');
+  if(classicRadio && championsRadio){
+    classicRadio.checked = false;
+    championsRadio.checked = true;
+    onPokeModeChange();
+  }
   ['hp','atk','def','spa','spd','spe'].forEach(k=>{
     document.getElementById('ev-'+k+'-r').value=0;
     document.getElementById('ev-'+k).value=0;
@@ -1616,6 +1623,14 @@ function loadPokemon(id) {
   document.getElementById('iv-range').value=rec.iv||31;
   document.getElementById('iv-num').value=rec.iv||31;
   document.getElementById('iv-disp').textContent=rec.iv||31;
+  const classicRadio = document.getElementById('poke-mode-classic');
+  const championsRadio = document.getElementById('poke-mode-champions');
+  const savedMode = rec.gameMode === 'classic' ? 'classic' : 'champions';
+  if(classicRadio && championsRadio){
+    classicRadio.checked = savedMode === 'classic';
+    championsRadio.checked = savedMode === 'champions';
+    onPokeModeChange();
+  }
   ['hp','atk','def','spa','spd','spe'].forEach(k=>{
     const v=rec.ev?rec.ev[k]||0:0;
     document.getElementById('ev-'+k+'-r').value=v;
@@ -1741,6 +1756,7 @@ window.onload = async () => {
   const regSearch = document.getElementById('reg-search');
   if(regSearch) regSearch.addEventListener('input', function(){ renderRegList(this.value); });
 
+  onPokeModeChange();
   applySeasonTransferToPokemon();
 };
 </script>
