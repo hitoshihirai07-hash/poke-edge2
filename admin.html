@@ -188,6 +188,23 @@ input[type=file]{display:none;}
 
 @media(max-width:768px){.admin-tabs{top:52px;overflow-x:auto;flex-wrap:nowrap;margin-left:-16px;margin-right:-16px;padding:10px 16px;}.admin-tab-btn{white-space:nowrap;}.main{padding-bottom:30px;}.admin-mini-table{display:block;overflow-x:auto;white-space:nowrap;}}
 
+
+.admin-quick{padding:18px 18px 16px;margin-bottom:16px;}
+.admin-quick-note{font-size:11px;color:var(--text3);line-height:1.8;margin-bottom:12px;}
+.admin-quick-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+.admin-quick-select{flex:1;min-width:240px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 12px;font-family:'Noto Sans JP',sans-serif;font-size:13px;outline:none;}
+.admin-quick-select:focus{border-color:var(--accent);}
+.admin-quick-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .16s;}
+.admin-quick-btn:hover{border-color:var(--accent);color:var(--accent);}
+.admin-quick-btn.primary{background:rgba(0,200,240,.09);border-color:var(--accent);color:var(--accent);}
+.admin-quick-info{background:var(--bg2);border:1px solid var(--border);padding:10px 12px;font-size:11px;color:var(--text2);line-height:1.8;margin-bottom:10px;}
+.admin-quick-info strong{color:var(--accent3);font-weight:700;}
+.admin-quick-chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+.admin-quick-chip{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:7px 10px;font-size:11px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;transition:all .16s;}
+.admin-quick-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section-target{box-shadow:0 0 0 2px rgba(0,200,240,.28) inset,0 0 0 1px rgba(0,200,240,.12);}
+@media(max-width:768px){.admin-quick{padding:16px;}.admin-quick-row{flex-direction:column;align-items:stretch;}.admin-quick-select,.admin-quick-btn{width:100%;}}
+
 </style>
 </head>
 <body>
@@ -258,8 +275,40 @@ input[type=file]{display:none;}
 
   <div class="admin-tab-panel active" id="admin-tab-update">
 
+
+  <div class="section admin-quick">
+    <div class="sec-title">更新ショートカット</div>
+    <div class="sec-file">上の選択から移動、またはそのままCSV選択</div>
+    <div class="admin-quick-note">更新箇所が増えても、上から対象を選んですぐ該当欄へ移動できます。よく使う順位まわりは下のボタンからも飛べます。</div>
+    <div class="admin-quick-row">
+      <select id="update-shortcut-select" class="admin-quick-select" onchange="updateShortcutInfo()">
+        <option value="rank_single">順位データ更新（シングル）</option>
+        <option value="rank_double">順位データ更新（ダブル）</option>
+        <option value="rank_history_single">順位推移データ更新（シングル）</option>
+        <option value="rank_history_double">順位推移データ更新（ダブル）</option>
+        <option value="poke">ポケモンデータ更新</option>
+        <option value="move">技データ更新</option>
+        <option value="pmove">ポケモン別技データ更新</option>
+        <option value="ab">特性データ更新</option>
+        <option value="ab_data">特性データ更新（abilities_data.json）</option>
+        <option value="season">使用可能ポケモン更新（season.json）</option>
+        <option value="belongings">道具データ更新</option>
+      </select>
+      <button type="button" class="admin-quick-btn" onclick="goToSelectedUpdateSection()">選択先へ移動</button>
+      <button type="button" class="admin-quick-btn primary" onclick="openSelectedUpdateFile()">選択してCSVを開く</button>
+    </div>
+    <div class="admin-quick-info" id="update-shortcut-info"></div>
+    <div class="admin-quick-chip-row">
+      <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_single')">シングル順位</button>
+      <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_double')">ダブル順位</button>
+      <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_history_single')">シングル順位推移</button>
+      <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_history_double')">ダブル順位推移</button>
+      <button type="button" class="admin-quick-chip" onclick="window.scrollTo({top:0,behavior:'smooth'})">ページ上へ戻る</button>
+    </div>
+  </div>
+
   <!-- pokemon.csv → pokemon.json -->
-  <div class="section">
+  <div class="section" id="update-section-poke">
     <div class="sec-title">ポケモンデータ更新</div>
     <div class="sec-file">pokemon.csv → pokemon.json</div>
     <div class="sec-cols">
@@ -296,7 +345,7 @@ input[type=file]{display:none;}
   </div>
 
   <!-- moves.csv → moves.json -->
-  <div class="section">
+  <div class="section" id="update-section-move">
     <div class="sec-title">技データ更新</div>
     <div class="sec-file">moves.csv → moves.json</div>
     <div class="sec-cols">
@@ -334,7 +383,7 @@ input[type=file]{display:none;}
   </div>
 
   <!-- pokemon_moves.csv → pokemon_moves.json -->
-  <div class="section">
+  <div class="section" id="update-section-pmove">
     <div class="sec-title">ポケモン別技データ更新</div>
     <div class="sec-file">pokemon_moves.csv → pokemon_moves.json</div>
     <div class="sec-cols">
@@ -372,7 +421,7 @@ input[type=file]{display:none;}
   </div>
 
   <!-- 特性CSVについて -->
-  <div class="section">
+  <div class="section" id="update-section-ab">
     <div class="sec-title">特性データ更新</div>
     <div class="sec-file">characteristics.csv → abilities.json</div>
     <div class="sec-cols">
@@ -409,7 +458,7 @@ input[type=file]{display:none;}
   </div>
 
   <!-- characteristic_table.csv → abilities_data.json -->
-  <div class="section">
+  <div class="section" id="update-section-ab_data">
     <div class="sec-title">特性データ更新（abilities_data.json）</div>
     <div class="sec-file">characteristic_table.csv → abilities_data.json</div>
     <div class="sec-cols">
@@ -447,7 +496,7 @@ input[type=file]{display:none;}
   </div>
 
   <!-- season.csv → season.json -->
-  <div class="section">
+  <div class="section" id="update-section-season">
     <div class="sec-title">使用可能ポケモン更新（season.json）</div>
     <div class="sec-file">season.csv → season.json</div>
     <div class="sec-cols">
@@ -489,7 +538,7 @@ input[type=file]{display:none;}
 
 
   <!-- belongings.csv → belongings.json -->
-  <div class="section">
+  <div class="section" id="update-section-belongings">
     <div class="sec-title">道具データ更新</div>
     <div class="sec-file">belongings.csv → belongings.json</div>
     <div class="sec-cols">
@@ -555,7 +604,7 @@ input[type=file]{display:none;}
     </div>
   </div>
   <!-- single.csv → season_ranking_single.json -->
-  <div class="section">
+  <div class="section" id="update-section-rank_single">
     <div class="sec-title">順位データ更新（シングル）</div>
     <div class="sec-file">single.csv → season_ranking_single.json</div>
     <div class="sec-cols">
@@ -596,7 +645,7 @@ input[type=file]{display:none;}
   </div>
 
   <!-- double.csv → season_ranking_double.json -->
-  <div class="section">
+  <div class="section" id="update-section-rank_double">
     <div class="sec-title">順位データ更新（ダブル）</div>
     <div class="sec-file">double.csv → season_ranking_double.json</div>
     <div class="sec-cols">
@@ -638,7 +687,7 @@ input[type=file]{display:none;}
 
 
   <!-- single_ranking_change.csv → season_ranking_history_single.json -->
-  <div class="section">
+  <div class="section" id="update-section-rank_history_single">
     <div class="sec-title">順位推移データ更新（シングル）</div>
     <div class="sec-file">single_ranking_change.csv → season_ranking_history_single.json</div>
     <div class="sec-cols">
@@ -679,7 +728,7 @@ input[type=file]{display:none;}
   </div>
 
   <!-- double_ranking_change.csv → season_ranking_history_double.json -->
-  <div class="section">
+  <div class="section" id="update-section-rank_history_double">
     <div class="sec-title">順位推移データ更新（ダブル）</div>
     <div class="sec-file">double_ranking_change.csv → season_ranking_history_double.json</div>
     <div class="sec-cols">
@@ -918,6 +967,68 @@ async function loadAnalyticsDashboard(){
     log.innerHTML = '<span class="err">アクセス情報を読み込めませんでした。</span>';
     area.innerHTML = '<div class="analytics-error">site_analytics_events テーブルが未作成、またはRLSポリシー未設定の可能性があります。付属の analytics_schema.sql をSupabase SQL Editorで実行してください。<br>詳細：'+adminEsc(e.message || e)+'</div><pre class="analytics-sql">'+adminEsc(sql)+'</pre>';
   }
+}
+
+
+const ADMIN_UPDATE_SHORTCUTS = {
+  poke: { label:'ポケモンデータ更新', file:'pokemon.csv', out:'pokemon.json', sectionId:'update-section-poke', inputId:'f-poke' },
+  move: { label:'技データ更新', file:'moves.csv', out:'moves.json', sectionId:'update-section-move', inputId:'f-move' },
+  pmove: { label:'ポケモン別技データ更新', file:'pokemon_moves.csv', out:'pokemon_moves.json', sectionId:'update-section-pmove', inputId:'f-pmove' },
+  ab: { label:'特性データ更新', file:'characteristics.csv', out:'abilities.json', sectionId:'update-section-ab', inputId:'f-ab' },
+  ab_data: { label:'特性データ更新（abilities_data.json）', file:'characteristic_table.csv', out:'abilities_data.json', sectionId:'update-section-ab_data', inputId:'f-ab_data' },
+  season: { label:'使用可能ポケモン更新', file:'season.csv', out:'season.json', sectionId:'update-section-season', inputId:'f-season' },
+  belongings: { label:'道具データ更新', file:'belongings.csv', out:'belongings.json', sectionId:'update-section-belongings', inputId:'f-belongings' },
+  rank_single: { label:'順位データ更新（シングル）', file:'single.csv', out:'season_ranking_single.json', sectionId:'update-section-rank_single', inputId:'f-rank_single' },
+  rank_double: { label:'順位データ更新（ダブル）', file:'double.csv', out:'season_ranking_double.json', sectionId:'update-section-rank_double', inputId:'f-rank_double' },
+  rank_history_single: { label:'順位推移データ更新（シングル）', file:'single_ranking_change.csv', out:'season_ranking_history_single.json', sectionId:'update-section-rank_history_single', inputId:'f-rank_history_single' },
+  rank_history_double: { label:'順位推移データ更新（ダブル）', file:'double_ranking_change.csv', out:'season_ranking_history_double.json', sectionId:'update-section-rank_history_double', inputId:'f-rank_history_double' }
+};
+
+function getSelectedUpdateShortcutKey(){
+  const select = document.getElementById('update-shortcut-select');
+  return select ? select.value : '';
+}
+function updateShortcutInfo(){
+  const info = document.getElementById('update-shortcut-info');
+  const key = getSelectedUpdateShortcutKey();
+  const target = ADMIN_UPDATE_SHORTCUTS[key];
+  if(!info || !target) return;
+  info.innerHTML = '<strong>' + adminEsc(target.label) + '</strong><br>' + adminEsc(target.file) + ' を選んで、' + adminEsc(target.out) + ' を作成します。';
+}
+function flashUpdateSection(section){
+  if(!section) return;
+  section.classList.add('section-target');
+  setTimeout(()=>section.classList.remove('section-target'), 1700);
+}
+function scrollToUpdateSectionByKey(key, openPicker){
+  const target = ADMIN_UPDATE_SHORTCUTS[key];
+  if(!target) return;
+  showAdminTab('update');
+  setTimeout(function(){
+    const section = document.getElementById(target.sectionId);
+    if(!section) return;
+    const top = window.scrollY + section.getBoundingClientRect().top - 118;
+    window.scrollTo({ top: Math.max(0, top), behavior:'smooth' });
+    flashUpdateSection(section);
+    if(openPicker){
+      setTimeout(function(){
+        const input = document.getElementById(target.inputId);
+        if(input) input.click();
+      }, 220);
+    }
+  }, 120);
+}
+function goToSelectedUpdateSection(){
+  scrollToUpdateSectionByKey(getSelectedUpdateShortcutKey(), false);
+}
+function openSelectedUpdateFile(){
+  scrollToUpdateSectionByKey(getSelectedUpdateShortcutKey(), true);
+}
+function jumpToUpdate(key){
+  const select = document.getElementById('update-shortcut-select');
+  if(select) select.value = key;
+  updateShortcutInfo();
+  scrollToUpdateSectionByKey(key, false);
 }
 
 function showAdminTab(name){
@@ -1551,6 +1662,7 @@ function closeNav(){
   ov.classList.remove('show');
 }
 document.addEventListener('DOMContentLoaded', function(){
+  updateShortcutInfo();
   document.querySelectorAll('.nav-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       if(window.innerWidth <= 768) closeNav();
