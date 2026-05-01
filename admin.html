@@ -554,18 +554,19 @@ input[type=file]{display:none;}
       </div>
     </div>
   </div>
-  <!-- single.csv → season_ranking_single.json -->
+  <!-- single.csv / double.csv から順位関連JSONを生成 -->
   <div class="section">
     <div class="sec-title">順位データ更新（シングル）</div>
-    <div class="sec-file">single.csv → season_ranking_single.json</div>
+    <div class="sec-file">single.csv → season_ranking_single.json / season_ranking_history_single.json</div>
     <div class="sec-cols">
-      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜5</span>・<span>持ちもの1〜5</span>・<span>努力値</span>・<span>更新日</span><br>
-      <span style="font-size:10px;color:var(--text3);">対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜3</span></span>
+      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>更新日</span><br>
+      対応カラム：<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>特性1〜2</span>・<span>性格1〜5</span>・<span>努力値1〜5</span><br>
+      <span style="font-size:10px;color:var(--text3);">同じCSVに <span>prev1</span> などの推移列がある場合は、順位推移JSONも同時に作成できます。</span>
     </div>
     <div class="steps">
       <div class="step"><span class="step-n">1</span><span>single.csv をドロップ or クリックして選択</span></div>
       <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_single.json をダウンロードしてアップロード</span></div>
+      <div class="step"><span class="step-n">3</span><span>ダウンロードしたJSONを、公開中の同名JSONへ上書きアップロード</span></div>
     </div>
     <div class="drop-zone" id="dz-rank_single"
       onclick="document.getElementById('f-rank_single').click()"
@@ -591,22 +592,23 @@ input[type=file]{display:none;}
     <div class="btn-row">
       <button class="btn btn-gen" id="btn-rank_single-gen" onclick="generateJSON('rank_single')" disabled>⚡ JSON生成</button>
       <button class="btn btn-dl" id="btn-rank_single-dl" onclick="downloadJSON('rank_single')" disabled>💾 season_ranking_single.json ダウンロード</button>
+      <button class="btn btn-dl" id="btn-rank_single-history-dl" onclick="downloadRankingHistoryJSON('rank_single')" disabled>💾 season_ranking_history_single.json ダウンロード</button>
     </div>
     <div class="log" id="log-rank_single">CSVを読み込んでください</div>
   </div>
 
-  <!-- double.csv → season_ranking_double.json -->
   <div class="section">
     <div class="sec-title">順位データ更新（ダブル）</div>
-    <div class="sec-file">double.csv → season_ranking_double.json</div>
+    <div class="sec-file">double.csv → season_ranking_double.json / season_ranking_history_double.json</div>
     <div class="sec-cols">
-      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜5</span>・<span>持ちもの1〜5</span>・<span>努力値</span>・<span>更新日</span><br>
-      <span style="font-size:10px;color:var(--text3);">対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜3</span></span>
+      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>更新日</span><br>
+      対応カラム：<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>特性1〜2</span>・<span>性格1〜5</span>・<span>努力値1〜5</span><br>
+      <span style="font-size:10px;color:var(--text3);">同じCSVに <span>prev1</span> などの推移列がある場合は、順位推移JSONも同時に作成できます。</span>
     </div>
     <div class="steps">
       <div class="step"><span class="step-n">1</span><span>double.csv をドロップ or クリックして選択</span></div>
       <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_double.json をダウンロードしてアップロード</span></div>
+      <div class="step"><span class="step-n">3</span><span>ダウンロードしたJSONを、公開中の同名JSONへ上書きアップロード</span></div>
     </div>
     <div class="drop-zone" id="dz-rank_double"
       onclick="document.getElementById('f-rank_double').click()"
@@ -632,93 +634,10 @@ input[type=file]{display:none;}
     <div class="btn-row">
       <button class="btn btn-gen" id="btn-rank_double-gen" onclick="generateJSON('rank_double')" disabled>⚡ JSON生成</button>
       <button class="btn btn-dl" id="btn-rank_double-dl" onclick="downloadJSON('rank_double')" disabled>💾 season_ranking_double.json ダウンロード</button>
+      <button class="btn btn-dl" id="btn-rank_double-history-dl" onclick="downloadRankingHistoryJSON('rank_double')" disabled>💾 season_ranking_history_double.json ダウンロード</button>
     </div>
     <div class="log" id="log-rank_double">CSVを読み込んでください</div>
   </div>
-
-
-  <!-- single_ranking_change.csv → season_ranking_history_single.json -->
-  <div class="section">
-    <div class="sec-title">順位推移データ更新（シングル）</div>
-    <div class="sec-file">single_ranking_change.csv → season_ranking_history_single.json</div>
-    <div class="sec-cols">
-      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>prev1</span>〜<span>prevN</span><br>
-      <span style="font-size:10px;color:var(--text3);">先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
-    </div>
-    <div class="steps">
-      <div class="step"><span class="step-n">1</span><span>single_ranking_change.csv をドロップ or クリックして選択</span></div>
-      <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_history_single.json をダウンロードしてアップロード</span></div>
-    </div>
-    <div class="drop-zone" id="dz-rank_history_single"
-      onclick="document.getElementById('f-rank_history_single').click()"
-      ondragover="onDragOver(event,'dz-rank_history_single')"
-      ondragleave="onDragLeave('dz-rank_history_single')"
-      ondrop="onDrop(event,'rank_history_single')">
-      <div class="drop-icon">📈</div>
-      <div class="drop-text">single_ranking_change.csv をここにドロップ</div>
-      <div class="drop-sub">またはクリックしてファイルを選択</div>
-    </div>
-    <input type="file" id="f-rank_history_single" accept=".csv" onchange="loadFile(event,'rank_history_single')">
-    <div class="preview" id="prev-rank_history_single">
-      <div class="preview-head">
-        <div class="prev-stat"><div class="prev-val" id="prev-rank_history_single-n">0</div><div class="prev-lbl">件数</div></div>
-        <div class="prev-stat"><div class="prev-val" id="prev-rank_history_single-c">0</div><div class="prev-lbl">カラム数</div></div>
-        <div class="prev-stat" style="flex:1;text-align:left;padding-left:16px;">
-          <div class="prev-lbl" style="margin-bottom:4px;">カラム名</div>
-          <div id="prev-rank_history_single-cols" style="font-size:10px;color:var(--text3);"></div>
-        </div>
-      </div>
-      <table class="preview-table" id="prev-rank_history_single-table"><thead></thead><tbody></tbody></table>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-gen" id="btn-rank_history_single-gen" onclick="generateJSON('rank_history_single')" disabled>⚡ JSON生成</button>
-      <button class="btn btn-dl" id="btn-rank_history_single-dl" onclick="downloadJSON('rank_history_single')" disabled>💾 season_ranking_history_single.json ダウンロード</button>
-    </div>
-    <div class="log" id="log-rank_history_single">CSVを読み込んでください</div>
-  </div>
-
-  <!-- double_ranking_change.csv → season_ranking_history_double.json -->
-  <div class="section">
-    <div class="sec-title">順位推移データ更新（ダブル）</div>
-    <div class="sec-file">double_ranking_change.csv → season_ranking_history_double.json</div>
-    <div class="sec-cols">
-      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>prev1</span>〜<span>prevN</span><br>
-      <span style="font-size:10px;color:var(--text3);">先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
-    </div>
-    <div class="steps">
-      <div class="step"><span class="step-n">1</span><span>double_ranking_change.csv をドロップ or クリックして選択</span></div>
-      <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_history_double.json をダウンロードしてアップロード</span></div>
-    </div>
-    <div class="drop-zone" id="dz-rank_history_double"
-      onclick="document.getElementById('f-rank_history_double').click()"
-      ondragover="onDragOver(event,'dz-rank_history_double')"
-      ondragleave="onDragLeave('dz-rank_history_double')"
-      ondrop="onDrop(event,'rank_history_double')">
-      <div class="drop-icon">📉</div>
-      <div class="drop-text">double_ranking_change.csv をここにドロップ</div>
-      <div class="drop-sub">またはクリックしてファイルを選択</div>
-    </div>
-    <input type="file" id="f-rank_history_double" accept=".csv" onchange="loadFile(event,'rank_history_double')">
-    <div class="preview" id="prev-rank_history_double">
-      <div class="preview-head">
-        <div class="prev-stat"><div class="prev-val" id="prev-rank_history_double-n">0</div><div class="prev-lbl">件数</div></div>
-        <div class="prev-stat"><div class="prev-val" id="prev-rank_history_double-c">0</div><div class="prev-lbl">カラム数</div></div>
-        <div class="prev-stat" style="flex:1;text-align:left;padding-left:16px;">
-          <div class="prev-lbl" style="margin-bottom:4px;">カラム名</div>
-          <div id="prev-rank_history_double-cols" style="font-size:10px;color:var(--text3);"></div>
-        </div>
-      </div>
-      <table class="preview-table" id="prev-rank_history_double-table"><thead></thead><tbody></tbody></table>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-gen" id="btn-rank_history_double-gen" onclick="generateJSON('rank_history_double')" disabled>⚡ JSON生成</button>
-      <button class="btn btn-dl" id="btn-rank_history_double-dl" onclick="downloadJSON('rank_history_double')" disabled>💾 season_ranking_history_double.json ダウンロード</button>
-    </div>
-    <div class="log" id="log-rank_history_double">CSVを読み込んでください</div>
-  </div>
-
 
   </div>
 
@@ -1628,10 +1547,8 @@ function toggleTheme() {
 <script>
 (function(){
   if(typeof state === 'undefined') return;
-  state.rank_single = { csv:null, json:null };
-  state.rank_double = { csv:null, json:null };
-  state.rank_history_single = { csv:null, json:null };
-  state.rank_history_double = { csv:null, json:null };
+  state.rank_single = { csv:null, json:null, historyJson:null };
+  state.rank_double = { csv:null, json:null, historyJson:null };
 
   const ALIAS_TO_SITE_NAME = {
     'ウォッシュロトム':'ロトム水',
@@ -1650,14 +1567,16 @@ function toggleTheme() {
     return raw.split(/\s*\/\s*|\n+/).map(v => v.trim()).filter(Boolean);
   }
 
-  function collectOrderedColumns(headers, prefix) {
-    return headers
-      .filter(h => typeof h === 'string' && h.indexOf(prefix) === 0)
-      .sort((a,b) => {
-        const na = parseInt(String(a).replace(prefix,''), 10) || 0;
-        const nb = parseInt(String(b).replace(prefix,''), 10) || 0;
-        return na - nb;
-      });
+  function collectOrderedColumns(headers, prefixes) {
+    const list = Array.isArray(prefixes) ? prefixes : [prefixes];
+    const matched = headers.filter(h => typeof h === 'string' && list.some(prefix => h.indexOf(prefix) === 0));
+    return matched.sort((a,b) => {
+      const getNum = (value) => {
+        const m = String(value).match(/(\d+)$/);
+        return m ? (parseInt(m[1], 10) || 0) : 0;
+      };
+      return getNum(a) - getNum(b);
+    });
   }
 
   function collectPreferredColumns(headers, candidates) {
@@ -1678,17 +1597,27 @@ function toggleTheme() {
     return raw;
   }
 
+  function indexedNames(base, count) {
+    return Array.from({length:count}, (_,i) => `${base}${i+1}`);
+  }
+
   function buildRankingJSON(data, battleType) {
     const required = ['順位','ポケモン名','更新日'];
     const missing = required.filter(k => !data.headers.includes(k));
     if(missing.length) throw new Error('必須カラムが不足: ' + missing.join(', '));
 
-    const moveCols = collectOrderedColumns(data.headers, '技');
-    const modernItemCols = collectPreferredColumns(data.headers, ['持ちもの1','持ちもの2','持ちもの3','持ちもの4','持ちもの5']);
-    const modernAbilityCols = collectPreferredColumns(data.headers, ['特性1','特性2']);
-    const modernNatureCols = collectPreferredColumns(data.headers, ['性格1','性格2','性格3']);
-    const modernSpreadCols = collectPreferredColumns(data.headers, ['努力値']);
-    const itemCols = modernItemCols.length ? modernItemCols : collectOrderedColumns(data.headers, '持ち物');
+    const moveCols = collectOrderedColumns(data.headers, ['技']);
+    const itemCols = collectPreferredColumns(data.headers, indexedNames('持ちもの', 10)).length
+      ? collectPreferredColumns(data.headers, indexedNames('持ちもの', 10))
+      : (collectPreferredColumns(data.headers, indexedNames('持ち物', 10)).length
+        ? collectPreferredColumns(data.headers, indexedNames('持ち物', 10))
+        : collectOrderedColumns(data.headers, ['持ちもの', '持ち物']));
+    const abilityCols = collectPreferredColumns(data.headers, indexedNames('特性', 5));
+    const natureCols = collectPreferredColumns(data.headers, indexedNames('性格', 5));
+    const spreadCols = collectPreferredColumns(data.headers, indexedNames('努力値', 5)).length
+      ? collectPreferredColumns(data.headers, indexedNames('努力値', 5))
+      : collectPreferredColumns(data.headers, indexedNames('調整', 5));
+
     const abilityKey = data.headers.includes('特性') ? '特性' : (data.headers.includes('Unnamed: 22') ? 'Unnamed: 22' : '');
     const natureKey = data.headers.includes('性格') ? '性格' : '';
     const spreadKey = data.headers.includes('調整') ? '調整' : (data.headers.includes('努力値') ? '努力値' : '');
@@ -1698,14 +1627,14 @@ function toggleTheme() {
       if(!name) return null;
       const moves = moveCols.map(col => normalizeRankValue(r[col])).filter(Boolean);
       const items = itemCols.map(col => normalizeRankValue(r[col])).filter(Boolean);
-      const abilities = modernAbilityCols.length
-        ? modernAbilityCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
+      const abilities = abilityCols.length
+        ? abilityCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
         : (abilityKey ? splitRankList(r[abilityKey]) : []);
-      const natures = modernNatureCols.length
-        ? modernNatureCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
+      const natures = natureCols.length
+        ? natureCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
         : (natureKey ? splitRankList(r[natureKey]) : []);
-      const spreads = modernSpreadCols.length
-        ? modernSpreadCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
+      const spreads = spreadCols.length
+        ? spreadCols.map(col => normalizeRankValue(r[col])).filter(Boolean)
         : (spreadKey ? splitRankList(r[spreadKey]) : []);
       return {
         rank: parseInt(r['順位'], 10) || 0,
@@ -1728,9 +1657,56 @@ function toggleTheme() {
     };
   }
 
+  function isHistoryHeader(header) {
+    const raw = String(header || '').trim();
+    if(!raw) return false;
+    const lower = raw.toLowerCase();
+    return /^prev\d+$/i.test(raw)
+      || /^current$/i.test(raw)
+      || /^latest$/i.test(raw)
+      || /^rank\d+$/i.test(raw)
+      || /^最新順位?$/.test(raw)
+      || /^前回順位?$/.test(raw)
+      || /^前々回順位?$/.test(raw)
+      || /^\d+回前$/.test(raw)
+      || /^順位\d+$/.test(raw)
+      || lower.indexOf('history') >= 0;
+  }
+
+  function historyHeaderSort(a, b) {
+    const order = (value) => {
+      const raw = String(value || '').trim();
+      const lower = raw.toLowerCase();
+      if(/^current$/i.test(raw) || /^latest$/i.test(raw) || /^最新順位?$/.test(raw)) return 0;
+      if(/^前回順位?$/.test(raw)) return 1;
+      if(/^前々回順位?$/.test(raw)) return 2;
+      const prev = raw.match(/^prev(\d+)$/i);
+      if(prev) return parseInt(prev[1], 10) || 999;
+      const rankNum = raw.match(/^順位(\d+)$/);
+      if(rankNum) return parseInt(rankNum[1], 10) || 999;
+      const before = raw.match(/^(\d+)回前$/);
+      if(before) return parseInt(before[1], 10) || 999;
+      if(lower.indexOf('history') >= 0) return 500;
+      return 999;
+    };
+    return order(a) - order(b);
+  }
+
   function collectHistoryColumns(headers) {
-    const skip = new Set(['順位','ポケモン名','更新日']);
-    return headers.filter(h => typeof h === 'string' && !skip.has(h));
+    const exclude = new Set([
+      '順位','ポケモン名','更新日',
+      ...indexedNames('技', 10),
+      ...indexedNames('持ちもの', 10),
+      ...indexedNames('持ち物', 10),
+      ...indexedNames('特性', 5),
+      ...indexedNames('性格', 5),
+      ...indexedNames('努力値', 5),
+      ...indexedNames('調整', 5),
+      '特性','性格','努力値','調整','Unnamed: 22'
+    ]);
+    return headers
+      .filter(h => typeof h === 'string' && !exclude.has(h) && isHistoryHeader(h))
+      .sort(historyHeaderSort);
   }
 
   function buildRankingHistoryJSON(data, battleType) {
@@ -1739,7 +1715,14 @@ function toggleTheme() {
     if(missing.length) throw new Error('必須カラムが不足: ' + missing.join(', '));
 
     const historyHeaders = collectHistoryColumns(data.headers);
-    if(!historyHeaders.length) throw new Error('順位推移カラムが見つかりません');
+    if(!historyHeaders.length) {
+      return {
+        battleType,
+        updatedAt: String((data.rows[0] && data.rows[0]['更新日']) || '').trim(),
+        columns: [],
+        rows: []
+      };
+    }
 
     const columns = historyHeaders.map(header => ({
       key: header,
@@ -1771,9 +1754,20 @@ function toggleTheme() {
     };
   }
 
+  function downloadJsonFile(json, filename) {
+    if(!json) return;
+    const blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   const originalGenerateJSON = window.generateJSON;
   window.generateJSON = function(type) {
-    if(type !== 'rank_single' && type !== 'rank_double' && type !== 'rank_history_single' && type !== 'rank_history_double') {
+    if(type !== 'rank_single' && type !== 'rank_double') {
       return originalGenerateJSON(type);
     }
     const log = document.getElementById('log-' + type);
@@ -1783,13 +1777,17 @@ function toggleTheme() {
       return;
     }
     try {
-      const battleType = (type === 'rank_single' || type === 'rank_history_single') ? 'single' : 'double';
-      const json = (type === 'rank_history_single' || type === 'rank_history_double')
-        ? buildRankingHistoryJSON(data, battleType)
-        : buildRankingJSON(data, battleType);
+      const battleType = type === 'rank_single' ? 'single' : 'double';
+      const json = buildRankingJSON(data, battleType);
+      const historyJson = buildRankingHistoryJSON(data, battleType);
       state[type].json = json;
+      state[type].historyJson = historyJson;
       document.getElementById('btn-' + type + '-dl').disabled = false;
-      log.innerHTML = `<span class="ok">✅ ${json.rows.length}件の${(type === 'rank_history_single' || type === 'rank_history_double') ? '順位推移' : '順位'}データを生成しました</span>`;
+      document.getElementById('btn-' + type + '-history-dl').disabled = false;
+      const historyMsg = historyJson.columns && historyJson.columns.length
+        ? ` / 順位推移JSONも作成 (${historyJson.rows.length}件)`
+        : ' / 順位推移列なしのため順位推移JSONは空データで作成';
+      log.innerHTML = `<span class="ok">✅ ${json.rows.length}件の順位データを生成しました${historyMsg}</span>`;
     } catch(err) {
       log.innerHTML = `<span class="err">❌ 生成エラー: ${err.message}</span>`;
     }
@@ -1797,26 +1795,31 @@ function toggleTheme() {
 
   const originalDownloadJSON = window.downloadJSON;
   window.downloadJSON = function(type) {
-    if(type !== 'rank_single' && type !== 'rank_double' && type !== 'rank_history_single' && type !== 'rank_history_double') {
+    if(type !== 'rank_single' && type !== 'rank_double') {
       return originalDownloadJSON(type);
     }
     const json = state[type].json;
     if(!json) return;
     const filenameMap = {
       rank_single: 'season_ranking_single.json',
-      rank_double: 'season_ranking_double.json',
-      rank_history_single: 'season_ranking_history_single.json',
-      rank_history_double: 'season_ranking_history_double.json'
+      rank_double: 'season_ranking_double.json'
     };
     const filename = filenameMap[type];
-    const blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    document.getElementById('log-'+type).innerHTML += `<br><span class="ok">💾 ${filename} をダウンロードしました — Cloudflare Pagesにアップロードしてください</span>`;
+    downloadJsonFile(json, filename);
+    document.getElementById('log-'+type).innerHTML += `<br><span class="ok">💾 ${filename} をダウンロードしました — 公開中の同名JSONへ上書きアップロードしてください</span>`;
+  };
+
+  window.downloadRankingHistoryJSON = function(type) {
+    if(type !== 'rank_single' && type !== 'rank_double') return;
+    const json = state[type].historyJson;
+    if(!json) return;
+    const filenameMap = {
+      rank_single: 'season_ranking_history_single.json',
+      rank_double: 'season_ranking_history_double.json'
+    };
+    const filename = filenameMap[type];
+    downloadJsonFile(json, filename);
+    document.getElementById('log-'+type).innerHTML += `<br><span class="ok">💾 ${filename} をダウンロードしました — 公開中の同名JSONへ上書きアップロードしてください</span>`;
   };
 })();
 </script>
