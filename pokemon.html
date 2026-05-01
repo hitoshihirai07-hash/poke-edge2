@@ -691,41 +691,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
           <div class="assist-card">
             <div class="assist-head">おまかせ総合耐久調整</div>
-            <div class="assist-note">攻撃・素早さは固定しつつ、HP / 防御 / 特防へ残り努力値を自動配分します。HPの奇数・16n-1調整も見比べやすいように、上位候補も一覧で出します。</div>
-            <div class="assist-subgrid">
-              <div>
-                <label>攻撃の固定努力値</label>
-                <div class="ev-row"><input type="number" id="bulk-fixed-atk" min="0" max="32" value="0" inputmode="numeric"></div>
-              </div>
-              <div>
-                <label>素早さの固定努力値</label>
-                <div class="ev-row"><input type="number" id="bulk-fixed-spe" min="0" max="32" value="0" inputmode="numeric"></div>
-              </div>
-            </div>
-            <div class="assist-inline-grid">
-              <div>
-                <label>HPの最低努力値</label>
-                <div class="ev-row"><input type="number" id="bulk-min-hp" min="0" max="32" value="0" inputmode="numeric"></div>
-              </div>
-              <div>
-                <label>防御の最低努力値</label>
-                <div class="ev-row"><input type="number" id="bulk-min-def" min="0" max="32" value="0" inputmode="numeric"></div>
-              </div>
-              <div>
-                <label>特防の最低努力値</label>
-                <div class="ev-row"><input type="number" id="bulk-min-spd" min="0" max="32" value="0" inputmode="numeric"></div>
-              </div>
-            </div>
+            <div class="assist-note">今入力している努力値をそのまま基準にして、余っている努力値をHP / 防御 / 特防へどう回すと総合耐久指数が伸びやすいかを表示します。攻撃・特攻・素早さだけでなく、すでに入っているHP / 防御 / 特防もそのまま意識して候補を出します。</div>
             <div>
               <label>物理・特殊の攻撃を受ける比率</label>
               <input type="range" id="bulk-ratio" min="0" max="100" value="50" oninput="updateBulkRatioLabel()">
               <div class="ratio-line"><span id="bulk-ratio-phys">物理 50%</span><span id="bulk-ratio-spec">特殊 50%</span></div>
             </div>
             <div class="bulk-actions">
-              <button type="button" class="assist-secondary-btn" onclick="syncBulkInputsFromCurrentEVs(true)">現在の努力値を取り込む</button>
               <button type="button" class="primary" onclick="runBulkRecommend()">耐久調整</button>
             </div>
-            <div id="bulk-summary" class="assist-result">現在の努力値を取り込むか、そのまま数値を入れて「耐久調整」を押してください。努力値は自動変更せず、おすすめ候補だけ表示します。</div>
+            <div id="bulk-summary" class="assist-result">今入力している努力値を基準に、そのままおすすめ候補だけ表示します。努力値は自動変更しません。</div>
             <div class="assist-mini">総合耐久指数表（上位候補）</div>
             <div class="assist-table-wrap">
               <table class="assist-table">
@@ -1192,8 +1167,8 @@ function applyRankingSuggestion(kind, idx){
       document.getElementById('ev-'+stat).value=parsed.ev[stat]||0;
     });
     updateEVRemain();
+    resetBulkRecommendView('努力値おすすめを反映しました。今の努力値を基準に、必要ならもう一度「耐久調整」で候補を出せます。');
     recalcReal();
-    syncBulkInputsFromCurrentEVs(true);
     return;
   }
 }
@@ -1215,27 +1190,12 @@ function normalizeBulkEv(value){
   if(step>1) v = Math.floor(v/step)*step;
   return v;
 }
-function setBulkInputValue(id, value){
-  const el=document.getElementById(id);
-  if(!el) return;
-  el.max=String(getPokeEvMax());
-  el.step=String(getPokeEvStep());
-  el.value=String(normalizeBulkEv(value));
-}
-function syncBulkInputsFromCurrentEVs(force){
-  const ev=getEVs();
-  setBulkInputValue('bulk-fixed-atk', ev.atk);
-  setBulkInputValue('bulk-fixed-spe', ev.spe);
-  setBulkInputValue('bulk-min-hp', ev.hp);
-  setBulkInputValue('bulk-min-def', ev.def);
-  setBulkInputValue('bulk-min-spd', ev.spd);
-  updateBulkRatioLabel();
-  if(force){
-    const body=document.getElementById('bulk-candidate-body');
-    if(body) body.innerHTML='<tr><td colspan="7" style="color:var(--text2);">耐久調整後、ここに上位候補を表示します。</td></tr>';
-    const summary=document.getElementById('bulk-summary');
-    if(summary) summary.textContent='現在の努力値を取り込みました。必要なら数値を微調整してから「耐久調整」を押してください。努力値は自動変更せず、おすすめ候補だけ表示します。';
-  }
+function resetBulkRecommendView(message){
+  const body=document.getElementById('bulk-candidate-body');
+  if(body) body.innerHTML='<tr><td colspan="7" style="color:var(--text2);">耐久調整後、ここに上位候補を表示します。</td></tr>';
+  const summary=document.getElementById('bulk-summary');
+  if(summary) summary.textContent=message || '今入力している努力値を基準に、そのままおすすめ候補だけ表示します。努力値は自動変更しません。';
+  lastBulkCandidates=[];
 }
 function getBulkNatureCandidates(pokeName, physRatio){
   const row=getRankingRowForPokemon(pokeName, rankingAssistMode);
@@ -1279,40 +1239,49 @@ function describeBulkHpTuning(hpStat){
 }
 function runBulkRecommend(){
   if(!currentPokeData){ alert('先にポケモンを選択してください'); return; }
-  const max=getPokeEvMax();
   const limit=isPokeChampions() ? 66 : 510;
   const step=getPokeEvStep();
-  ['bulk-fixed-atk','bulk-fixed-spe','bulk-min-hp','bulk-min-def','bulk-min-spd'].forEach(id=>setBulkInputValue(id, document.getElementById(id)?.value || 0));
-  const fixedAtk=normalizeBulkEv(document.getElementById('bulk-fixed-atk')?.value);
-  const fixedSpe=normalizeBulkEv(document.getElementById('bulk-fixed-spe')?.value);
-  const minHp=normalizeBulkEv(document.getElementById('bulk-min-hp')?.value);
-  const minDef=normalizeBulkEv(document.getElementById('bulk-min-def')?.value);
-  const minSpd=normalizeBulkEv(document.getElementById('bulk-min-spd')?.value);
-  const fixedSpa=normalizeBulkEv(document.getElementById('ev-spa')?.value);
+  const max=getPokeEvMax();
+  const currentEv=getEVs();
   const physRatio=getBulkSliderPercent()/100;
   const summary=document.getElementById('bulk-summary');
   const body=document.getElementById('bulk-candidate-body');
-  if(fixedAtk>max || fixedSpe>max || minHp>max || minDef>max || minSpd>max){
-    if(summary) summary.textContent='入力値が上限を超えています。';
+
+  const baseEv={
+    hp:normalizeBulkEv(currentEv.hp),
+    atk:normalizeBulkEv(currentEv.atk),
+    def:normalizeBulkEv(currentEv.def),
+    spa:normalizeBulkEv(currentEv.spa),
+    spd:normalizeBulkEv(currentEv.spd),
+    spe:normalizeBulkEv(currentEv.spe)
+  };
+  const baseTotal=baseEv.hp+baseEv.atk+baseEv.def+baseEv.spa+baseEv.spd+baseEv.spe;
+  if(baseTotal > limit){
+    if(summary) summary.textContent=`現在の努力値合計が上限を超えています（現在 ${baseTotal} / 上限 ${limit}）。先に努力値を見直してください。`;
+    if(body) body.innerHTML='<tr><td colspan="7" style="color:var(--accent2);">現在の努力値合計が上限を超えているため、候補を作れませんでした。</td></tr>';
+    lastBulkCandidates=[];
     return;
   }
-  const minimumTotal=fixedAtk + fixedSpe + fixedSpa + minHp + minDef + minSpd;
-  if(minimumTotal > limit){
-    if(summary) summary.textContent=`固定値と最低保証の合計が上限を超えています（現在 ${minimumTotal} / 上限 ${limit}）。`;
-    if(body) body.innerHTML='<tr><td colspan="7" style="color:var(--accent2);">最低保証の合計が大きすぎるため、候補を作れませんでした。</td></tr>';
-    return;
-  }
+
+  const remaining=limit-baseTotal;
   const candidates=[];
   const natures=getBulkNatureCandidates(currentPokeData.name, physRatio);
   for(const nature of natures){
-    for(let hp=minHp; hp<=max; hp+=step){
-      for(let de=minDef; de<=max; de+=step){
-        const remaining=limit - fixedAtk - fixedSpe - fixedSpa - hp - de;
-        if(remaining < minSpd) continue;
-        const cap=Math.min(max, remaining);
-        const spd=minSpd + Math.floor((cap - minSpd) / step) * step;
-        if(spd < minSpd || spd > max) continue;
-        const ev={hp, atk:fixedAtk, def:de, spa:fixedSpa, spd, spe:fixedSpe};
+    for(let addHp=0; addHp<=remaining; addHp+=step){
+      if(baseEv.hp + addHp > max) continue;
+      for(let addDef=0; addDef<=remaining-addHp; addDef+=step){
+        if(baseEv.def + addDef > max) continue;
+        const left=remaining-addHp-addDef;
+        const addSpd=step>1 ? Math.floor(left/step)*step : left;
+        if(baseEv.spd + addSpd > max) continue;
+        const ev={
+          hp:baseEv.hp + addHp,
+          atk:baseEv.atk,
+          def:baseEv.def + addDef,
+          spa:baseEv.spa,
+          spd:baseEv.spd + addSpd,
+          spe:baseEv.spe
+        };
         const used=ev.hp+ev.atk+ev.def+ev.spa+ev.spd+ev.spe;
         if(used > limit) continue;
         const real=getRealStatsForBulk(ev, nature);
@@ -1321,6 +1290,7 @@ function runBulkRecommend(){
       }
     }
   }
+
   candidates.sort((a,b)=> b.score-a.score || b.used-a.used || b.real.hp-a.real.hp || b.real.def-a.real.def || b.real.spd-a.real.spd);
   const unique=[];
   const seen=new Set();
@@ -1333,15 +1303,13 @@ function runBulkRecommend(){
   }
   lastBulkCandidates=unique;
   if(!unique.length){
-    if(summary) summary.textContent='候補を作れませんでした。最低保証や固定努力値を見直してください。';
+    if(summary) summary.textContent='現在の努力値を基準に候補を作れませんでした。努力値や比率を見直してください。';
     if(body) body.innerHTML='<tr><td colspan="7" style="color:var(--accent2);">候補を作れませんでした。</td></tr>';
     return;
   }
   const best=unique[0];
   if(summary){
-    const remain=limit-best.used;
-    const currentEv=getEVs();
-    summary.innerHTML=`現在の努力値 <strong style="color:var(--text);">${currentEv.hp}-${currentEv.atk}-${currentEv.def}-${currentEv.spa}-${currentEv.spd}-${currentEv.spe}</strong> はそのままにしています。おすすめは <strong style="color:var(--accent3);">${escapeHtml(best.nature)}</strong> / 努力値 <strong style="color:var(--accent);">${best.ev.hp}-${best.ev.atk}-${best.ev.def}-${best.ev.spa}-${best.ev.spd}-${best.ev.spe}</strong> です。${Math.round(physRatio*100)}% : ${Math.round((1-physRatio)*100)}% の受け比率で伸びやすい上位候補を下に表示しました。${remain>0 ? ` まだ ${remain} 余りがあります。` : ''}`;
+    summary.innerHTML=`現在の努力値 <strong style="color:var(--text);">${baseEv.hp}-${baseEv.atk}-${baseEv.def}-${baseEv.spa}-${baseEv.spd}-${baseEv.spe}</strong> を基準に判定しました。残り <strong style="color:var(--accent3);">${remaining}</strong> を耐久へ回すなら、まずは <strong style="color:var(--accent3);">${escapeHtml(best.nature)}</strong> / 努力値 <strong style="color:var(--accent);">${best.ev.hp}-${best.ev.atk}-${best.ev.def}-${best.ev.spa}-${best.ev.spd}-${best.ev.spe}</strong> が伸びやすいです。${Math.round(physRatio*100)}% : ${Math.round((1-physRatio)*100)}% の受け比率で、上位候補を下に並べています。`;
   }
   if(body){
     body.innerHTML=unique.map((cand,idx)=>`<tr>
@@ -1364,13 +1332,14 @@ function applyBulkCandidate(idx){
     document.getElementById('ev-'+stat).value=cand.ev[stat]||0;
   });
   updateEVRemain();
+  resetBulkRecommendView('おすすめ候補を反映しました。今の努力値を基準に、必要ならもう一度「耐久調整」で候補を出せます。');
   recalcReal();
-  refreshPokemonAssist(true);
+  refreshPokemonAssist(false);
 }
 function refreshPokemonAssist(forceSyncBulk){
   renderRankingAssist();
   updateBulkRatioLabel();
-  if(forceSyncBulk) syncBulkInputsFromCurrentEVs(false);
+  if(forceSyncBulk) resetBulkRecommendView();
 }
 
 // POKEMON_DATA: 外部JSONから読み込み (loadGameData)
@@ -1470,15 +1439,9 @@ function onPokeModeChange() {
     if(r){ r.max=max; r.step=step; if(parseInt(r.value)>max) r.value=0; }
     if(n){ n.max=max; if(parseInt(n.value)>max) n.value=0; }
   });
-  ['bulk-fixed-atk','bulk-fixed-spe','bulk-min-hp','bulk-min-def','bulk-min-spd'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.max=String(max);
-    el.step=String(step);
-    el.value=String(normalizeBulkEv(el.value));
-  });
   updateEVRemain();
   updateBulkRatioLabel();
+  resetBulkRecommendView();
   recalcReal();
 }
 
@@ -1488,6 +1451,7 @@ function syncEV(stat,val) {
   document.getElementById('ev-'+stat+'-r').value=v;
   document.getElementById('ev-'+stat).value=v;
   updateEVRemain();
+  resetBulkRecommendView();
   recalcReal();
 }
 function updateEVRemain() {
