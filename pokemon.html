@@ -694,7 +694,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="sec-title">ランキングおすすめ</div>
         <div class="assist-card">
           <div class="assist-head">ランキングからおすすめを表示</div>
-          <div class="assist-note">選択中のポケモンについて、シングル / ダブルの上位候補を表示します。技・持ち物・特性・性格・努力値候補をそのまま反映できます。</div>
+          <div class="assist-note">選択中のポケモンについて、シングル / ダブルの上位候補を表示します。技・持ち物・特性・性格・努力値候補をそのまま反映できます。メガ進化ポケモンは、ランキングにメガ名が無い場合のみ通常形態を参照します。</div>
           <div class="assist-mode-row">
             <span class="assist-mini">参照ルール</span>
             <button type="button" id="ranking-mode-single" class="assist-chip-btn active" onclick="setRankingAssistMode('single')">シングル</button>
@@ -1083,22 +1083,44 @@ function parseRankingSpreadEntry(value){
   };
 }
 function getRankingLookupNames(name){
-  const names=new Set();
-  getLookupNamesForPokemon(name).forEach(v=>v && names.add(String(v).trim()));
+  const names=[];
+  const add=(value)=>{
+    const v=String(value||'').trim();
+    if(v && !names.includes(v)) names.push(v);
+  };
+  getLookupNamesForPokemon(name).forEach(add);
+  const megaBase=getMegaBaseName(name);
+  if(megaBase) add(megaBase);
   const base=getSpecialFormBaseName(name);
-  if(base) names.add(base);
+  if(base) add(base);
   const display=normalizeAegislashDisplayName(name);
-  if(display) names.add(display);
-  return Array.from(names).filter(Boolean);
+  if(display) add(display);
+  return names.filter(Boolean);
 }
-function getRankingRowForPokemon(name, mode){
+function getRankingAssistContext(name, mode){
   if(!name) return null;
   const rows=(getRankingDataset(mode)||{}).rows || [];
   const lookups=getRankingLookupNames(name);
-  return rows.find(row=>{
-    const rowNames=[row?.name,row?.siteName,normalizeAegislashDisplayName(row?.name||''),getSpecialFormBaseName(row?.name||'')].filter(Boolean).map(v=>String(v).trim());
-    return rowNames.some(v=>lookups.includes(v));
-  }) || null;
+  for(const lookup of lookups){
+    const row=rows.find(row=>{
+      const rowNames=[row?.name,row?.siteName,normalizeAegislashDisplayName(row?.name||''),getSpecialFormBaseName(row?.name||'')].filter(Boolean).map(v=>String(v).trim());
+      return rowNames.includes(lookup);
+    });
+    if(row){
+      return {
+        row,
+        rankingName: lookup,
+        selectedName: String(name||'').trim(),
+        isMega: isMegaFormName(name),
+        megaBase: getMegaBaseName(name) || '',
+        usedFallback: isMegaFormName(name) ? lookup !== String(name||'').trim() : false
+      };
+    }
+  }
+  return null;
+}
+function getRankingRowForPokemon(name, mode){
+  return getRankingAssistContext(name, mode)?.row || null;
 }
 function escapeHtml(text){
   return String(text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1128,7 +1150,8 @@ function renderRankingAssist(){
     ['ranking-reco-moves','ranking-reco-items','ranking-reco-abilities','ranking-reco-natures','ranking-reco-spreads'].forEach(id=>renderRankingSuggestionWrap(id, [], ''));
     return;
   }
-  const row=getRankingRowForPokemon(name, rankingAssistMode);
+  const ctx=getRankingAssistContext(name, rankingAssistMode);
+  const row=ctx?.row;
   if(!row){
     if(status) status.textContent='このポケモンのランキング候補が見つかりませんでした。';
     ['ranking-reco-moves','ranking-reco-items','ranking-reco-abilities','ranking-reco-natures','ranking-reco-spreads'].forEach(id=>renderRankingSuggestionWrap(id, [], ''));
@@ -1136,17 +1159,22 @@ function renderRankingAssist(){
   }
   if(status){
     const updated=row.updatedAt ? ` / 更新 ${row.updatedAt}` : '';
-    status.innerHTML=`${rankingAssistMode==='double'?'ダブル':'シングル'}順位 <strong style="color:var(--accent3);">${row.rank ?? '—'}位</strong> / ${escapeHtml(row.name||name)}${updated}`;
+    if(ctx?.isMega && ctx?.usedFallback && ctx?.megaBase){
+      status.innerHTML=`${rankingAssistMode==='double'?'ダブル':'シングル'}順位 <strong style="color:var(--accent3);">${row.rank ?? '—'}位</strong> / 登録中 ${escapeHtml(ctx.selectedName)} / ランキング参照 ${escapeHtml(ctx.megaBase)}${updated}<div style="margin-top:6px;font-size:11px;color:var(--text2);line-height:1.6;">メガ進化ポケモンは技・持ち物・性格・努力値を通常形態ランキングから参照しています。特性はメガ後とズレやすいため候補を出していません。</div>`;
+    } else {
+      status.innerHTML=`${rankingAssistMode==='double'?'ダブル':'シングル'}順位 <strong style="color:var(--accent3);">${row.rank ?? '—'}位</strong> / ${escapeHtml(row.name||name)}${updated}`;
+    }
   }
   renderRankingSuggestionWrap('ranking-reco-moves', (row.moves||[]).slice(0,10), 'move');
   renderRankingSuggestionWrap('ranking-reco-items', (row.items||[]).slice(0,10), 'item');
-  renderRankingSuggestionWrap('ranking-reco-abilities', (row.abilities||[]).slice(0,5), 'ability');
+  renderRankingSuggestionWrap('ranking-reco-abilities', (ctx?.isMega && ctx?.usedFallback) ? [] : (row.abilities||[]).slice(0,5), 'ability');
   renderRankingSuggestionWrap('ranking-reco-natures', (row.natures||[]).slice(0,5), 'nature');
   renderRankingSuggestionWrap('ranking-reco-spreads', (row.spreads||[]).slice(0,5), 'spread');
 }
 function applyRankingSuggestion(kind, idx){
   const name=currentPokeData?.name || document.getElementById('poke-search')?.value || '';
-  const row=getRankingRowForPokemon(name, rankingAssistMode);
+  const ctx=getRankingAssistContext(name, rankingAssistMode);
+  const row=ctx?.row;
   if(!row) return;
   if(kind==='move'){
     const moveName=normalizeRankingToken(row.moves?.[idx]);
@@ -1163,6 +1191,7 @@ function applyRankingSuggestion(kind, idx){
     return;
   }
   if(kind==='ability'){
+    if(ctx?.isMega && ctx?.usedFallback) return;
     const ability=normalizeRankingToken(row.abilities?.[idx]);
     const sel=document.getElementById('f-ability');
     if(sel){ sel.value=ability; }
