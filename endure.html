@@ -20,17 +20,17 @@
 <script>window.addEventListener("DOMContentLoaded", async()=>{ if(typeof initAuth==="function") await initAuth(); });</script>
 <style>
   :root{
-    --bg:#0b1220;
-    --bg2:#121c30;
-    --panel:#16233a;
-    --panel2:#1b2b46;
-    --line:#29405f;
-    --text:#eef4ff;
-    --muted:#aebcd7;
-    --accent:#7dd3fc;
-    --accent2:#86efac;
-    --chip:#22324f;
-    --danger:#fca5a5;
+    --bg:#0d1420;
+    --bg2:#141e2e;
+    --panel:#1a2638;
+    --panel2:#223249;
+    --line:#36506f;
+    --text:#f2f7ff;
+    --muted:#a8b9cd;
+    --accent:#59d2ff;
+    --accent2:#57d89a;
+    --chip:#24364f;
+    --danger:#e89999;
   }
   *{box-sizing:border-box}
   body{margin:0;background:linear-gradient(180deg,#09111d 0%,#0b1220 100%);color:var(--text);font-family:"Noto Sans JP",system-ui,sans-serif;min-height:100vh;overflow-x:hidden;}
@@ -244,6 +244,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 
 </style>
+
+<link rel="stylesheet" href="contrast-tune.css">
+<link rel="stylesheet" href="updates-widget.css">
 </head>
 <body>
 <header>
@@ -1611,8 +1614,8 @@ init().catch(err => {
   el('free-result-status').textContent = '必要データの確認が必要です。';
 });
 var THEMES = {
-  dark:  {'--bg':'#0b1220','--bg2':'#121c30','--panel':'#16233a','--panel2':'#1b2b46','--line':'#29405f','--text':'#eef4ff','--muted':'#aebcd7','--accent':'#7dd3fc','--accent2':'#86efac','--chip':'#22324f','--danger':'#fca5a5'},
-  light: {'--bg':'#e8f4f8','--bg2':'#d6e8f3','--panel':'#f5fbff','--panel2':'#eaf5fb','--line':'#9abbd1','--text':'#102132','--muted':'#4f667b','--accent':'#006aa3','--accent2':'#138b63','--chip':'#d8e7f2','--danger':'#b94a4a'}
+  dark:  {'--bg':'#0d1420','--bg2':'#141e2e','--panel':'#1a2638','--panel2':'#223249','--line':'#36506f','--text':'#f2f7ff','--muted':'#a8b9cd','--accent':'#59d2ff','--accent2':'#57d89a','--chip':'#24364f','--danger':'#e89999'},
+  light: {'--bg':'#e7edf4','--bg2':'#eef4f8','--panel':'#f8fbff','--panel2':'#f1f6fb','--line':'#b8c8d8','--text':'#162335','--muted':'#566c83','--accent':'#0c6bb7','--accent2':'#157c52','--chip':'#e3ebf2','--danger':'#c15757'}
 };
 function applyTheme(theme){
   var vars=THEMES[theme]||THEMES.dark, root=document.documentElement.style;
@@ -1640,5 +1643,7 @@ function closeNav(){var nav=document.querySelector('.header-nav');var hb=documen
 </script>
 
 
+
+<script src="updates-widget.js"></script>
 </body>
 </html>

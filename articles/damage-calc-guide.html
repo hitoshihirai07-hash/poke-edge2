@@ -22,8 +22,8 @@
 </script>
 <script>
 (function(){
-  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
-  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var dark={'--bg':'#0d1420','--bg2':'#141e2e','--panel':'#1a2638','--border':'#304766','--border2':'#3d5b82','--accent':'#59d2ff','--accent2':'#ff6b92','--accent3':'#f2c66a','--green':'#57d89a','--text':'#f2f7ff','--text2':'#9fb3cb','--text3':'#c0d0e1'};
+  var light={'--bg':'#e7edf4','--bg2':'#f1f5f9','--panel':'#f8fbff','--border':'#b8c8d8','--border2':'#93abc3','--accent':'#0c6bb7','--accent2':'#c4456a','--accent3':'#a96a00','--green':'#157c52','--text':'#162335','--text2':'#5b7087','--text3':'#2f4a66'};
   var t=localStorage.getItem('pokeedge_theme')||'dark';
   var vars=t==='light'?light:dark;
   var root=document.documentElement.style;
@@ -174,6 +174,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 
 </style>
+
+<link rel="stylesheet" href="../contrast-tune.css">
+<link rel="stylesheet" href="../updates-widget.css">
 </head>
 <body>
 <header>
@@ -428,5 +431,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <script>
 window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });
 </script>
+
+<script src="../updates-widget.js"></script>
 </body>
 </html>
