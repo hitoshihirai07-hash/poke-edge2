@@ -785,6 +785,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <script>
 
 // ===== 外部JSONデータ読み込み =====
+const DATA_FETCH_OPTIONS = {cache:'no-cache'};
 let POKEMON_DATA = [];
 let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
@@ -798,6 +799,38 @@ let RANKING_SINGLE = {rows:[]};
 let RANKING_DOUBLE = {rows:[]};
 let rankingAssistMode = 'single';
 let lastBulkCandidates = [];
+let _pokemonMovesLoaded = false;
+let _pokemonMovesPromise = null;
+let _rankingLoaded = {single:false, double:false};
+let _rankingPromises = {single:null, double:null};
+
+function fetchDataJson(path, fallback){
+  return fetch(path, DATA_FETCH_OPTIONS).then(r=>r.ok ? r.json() : Promise.reject(new Error(path))).catch(()=>fallback);
+}
+async function ensurePokemonMovesLoaded(){
+  if(_pokemonMovesLoaded) return POKEMON_MOVES;
+  if(_pokemonMovesPromise) return _pokemonMovesPromise;
+  _pokemonMovesPromise = fetchDataJson('pokemon_moves.json', {pokemon:{}}).then(data=>{
+    POKEMON_MOVES = data && data.pokemon ? data.pokemon : {};
+    _pokemonMovesLoaded = true;
+    return POKEMON_MOVES;
+  });
+  return _pokemonMovesPromise;
+}
+async function ensureRankingDataLoaded(mode){
+  const key = mode==='double' ? 'double' : 'single';
+  if(_rankingLoaded[key]) return key==='double' ? RANKING_DOUBLE : RANKING_SINGLE;
+  if(_rankingPromises[key]) return _rankingPromises[key];
+  const file = key==='double' ? 'season_ranking_double.json' : 'season_ranking_single.json';
+  _rankingPromises[key] = fetchDataJson(file, {rows:[]}).then(data=>{
+    const normalized = data && Array.isArray(data.rows) ? data : {rows:[]};
+    if(key==='double') RANKING_DOUBLE = normalized;
+    else RANKING_SINGLE = normalized;
+    _rankingLoaded[key] = true;
+    return normalized;
+  });
+  return _rankingPromises[key];
+}
 
 
 // ===== 特殊フォルムの登録名統一 =====
@@ -942,24 +975,18 @@ function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata, pmdata, rsingle, rdouble] = await Promise.all([
-      fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
-      fetch('moves.json?v='+Date.now()).then(r=>r.json()),
-      fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
-      fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
-      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
-      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
-      fetch('season_ranking_single.json?v='+Date.now()).then(r=>r.json()).catch(()=>({rows:[]})),
-      fetch('season_ranking_double.json?v='+Date.now()).then(r=>r.json()).catch(()=>({rows:[]})),
+    const [pd, md, ad, sd, idata] = await Promise.all([
+      fetchDataJson('pokemon.json', []),
+      fetchDataJson('moves.json', []),
+      fetchDataJson('abilities.json', {}),
+      fetchDataJson('season.json', {seasons:[]}),
+      fetchDataJson('belongings.json', []),
     ]);
     POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
     ITEMS_DATA   = Array.isArray(idata) ? idata : [];
-    POKEMON_MOVES = pmdata && pmdata.pokemon ? pmdata.pokemon : {};
-    RANKING_SINGLE = rsingle && Array.isArray(rsingle.rows) ? rsingle : {rows:[]};
-    RANKING_DOUBLE = rdouble && Array.isArray(rdouble.rows) ? rdouble : {rows:[]};
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     _dataLoaded  = true;
@@ -1013,12 +1040,21 @@ function renderMoveQuick(pokeName){
   const wrap=document.getElementById('move-quick');
   const note=document.getElementById('move-quick-note');
   if(!wrap || !note) return;
-  const moves=getPokemonKnownMoves(pokeName);
   if(!pokeName){
     wrap.innerHTML='';
     note.textContent='ポケモンを選ぶと、候補技をここから追加できます。';
     return;
   }
+  if(!_pokemonMovesLoaded){
+    wrap.innerHTML='<span class="quick-chip subtle">候補技を読み込み中...</span>';
+    note.textContent='候補技データを読み込んでいます。';
+    ensurePokemonMovesLoaded().then(()=>{
+      const active=currentPokeData?.name || document.getElementById('poke-search')?.value || '';
+      if(active) renderMoveQuick(normalizeAegislashDisplayName(active));
+    });
+    return;
+  }
+  const moves=getPokemonKnownMoves(pokeName);
   if(!moves.length){
     wrap.innerHTML='<span class="quick-chip subtle">候補技データなし</span>';
     note.textContent='候補技データがない場合は、下の検索欄から追加してください。';
@@ -1145,13 +1181,18 @@ function renderRankingSuggestionWrap(targetId, rows, kind){
   }
   wrap.innerHTML=rows.map((label,idx)=>`<button type="button" class="quick-chip ranking-chip" onclick="applyRankingSuggestion('${kind}',${idx})">${escapeHtml(label)}</button>`).join('');
 }
-function renderRankingAssist(){
+async function renderRankingAssist(){
   const status=document.getElementById('ranking-reco-status');
   const name=currentPokeData?.name || document.getElementById('poke-search')?.value || '';
   if(!name){
     if(status) status.textContent='ポケモンを選ぶと、ここにランキング上位の候補を表示します。';
     ['ranking-reco-moves','ranking-reco-items','ranking-reco-abilities','ranking-reco-natures','ranking-reco-spreads'].forEach(id=>renderRankingSuggestionWrap(id, [], ''));
     return;
+  }
+  if(!_rankingLoaded[rankingAssistMode]){
+    if(status) status.textContent=(rankingAssistMode==='double' ? 'ダブル' : 'シングル') + '順位候補を読み込み中...';
+    ['ranking-reco-moves','ranking-reco-items','ranking-reco-abilities','ranking-reco-natures','ranking-reco-spreads'].forEach(id=>renderRankingSuggestionWrap(id, [], ''));
+    await ensureRankingDataLoaded(rankingAssistMode);
   }
   const ctx=getRankingAssistContext(name, rankingAssistMode);
   const row=ctx?.row;
@@ -1297,7 +1338,7 @@ function formatBulkEvCell(ev){
 function formatBulkRealCell(real){
   return `<div class="bulk-real-cell"><strong>H${real.hp} B${real.def}</strong><span class="bulk-subline">D${real.spd}</span></div>`;
 }
-function runBulkRecommend(){
+async function runBulkRecommend(){
   if(!currentPokeData){ alert('先にポケモンを選択してください'); return; }
   const limit=isPokeChampions() ? 66 : 510;
   const step=getPokeEvStep();
@@ -1306,6 +1347,9 @@ function runBulkRecommend(){
   const physRatio=getBulkSliderPercent()/100;
   const summary=document.getElementById('bulk-summary');
   const body=document.getElementById('bulk-candidate-body');
+  if(summary) summary.textContent='今の努力値を基準に、おすすめ候補を計算中です...';
+  if(body) body.innerHTML='<tr><td colspan="7" style="color:var(--text2);">おすすめ候補を計算中です...</td></tr>';
+  await ensureRankingDataLoaded(rankingAssistMode);
 
   const baseEv={
     hp:normalizeBulkEv(currentEv.hp),
@@ -2211,6 +2255,12 @@ window.onload = async () => {
   renderMoves();
   renderRegList();
   refreshPokemonAssist(true);
+
+  if(window.requestIdleCallback){
+    requestIdleCallback(()=>{ ensurePokemonMovesLoaded(); ensureRankingDataLoaded('single'); });
+  } else {
+    setTimeout(()=>{ ensurePokemonMovesLoaded(); ensureRankingDataLoaded('single'); }, 250);
+  }
 
   // ボタンバインド（関数定義後に実行）
   const btnNew = document.getElementById('btn-new-pokemon');

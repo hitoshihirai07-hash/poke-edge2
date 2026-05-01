@@ -21,8 +21,8 @@
 </script>
 <script>
 (function(){
-  var dark={'--bg':'#0d1420','--bg2':'#141e2e','--panel':'#1a2638','--border':'#304766','--border2':'#3d5b82','--accent':'#59d2ff','--accent2':'#ff6b92','--accent3':'#f2c66a','--green':'#57d89a','--text':'#f2f7ff','--text2':'#9fb3cb','--text3':'#c0d0e1'};
-  var light={'--bg':'#e7edf4','--bg2':'#f1f5f9','--panel':'#f8fbff','--border':'#b8c8d8','--border2':'#93abc3','--accent':'#0c6bb7','--accent2':'#c4456a','--accent3':'#a96a00','--green':'#157c52','--text':'#162335','--text2':'#5b7087','--text3':'#2f4a66'};
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
   var t=localStorage.getItem('pokeedge_theme')||'dark';
   var vars=t==='light'?light:dark;
   var root=document.documentElement.style;
@@ -502,9 +502,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
 </style>
 <script src="usage-tracker.js"></script>
-
-<link rel="stylesheet" href="contrast-tune.css">
-<link rel="stylesheet" href="updates-widget.css">
 </head>
 <body>
 <header>
@@ -769,6 +766,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <script>
 
 // ===== 外部JSONデータ読み込み =====
+const DATA_FETCH_OPTIONS = {cache:'no-cache'};
 let POKEMON_DATA = [];
 let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
@@ -778,6 +776,22 @@ let POKEMON_MOVES = {};
 let pokeIndex    = [];
 let moveIndex    = [];
 let _dataLoaded  = false;
+let _pokemonMovesLoaded = false;
+let _pokemonMovesPromise = null;
+
+function fetchDataJson(path, fallback){
+  return fetch(path, DATA_FETCH_OPTIONS).then(r=>r.ok ? r.json() : Promise.reject(new Error(path))).catch(()=>fallback);
+}
+async function ensurePokemonMovesLoaded(){
+  if(_pokemonMovesLoaded) return POKEMON_MOVES;
+  if(_pokemonMovesPromise) return _pokemonMovesPromise;
+  _pokemonMovesPromise = fetchDataJson('pokemon_moves.json', {pokemon:{}}).then(data=>{
+    POKEMON_MOVES = data && data.pokemon ? data.pokemon : {};
+    _pokemonMovesLoaded = true;
+    return POKEMON_MOVES;
+  });
+  return _pokemonMovesPromise;
+}
 
 
 // ===== 特殊フォルムの登録名統一 =====
@@ -922,20 +936,18 @@ function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata, pmdata] = await Promise.all([
-      fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
-      fetch('moves.json?v='+Date.now()).then(r=>r.json()),
-      fetch('abilities.json?v='+Date.now()).then(r=>r.json()).catch(()=>({})),
-      fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
-      fetch('belongings.json?v='+Date.now()).then(r=>r.json()).catch(()=>([])),
-      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.json()).catch(()=>({pokemon:{}})),
+    const [pd, md, ad, sd, idata] = await Promise.all([
+      fetchDataJson('pokemon.json', []),
+      fetchDataJson('moves.json', []),
+      fetchDataJson('abilities.json', {}),
+      fetchDataJson('season.json', {seasons:[]}),
+      fetchDataJson('belongings.json', []),
     ]);
     POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
     ITEMS_DATA   = Array.isArray(idata) ? idata : [];
-    POKEMON_MOVES = pmdata && pmdata.pokemon ? pmdata.pokemon : {};
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     _dataLoaded  = true;
@@ -1101,12 +1113,21 @@ function renderPeMoveQuick(pokeName){
   const wrap=document.getElementById('pe-move-quick');
   const note=document.getElementById('pe-move-quick-note');
   if(!wrap || !note) return;
-  const moves=getPokemonKnownMoves(pokeName);
   if(!pokeName){
     wrap.innerHTML='';
     note.textContent='ポケモンを選ぶと、登録候補の技をここから追加できます。';
     return;
   }
+  if(!_pokemonMovesLoaded){
+    wrap.innerHTML='<span class="quick-chip subtle">候補技を読み込み中...</span>';
+    note.textContent='候補技データを読み込んでいます。';
+    ensurePokemonMovesLoaded().then(()=>{
+      const active=selectedSlot>=0 && party[selectedSlot] ? party[selectedSlot].poke.name : '';
+      if(active) renderPeMoveQuick(active);
+    });
+    return;
+  }
+  const moves=getPokemonKnownMoves(pokeName);
   if(!moves.length){
     wrap.innerHTML='<span class="quick-chip subtle">候補技データなし</span>';
     note.textContent='候補技データがない場合は、下の検索欄から追加してください。';
@@ -2553,6 +2574,23 @@ window.onload = async () => {
 
   await loadGameData();
   setupItemMasterList();
+  if(window.requestIdleCallback){
+    requestIdleCallback(()=>{
+      ensurePokemonMovesLoaded().then(()=>{
+        updateCoverage();
+        renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
+        if(selectedSlot>=0 && party[selectedSlot]) renderPeMoveQuick(party[selectedSlot].poke.name);
+      });
+    });
+  } else {
+    setTimeout(()=>{
+      ensurePokemonMovesLoaded().then(()=>{
+        updateCoverage();
+        renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
+        if(selectedSlot>=0 && party[selectedSlot]) renderPeMoveQuick(party[selectedSlot].poke.name);
+      });
+    }, 250);
+  }
   // ===== 初期化（要素が存在する場合のみ実行） =====
 function el(id){ return document.getElementById(id); }
 function setupIfExists(inputId, dropId){ if(el(inputId)) setupSearch(inputId, dropId); }
@@ -2969,7 +3007,5 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 </script>
-
-<script src="updates-widget.js"></script>
 </body>
 </html>

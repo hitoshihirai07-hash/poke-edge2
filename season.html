@@ -21,8 +21,8 @@
 </script>
 <script>
 (function(){
-  var dark={'--bg':'#0d1420','--bg2':'#141e2e','--panel':'#1a2638','--border':'#304766','--border2':'#3d5b82','--accent':'#59d2ff','--accent2':'#ff6b92','--accent3':'#f2c66a','--green':'#57d89a','--text':'#f2f7ff','--text2':'#9fb3cb','--text3':'#c0d0e1'};
-  var light={'--bg':'#e7edf4','--bg2':'#f1f5f9','--panel':'#f8fbff','--border':'#b8c8d8','--border2':'#93abc3','--accent':'#0c6bb7','--accent2':'#c4456a','--accent3':'#a96a00','--green':'#157c52','--text':'#162335','--text2':'#5b7087','--text3':'#2f4a66'};
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
   var t=localStorage.getItem('pokeedge_theme')||'dark';
   var vars=t==='light'?light:dark;
   var root=document.documentElement.style;
@@ -32,7 +32,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d1420;--bg2:#141e2e;--panel:#1a2638;--border:#304766;--border2:#3d5b82;--accent:#59d2ff;--accent2:#ff6b92;--accent3:#f2c66a;--green:#57d89a;--text:#f2f7ff;--text2:#9fb3cb;--text3:#c0d0e1;}
+:root{--bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;--border:#1a2540;--border2:#243356;--accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;--text:#d8e8ff;--text2:#4a6080;--text3:#7a90b0;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 35% at 10% 5%,rgba(0,200,240,0.06) 0%,transparent 60%),linear-gradient(rgba(0,200,240,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,0.018) 1px,transparent 1px);background-size:auto,52px 52px,52px 52px;}
@@ -402,9 +402,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
 </style>
 <script src="usage-tracker.js"></script>
-
-<link rel="stylesheet" href="contrast-tune.css">
-<link rel="stylesheet" href="updates-widget.css">
 </head>
 <body>
 <header>
@@ -927,15 +924,34 @@ function closePokemonDetail() {
 // 初期ソートクラスをNoに設定
 document.querySelector('thead th').classList.add('sort-asc');
 
+const DATA_FETCH_OPTIONS = {cache:'no-cache'};
+let _seasonMovesLoaded = false;
+let _seasonMovesPromise = null;
+let _seasonRankingLoaded = false;
+let _seasonRankingPromise = null;
+
+function fetchDataJson(path, fallback){
+  return fetch(path, DATA_FETCH_OPTIONS).then(r=>r.ok ? r.json() : Promise.reject(new Error(path))).catch(()=>fallback);
+}
+async function ensureSeasonMovesLoaded(){
+  if(_seasonMovesLoaded) return POKE_MOVES_BY_NAME;
+  if(_seasonMovesPromise) return _seasonMovesPromise;
+  _seasonMovesPromise = fetchDataJson('pokemon_moves.json', null).then(md=>{
+    POKE_MOVES_BY_NAME = normalizePokemonMovesData(md);
+    _seasonMovesLoaded = true;
+    return POKE_MOVES_BY_NAME;
+  });
+  return _seasonMovesPromise;
+}
+
 window.onload = async () => {
   await initAuth();
   try {
-    const [pd, sd, md, ad, aed] = await Promise.all([
-      fetch('pokemon.json?v='+Date.now()).then(r=>r.json()),
-      fetch('season.json?v='+Date.now()).then(r=>r.json()).catch(()=>({seasons:[]})),
-      fetch('pokemon_moves.json?v='+Date.now()).then(r=>r.ok ? r.json() : null).catch(()=>null),
-      fetch('abilities.json?v='+Date.now()).then(r=>r.ok ? r.json() : {}).catch(()=>({})),
-      fetch('abilities_data.json?v='+Date.now()).then(r=>r.ok ? r.json() : []).catch(()=>[]),
+    const [pd, sd, ad, aed] = await Promise.all([
+      fetchDataJson('pokemon.json', []),
+      fetchDataJson('season.json', {seasons:[]}),
+      fetchDataJson('abilities.json', {}),
+      fetchDataJson('abilities_data.json', []),
     ]);
     const rawPokemonData = Array.isArray(pd) ? pd : [];
     POKE_BY_NAME = {};
@@ -951,7 +967,6 @@ window.onload = async () => {
       POKE_BY_NAME[p.name] = p;
     });
     SEASON_DATA = sd || {seasons:[]};
-    POKE_MOVES_BY_NAME = normalizePokemonMovesData(md);
     ABILITIES_BY_NAME = normalizeAbilitiesData(ad);
     ABILITY_EFFECTS_BY_NAME = normalizeAbilityEffectsData(aed);
   } catch(e) {
@@ -1413,8 +1428,8 @@ document.addEventListener('DOMContentLoaded',function(){
     if(listView) listView.style.display = currentViewMode === 'list' ? '' : 'none';
     if(rankView) rankView.classList.toggle('show', currentViewMode === 'ranking');
     if(historyView) historyView.classList.toggle('show', currentViewMode === 'history');
-    if(currentViewMode === 'ranking') renderRankings();
-    if(currentViewMode === 'history') renderRankingHistory();
+    if(currentViewMode === 'ranking'){ loadRankingJson(); renderRankings(); }
+    if(currentViewMode === 'history'){ loadRankingJson(); renderRankingHistory(); }
   }
 
   function rankingRowsForCurrentView() {
@@ -1630,7 +1645,8 @@ document.addEventListener('DOMContentLoaded',function(){
 
   const originalOpenPokemonDetail = window.openPokemonDetail;
   window.renderDetailMoves = renderDetailMovesPatched;
-  window.openPokemonDetail = function(name) {
+  window.openPokemonDetail = async function(name) {
+    await Promise.all([ensureSeasonMovesLoaded(), loadRankingJson()]);
     ensureDetailRankingBox();
     const ctx = collectDetailContext(name);
     if(!ctx.records.length) {
@@ -1692,25 +1708,32 @@ document.addEventListener('DOMContentLoaded',function(){
   };
 
   async function loadRankingJson() {
-    try {
-      const [singleRes, doubleRes, singleHistoryRes, doubleHistoryRes] = await Promise.all([
-        fetch('season_ranking_single.json?v=' + Date.now()).then(r => r.ok ? r.json() : {rows:[], updatedAt:''}).catch(() => ({rows:[], updatedAt:''})),
-        fetch('season_ranking_double.json?v=' + Date.now()).then(r => r.ok ? r.json() : {rows:[], updatedAt:''}).catch(() => ({rows:[], updatedAt:''})),
-        fetch('season_ranking_history_single.json?v=' + Date.now()).then(r => r.ok ? r.json() : {columns:[], rows:[], updatedAt:''}).catch(() => ({columns:[], rows:[], updatedAt:''})),
-        fetch('season_ranking_history_double.json?v=' + Date.now()).then(r => r.ok ? r.json() : {columns:[], rows:[], updatedAt:''}).catch(() => ({columns:[], rows:[], updatedAt:''}))
-      ]);
-      SINGLE_RANKINGS = singleRes && Array.isArray(singleRes.rows) ? singleRes : {rows:[], updatedAt:''};
-      DOUBLE_RANKINGS = doubleRes && Array.isArray(doubleRes.rows) ? doubleRes : {rows:[], updatedAt:''};
-      SINGLE_RANKING_HISTORY = singleHistoryRes && Array.isArray(singleHistoryRes.rows) ? singleHistoryRes : {columns:[], rows:[], updatedAt:''};
-      DOUBLE_RANKING_HISTORY = doubleHistoryRes && Array.isArray(doubleHistoryRes.rows) ? doubleHistoryRes : {columns:[], rows:[], updatedAt:''};
-    } catch(e) {
-      SINGLE_RANKINGS = {rows:[], updatedAt:''};
-      DOUBLE_RANKINGS = {rows:[], updatedAt:''};
-      SINGLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
-      DOUBLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
-    }
-    renderRankings();
-    renderRankingHistory();
+    if(_seasonRankingLoaded) return {single:SINGLE_RANKINGS, double:DOUBLE_RANKINGS};
+    if(_seasonRankingPromise) return _seasonRankingPromise;
+    _seasonRankingPromise = (async()=>{
+      try {
+        const [singleRes, doubleRes, singleHistoryRes, doubleHistoryRes] = await Promise.all([
+          fetchDataJson('season_ranking_single.json', {rows:[], updatedAt:''}),
+          fetchDataJson('season_ranking_double.json', {rows:[], updatedAt:''}),
+          fetchDataJson('season_ranking_history_single.json', {columns:[], rows:[], updatedAt:''}),
+          fetchDataJson('season_ranking_history_double.json', {columns:[], rows:[], updatedAt:''})
+        ]);
+        SINGLE_RANKINGS = singleRes && Array.isArray(singleRes.rows) ? singleRes : {rows:[], updatedAt:''};
+        DOUBLE_RANKINGS = doubleRes && Array.isArray(doubleRes.rows) ? doubleRes : {rows:[], updatedAt:''};
+        SINGLE_RANKING_HISTORY = singleHistoryRes && Array.isArray(singleHistoryRes.rows) ? singleHistoryRes : {columns:[], rows:[], updatedAt:''};
+        DOUBLE_RANKING_HISTORY = doubleHistoryRes && Array.isArray(doubleHistoryRes.rows) ? doubleHistoryRes : {columns:[], rows:[], updatedAt:''};
+      } catch(e) {
+        SINGLE_RANKINGS = {rows:[], updatedAt:''};
+        DOUBLE_RANKINGS = {rows:[], updatedAt:''};
+        SINGLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
+        DOUBLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
+      }
+      _seasonRankingLoaded = true;
+      renderRankings();
+      renderRankingHistory();
+      return {single:SINGLE_RANKINGS, double:DOUBLE_RANKINGS};
+    })();
+    return _seasonRankingPromise;
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -1724,12 +1747,9 @@ document.addEventListener('DOMContentLoaded',function(){
     ensureDetailRankingBox();
     ensureDetailTransferBox();
     ensureDetailMoveToggleButton();
-    loadRankingJson();
   });
 })();
 </script>
 
-
-<script src="updates-widget.js"></script>
 </body>
 </html>
