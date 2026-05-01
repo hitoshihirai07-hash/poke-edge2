@@ -559,13 +559,13 @@ input[type=file]{display:none;}
     <div class="sec-title">順位データ更新（シングル）</div>
     <div class="sec-file">single.csv → season_ranking_single.json</div>
     <div class="sec-cols">
-      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>努力値1〜5</span>・<span>更新日</span><br>
-      <span style="font-size:10px;color:var(--text3);">対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜5</span></span>
+      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>性格1〜5</span>・<span>努力値1〜5</span>・<span>更新日</span><br>
+      <span style="font-size:10px;color:var(--text3);">順位一覧用CSVです。順位推移CSVとは別です。対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜5</span> / <span>努力値</span> または <span>努力値1〜5</span></span>
     </div>
     <div class="steps">
       <div class="step"><span class="step-n">1</span><span>single.csv をドロップ or クリックして選択</span></div>
       <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_single.json をダウンロードして公開中の同名JSONへ上書きアップロード</span></div>
+      <div class="step"><span class="step-n">3</span><span>season_ranking_single.json をダウンロードし、公開中の同名JSONへ上書きアップロードしてください</span></div>
     </div>
     <div class="drop-zone" id="dz-rank_single"
       onclick="document.getElementById('f-rank_single').click()"
@@ -600,13 +600,13 @@ input[type=file]{display:none;}
     <div class="sec-title">順位データ更新（ダブル）</div>
     <div class="sec-file">double.csv → season_ranking_double.json</div>
     <div class="sec-cols">
-      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>努力値1〜5</span>・<span>更新日</span><br>
-      <span style="font-size:10px;color:var(--text3);">対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜5</span></span>
+      必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>性格1〜5</span>・<span>努力値1〜5</span>・<span>更新日</span><br>
+      <span style="font-size:10px;color:var(--text3);">順位一覧用CSVです。順位推移CSVとは別です。対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜5</span> / <span>努力値</span> または <span>努力値1〜5</span></span>
     </div>
     <div class="steps">
       <div class="step"><span class="step-n">1</span><span>double.csv をドロップ or クリックして選択</span></div>
       <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_double.json をダウンロードして公開中の同名JSONへ上書きアップロード</span></div>
+      <div class="step"><span class="step-n">3</span><span>season_ranking_double.json をダウンロードし、公開中の同名JSONへ上書きアップロードしてください</span></div>
     </div>
     <div class="drop-zone" id="dz-rank_double"
       onclick="document.getElementById('f-rank_double').click()"
@@ -643,12 +643,12 @@ input[type=file]{display:none;}
     <div class="sec-file">single_ranking_change.csv → season_ranking_history_single.json</div>
     <div class="sec-cols">
       必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>prev1</span>〜<span>prevN</span><br>
-      <span style="font-size:10px;color:var(--text3);">先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
+      <span style="font-size:10px;color:var(--text3);">順位推移用CSVです。順位一覧CSVとは別です。先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
     </div>
     <div class="steps">
       <div class="step"><span class="step-n">1</span><span>single_ranking_change.csv をドロップ or クリックして選択</span></div>
       <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_history_single.json をダウンロードしてアップロード</span></div>
+      <div class="step"><span class="step-n">3</span><span>season_ranking_history_single.json をダウンロードし、公開中の同名JSONへ上書きアップロードしてください</span></div>
     </div>
     <div class="drop-zone" id="dz-rank_history_single"
       onclick="document.getElementById('f-rank_history_single').click()"
@@ -684,12 +684,12 @@ input[type=file]{display:none;}
     <div class="sec-file">double_ranking_change.csv → season_ranking_history_double.json</div>
     <div class="sec-cols">
       必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>prev1</span>〜<span>prevN</span><br>
-      <span style="font-size:10px;color:var(--text3);">先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
+      <span style="font-size:10px;color:var(--text3);">順位推移用CSVです。順位一覧CSVとは別です。先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
     </div>
     <div class="steps">
       <div class="step"><span class="step-n">1</span><span>double_ranking_change.csv をドロップ or クリックして選択</span></div>
       <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
-      <div class="step"><span class="step-n">3</span><span>season_ranking_history_double.json をダウンロードしてアップロード</span></div>
+      <div class="step"><span class="step-n">3</span><span>season_ranking_history_double.json をダウンロードし、公開中の同名JSONへ上書きアップロードしてください</span></div>
     </div>
     <div class="drop-zone" id="dz-rank_history_double"
       onclick="document.getElementById('f-rank_history_double').click()"
@@ -1684,10 +1684,10 @@ function toggleTheme() {
     if(missing.length) throw new Error('必須カラムが不足: ' + missing.join(', '));
 
     const moveCols = collectOrderedColumns(data.headers, '技');
-    const modernItemCols = collectPreferredColumns(data.headers, ['持ちもの1','持ちもの2','持ちもの3','持ちもの4','持ちもの5','持ちもの6','持ちもの7','持ちもの8','持ちもの9','持ちもの10']);
-    const modernAbilityCols = collectPreferredColumns(data.headers, ['特性1','特性2']);
-    const modernNatureCols = collectPreferredColumns(data.headers, ['性格1','性格2','性格3','性格4','性格5']);
-    const modernSpreadCols = collectPreferredColumns(data.headers, ['努力値1','努力値2','努力値3','努力値4','努力値5']);
+    const modernItemCols = collectOrderedColumns(data.headers, '持ちもの');
+    const modernAbilityCols = collectOrderedColumns(data.headers, '特性');
+    const modernNatureCols = collectOrderedColumns(data.headers, '性格');
+    const modernSpreadCols = collectOrderedColumns(data.headers, '努力値');
     const itemCols = modernItemCols.length ? modernItemCols : collectOrderedColumns(data.headers, '持ち物');
     const abilityKey = data.headers.includes('特性') ? '特性' : (data.headers.includes('Unnamed: 22') ? 'Unnamed: 22' : '');
     const natureKey = data.headers.includes('性格') ? '性格' : '';
