@@ -869,6 +869,7 @@ let PARTY_MEGA_TARGET = Math.max(0, Math.min(6, parseInt(localStorage.getItem('p
 const PARTY_DRAFT_KEY = 'pokeedge_party_draft_v1';
 let _partyCoverageTimer = null;
 let _partyDraftTimer = null;
+let PARTY_EDITOR_QUICK_MOVES = [];
 let PARTY_WORKSPACE_TAB = 'recommend';
 let _dataLoaded  = false;
 let _pokemonMovesLoaded = false;
@@ -1329,6 +1330,16 @@ function findRegisteredPokemonByName(name){
     return getRecommendationGroupKey(recName) === key;
   }) || null;
 }
+function findRegisteredPokemonMatchesByName(name){
+  const key = getRecommendationGroupKey(name);
+  return getRegisteredPokes().filter(rec=>{
+    const recName = normalizeAegislashDisplayName(rec && (rec.pokeName || rec.displayName) || '');
+    return getRecommendationGroupKey(recName) === key;
+  });
+}
+function makePokemonRegisterId(){
+  return 'party_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
 
 function buildPartyStoredMember(member){
   if(!member || !member.poke) return null;
@@ -1426,12 +1437,10 @@ async function registerCurrentPartyPokemon(){
   const member = party[selectedSlot];
   const pokeName = normalizeAegislashDisplayName(member.poke.name || '');
   const regs = getRegisteredPokes();
-  const existing = member._regId
-    ? regs.find(rec=>rec.id===member._regId) || findRegisteredPokemonByName(pokeName)
-    : findRegisteredPokemonByName(pokeName);
+  const existing = member._regId ? regs.find(rec=>rec.id===member._regId) : null;
   const storedMember = buildPartyStoredMember(member);
   const record = {
-    id: existing?.id || ('party_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7)),
+    id: existing?.id || makePokemonRegisterId(),
     pokeName,
     displayName: existing?.displayName || pokeName,
     nickname: existing?.nickname || '',
@@ -1464,7 +1473,7 @@ async function registerCurrentPartyPokemon(){
   renderPartyRegisterStatus();
   renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
   schedulePartyDraftSave();
-  alert('パーティの内容をポケモン登録へ追加しました');
+  alert(existing ? 'この個体の登録内容を更新しました' : 'パーティの内容を別個体としてポケモン登録へ追加しました');
 }
 function promptRegisterPokemon(name){
   const normalized = normalizeAegislashDisplayName(name || '');
@@ -1489,14 +1498,27 @@ function renderPartyRegisterStatus(){
     return;
   }
   const member = party[selectedSlot];
-  const registered = member._regId ? getRegisteredPokes().find(rec=>rec.id===member._regId) || findRegisteredPokemonByName(member.poke.name) : findRegisteredPokemonByName(member.poke.name);
-  if(registered){
-    main.innerHTML = `<strong>登録済み:</strong> ${escapePartyHtml(registered.displayName || registered.pokeName || member.poke.name)}<br>ページ移動なしで登録済み一覧から呼び出せます。`;
-    actions.innerHTML = `<button type="button" class="party-inline-btn" onclick="openPartyRegisteredPanel()">登録済み一覧を見る</button>`;
-  } else {
-    main.innerHTML = '<strong>未登録:</strong> ' + escapePartyHtml(member.poke.name) + ' はポケモン登録にまだありません。<br>このページのまま、今の内容をそのまま登録へ追加できます。';
-    actions.innerHTML = '<button type="button" class="party-inline-btn" onclick="registerCurrentPartyPokemon()">この内容でポケモン登録へ追加</button><button type="button" class="party-inline-btn" onclick="openPartyRegisteredPanel()">登録済み一覧を見る</button>';
+  const linkedRecord = member._regId ? getRegisteredPokes().find(rec=>rec.id===member._regId) : null;
+  const sameSpecies = findRegisteredPokemonMatchesByName(member.poke.name);
+  if(linkedRecord){
+    main.innerHTML = `<strong>登録済み個体:</strong> ${escapePartyHtml(linkedRecord.displayName || linkedRecord.pokeName || member.poke.name)}<br>このスロットは既存の登録個体に紐づいています。保存するとこの個体を更新します。`;
+    actions.innerHTML = `<button type="button" class="party-inline-btn" onclick="openPartyRegisteredPanel()">登録済み一覧を見る</button><button type="button" class="party-inline-btn" onclick="memberToNewIndividual()">別個体として追加</button>`;
+    return;
   }
+  if(sameSpecies.length){
+    main.innerHTML = `<strong>同じポケモンの登録あり:</strong> ${sameSpecies.length}件<br>今の内容は上書きせず、別個体として追加できます。`;
+    actions.innerHTML = `<button type="button" class="party-inline-btn" onclick="registerCurrentPartyPokemon()">別個体として登録</button><button type="button" class="party-inline-btn" onclick="openPartyRegisteredPanel()">登録済み一覧を見る</button>`;
+    return;
+  }
+  main.innerHTML = `<strong>未登録:</strong> ${escapePartyHtml(member.poke.name)}<br>今のパーティ内容のまま、このページ内でポケモン登録へ追加できます。`;
+  actions.innerHTML = `<button type="button" class="party-inline-btn" onclick="registerCurrentPartyPokemon()">この内容でポケモン登録へ追加</button>`;
+}
+function memberToNewIndividual(){
+  if(selectedSlot < 0 || !party[selectedSlot]) return;
+  delete party[selectedSlot]._regId;
+  renderPartyRegisterStatus();
+  schedulePartyDraftSave();
+  registerCurrentPartyPokemon();
 }
 
 function preferRecommendationCandidate(nextCandidate, currentCandidate) {
@@ -1549,13 +1571,51 @@ function renderPeAbilityOptions(pokeName, selected){
   sel.innerHTML = ['<option value="">特性を選択</option>'].concat(options.map(name=>`<option value="${name}">${name}</option>`)).join('');
   sel.value = current && options.includes(current) ? current : '';
 }
+function getPartyEditorQuickMoves(pokeName, rankingMode=PARTY_RANKING_MODE){
+  const rankingRow = findRankingRowForPokemon(pokeName, rankingMode);
+  const rankingMoves = [];
+  const seen = new Set();
+  (((rankingRow && rankingRow.moves) || []).slice(0, 12)).forEach(entry=>{
+    const parsed = parseUsageEntry(entry);
+    const moveName = String(parsed && parsed.name || '').trim();
+    if(!moveName || seen.has(moveName)) return;
+    seen.add(moveName);
+    const knownEntry = getKnownMoveEntryForPokemon(pokeName, moveName);
+    const meta = getMoveMetaByName(moveName);
+    rankingMoves.push({
+      name: moveName,
+      type: String((knownEntry && knownEntry.type) || (meta && meta.type) || '').trim(),
+      power: Number((knownEntry && knownEntry.power) || (meta && meta.power)) || 0,
+      category: String((knownEntry && knownEntry.category) || (meta && meta.category) || '').trim(),
+      usagePercent: Number(parsed && parsed.percent) || 0,
+      sourceLabel: 'ランキング'
+    });
+  });
+  if(rankingMoves.length) return rankingMoves;
+  const fallback = [];
+  (getPokemonKnownMoves(pokeName) || []).forEach(entry=>{
+    const moveName = String(entry && entry.name || '').trim();
+    if(!moveName || fallback.find(x=>x.name===moveName)) return;
+    const meta = getMoveMetaByName(moveName);
+    fallback.push({
+      name: moveName,
+      type: String((entry && entry.type) || (meta && meta.type) || '').trim(),
+      power: Number((entry && entry.power) || (meta && meta.power)) || 0,
+      category: String((entry && entry.category) || (meta && meta.category) || '').trim(),
+      usagePercent: 0,
+      sourceLabel: 'pokemon_moves'
+    });
+  });
+  return fallback.slice(0, 24);
+}
 function renderPeMoveQuick(pokeName){
   const wrap=document.getElementById('pe-move-quick');
   const note=document.getElementById('pe-move-quick-note');
   if(!wrap || !note) return;
+  PARTY_EDITOR_QUICK_MOVES = [];
   if(!pokeName){
     wrap.innerHTML='';
-    note.textContent='ポケモンを選ぶと、登録候補の技をここから追加できます。';
+    note.textContent='ポケモンを選ぶと、ランキング上位技を優先してここから追加できます。';
     return;
   }
   if(!_pokemonMovesLoaded){
@@ -1567,19 +1627,26 @@ function renderPeMoveQuick(pokeName){
     });
     return;
   }
-  const moves=getPokemonKnownMoves(pokeName);
+  const moves=getPartyEditorQuickMoves(pokeName, PARTY_RANKING_MODE);
+  PARTY_EDITOR_QUICK_MOVES = moves.slice();
   if(!moves.length){
     wrap.innerHTML='<span class="quick-chip subtle">候補技データなし</span>';
     note.textContent='候補技データがない場合は、下の検索欄から追加してください。';
     return;
   }
-  wrap.innerHTML = moves.slice(0,24).map((m,idx)=>`<button type="button" class="quick-chip" onclick="addKnownPartyMove(${idx})">${m.name}</button>`).join('');
-  note.textContent='よく使う候補技を上に出しています。タップでそのまま追加できます。';
+  wrap.innerHTML = moves.slice(0,24).map((m,idx)=>{
+    const usageLabel = m.usagePercent ? ` <span style="font-size:10px;color:var(--accent3);">${m.usagePercent.toFixed(1)}%</span>` : '';
+    const typeLabel = m.type ? `<span class="type-pill tp-${m.type}" style="font-size:8px;">${m.type}</span>` : '';
+    return `<button type="button" class="quick-chip" title="${escapePartyHtml((m.sourceLabel || '候補') + (m.category ? ' / ' + m.category : '') + (m.power ? ' / 威力' + m.power : ''))}" onclick="addKnownPartyMove(${idx})">${typeLabel}${escapePartyHtml(m.name)}${usageLabel}</button>`;
+  }).join('');
+  const fromRanking = moves.some(m=>m.sourceLabel==='ランキング');
+  note.textContent = fromRanking
+    ? `ランキング${PARTY_RANKING_MODE === 'double' ? 'ダブル' : 'シングル'}の上位技を優先表示しています。足りない分だけ候補技で補完します。`
+    : 'ランキング未掲載のため、候補技データから追加できます。';
 }
 function addKnownPartyMove(idx){
   if(selectedSlot<0||!party[selectedSlot]) return;
-  const moves=getPokemonKnownMoves(party[selectedSlot].poke.name);
-  const m=moves[idx];
+  const m=PARTY_EDITOR_QUICK_MOVES[idx];
   if(!m) return;
   const list=party[selectedSlot].moves;
   if(list.length>=4){alert('技は4つまでです');return;}
@@ -2210,6 +2277,7 @@ function setPartyRankingMode(mode){
   document.querySelectorAll('[data-party-ranking-mode]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyRankingMode === safe);
   });
+  if(selectedSlot>=0 && party[selectedSlot] && party[selectedSlot].poke) renderPeMoveQuick(party[selectedSlot].poke.name);
   updateCoverage();
 }
 
@@ -2301,9 +2369,9 @@ function renderDirectPokeList() {
     const safeName = escapePartyHtml(p.name);
     const t1 = p.type1 ? `<span class="type-pill tp-${p.type1}" style="font-size:8px;">${p.type1}</span>` : '';
     const t2 = p.type2 ? `<span class="type-pill tp-${p.type2}" style="font-size:8px;">${p.type2}</span>` : '';
-    const registered = findRegisteredPokemonByName(p.name);
-    const status = registered
-      ? '<span class="direct-register-badge registered">登録済み</span>'
+    const registeredMatches = findRegisteredPokemonMatchesByName(p.name);
+    const status = registeredMatches.length
+      ? `<span class="direct-register-badge registered">登録${registeredMatches.length}件</span>`
       : `<span class="direct-register-badge">未登録</span><button type="button" class="direct-register-btn" onclick="event.stopPropagation();promptRegisterPokemon('${safeName}')">追加後に登録</button>`;
     return `<div class="direct-card" onclick="addToPartyDirect('${safeName}')">
       <div class="direct-card-head">

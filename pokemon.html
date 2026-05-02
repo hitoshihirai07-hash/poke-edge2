@@ -761,6 +761,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
       <div class="pokemon-actions" style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
         <button class="save-btn" id="btn-save-pokemon" style="flex:1;min-width:160px;">💾 保存</button>
+        <button type="button" id="btn-save-pokemon-duplicate" style="padding:10px 16px;background:transparent;border:1px solid var(--accent3);color:var(--accent3);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px;">🧬 別個体として保存</button>
         <button type="button" class="save-btn" id="btn-export-pokemon-image" onclick="exportPokemonCardImage()" style="flex:1;min-width:220px;background:linear-gradient(135deg,var(--accent3),#b88400);color:#000;">📷 型紹介画像を保存</button>
         <button id="btn-delete-pokemon" style="padding:10px 16px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px;">削除</button>
       </div>
@@ -2036,10 +2037,22 @@ function renderRegList(filter) {
   }).join('');
 }
 
+function makePokemonRecordId(){
+  return 'poke_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
+function savePokemonAsDuplicate(){
+  if(!currentPokeData && !document.getElementById('poke-search').value){
+    alert('ポケモンを選択してください');
+    return;
+  }
+  currentId = makePokemonRecordId();
+  savePokemon();
+}
+
 // ===== 新規作成 =====
 function newPokemon() {
   switchPokemonMobileTabIfMobile('basic');
-  currentId = 'new_'+Date.now();
+  currentId = makePokemonRecordId();
   currentPokeData = null;
   currentMoves = [];
   document.getElementById('edit-empty').style.display='none';
@@ -2084,7 +2097,7 @@ async function savePokemon() {
   const pokeName=normalizeAegislashDisplayName(currentPokeData?currentPokeData.name:(document.getElementById('poke-search').value||''));
   const displayName=nickname||pokeName||'名称未設定';
   const record={
-    id: currentId,
+    id: currentId || makePokemonRecordId(),
     pokeName,
     displayName,
     nickname,
@@ -2265,7 +2278,9 @@ window.onload = async () => {
   // ボタンバインド（関数定義後に実行）
   const btnNew = document.getElementById('btn-new-pokemon');
   const btnDel = document.getElementById('btn-delete-pokemon');
+  const btnDuplicate = document.getElementById('btn-save-pokemon-duplicate');
   if(btnNew)  btnNew.addEventListener('click', newPokemon);
+  if(btnDuplicate) btnDuplicate.addEventListener('click', savePokemonAsDuplicate);
   document.querySelectorAll('#btn-save-pokemon,#btn-save-pokemon-top').forEach(btn=>btn.addEventListener('click', savePokemon));
   if(btnDel)  btnDel.addEventListener('click', deleteCurrent);
 
