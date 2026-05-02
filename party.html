@@ -336,6 +336,22 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .recommend-add-btn{margin-top:10px;padding:8px 12px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:999px;font-size:11px;cursor:pointer;transition:all 0.18s;}
 .recommend-add-btn:hover{background:rgba(0,200,240,0.08);}
 .recommend-add-btn:disabled{border-color:var(--border2);color:var(--text2);cursor:default;background:transparent;}
+.party-threat-list{display:flex;flex-direction:column;gap:8px;max-height:540px;overflow:auto;padding-right:2px;}
+.party-threat-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:10px 12px;}
+.party-threat-row.is-heavy{border-color:rgba(255,90,90,0.38);background:linear-gradient(135deg,rgba(255,90,90,0.06),rgba(10,14,24,0.95));}
+.party-threat-rank{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--accent3);text-align:center;}
+.party-threat-main{min-width:0;display:flex;flex-direction:column;gap:4px;}
+.party-threat-name{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.party-threat-meta{font-size:10px;color:var(--text2);line-height:1.7;}
+.party-threat-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.party-threat-badge{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;border:1px solid var(--border2);font-size:9px;font-weight:700;letter-spacing:1px;white-space:nowrap;}
+.party-threat-badge.attack-4,.party-threat-badge.attack-2{border-color:rgba(0,200,240,0.36);color:var(--accent);background:rgba(0,200,240,0.1);}
+.party-threat-badge.attack-1{border-color:rgba(255,200,0,0.3);color:var(--accent3);background:rgba(255,200,0,0.1);}
+.party-threat-badge.attack-0{border-color:rgba(255,90,90,0.34);color:var(--accent2);background:rgba(255,90,90,0.08);}
+.party-threat-badge.def-good{border-color:rgba(0,255,150,0.35);color:var(--green);background:rgba(0,255,150,0.08);}
+.party-threat-badge.def-mid{border-color:rgba(255,200,0,0.3);color:var(--accent3);background:rgba(255,200,0,0.08);}
+.party-threat-badge.def-bad{border-color:rgba(255,90,90,0.34);color:var(--accent2);background:rgba(255,90,90,0.08);}
+@media(max-width:560px){.party-threat-row{grid-template-columns:34px minmax(0,1fr);} .party-threat-badges{grid-column:1 / -1;justify-content:flex-start;padding-left:44px;}}
 .party-config-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .party-config-inline select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:10px;font-size:11px;outline:none;}
 .party-register-status{margin:8px 0 10px;padding:10px 12px;border:1px solid var(--border);background:var(--bg2);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
@@ -819,8 +835,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="party-workspace-panel" data-party-workspace-panel="coverage">
           <div class="party-coverage-grid">
             <div class="cov-wrap">
-              <div class="sec">攻撃相性タイプ</div>
-              <div id="cov-attack-note" style="font-size:10px;color:var(--text2);margin-bottom:8px;">選択中ポケモンの登録技で各タイプにどこまで通るか</div>
+              <div class="sec">環境上位20への通り</div>
+              <div id="cov-attack-note" style="font-size:10px;color:var(--text2);margin-bottom:8px;">パーティ全体でランキング上位20にどこまで打点と受け先を持てるか</div>
               <div id="cov-chart-atk"></div>
             </div>
 
@@ -2945,32 +2961,75 @@ function updateCoverageNow() {
 
   const atkChartEl = document.getElementById('cov-chart-atk');
   const atkNoteEl = document.getElementById('cov-attack-note');
+  const dataset = getRankingDataset(PARTY_RANKING_MODE);
+  const topThreatRows = (dataset.rows || []).slice(0, 20);
   if(atkNoteEl){
-    atkNoteEl.textContent = 'パーティ全体の登録技で各タイプにどこまで通るか';
+    atkNoteEl.textContent = 'パーティ全体でランキング上位20にどこまで打点と受け先を持てるか';
   }
-  if(atkChartEl) {
-    const atkMax = Math.max(...allTypes.map(t => atkMap[t]||0), 1);
-    atkChartEl.innerHTML = allTypes.map(t => {
-      const score = atkMap[t]||0;
-      const pct = Math.round((score/atkMax)*100);
-      const color = score>=3?'var(--accent)':score>=2?'var(--accent3)':score>0?'var(--text3)':'var(--border2)';
-      const label = score>=3?'抜群+STAB':score>=2?'抜群':score>1?'等倍STAB':score>0?'等倍':'未対応';
-      const moveNames = Array.isArray(atkDetailMap[t]) ? atkDetailMap[t].filter(Boolean) : [];
-      let moveLabel = '';
-      if(moveNames.length){
-        const shown = moveNames.slice(0, 3).map(name => escapePartyHtml(name));
-        const extra = moveNames.length > 3 ? ` ほか${moveNames.length - 3}` : '';
-        moveLabel = `<div style="font-size:9px;color:var(--text2);margin-top:2px;line-height:1.45;">${shown.join(' / ')}${extra}</div>`;
-      }
-      return `<div class="cov-row">
-        <div class="cov-label">${t}</div>
-        <div style="flex:1;min-width:0;">
-          <div class="cov-bar-bg"><div class="cov-bar-fg" style="width:${Math.max(pct,score>0?3:0)}%;background:${color};"></div></div>
-          ${moveLabel}
-        </div>
-        <div style="font-size:9px;color:${color};width:72px;text-align:right;">${label}</div>
-      </div>`;
-    }).join('');
+  if(atkChartEl){
+    if(!coverageMembers.length){
+      atkChartEl.innerHTML = '<div style="font-size:11px;color:var(--text2);line-height:1.9;">パーティを追加すると、ランキング上位20に対する通りを表示します。</div>';
+    } else if(!topThreatRows.length){
+      atkChartEl.innerHTML = '<div style="font-size:11px;color:var(--text2);line-height:1.9;">参照ランキングが見つからないため表示できません。</div>';
+    } else {
+      const threatProfiles = topThreatRows.map(buildThreatProfile).filter(profile=>profile && profile.name);
+      const dangerRows = threatProfiles.map(profile=>{
+        const overall = evaluateThreatAgainstCurrentParty(profile, coverageMembers);
+        const responders = coverageMembers.map(member=>{
+          if(!member || !member.poke) return null;
+          const defenseValue = getWeightedDefenseValue(member, profile);
+          const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), profile.threatTypes);
+          const speed = Number(member.poke && member.poke.spe || 0);
+          const threatSpeed = Number(profile.threatPokemon && profile.threatPokemon.spe || 0);
+          let score = attackEff >= 4 ? 3.6 : attackEff >= 2 ? 2.7 : attackEff > 1 ? 1.4 : attackEff === 1 ? 0.5 : 0;
+          if(defenseValue <= 0.45) score += 1.6;
+          else if(defenseValue <= 0.75) score += 1.05;
+          else if(defenseValue <= 1) score += 0.5;
+          else if(defenseValue >= 1.35) score -= 0.8;
+          if(threatSpeed && speed >= threatSpeed) score += 0.25;
+          return {member, defenseValue, attackEff, score};
+        }).filter(Boolean).sort((a,b)=>b.score - a.score || a.defenseValue - b.defenseValue || b.attackEff - a.attackEff);
+
+        const bestNames = responders.filter(row=>row.score > 0.45).slice(0, 2).map(row=>row.member.poke && row.member.poke.name).filter(Boolean);
+        let attackLabel = '打点薄め';
+        let attackClass = 'attack-0';
+        if(overall.offenseEff >= 4){ attackLabel = '4倍打点あり'; attackClass = 'attack-4'; }
+        else if(overall.offenseEff >= 2){ attackLabel = '抜群打点あり'; attackClass = 'attack-2'; }
+        else if(overall.offenseEff > 1){ attackLabel = '等倍打点あり'; attackClass = 'attack-1'; }
+
+        let defenseLabel = '受け先薄め';
+        let defenseClass = 'def-bad';
+        if(overall.defenseValue <= 0.75){ defenseLabel = '受け先あり'; defenseClass = 'def-good'; }
+        else if(overall.defenseValue <= 1.05){ defenseLabel = '受け先は一応あり'; defenseClass = 'def-mid'; }
+
+        return {
+          rank: profile.rank,
+          name: profile.name,
+          concernScore: overall.concernScore,
+          attackLabel,
+          attackClass,
+          defenseLabel,
+          defenseClass,
+          bestNames
+        };
+      }).sort((a,b)=>a.rank - b.rank || b.concernScore - a.concernScore);
+
+      atkChartEl.innerHTML = `<div class="party-threat-list">${dangerRows.map((row, idx)=>{
+        const isHeavy = idx < 5 && row.defenseClass === 'def-bad';
+        const responderText = row.bestNames.length ? row.bestNames.join(' / ') : '返し枠が薄め';
+        return `<div class="party-threat-row${isHeavy ? ' is-heavy' : ''}">
+          <div class="party-threat-rank">${row.rank}</div>
+          <div class="party-threat-main">
+            <div class="party-threat-name">${escapePartyHtml(row.name)}</div>
+            <div class="party-threat-meta">返しやすい枠: ${escapePartyHtml(responderText)}</div>
+          </div>
+          <div class="party-threat-badges">
+            <span class="party-threat-badge ${row.attackClass}">${escapePartyHtml(row.attackLabel)}</span>
+            <span class="party-threat-badge ${row.defenseClass}">${escapePartyHtml(row.defenseLabel)}</span>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+    }
   }
 
   const defWeakCount = {};
