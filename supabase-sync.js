@@ -255,7 +255,7 @@ async function saveParty(name, partyData) {
   saveLocalPartiesRaw(dedupePartyRecords(saved).slice(0, 20));
 
   if(!isLoggedIn()) {
-    return true;
+    return record;
   }
 
   getSB().from('parties').insert({
@@ -263,12 +263,61 @@ async function saveParty(name, partyData) {
     name: record.name,
     data: record.data,
     created_at: record.created_at
-  }).then(({ error }) => {
-    if(error) console.warn('saveParty cloud insert failed', error);
+  }).then(({ data, error }) => {
+    if(error) {
+      console.warn('saveParty cloud insert failed', error);
+      return;
+    }
+    if(Array.isArray(data) && data[0] && data[0].id) {
+      const cloudRecord = normalizePartyRecord(data[0]);
+      const current = loadLocalPartiesRaw().map(normalizePartyRecord).filter(p => String(p.id) !== String(record.id));
+      current.unshift(cloudRecord);
+      saveLocalPartiesRaw(dedupePartyRecords(current).slice(0, 20));
+    }
   }).catch(error => {
     console.warn('saveParty cloud insert failed', error);
   });
-  return true;
+  return record;
+}
+
+async function updateParty(id, name, partyData) {
+  const record = normalizePartyRecord({
+    id: String(id),
+    name,
+    data: partyData,
+    created_at: new Date().toISOString()
+  });
+
+  const saved = loadLocalPartiesRaw().map(normalizePartyRecord);
+  const next = saved.filter(p => String(p.id) !== String(id));
+  next.unshift(record);
+  saveLocalPartiesRaw(dedupePartyRecords(next).slice(0, 20));
+
+  if(!isLoggedIn()) {
+    return record;
+  }
+
+  const { data, error } = await getSB().from('parties')
+    .update({ name: record.name, data: record.data, created_at: record.created_at })
+    .eq('id', id)
+    .eq('user_id', _currentUser.id)
+    .select('*')
+    .limit(1);
+
+  if(error) {
+    console.warn('updateParty cloud update failed', error);
+    return record;
+  }
+
+  if(Array.isArray(data) && data[0]) {
+    const cloudRecord = normalizePartyRecord(data[0]);
+    const local = loadLocalPartiesRaw().map(normalizePartyRecord).filter(p => String(p.id) !== String(id));
+    local.unshift(cloudRecord);
+    saveLocalPartiesRaw(dedupePartyRecords(local).slice(0, 20));
+    return cloudRecord;
+  }
+
+  return record;
 }
 
 async function deleteParty(id) {

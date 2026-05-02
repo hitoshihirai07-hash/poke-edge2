@@ -407,6 +407,15 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-action-btn.danger{border-color:var(--accent2);color:var(--accent2);}
 .party-save-btn{padding:9px 20px;background:linear-gradient(135deg,var(--green),#007a40);border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.18s;}
 .party-save-btn:hover{opacity:0.85;}
+.party-top-actions{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.party-save-meta{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1 1 240px;}
+.party-name-input{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:9px 12px;border-radius:12px;font-size:12px;outline:none;}
+.party-name-input:focus{border-color:var(--accent);}
+.party-save-status{font-size:10px;color:var(--text2);line-height:1.4;}
+.party-save-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.party-save-overwrite.is-hidden{display:none!important;}
+.party-mobile-new{background:linear-gradient(135deg,#55607a,#2c3445);color:#fff;}
+.party-mobile-overwrite{background:linear-gradient(135deg,var(--accent),#008bd0);color:#00131d;}
 .saved-parties-section{margin-bottom:14px;border:1px solid var(--border);padding:14px;background:var(--panel);}
 .saved-parties-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
 .saved-parties-note{font-size:10px;color:var(--text2);line-height:1.7;}
@@ -512,8 +521,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   }
   .mobile-party-tab-btn.active{border-color:var(--accent);background:rgba(0,200,240,.12);color:var(--accent);}
   .party-top-actions{gap:8px!important;margin-bottom:10px!important;}
-  .party-top-actions .party-save-btn,
-  .party-top-actions .party-action-btn{display:none;}
+  .party-top-actions .party-save-meta,
+  .party-top-actions .party-save-actions{width:100%;}
+  .party-top-actions .party-save-actions{order:3;}
   .party-top-actions a{margin-left:0!important;flex:1;text-align:center;}
   .party-top-grid{display:block;margin-bottom:12px;}
   .party-section-box,.saved-parties-section,.party-editor,.cov-wrap,.add-section{border-radius:16px;}
@@ -543,7 +553,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   #party-reg-search,#direct-poke-search{font-size:16px!important;}
   #party-reg-list,#direct-poke-list{max-height:calc(100vh - 280px)!important;}
   .party-mobile-bottom-actions{
-    position:fixed;left:10px;right:10px;bottom:10px;z-index:120;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+    position:fixed;left:10px;right:10px;bottom:10px;z-index:120;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
     background:rgba(7,9,15,.96);border:1px solid var(--border);border-radius:18px;padding:10px;box-shadow:0 -10px 34px rgba(0,0,0,.35);backdrop-filter:blur(18px);
   }
   .party-mobile-bottom-actions button{border:none;border-radius:14px;padding:12px 10px;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:800;cursor:pointer;}
@@ -615,12 +625,20 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="coverage" onclick="switchPartyMobileTab('coverage')">相性</button>
     </div>
     <!-- ヘッダーバー -->
-    <div class="party-top-actions" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div class="party-top-actions">
       <span style="font-size:11px;color:var(--text2);">登録済みポケモンから選んでパーティを編成</span>
-      <a href="pokemon.html" style="margin-left:auto;padding:6px 14px;border:1px solid var(--accent);color:var(--accent);font-size:11px;text-decoration:none;letter-spacing:1px;transition:all 0.18s;" onmouseover="this.style.background='rgba(0,200,240,0.07)'" onmouseout="this.style.background='transparent'">＋ ポケモンを登録</a>
-      <button class="party-save-btn" onclick="savePartyLocal()">💾 保存</button>
-      <button class="party-action-btn" onclick="refreshSavedPartiesPanel()">↻ 保存一覧を更新</button>
-      <button class="party-action-btn primary" onclick="exportPartyImage()">📷 構築画像を保存</button>
+      <div class="party-save-meta">
+        <input type="text" id="party-save-name" class="party-name-input" placeholder="新規パーティ" oninput="markPartySaveNameDirty()">
+        <div id="party-save-status" class="party-save-status">新規作成中です。6体を入れたらそのまま保存できます。</div>
+      </div>
+      <div class="party-save-actions">
+        <button class="party-action-btn" type="button" onclick="startNewParty()">🆕 新規作成</button>
+        <button class="party-save-btn" type="button" onclick="savePartyLocal('new')">💾 新規保存</button>
+        <button class="party-action-btn primary party-save-overwrite is-hidden" id="party-save-overwrite-btn" type="button" onclick="savePartyLocal('overwrite')">↺ 上書き保存</button>
+      </div>
+      <a href="pokemon.html" style="padding:6px 14px;border:1px solid var(--accent);color:var(--accent);font-size:11px;text-decoration:none;letter-spacing:1px;transition:all 0.18s;" onmouseover="this.style.background='rgba(0,200,240,0.07)'" onmouseout="this.style.background='transparent'">＋ ポケモンを登録</a>
+      <button class="party-action-btn" type="button" onclick="refreshSavedPartiesPanel()">↻ 保存一覧を更新</button>
+      <button class="party-action-btn primary" type="button" onclick="exportPartyImage()">📷 構築画像を保存</button>
     </div>
 
     <div class="party-top-grid">
@@ -854,8 +872,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 </div>
 
 <div class="party-mobile-bottom-actions" aria-label="スマホ用固定操作">
-  <button type="button" class="party-mobile-save" onclick="savePartyLocal()">💾 保存</button>
-  <button type="button" class="party-mobile-image" onclick="exportPartyImage()">📷 画像保存</button>
+  <button type="button" class="party-mobile-new" onclick="startNewParty()">🆕 新規</button>
+  <button type="button" class="party-mobile-save" onclick="savePartyLocal('new')">💾 新規保存</button>
+  <button type="button" class="party-mobile-overwrite" id="party-mobile-overwrite-btn" onclick="savePartyLocal('overwrite')" style="display:none;">↺ 上書き</button>
+  <button type="button" class="party-mobile-image" onclick="exportPartyImage()">📷 画像</button>
 </div>
 <datalist id="item-master-list"></datalist>
 
@@ -888,6 +908,7 @@ let _partyCoverageTimer = null;
 let _partyDraftTimer = null;
 let PARTY_EDITOR_QUICK_MOVES = [];
 let PARTY_WORKSPACE_TAB = 'recommend';
+let CURRENT_PARTY_SOURCE = null;
 let _dataLoaded  = false;
 let _pokemonMovesLoaded = false;
 let _pokemonMovesPromise = null;
@@ -1452,10 +1473,76 @@ function buildPartyRuntimeMember(saved){
     gameMode: saved && saved.gameMode || 'champions'
   };
 }
+function setCurrentPartySourceMeta(meta){
+  CURRENT_PARTY_SOURCE = meta && meta.id ? {id:String(meta.id), name:(meta.name || 'パーティ')} : null;
+  syncPartySaveControls();
+}
+function setPartySaveNameValue(value){
+  const input = document.getElementById('party-save-name');
+  if(!input) return;
+  input.value = value || '';
+  input.dataset.dirty = '0';
+}
+function markPartySaveNameDirty(){
+  const input = document.getElementById('party-save-name');
+  if(input) input.dataset.dirty = '1';
+}
+function getPartySaveName(defaultName='マイパーティ'){
+  const input = document.getElementById('party-save-name');
+  const raw = input ? input.value : '';
+  const name = (raw || '').trim();
+  if(name) return name;
+  if(input) {
+    input.value = defaultName;
+    input.dataset.dirty = '0';
+  }
+  return defaultName;
+}
+function syncPartySaveControls(){
+  const status = document.getElementById('party-save-status');
+  const overwriteBtn = document.getElementById('party-save-overwrite-btn');
+  const mobileOverwriteBtn = document.getElementById('party-mobile-overwrite-btn');
+  const hasSource = !!(CURRENT_PARTY_SOURCE && CURRENT_PARTY_SOURCE.id);
+  if(status){
+    status.textContent = hasSource
+      ? `読込中の「${CURRENT_PARTY_SOURCE.name || 'パーティ'}」を編集中です。上書き保存か新規保存を選べます。`
+      : '新規作成中です。今の6体をそのまま新規保存できます。';
+  }
+  if(overwriteBtn) overwriteBtn.classList.toggle('is-hidden', !hasSource);
+  if(mobileOverwriteBtn) mobileOverwriteBtn.style.display = hasSource ? '' : 'none';
+}
+function createPartySavePayload(name){
+  return {
+    name,
+    date: new Date().toLocaleDateString('ja-JP'),
+    members: party.filter(m=>m).map(buildPartyStoredMember).filter(Boolean)
+  };
+}
+function startNewParty(force=false){
+  const hasMembers = party.some(Boolean);
+  if(hasMembers && !force){
+    const ok = confirm('今の編集中パーティを空にして、新しく作り直しますか？');
+    if(!ok) return;
+  }
+  party = [];
+  selectedSlot = -1;
+  setCurrentPartySourceMeta(null);
+  setPartySaveNameValue('');
+  renderPartySlotList();
+  const emptyEl = document.getElementById('party-editor-empty');
+  const contentEl = document.getElementById('party-editor-content');
+  if(emptyEl) emptyEl.style.display='block';
+  if(contentEl) contentEl.style.display='none';
+  schedulePartyDraftSave();
+  switchPartyMobileTabIfMobile('six');
+}
+
 function savePartyDraftNow(){
   try {
     const payload = {
       selectedSlot,
+      saveName: document.getElementById('party-save-name')?.value || '',
+      sourceMeta: CURRENT_PARTY_SOURCE ? {id:CURRENT_PARTY_SOURCE.id, name:CURRENT_PARTY_SOURCE.name || ''} : null,
       members: party.filter(Boolean).map(buildPartyStoredMember).filter(Boolean)
     };
     localStorage.setItem(PARTY_DRAFT_KEY, JSON.stringify(payload));
@@ -1475,6 +1562,8 @@ function restorePartyDraft(){
     const members = Array.isArray(data && data.members) ? data.members : [];
     if(!members.length) return false;
     party = members.map(buildPartyRuntimeMember).filter(m=>m && m.poke && m.poke.name);
+    setCurrentPartySourceMeta(data && data.sourceMeta && data.sourceMeta.id ? data.sourceMeta : null);
+    setPartySaveNameValue(data && data.saveName || (CURRENT_PARTY_SOURCE && CURRENT_PARTY_SOURCE.name) || '');
     renderPartySlotList();
     renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
     const restoreIndex = Math.max(0, Math.min(party.length - 1, parseInt(data && data.selectedSlot, 10) || 0));
@@ -2549,6 +2638,7 @@ function renderPartySlotList() {
   updateCoverage();
   updateEvSummary();
   renderPartyRegisterStatus();
+  syncPartySaveControls();
 }
 
 function removeFromParty(i) {
@@ -2828,23 +2918,35 @@ function addPartyMove(idx) {
 }
 
 // ローカル保存
-async function savePartyLocal() {
-  const name = prompt('パーティ名を入力してください', 'マイパーティ');
-  if(!name) return;
+async function savePartyLocal(mode='new') {
   if(party.length===0){alert('ポケモンを追加してください');return;}
   pe_save();
-  const partyData = {
-    name,
-    date: new Date().toLocaleDateString('ja-JP'),
-    members: party.filter(m=>m).map(buildPartyStoredMember).filter(Boolean)
-  };
-  await saveParty(name, partyData);
+  const overwriteMode = mode === 'overwrite' && CURRENT_PARTY_SOURCE && CURRENT_PARTY_SOURCE.id;
+  const defaultName = overwriteMode ? (CURRENT_PARTY_SOURCE.name || 'パーティ') : 'マイパーティ';
+  const name = getPartySaveName(defaultName);
+  const partyData = createPartySavePayload(name);
+  let result = null;
+  if(overwriteMode){
+    result = await updateParty(CURRENT_PARTY_SOURCE.id, name, partyData);
+    alert(`「${name}」を上書き保存しました！`);
+  } else {
+    result = await saveParty(name, partyData);
+    alert(`「${name}」を新規保存しました！`);
+  }
+  if(result && result.id){
+    setCurrentPartySourceMeta({id:result.id, name:result.name || name});
+    setPartySaveNameValue(result.name || name);
+  } else if(overwriteMode) {
+    setCurrentPartySourceMeta({id:CURRENT_PARTY_SOURCE.id, name});
+    setPartySaveNameValue(name);
+  } else {
+    setPartySaveNameValue(name);
+  }
   savePartyDraftNow();
   renderSavedPartyListFast();
   if(typeof isLoggedIn === 'function' && isLoggedIn()) {
     setTimeout(()=>{ renderSavedPartyList().catch(err=>console.warn('party refresh failed', err)); }, 30);
   }
-  alert(`「${name}」を保存しました！`);
 }
 
 function showSavedParties() {
@@ -2892,6 +2994,8 @@ async function loadPartyById(id) {
   const s = saved.find(p=>(p.id||'').toString()===id.toString()) || saved[parseInt(id)];
   if(!s) return;
   const d = s.data || s;
+  setCurrentPartySourceMeta({id:s.id || id, name:s.name || d.name || 'パーティ'});
+  setPartySaveNameValue(s.name || d.name || 'パーティ');
   party = (d.members||[]).map(m=>{
     const poke = pokeIndex.find(x=>x.name===m.pokeName)||{name:m.pokeName,no:m.pokeNo,type1:m.type1,type2:m.type2,hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
     return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'champions'};
@@ -2906,6 +3010,9 @@ async function loadPartyById(id) {
 async function deletePartyById(id) {
   if(!confirm('このパーティを削除しますか？')) return;
   await deleteParty(id);
+  if(CURRENT_PARTY_SOURCE && String(CURRENT_PARTY_SOURCE.id) === String(id)) {
+    setCurrentPartySourceMeta(null);
+  }
   renderSavedPartyList();
 }
 
@@ -2913,6 +3020,8 @@ function loadParty(i) {
   const saved = JSON.parse(localStorage.getItem('pokeedge_parties')||'[]');
   const s = saved[i];
   if(!s) return;
+  setCurrentPartySourceMeta({id:s.id || i, name:s.name || 'パーティ'});
+  setPartySaveNameValue(s.name || 'パーティ');
   party = s.members.map(m=>{
     const poke = pokeIndex.find(x=>x.name===m.pokeName) || {name:m.pokeName,no:m.pokeNo,type1:m.type1,type2:m.type2,hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
     return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'champions'};
@@ -3577,7 +3686,7 @@ setupIfExists('atk2-search','atk2-drop');
 if(el('pe-move-search')) setupPeMoveSearch();
 
 // パーティ管理
-if(el('party-slot-list')){ switchPartyMobileTab('six'); renderPartySlotList(); renderRegPokeList(); renderSavedPartyListFast(); renderSavedPartyList(); if(!restorePartyDraft()) renderPartySlotList(); }
+if(el('party-slot-list')){ switchPartyMobileTab('six'); syncPartySaveControls(); renderPartySlotList(); renderRegPokeList(); renderSavedPartyListFast(); renderSavedPartyList(); if(!restorePartyDraft()) renderPartySlotList(); }
 
 // ダメージ計算スライダー（要素が存在するページのみ）
 ['atk-lv','def-lv'].forEach(id=>{
