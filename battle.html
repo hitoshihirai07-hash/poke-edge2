@@ -10,61 +10,56 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,200,240,0.07) 0%,transparent 60%),
-  radial-gradient(ellipse 50% 30% at 90% 90%,rgba(255,48,96,0.05) 0%,transparent 60%),
-  linear-gradient(rgba(0,200,240,0.015) 1px,transparent 1px),
-  linear-gradient(90deg,rgba(0,200,240,0.015) 1px,transparent 1px);
+  background:radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,200,240,0.07)0%,transparent 60%),
+  radial-gradient(ellipse 50% 30% at 90% 90%,rgba(255,48,96,0.05)0%,transparent 60%),
+  linear-gradient(rgba(0,200,240,0.015)1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,200,240,0.015)1px,transparent 1px);
   background-size:auto,auto,52px 52px,52px 52px;}
 
-/* HEADER */
 header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;padding:0 20px;display:flex;align-items:center;gap:14px;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);flex-shrink:0;cursor:pointer;}
 .logo em{color:var(--accent2);font-style:normal;}
-.header-sep{width:1px;height:16px;background:var(--border);}
-.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;}
-.header-nav{display:flex;gap:3px;margin-left:auto;}
+.hsep{width:1px;height:16px;background:var(--border);}
+.hsub{font-size:10px;color:var(--text2);letter-spacing:2px;}
+.hnav{display:flex;gap:3px;margin-left:auto;}
 .nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:11px;text-decoration:none;display:inline-block;white-space:nowrap;transition:all .18s;}
 .nav-btn:hover,.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.07);}
-@media(max-width:768px){.header-nav{display:none;}}
+@media(max-width:768px){.hnav{display:none;}}
 
-/* LOADING */
 #loading-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 .loading-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:var(--accent);}
 .loading-logo em{color:var(--accent2);font-style:normal;}
-.loading-bar-bg{width:240px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
-.loading-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.3s;}
-.loading-text{font-size:12px;color:var(--text3);letter-spacing:2px;}
+.lbar-bg{width:240px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.lbar{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;}
+.ltext{font-size:12px;color:var(--text3);letter-spacing:2px;}
 
-.container{max-width:980px;margin:0 auto;padding:20px 16px;position:relative;z-index:1;}
-.screen{display:none;}
-.screen.active{display:block;}
+.container{max-width:1100px;margin:0 auto;padding:20px 16px;position:relative;z-index:1;}
+.screen{display:none;}.screen.active{display:block;}
 
-/* PANEL */
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.panel-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.panel-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+.ptitle{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ptitle::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
 
-/* SEARCH */
-.search-wrap{position:relative;margin-bottom:8px;}
-.search-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:8px 32px 8px 10px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;}
-.search-input:focus{border-color:var(--accent);}
-.search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:0;}
-.search-clear:hover{color:var(--accent);}
+/* search */
+.srch-wrap{position:relative;margin-bottom:8px;}
+.srch{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:7px 30px 7px 10px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;}
+.srch:focus{border-color:var(--accent);}
+.srch-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:17px;line-height:1;padding:0;}
+.srch-x:hover{color:var(--accent);}
 
-/* POKEMON LIST */
-.poke-list{max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;}
+/* poke list */
+.poke-list{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;}
 .poke-list::-webkit-scrollbar{width:4px;}
 .poke-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.poke-item{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s;}
-.poke-item:last-child{border-bottom:none;}
-.poke-item:hover{background:rgba(0,200,240,0.06);}
-.poke-item.selected{background:rgba(0,200,240,0.12);border-left:2px solid var(--accent);}
-.poke-item .pno{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:40px;}
-.poke-item .pname{font-size:13px;font-weight:500;flex:1;}
-.poke-item .ptypes{display:flex;gap:3px;}
-.rank-badge{font-size:9px;font-family:'JetBrains Mono',monospace;margin-left:4px;}
+.pi{display:flex;align-items:center;gap:7px;padding:7px 9px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s;}
+.pi:last-child{border-bottom:none;}
+.pi:hover{background:rgba(0,200,240,0.06);}
+.pi.selected{background:rgba(0,200,240,0.12);border-left:2px solid var(--accent);}
+.pi .pno{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:36px;}
+.pi .pn{font-size:13px;font-weight:500;flex:1;}
+.pi .pts{display:flex;gap:3px;}
 
-/* TYPE PILLS */
+/* type */
 .tp{display:inline-block;padding:1px 6px;font-size:10px;font-weight:700;border-radius:3px;}
 .tp-ノーマル{background:#546e7a;color:#fff;}.tp-ほのお{background:#c62828;color:#fff;}.tp-みず{background:#1565c0;color:#fff;}
 .tp-でんき{background:#f9a825;color:#000;}.tp-くさ{background:#2e7d32;color:#fff;}.tp-こおり{background:#00838f;color:#fff;}
@@ -73,69 +68,84 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .tp-いわ{background:#4e342e;color:#fff;}.tp-ゴースト{background:#4a148c;color:#fff;}.tp-ドラゴン{background:#4527a0;color:#fff;}
 .tp-あく{background:#212121;color:#fff;}.tp-はがね{background:#455a64;color:#fff;}.tp-フェアリー{background:#880e4f;color:#fff;}
 
-/* CHOSEN CARD */
-.chosen-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:10px;}
-.chosen-name{font-size:18px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+/* 3-poke slot row */
+.slot-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.slot-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;position:relative;}
+.slot-card.has-poke{border-color:var(--border2);}
+.slot-label{font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:4px;}
+.slot-name{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.slot-name.empty{color:var(--text3);font-weight:400;font-size:13px;}
+.slot-clear{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:0;}
+.slot-clear:hover{color:var(--accent2);}
 
-/* RANK SOURCE */
-.rank-source{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:4px;margin-bottom:8px;line-height:1.5;}
-.rank-source.single{background:rgba(0,200,240,0.1);border:1px solid rgba(0,200,240,0.3);color:var(--accent);}
-.rank-source.double{background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.3);color:var(--accent3);}
-.rank-source.none{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text3);}
+/* chosen detail */
+.chosen-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:10px;}
+.cn{font-size:16px;font-weight:700;color:var(--accent);margin-bottom:5px;}
 
-/* STATS */
-.stat-row{display:grid;grid-template-columns:44px 28px 1fr 34px;align-items:center;gap:5px;margin:3px 0;font-size:11px;}
-.stat-label{color:var(--text3);}
-.stat-ev{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);text-align:right;}
-.stat-bar-bg{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;}
-.stat-bar-fg{height:100%;border-radius:3px;}
-.stat-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);text-align:right;}
+/* rank source */
+.rsrc{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:4px;margin-bottom:6px;line-height:1.5;}
+.rsrc.single{background:rgba(0,200,240,0.1);border:1px solid rgba(0,200,240,0.3);color:var(--accent);}
+.rsrc.double{background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.3);color:var(--accent3);}
+.rsrc.none{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text3);}
 
-/* NATURE SELECT */
-.nature-wrap{display:flex;align-items:center;gap:8px;margin:8px 0;}
-.nature-label{font-size:11px;color:var(--text3);flex-shrink:0;}
-select.nature-sel{background:var(--bg2);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 8px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;cursor:pointer;}
-select.nature-sel:focus{border-color:var(--accent);}
+/* stat */
+.srow{display:grid;grid-template-columns:44px 28px 1fr 34px;align-items:center;gap:5px;margin:2px 0;font-size:11px;}
+.slbl{color:var(--text3);}
+.sev{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);text-align:right;}
+.sbg{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;}
+.sfg{height:100%;border-radius:3px;}
+.sval{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);text-align:right;}
 
-/* MOVE TAGS */
-.move-tags{display:flex;flex-wrap:wrap;gap:5px;}
-.move-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:5px;font-size:12px;cursor:pointer;transition:border-color 0.12s;}
-.move-tag:hover{border-color:var(--border2);}
+/* inline select */
+.isel{background:var(--bg2);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 8px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;cursor:pointer;}
+.isel:focus{border-color:var(--accent);}
 
-/* MOVE DROPDOWN */
-.move-dropdown{background:var(--panel);border:1px solid var(--border2);border-radius:6px;z-index:50;max-height:200px;overflow-y:auto;margin-top:4px;display:none;}
-.move-dropdown.open{display:block;}
-.move-dropdown::-webkit-scrollbar{width:4px;}
-.move-dropdown::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.move-option{display:flex;align-items:center;gap:7px;padding:7px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);}
-.move-option:last-child{border-bottom:none;}
-.move-option:hover{background:rgba(0,200,240,0.07);}
-.move-option .mpow{font-size:10px;color:var(--text3);margin-left:auto;}
+/* move dropdown */
+.mdrop{background:var(--panel);border:1px solid var(--border2);border-radius:6px;z-index:50;max-height:180px;overflow-y:auto;margin-top:3px;display:none;}
+.mdrop.open{display:block;}
+.mdrop::-webkit-scrollbar{width:4px;}
+.mdrop::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.mopt{display:flex;align-items:center;gap:7px;padding:6px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);}
+.mopt:last-child{border-bottom:none;}
+.mopt:hover{background:rgba(0,200,240,0.07);}
+.mopt .mpow{font-size:10px;color:var(--text3);margin-left:auto;}
+.mtag{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;font-size:11px;margin:2px;}
+.mtag .mx{cursor:pointer;color:var(--accent2);margin-left:2px;font-size:10px;}
 
-/* RANK MODE TOGGLE */
-.rank-mode-toggle{display:flex;gap:4px;margin-bottom:10px;}
-.rank-mode-btn{padding:5px 14px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;border-radius:4px;transition:all .15s;}
-.rank-mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+/* item dropdown */
+.item-wrap{position:relative;margin-top:6px;}
+.item-display{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:6px 10px;font-size:12px;cursor:pointer;transition:border-color .15s;}
+.item-display:hover{border-color:var(--border2);}
+.item-drop{position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border2);border-radius:6px;z-index:60;max-height:200px;overflow-y:auto;display:none;margin-top:2px;}
+.item-drop.open{display:block;}
+.item-drop::-webkit-scrollbar{width:4px;}
+.item-drop::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.item-opt{padding:6px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);}
+.item-opt:last-child{border-bottom:none;}
+.item-opt:hover{background:rgba(0,200,240,0.07);}
+.item-opt .ieff{font-size:10px;color:var(--text3);margin-top:1px;}
+.item-srch{width:100%;background:var(--bg2);border:none;border-bottom:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;}
 
-/* SETUP GRID */
-.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:640px){.setup-grid{grid-template-columns:1fr;}}
+/* rank mode toggle */
+.rmtog{display:flex;gap:4px;margin-bottom:10px;}
+.rmb{padding:5px 14px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;border-radius:4px;transition:all .15s;}
+.rmb.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
 
-/* CPU RULES */
+/* cpu rules */
 .rule-list{display:flex;flex-direction:column;gap:5px;}
-.rule-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color 0.15s;}
-.rule-item:hover{border-color:var(--border2);}
-.rule-item.active{border-color:var(--accent);background:rgba(0,200,240,0.07);}
-.rule-check{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .12s;}
-.rule-item.active .rule-check{background:var(--accent);border-color:var(--accent);color:#000;}
-.rule-text{font-size:13px;flex:1;}
-.rule-prio{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.ri{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color .15s;}
+.ri:hover{border-color:var(--border2);}
+.ri.active{border-color:var(--accent);background:rgba(0,200,240,0.07);}
+.rck{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;}
+.ri.active .rck{background:var(--accent);border-color:var(--accent);color:#000;}
+.rtxt{font-size:13px;flex:1;}
+.rpri{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;font-family:'Noto Sans JP',sans-serif;letter-spacing:.5px;}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;font-family:'Noto Sans JP',sans-serif;}
 .btn:active{transform:scale(.97);}
-.btn-primary{background:linear-gradient(135deg,var(--accent),#0090d0);color:#000;box-shadow:0 0 20px rgba(0,200,240,0.3);}
-.btn-primary:hover{box-shadow:0 0 32px rgba(0,200,240,0.5);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#0090d0);color:#000;box-shadow:0 0 20px rgba(0,200,240,.3);}
+.btn-primary:hover{box-shadow:0 0 32px rgba(0,200,240,.5);}
 .btn-primary:disabled{opacity:.4;cursor:default;pointer-events:none;}
 .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text3);}
 .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
@@ -143,52 +153,74 @@ select.nature-sel:focus{border-color:var(--accent);}
 .flex-center{display:flex;justify-content:center;gap:12px;}
 
 /* ===== BATTLE ===== */
-.battle-field{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+/* party bars */
+.party-bar{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.party-slot-btn{width:36px;height:36px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:border-color .15s;font-size:9px;color:var(--text3);position:relative;}
+.party-slot-btn.active-poke{border-color:var(--accent);background:rgba(0,200,240,0.12);}
+.party-slot-btn.fainted{opacity:.35;cursor:default;}
+.party-slot-btn .hp-dot{width:24px;height:3px;border-radius:2px;}
+.party-slot-btn .pname-mini{font-size:8px;color:var(--text3);max-width:32px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.party-label{font-size:9px;letter-spacing:2px;color:var(--text2);min-width:40px;}
+
+/* field cards */
+.battle-field{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;}
 .combatant{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;}
-.combatant.player-side{border-color:rgba(0,200,240,0.25);}
-.combatant.cpu-side{border-color:rgba(255,48,96,0.25);}
-.combatant-label{font-size:9px;letter-spacing:2px;color:var(--text2);margin-bottom:4px;}
-.combatant-name{font-size:17px;font-weight:700;margin-bottom:3px;}
-.sub-info{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.5;}
+.combatant.ps{border-color:rgba(0,200,240,.3);}
+.combatant.cs{border-color:rgba(255,48,96,.3);}
+.clabel{font-size:9px;letter-spacing:2px;color:var(--text2);margin-bottom:3px;}
+.cname{font-size:17px;font-weight:700;margin-bottom:3px;}
+.cinfo{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.5;}
 .hp-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;font-size:12px;}
 .hp-nums{font-family:'JetBrains Mono',monospace;font-size:13px;}
 .hp-pct{font-size:11px;color:var(--text3);}
 .hp-bar-bg{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;margin:4px 0 6px;border:1px solid var(--border);}
 .hp-bar{height:100%;border-radius:5px;transition:width .5s;}
-.hp-green{background:linear-gradient(90deg,#00e676,#00c853);}
-.hp-yellow{background:linear-gradient(90deg,#ffc800,#ff9800);}
-.hp-red{background:linear-gradient(90deg,#ff3060,#d00000);animation:hpFlash 1s infinite;}
-@keyframes hpFlash{0%,100%{opacity:1;}50%{opacity:.6;}}
+.hp-g{background:linear-gradient(90deg,#00e676,#00c853);}
+.hp-y{background:linear-gradient(90deg,#ffc800,#ff9800);}
+.hp-r{background:linear-gradient(90deg,#ff3060,#d00000);animation:hpFl 1s infinite;}
+@keyframes hpFl{0%,100%{opacity:1;}50%{opacity:.6;}}
 
-/* MOVE BUTTONS */
-.moves-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+/* item badge */
+.item-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;background:rgba(255,200,0,0.12);border:1px solid rgba(255,200,0,0.3);color:var(--accent3);margin-top:3px;}
+.item-used{text-decoration:line-through;opacity:.5;}
+
+/* move btns */
+.moves-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .btn-move{background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:13px;font-weight:500;cursor:pointer;text-align:left;transition:border-color .15s,background .15s;font-family:'Noto Sans JP',sans-serif;width:100%;}
 .btn-move:hover:not(:disabled){border-color:var(--accent);background:rgba(0,200,240,0.06);}
 .btn-move:disabled{opacity:.35;cursor:default;}
-.btn-move .m-meta{font-size:10px;color:var(--text3);margin-top:3px;}
+.btn-move .mm{font-size:10px;color:var(--text3);margin-top:3px;}
 
-/* LOG */
-.battle-log{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;height:156px;overflow-y:auto;font-size:13px;line-height:1.7;margin-bottom:12px;}
+/* switch panel */
+.switch-panel{background:rgba(255,200,0,0.05);border:1px solid rgba(255,200,0,0.2);border-radius:8px;padding:10px 12px;margin-bottom:10px;display:none;}
+.switch-panel.visible{display:block;}
+.switch-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.switch-btn{padding:8px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:border-color .15s;}
+.switch-btn:hover{border-color:var(--accent3);}
+
+/* log */
+.battle-log{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;height:150px;overflow-y:auto;font-size:13px;line-height:1.7;margin-bottom:10px;}
 .battle-log::-webkit-scrollbar{width:4px;}
 .battle-log::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.log-player{color:var(--accent);}
-.log-cpu{color:var(--accent2);}
-.log-system{color:var(--text3);font-style:italic;}
-.log-damage{color:var(--accent3);font-weight:700;}
-.log-eff{color:#00e676;font-weight:700;}
-.log-noeff{color:var(--text2);}
+.lp{color:var(--accent);}
+.lc{color:var(--accent2);}
+.ls{color:var(--text3);font-style:italic;}
+.ldmg{color:var(--accent3);font-weight:700;}
+.leff{color:#00e676;font-weight:700;}
+.lne{color:var(--text2);}
+.litem{color:#f9a825;}
 
-.cpu-rule-bar{background:rgba(255,48,96,0.07);border:1px solid rgba(255,48,96,0.18);border-radius:7px;padding:7px 12px;font-size:12px;color:var(--text3);margin-bottom:10px;}
-.cpu-rule-bar strong{color:var(--accent2);}
-.battle-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-.turn-label{font-size:12px;color:var(--text3);}
+.cpu-bar{background:rgba(255,48,96,.07);border:1px solid rgba(255,48,96,.18);border-radius:7px;padding:7px 12px;font-size:12px;color:var(--text3);margin-bottom:9px;}
+.cpu-bar strong{color:var(--accent2);}
+.btm{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.turn-lbl{font-size:12px;color:var(--text3);}
 
-/* RESULT */
+/* result */
 .result-box{text-align:center;padding:60px 20px;}
 .result-title{font-family:'Bebas Neue',sans-serif;font-size:72px;letter-spacing:8px;margin-bottom:14px;}
-.result-win{color:var(--accent);text-shadow:0 0 40px rgba(0,200,240,0.6);}
-.result-lose{color:var(--accent2);text-shadow:0 0 40px rgba(255,48,96,0.6);}
-.result-sub{font-size:16px;color:var(--text3);margin-bottom:32px;}
+.rw{color:var(--accent);text-shadow:0 0 40px rgba(0,200,240,.6);}
+.rl{color:var(--accent2);text-shadow:0 0 40px rgba(255,48,96,.6);}
+.rsub{font-size:16px;color:var(--text3);margin-bottom:32px;}
 
 @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
 .shake{animation:shake .4s ease;}
@@ -197,18 +229,17 @@ select.nature-sel:focus{border-color:var(--accent);}
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loading-screen">
   <div class="loading-logo">Poke<em>Edge</em></div>
-  <div class="loading-bar-bg"><div class="loading-bar" id="loading-bar" style="width:0%"></div></div>
-  <div class="loading-text" id="loading-text">データを読み込み中...</div>
+  <div class="lbar-bg"><div class="lbar" id="lbar" style="width:0%"></div></div>
+  <div class="ltext" id="ltxt">データを読み込み中...</div>
 </div>
 
 <header>
   <div class="logo" onclick="location.href='season.html'">Poke<em>Edge</em></div>
-  <div class="header-sep" style="width:1px;height:16px;background:var(--border);"></div>
-  <div class="header-sub">BATTLE SIMULATOR</div>
-  <div class="header-nav">
+  <div class="hsep"></div>
+  <div class="hsub">BATTLE SIMULATOR</div>
+  <div class="hnav">
     <a class="nav-btn" href="index.html">トップ</a>
     <a class="nav-btn" href="calc.html">ダメージ計算</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
@@ -218,78 +249,54 @@ select.nature-sel:focus{border-color:var(--accent);}
 
 <div class="container">
 
-<!-- ========== SETUP ========== -->
+<!-- ===== SETUP ===== -->
 <div class="screen active" id="screen-setup">
-  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;">
     <h1 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;color:var(--accent);">BATTLE SETUP</h1>
-    <span style="font-size:12px;color:var(--text3);">シングル 1 vs 1 ／ 内定ポケモン限定</span>
+    <span style="font-size:12px;color:var(--text3);">シングル 3 vs 3 ／ 内定ポケモン限定</span>
   </div>
 
-  <!-- ランキング参照モード -->
   <div class="panel">
-    <div class="panel-title">ランキング参照設定</div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:10px;">ポケモンを選ぶと、選択したランキングの使用率1位データ（技・性格・努力値）を自動でセットします。</p>
-    <div class="rank-mode-toggle">
-      <button class="rank-mode-btn active" id="rankModeSingle" onclick="setRankMode('single')">📊 シングルランキング</button>
-      <button class="rank-mode-btn" id="rankModeDouble" onclick="setRankMode('double')">📊 ダブルランキング</button>
+    <div class="ptitle">ランキング参照</div>
+    <div class="rmtog">
+      <button class="rmb active" id="rmSingle" onclick="setRankMode('single')">📊 シングル</button>
+      <button class="rmb" id="rmDouble" onclick="setRankMode('double')">📊 ダブル</button>
     </div>
-    <p style="font-size:11px;color:var(--text2);">※ ランキングにないポケモンは pokemon_moves.json の技から自動選択します。技は個別に変更可能です。</p>
+    <p style="font-size:11px;color:var(--text2);">ポケモン選択時に使用率1位の技・性格・努力値・持ち物を自動セットします。持ち物は個別に変更可能です。</p>
   </div>
 
-  <div class="setup-grid">
-    <!-- PLAYER -->
-    <div class="panel">
-      <div class="panel-title">自分のポケモン</div>
-      <div class="search-wrap">
-        <input class="search-input" id="playerSearch" type="text" placeholder="名前で検索..." oninput="filterList('player')">
-        <button class="search-clear" onclick="clearSearch('player')">×</button>
-      </div>
-      <div class="poke-list" id="playerList"></div>
-      <div id="playerChosen" style="display:none;">
-        <div class="chosen-card">
-          <div class="chosen-name" id="playerName">—</div>
-          <div id="playerTypes" style="margin-bottom:6px;"></div>
-          <div id="playerRankSource"></div>
-          <div class="nature-wrap">
-            <span class="nature-label">性格</span>
-            <select class="nature-sel" id="playerNature" onchange="onNatureChange('player')"></select>
-          </div>
-          <div id="playerStats"></div>
-          <div style="font-size:11px;color:var(--text3);margin:10px 0 6px;">技セット（最大4つ）</div>
-          <div id="playerMoveArea"></div>
-        </div>
-      </div>
-    </div>
+  <!-- PLAYER TEAM -->
+  <div class="panel">
+    <div class="ptitle">自分のパーティ（3体）</div>
+    <div class="slot-row" id="playerSlots"></div>
 
-    <!-- CPU -->
-    <div class="panel">
-      <div class="panel-title">CPUのポケモン</div>
-      <div class="search-wrap">
-        <input class="search-input" id="cpuSearch" type="text" placeholder="名前で検索..." oninput="filterList('cpu')">
-        <button class="search-clear" onclick="clearSearch('cpu')">×</button>
-      </div>
-      <div class="poke-list" id="cpuList"></div>
-      <div id="cpuChosen" style="display:none;">
-        <div class="chosen-card">
-          <div class="chosen-name" id="cpuName">—</div>
-          <div id="cpuTypes" style="margin-bottom:6px;"></div>
-          <div id="cpuRankSource"></div>
-          <div class="nature-wrap">
-            <span class="nature-label">性格</span>
-            <select class="nature-sel" id="cpuNature" onchange="onNatureChange('cpu')"></select>
-          </div>
-          <div id="cpuStats"></div>
-          <div style="font-size:11px;color:var(--text3);margin:10px 0 6px;">技セット（最大4つ）</div>
-          <div id="cpuMoveArea"></div>
-        </div>
-      </div>
+    <!-- selector -->
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">ポケモンを検索して上のスロットに追加 →</div>
+    <div class="srch-wrap">
+      <input class="srch" id="playerSearch" type="text" placeholder="名前で検索..." oninput="filterList('player')">
+      <button class="srch-x" onclick="clearSrch('player')">×</button>
     </div>
+    <div class="poke-list" id="playerList"></div>
+    <div id="playerDetail"></div>
+  </div>
+
+  <!-- CPU TEAM -->
+  <div class="panel">
+    <div class="ptitle">CPUのパーティ（3体）</div>
+    <div class="slot-row" id="cpuSlots"></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">ポケモンを検索して上のスロットに追加 →</div>
+    <div class="srch-wrap">
+      <input class="srch" id="cpuSearch" type="text" placeholder="名前で検索..." oninput="filterList('cpu')">
+      <button class="srch-x" onclick="clearSrch('cpu')">×</button>
+    </div>
+    <div class="poke-list" id="cpuList"></div>
+    <div id="cpuDetail"></div>
   </div>
 
   <!-- CPU RULES -->
   <div class="panel">
-    <div class="panel-title">CPU行動ルール</div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">有効なルールを上から順に評価し、最初に合致した条件で行動します。</p>
+    <div class="ptitle">CPU行動ルール</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">有効なルールを上から評価し、最初に合致した条件で行動します。</p>
     <div class="rule-list" id="ruleList"></div>
   </div>
 
@@ -299,870 +306,987 @@ select.nature-sel:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- ========== BATTLE ========== -->
+<!-- ===== BATTLE ===== -->
 <div class="screen" id="screen-battle">
+  <!-- CPU party -->
+  <div class="party-bar" id="cpuPartyBar">
+    <span class="party-label">CPU</span>
+  </div>
+  <!-- Field -->
   <div class="battle-field">
-    <div class="combatant cpu-side" id="cpuField">
-      <div class="combatant-label">▲ CPU</div>
-      <div class="combatant-name" id="battleCpuName">—</div>
-      <div id="battleCpuTypes"></div>
-      <div class="sub-info" id="battleCpuInfo"></div>
+    <div class="combatant cs" id="cpuField">
+      <div class="clabel">▲ CPU</div>
+      <div class="cname" id="bCpuName">—</div>
+      <div id="bCpuTypes"></div>
+      <div class="cinfo" id="bCpuInfo"></div>
+      <div id="bCpuItemBadge"></div>
       <div class="hp-row">
-        <span class="hp-nums"><span id="cpuHpCur">0</span> / <span id="cpuHpMax">0</span></span>
+        <span class="hp-nums"><span id="cpuHpCur">0</span>/<span id="cpuHpMax">0</span></span>
         <span class="hp-pct" id="cpuHpPct">100%</span>
       </div>
-      <div class="hp-bar-bg"><div class="hp-bar hp-green" id="cpuHpBar" style="width:100%"></div></div>
+      <div class="hp-bar-bg"><div class="hp-bar hp-g" id="cpuHpBar" style="width:100%"></div></div>
     </div>
-    <div class="combatant player-side" id="playerField">
-      <div class="combatant-label">▼ あなた</div>
-      <div class="combatant-name" id="battlePlayerName">—</div>
-      <div id="battlePlayerTypes"></div>
-      <div class="sub-info" id="battlePlayerInfo"></div>
+    <div class="combatant ps" id="playerField">
+      <div class="clabel">▼ あなた</div>
+      <div class="cname" id="bPlayerName">—</div>
+      <div id="bPlayerTypes"></div>
+      <div class="cinfo" id="bPlayerInfo"></div>
+      <div id="bPlayerItemBadge"></div>
       <div class="hp-row">
-        <span class="hp-nums"><span id="playerHpCur">0</span> / <span id="playerHpMax">0</span></span>
+        <span class="hp-nums"><span id="playerHpCur">0</span>/<span id="playerHpMax">0</span></span>
         <span class="hp-pct" id="playerHpPct">100%</span>
       </div>
-      <div class="hp-bar-bg"><div class="hp-bar hp-green" id="playerHpBar" style="width:100%"></div></div>
+      <div class="hp-bar-bg"><div class="hp-bar hp-g" id="playerHpBar" style="width:100%"></div></div>
     </div>
   </div>
+  <!-- Player party -->
+  <div class="party-bar" id="playerPartyBar">
+    <span class="party-label">あなた</span>
+  </div>
 
-  <div class="cpu-rule-bar" id="cpuRuleBar">CPU: 行動選択中...</div>
+  <div class="cpu-bar" id="cpuBar">CPU: 行動選択中...</div>
   <div class="battle-log" id="battleLog"></div>
-  <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">技を選択してください</div>
+
+  <!-- forced switch panel -->
+  <div class="switch-panel" id="switchPanel">
+    <div style="font-size:12px;color:var(--accent3);font-weight:700;">次に出すポケモンを選んでください</div>
+    <div class="switch-grid" id="switchGrid"></div>
+  </div>
+
+  <div style="font-size:11px;color:var(--text3);margin-bottom:6px;" id="moveLabel">技を選択してください</div>
   <div class="moves-grid" id="movesGrid"></div>
-  <div class="battle-bottom">
+  <div class="btm">
     <button class="btn btn-ghost" onclick="showScreen('screen-setup')">← 設定へ戻る</button>
-    <span class="turn-label" id="turnLabel">ターン 1</span>
+    <span class="turn-lbl" id="turnLbl">ターン 1</span>
   </div>
 </div>
 
-<!-- ========== RESULT ========== -->
+<!-- ===== RESULT ===== -->
 <div class="screen" id="screen-result">
   <div class="result-box">
     <div class="result-title" id="resultTitle">WIN</div>
-    <div class="result-sub" id="resultSub"></div>
+    <div class="rsub" id="resultSub"></div>
     <div class="flex-center">
       <button class="btn btn-primary" onclick="showScreen('screen-setup')">設定へ戻る</button>
       <button class="btn btn-ghost" onclick="rematch()">同じ設定で再戦</button>
     </div>
   </div>
 </div>
-
-</div><!-- /container -->
+</div>
 
 <script>
-// ============================================================
+// =========================================================
 //  GLOBAL DATA
-// ============================================================
-let POKE_DB = [];
-let POKE_BY_NAME = {};
-let POKE_MOVES = {};       // {name: {moves:[...]}}
-let NINTEI_NAMES = new Set();
-let RANK_SINGLE = [];
-let RANK_DOUBLE = [];
+// =========================================================
+let POKE_DB=[], POKE_BY_NAME={}, POKE_MOVES={}, NINTEI=new Set();
+let RANK_SINGLE=[], RANK_DOUBLE=[];
+let ITEMS_DB=[];          // belongings.json
+let rankMode='single';
 
-let rankMode = 'single';
-
-// Editing state per side
-let playerEditing = null;
-let cpuEditing    = null;
+// Setup state: party[side] = array of 3 slot objects (or null)
+let setupParty = { player:[null,null,null], cpu:[null,null,null] };
+let editingSide = null;   // currently expanded detail side
+let editingSlot = null;   // 0-2
 
 // Battle state
-let battle = {};
-let turnCount = 1;
-let battleActive = false;
+let bParty = { player:[], cpu:[] };  // built at startBattle
+let bActive = {};          // { player: idx, cpu: idx }
+let turnCount=1, battleActive=false, awaitingSwitch=false;
 
-// ============================================================
-//  PERSONALITIES (from calc.html)
-// ============================================================
-const PERSONALITIES = {
-  'がんばりや':{atk:1.0,def:1.0,spa:1.0,spd:1.0,spe:1.0},
-  'すなお':    {atk:1.0,def:1.0,spa:1.0,spd:1.0,spe:1.0},
-  'てれや':    {atk:1.0,def:1.0,spa:1.0,spd:1.0,spe:1.0},
-  'きまぐれ':  {atk:1.0,def:1.0,spa:1.0,spd:1.0,spe:1.0},
-  'おとぼけ':  {atk:1.0,def:1.0,spa:1.0,spd:1.0,spe:1.0},
-  'さみしがり':{atk:1.1,def:0.9,spa:1.0,spd:1.0,spe:1.0},
-  'いじっぱり':{atk:1.1,def:1.0,spa:0.9,spd:1.0,spe:1.0},
-  'やんちゃ':  {atk:1.1,def:1.0,spa:1.0,spd:0.9,spe:1.0},
-  'ゆうかん':  {atk:1.1,def:1.0,spa:1.0,spd:1.0,spe:0.9},
-  'ずぶとい':  {atk:0.9,def:1.1,spa:1.0,spd:1.0,spe:1.0},
-  'わんぱく':  {atk:1.0,def:1.1,spa:0.9,spd:1.0,spe:1.0},
-  'のうてんき':{atk:1.0,def:1.1,spa:1.0,spd:0.9,spe:1.0},
-  'のんき':    {atk:1.0,def:1.1,spa:1.0,spd:1.0,spe:0.9},
-  'ひかえめ':  {atk:0.9,def:1.0,spa:1.1,spd:1.0,spe:1.0},
-  'おっとり':  {atk:1.0,def:0.9,spa:1.1,spd:1.0,spe:1.0},
-  'うっかりや':{atk:1.0,def:1.0,spa:1.1,spd:0.9,spe:1.0},
-  'れいせい':  {atk:1.0,def:1.0,spa:1.1,spd:1.0,spe:0.9},
-  'おだやか':  {atk:0.9,def:1.0,spa:1.0,spd:1.1,spe:1.0},
-  'おとなしい':{atk:1.0,def:1.0,spa:0.9,spd:1.1,spe:1.0},
-  'しんちょう':{atk:1.0,def:1.0,spa:0.9,spd:1.1,spe:1.0},
-  'なまいき':  {atk:1.0,def:1.0,spa:1.0,spd:1.1,spe:0.9},
-  'おくびょう':{atk:1.0,def:1.0,spa:1.0,spd:0.9,spe:1.1},
-  'せっかち':  {atk:1.0,def:0.9,spa:1.0,spd:1.0,spe:1.1},
-  'ようき':    {atk:1.0,def:1.0,spa:0.9,spd:1.0,spe:1.1},
-  'むじゃき':  {atk:1.0,def:1.0,spa:1.0,spd:0.9,spe:1.1},
+// =========================================================
+//  PERSONALITIES  (from calc.html)
+// =========================================================
+const PERS={
+  'がんばりや':{atk:1,def:1,spa:1,spd:1,spe:1},'すなお':{atk:1,def:1,spa:1,spd:1,spe:1},
+  'てれや':{atk:1,def:1,spa:1,spd:1,spe:1},'きまぐれ':{atk:1,def:1,spa:1,spd:1,spe:1},
+  'おとぼけ':{atk:1,def:1,spa:1,spd:1,spe:1},
+  'さみしがり':{atk:1.1,def:0.9,spa:1,spd:1,spe:1},'いじっぱり':{atk:1.1,def:1,spa:0.9,spd:1,spe:1},
+  'やんちゃ':{atk:1.1,def:1,spa:1,spd:0.9,spe:1},'ゆうかん':{atk:1.1,def:1,spa:1,spd:1,spe:0.9},
+  'ずぶとい':{atk:0.9,def:1.1,spa:1,spd:1,spe:1},'わんぱく':{atk:1,def:1.1,spa:0.9,spd:1,spe:1},
+  'のうてんき':{atk:1,def:1.1,spa:1,spd:0.9,spe:1},'のんき':{atk:1,def:1.1,spa:1,spd:1,spe:0.9},
+  'ひかえめ':{atk:0.9,def:1,spa:1.1,spd:1,spe:1},'おっとり':{atk:1,def:0.9,spa:1.1,spd:1,spe:1},
+  'うっかりや':{atk:1,def:1,spa:1.1,spd:0.9,spe:1},'れいせい':{atk:1,def:1,spa:1.1,spd:1,spe:0.9},
+  'おだやか':{atk:0.9,def:1,spa:1,spd:1.1,spe:1},'おとなしい':{atk:1,def:1,spa:0.9,spd:1.1,spe:1},
+  'しんちょう':{atk:1,def:1,spa:0.9,spd:1.1,spe:1},'なまいき':{atk:1,def:1,spa:1,spd:1.1,spe:0.9},
+  'おくびょう':{atk:1,def:1,spa:1,spd:0.9,spe:1.1},'せっかち':{atk:1,def:0.9,spa:1,spd:1,spe:1.1},
+  'ようき':{atk:1,def:1,spa:0.9,spd:1,spe:1.1},'むじゃき':{atk:1,def:1,spa:1,spd:0.9,spe:1.1},
 };
-const NATURE_NAMES = Object.keys(PERSONALITIES);
+const NAT_NAMES=Object.keys(PERS);
 
-// ============================================================
-//  STAT CALC (champ=true, same as calc.html)
-// ============================================================
-function calcHP(b, iv, ev, lv) {
-  return Math.floor(Math.floor((b * 2 + iv) * lv / 100) + 10 + lv) + ev;
-}
-function calcStat(b, iv, ev, lv, nat) {
-  return Math.floor((Math.floor((b * 2 + iv) * lv / 100) + 5) * nat) + Math.floor(ev * nat);
-}
-function calcAllStats(poke, evs, natureName) {
-  const nat = PERSONALITIES[natureName] || PERSONALITIES['がんばりや'];
-  const iv = 31, lv = 50;
-  return {
-    hp:  calcHP(poke.hp,  iv, evs.hp  || 0, lv),
-    atk: calcStat(poke.atk, iv, evs.atk || 0, lv, nat.atk),
-    def: calcStat(poke.def, iv, evs.def || 0, lv, nat.def),
-    spa: calcStat(poke.spa, iv, evs.spa || 0, lv, nat.spa),
-    spd: calcStat(poke.spd, iv, evs.spd || 0, lv, nat.spd),
-    spe: calcStat(poke.spe, iv, evs.spe || 0, lv, nat.spe),
-  };
+// =========================================================
+//  STAT CALC  (champ mode)
+// =========================================================
+function calcHP(b,iv,ev,lv){return Math.floor(Math.floor((b*2+iv)*lv/100)+10+lv)+ev;}
+function calcStat(b,iv,ev,lv,nat){return Math.floor((Math.floor((b*2+iv)*lv/100)+5)*nat)+Math.floor(ev*nat);}
+function calcAllStats(poke,evs,nat){
+  const n=PERS[nat]||PERS['がんばりや'],iv=31,lv=50;
+  return{hp:calcHP(poke.hp,iv,evs.hp||0,lv),atk:calcStat(poke.atk,iv,evs.atk||0,lv,n.atk),
+    def:calcStat(poke.def,iv,evs.def||0,lv,n.def),spa:calcStat(poke.spa,iv,evs.spa||0,lv,n.spa),
+    spd:calcStat(poke.spd,iv,evs.spd||0,lv,n.spd),spe:calcStat(poke.spe,iv,evs.spe||0,lv,n.spe)};
 }
 
-// ============================================================
+// =========================================================
 //  TYPE CHART
-// ============================================================
-const TYPE_CHART = {
+// =========================================================
+const TC={
   'ノーマル':{'いわ':.5,'はがね':.5,'ゴースト':0},
-  'ほのお':  {'ほのお':.5,'みず':.5,'いわ':.5,'ドラゴン':.5,'くさ':2,'こおり':2,'むし':2,'はがね':2},
-  'みず':    {'ほのお':2,'みず':.5,'くさ':.5,'ドラゴン':.5,'いわ':2,'じめん':2},
-  'でんき':  {'でんき':.5,'くさ':.5,'ドラゴン':.5,'じめん':0,'ひこう':2,'みず':2},
-  'くさ':    {'ほのお':.5,'くさ':.5,'どく':.5,'ひこう':.5,'むし':.5,'はがね':.5,'ドラゴン':.5,'みず':2,'じめん':2,'いわ':2},
-  'こおり':  {'みず':.5,'こおり':.5,'くさ':2,'じめん':2,'ひこう':2,'ドラゴン':2},
+  'ほのお':{'ほのお':.5,'みず':.5,'いわ':.5,'ドラゴン':.5,'くさ':2,'こおり':2,'むし':2,'はがね':2},
+  'みず':{'ほのお':2,'みず':.5,'くさ':.5,'ドラゴン':.5,'いわ':2,'じめん':2},
+  'でんき':{'でんき':.5,'くさ':.5,'ドラゴン':.5,'じめん':0,'ひこう':2,'みず':2},
+  'くさ':{'ほのお':.5,'くさ':.5,'どく':.5,'ひこう':.5,'むし':.5,'はがね':.5,'ドラゴン':.5,'みず':2,'じめん':2,'いわ':2},
+  'こおり':{'みず':.5,'こおり':.5,'くさ':2,'じめん':2,'ひこう':2,'ドラゴン':2},
   'かくとう':{'どく':.5,'ひこう':.5,'エスパー':.5,'むし':.5,'フェアリー':.5,'ゴースト':0,'ノーマル':2,'こおり':2,'いわ':2,'あく':2,'はがね':2},
-  'どく':    {'どく':.5,'じめん':.5,'いわ':.5,'ゴースト':.5,'はがね':0,'くさ':2,'フェアリー':2},
-  'じめん':  {'くさ':.5,'むし':.5,'でんき':0,'ほのお':2,'どく':2,'いわ':2,'はがね':2,'ひこう':0},
-  'ひこう':  {'でんき':.5,'いわ':.5,'はがね':.5,'くさ':2,'かくとう':2,'むし':2},
+  'どく':{'どく':.5,'じめん':.5,'いわ':.5,'ゴースト':.5,'はがね':0,'くさ':2,'フェアリー':2},
+  'じめん':{'くさ':.5,'むし':.5,'でんき':0,'ほのお':2,'どく':2,'いわ':2,'はがね':2,'ひこう':0},
+  'ひこう':{'でんき':.5,'いわ':.5,'はがね':.5,'くさ':2,'かくとう':2,'むし':2},
   'エスパー':{'エスパー':.5,'はがね':.5,'あく':0,'かくとう':2,'どく':2},
-  'むし':    {'ほのお':.5,'ひこう':.5,'かくとう':.5,'ゴースト':.5,'はがね':.5,'どく':.5,'フェアリー':.5,'くさ':2,'エスパー':2,'あく':2},
-  'いわ':    {'かくとう':.5,'じめん':.5,'はがね':.5,'ほのお':2,'こおり':2,'ひこう':2,'むし':2},
+  'むし':{'ほのお':.5,'ひこう':.5,'かくとう':.5,'ゴースト':.5,'はがね':.5,'どく':.5,'フェアリー':.5,'くさ':2,'エスパー':2,'あく':2},
+  'いわ':{'かくとう':.5,'じめん':.5,'はがね':.5,'ほのお':2,'こおり':2,'ひこう':2,'むし':2},
   'ゴースト':{'ノーマル':0,'かくとう':0,'ゴースト':2,'エスパー':2,'あく':.5},
   'ドラゴン':{'はがね':.5,'フェアリー':0,'ドラゴン':2},
-  'あく':    {'かくとう':.5,'あく':.5,'フェアリー':.5,'エスパー':2,'ゴースト':2},
-  'はがね':  {'ほのお':.5,'みず':.5,'でんき':.5,'はがね':.5,'こおり':2,'いわ':2,'フェアリー':2},
+  'あく':{'かくとう':.5,'あく':.5,'フェアリー':.5,'エスパー':2,'ゴースト':2},
+  'はがね':{'ほのお':.5,'みず':.5,'でんき':.5,'はがね':.5,'こおり':2,'いわ':2,'フェアリー':2},
   'フェアリー':{'ほのお':.5,'どく':.5,'はがね':.5,'ドラゴン':2,'あく':2,'かくとう':2},
 };
-function typeEff(moveType, t1, t2) {
-  const chart = TYPE_CHART[moveType] || {};
-  let e = chart[t1] !== undefined ? chart[t1] : 1;
-  if (t2 && t2 !== t1) e *= (chart[t2] !== undefined ? chart[t2] : 1);
-  return e;
+function typeEff(mt,t1,t2){
+  const c=TC[mt]||{};let e=c[t1]!==undefined?c[t1]:1;
+  if(t2&&t2!==t1)e*=(c[t2]!==undefined?c[t2]:1);return e;
 }
 
-// ============================================================
+// =========================================================
+//  ITEM EFFECT ENGINE
+// =========================================================
+// タイプ強化アイテム (1.2倍)
+const TYPE_BOOST_ITEMS = {
+  'ぎんのこな':'むし','メタルコート':'はがね','やわらかいすな':'じめん','かたいいし':'いわ',
+  'きせきのタネ':'くさ','くろいメガネ':'あく','くろおび':'かくとう','じしゃく':'でんき',
+  'しんぴのしずく':'みず','するどいくちばし':'ひこう','どくバリ':'どく','とけないこおり':'こおり',
+  'のろいのおふだ':'ゴースト','まがったスプーン':'エスパー','もくたん':'ほのお','りゅうのキバ':'ドラゴン',
+  'シルクのスカーフ':'ノーマル','ようせいのハネ':'フェアリー',
+};
+// こだわりスカーフ → 素早さ1.5倍
+function getItemSpeMult(item){return item==='こだわりスカーフ'?1.5:1;}
+// 攻撃時の持ち物倍率
+function getItemAtkMult(item, moveType){
+  if(TYPE_BOOST_ITEMS[item]===moveType) return 1.2;
+  if(item==='こだわりメガネ'&&false) return 1.5; // 未実装
+  return 1;
+}
+// タスキ: HP満タン時にHPを1残して耐える
+function isTaski(poke){return poke.item==='きあいのタスキ'&&!poke.taskiUsed;}
+// たべのこし: ターン終了時1/16回復
+function isTabenososhi(poke){return poke.item==='たべのこし'&&!poke.itemUsed;}
+// かいがらのすず: ダメージの1/8回復
+function isKaigara(poke){return poke.item==='かいがらのすず';}
+// きのみ半減 (バツグン受け)
+const BERRY_RESIST = {
+  'オッカのみ':'ほのお','イトケのみ':'みず','ソクノのみ':'でんき','リンドのみ':'くさ',
+  'ヤチェのみ':'こおり','ヨプのみ':'かくとう','ビアーのみ':'どく','シュカのみ':'じめん',
+  'バコウのみ':'ひこう','ウタンのみ':'エスパー','タンガのみ':'むし','ヨロギのみ':'いわ',
+  'カシブのみ':'ゴースト','ハバンのみ':'ドラゴン','ナモのみ':'あく','リリバのみ':'はがね',
+  'ロゼルのみ':'フェアリー','ホズのみ':'ノーマル',
+};
+function getBerryResistMult(defItem, moveType, eff){
+  const t=BERRY_RESIST[defItem];
+  if(!t) return 1;
+  if(t==='ノーマル'&&moveType==='ノーマル') return 0.5;
+  if(t===moveType&&eff>=2){return 0.5;}
+  return 1;
+}
+// オボンのみ: HP50%以下でHP1/3回復
+function checkObon(poke){
+  if(poke.item==='オボンのみ'&&!poke.itemUsed&&poke.hp<=poke.maxHp*0.5){
+    const heal=Math.floor(poke.maxHp/3);
+    poke.hp=Math.min(poke.maxHp,poke.hp+heal);
+    poke.itemUsed=true;
+    return heal;
+  }
+  return 0;
+}
+// ラムのみ: 状態異常回復 (簡略)
+function isRamu(poke){return poke.item==='ラムのみ'&&!poke.itemUsed;}
+
+// =========================================================
 //  DAMAGE CALC
-// ============================================================
-function calcDamage(atk, def, move) {
-  const power = parseInt(move.power) || 0;
-  if (!power || move.category === '変化') return null;
-  const atkStat = move.category === '物理' ? atk.stats.atk : atk.stats.spa;
-  const defStat = move.category === '物理' ? def.stats.def : def.stats.spd;
-  let dmg = Math.floor(Math.floor(Math.floor(2 * 50 / 5 + 2) * power * atkStat / defStat) / 50 + 2);
-  const stab = (move.type === atk.poke.type1 || move.type === atk.poke.type2) ? 1.5 : 1;
-  dmg = Math.floor(dmg * stab);
-  const eff = typeEff(move.type, def.poke.type1, def.poke.type2 || '');
-  dmg = Math.floor(dmg * eff);
-  const rand = (85 + Math.floor(Math.random() * 16)) / 100;
-  return { damage: Math.max(1, Math.floor(dmg * rand)), eff };
+// =========================================================
+function calcDamage(atk, def, move){
+  const power=parseInt(move.power)||0;
+  if(!power||move.category==='変化') return null;
+  const atkStat=move.category==='物理'?atk.stats.atk:atk.stats.spa;
+  const defStat=move.category==='物理'?def.stats.def:def.stats.spd;
+  let dmg=Math.floor(Math.floor(Math.floor(2*50/5+2)*power*atkStat/defStat)/50+2);
+  // STAB
+  const stab=(move.type===atk.poke.type1||move.type===atk.poke.type2)?1.5:1;
+  dmg=Math.floor(dmg*stab);
+  // type eff
+  const eff=typeEff(move.type,def.poke.type1,def.poke.type2||'');
+  dmg=Math.floor(dmg*eff);
+  // item atk boost
+  const itmMult=getItemAtkMult(atk.item,move.type);
+  dmg=Math.floor(dmg*itmMult);
+  // berry resist
+  const berryMult=getBerryResistMult(def.item,move.type,eff);
+  if(berryMult<1&&!def.itemUsed){def.itemUsed=true;}
+  dmg=Math.floor(dmg*berryMult);
+  // random
+  const rand=(85+Math.floor(Math.random()*16))/100;
+  return{damage:Math.max(1,Math.floor(dmg*rand)),eff,berryUsed:(berryMult<1)};
 }
 
-// ============================================================
+// =========================================================
 //  RANKING PARSERS
-// ============================================================
-function parseEntryName(s) {
-  const m = String(s || '').match(/^(.+?)\s*\(/);
-  return m ? m[1].trim() : String(s || '').trim();
-}
-function parseNatureName(s) {
-  // 'ようきS↑C↓ (69.90%)' → 'ようき'
-  const m = String(s || '').match(/^([^\s(↑↓A-Za-z\uff21-\uff3a]+)/);
-  return m ? m[1].trim() : '';
-}
-function parseSpread(s) {
-  const nums = (String(s || '').match(/\d+/g) || []).map(Number);
-  if (nums.length < 6) return null;
-  return {hp:nums[0],atk:nums[1],def:nums[2],spa:nums[3],spd:nums[4],spe:nums[5]};
-}
+// =========================================================
+function pEntry(s){const m=String(s||'').match(/^(.+?)\s*\(/);return m?m[1].trim():String(s||'').trim();}
+function pNature(s){const m=String(s||'').match(/^([^\s(↑↓A-Za-z\uff21-\uff3a]+)/);return m?m[1].trim():'';}
+function pSpread(s){const ns=(String(s||'').match(/\d+/g)||[]).map(Number);if(ns.length<6)return null;return{hp:ns[0],atk:ns[1],def:ns[2],spa:ns[3],spd:ns[4],spe:ns[5]};}
+function getRankRow(name){const rows=rankMode==='single'?RANK_SINGLE:RANK_DOUBLE;return rows.find(r=>r.name===name||r.siteName===name)||null;}
 
-function getRankRow(name) {
-  const rows = rankMode === 'single' ? RANK_SINGLE : RANK_DOUBLE;
-  return rows.find(r => r.name === name || r.siteName === name) || null;
-}
+// =========================================================
+//  BUILD POKEMON SLOT STATE
+// =========================================================
+function buildSlot(poke, row){
+  const natureName = row&&row.natures&&row.natures[0] ? (PERS[pNature(row.natures[0])]?pNature(row.natures[0]):'がんばりや') : 'がんばりや';
+  const evs = row&&row.spreads&&row.spreads[0] ? (pSpread(row.spreads[0])||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}) : {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+  const item = row&&row.items&&row.items[0] ? pEntry(row.items[0]) : '—';
+  const ability = row&&row.abilities&&row.abilities[0] ? pEntry(row.abilities[0]) : '—';
 
-// ============================================================
-//  BUILD STATE FROM RANK ROW
-// ============================================================
-function buildStateFromRankRow(poke, row) {
-  // Nature (1位)
-  const rawNature = row.natures && row.natures[0] ? parseNatureName(row.natures[0]) : '';
-  const natureName = PERSONALITIES[rawNature] ? rawNature : 'がんばりや';
+  // moves
+  const pmData=(POKE_MOVES[poke.name]&&POKE_MOVES[poke.name].moves)||[];
+  const mmap={}; pmData.forEach(m=>{mmap[m.name]=m;});
+  const rankNames=(row?row.moves||[]:[]).map(pEntry);
+  const sel=[];
+  for(const n of rankNames){if(sel.length>=4)break;if(mmap[n])sel.push({...mmap[n],curPP:parseInt(mmap[n].pp)||5});}
+  for(const m of pmData){if(sel.length>=4)break;if(!sel.find(s=>s.name===m.name))sel.push({...m,curPP:parseInt(m.pp)||5});}
+  if(!sel.length){const atks=pmData.filter(m=>parseInt(m.power)>0).sort((a,b)=>parseInt(b.power)-parseInt(a.power));sel.push(...atks.slice(0,3));const sta=pmData.filter(m=>m.category==='変化');if(sta.length&&sel.length<4)sel.push(sta[0]);}
 
-  // Spread (1位) → evs
-  const spread = row.spreads && row.spreads[0] ? parseSpread(row.spreads[0]) : null;
-  const evs = spread || {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
-
-  // Moves: ランキング上位 × pokemon_movesで詳細データ取得
-  const pokeMovesData = (POKE_MOVES[poke.name] && POKE_MOVES[poke.name].moves) || [];
-  const moveMap = {};
-  pokeMovesData.forEach(m => { moveMap[m.name] = m; });
-
-  const rankMoveNames = (row.moves || []).map(parseEntryName);
-  const selectedMoves = [];
-  for (const mname of rankMoveNames) {
-    if (selectedMoves.length >= 4) break;
-    if (moveMap[mname]) {
-      selectedMoves.push({...moveMap[mname], curPP: parseInt(moveMap[mname].pp) || 5});
-    }
-  }
-  // 4技未満ならpokeMoves先頭から補完
-  for (const m of pokeMovesData) {
-    if (selectedMoves.length >= 4) break;
-    if (!selectedMoves.find(s => s.name === m.name)) {
-      selectedMoves.push({...m, curPP: parseInt(m.pp) || 5});
-    }
-  }
-
-  const item    = row.items     && row.items[0]     ? parseEntryName(row.items[0])     : '—';
-  const ability = row.abilities && row.abilities[0] ? parseEntryName(row.abilities[0]) : '—';
-  const stats   = calcAllStats(poke, evs, natureName);
-
-  return {
-    poke, natureName, evs, moves: selectedMoves, stats,
-    hp: stats.hp, maxHp: stats.hp,
-    item, ability,
-    rankSource: rankMode, rankRow: row,
-    allMoves: pokeMovesData,
-  };
+  const stats=calcAllStats(poke,evs,natureName);
+  return{poke,natureName,evs,item,ability,moves:sel,allMoves:pmData,
+    rankSource:row?rankMode:'none',rankRow:row,stats};
 }
 
-function buildStateManual(poke) {
-  const pokeMovesData = (POKE_MOVES[poke.name] && POKE_MOVES[poke.name].moves) || [];
-  const evs = {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
-  const natureName = 'がんばりや';
-  const atk = pokeMovesData.filter(m => m.category !== '変化' && parseInt(m.power) > 0)
-    .sort((a,b) => parseInt(b.power) - parseInt(a.power));
-  const sta = pokeMovesData.filter(m => m.category === '変化');
-  const selected = [...atk.slice(0,3), ...sta.slice(0,1)].slice(0,4)
-    .map(m => ({...m, curPP: parseInt(m.pp)||5}));
-  const stats = calcAllStats(poke, evs, natureName);
-  return {
-    poke, natureName, evs, moves: selected, stats,
-    hp: stats.hp, maxHp: stats.hp,
-    item: '—', ability: '—',
-    rankSource: 'none', rankRow: null,
-    allMoves: pokeMovesData,
-  };
+// =========================================================
+//  SETUP RENDER
+// =========================================================
+function renderSlotRow(side){
+  const slots=setupParty[side];
+  const el=document.getElementById(side+'Slots');
+  el.innerHTML=slots.map((s,i)=>{
+    if(!s) return `<div class="slot-card" onclick="activateSlot('${side}',${i})">
+      <div class="slot-label">SLOT ${i+1}</div>
+      <div class="slot-name empty">クリックして選択</div>
+    </div>`;
+    return `<div class="slot-card has-poke ${editingSide===side&&editingSlot===i?'':''}">
+      <div class="slot-label">SLOT ${i+1}</div>
+      <div class="slot-name">${s.poke.name}</div>
+      <div style="display:flex;gap:3px;margin-top:2px;">
+        <span class="tp tp-${s.poke.type1}">${s.poke.type1}</span>
+        ${s.poke.type2?`<span class="tp tp-${s.poke.type2}">${s.poke.type2}</span>`:''}
+      </div>
+      <div style="font-size:10px;color:var(--accent3);margin-top:2px;">🎒 ${s.item}</div>
+      <button class="slot-clear" onclick="clearSlot('${side}',${i});event.stopPropagation()">✕</button>
+    </div>`;
+  }).join('');
+  checkReady();
 }
 
-// ============================================================
-//  RENDER POKEMON LIST
-// ============================================================
-function filterList(side) {
-  const q = document.getElementById(side + 'Search').value.trim();
-  const list = POKE_DB.filter(p => NINTEI_NAMES.has(p.name) && (!q || p.name.includes(q)));
-  const el = document.getElementById(side + 'List');
-  if (!list.length) {
-    el.innerHTML = '<div style="padding:16px;text-align:center;font-size:13px;color:var(--text2);">該当なし</div>';
-    return;
-  }
-  el.innerHTML = list.slice(0, 300).map(p => {
-    const row = getRankRow(p.name);
-    const badge = row
-      ? `<span class="rank-badge" style="color:${rankMode==='single'?'var(--accent)':'var(--accent3)'}">#${row.rank}</span>`
-      : '';
-    const encodedName = encodeURIComponent(p.name);
-    const curSide = side;
-    return `<div class="poke-item" id="${side}-item-${encodedName}"
-      onclick="selectPokemon('${side}','${encodedName}')">
+function activateSlot(side, idx){
+  editingSide=side; editingSlot=idx;
+  if(setupParty[side][idx]) renderDetail(side, idx, setupParty[side][idx]);
+  else document.getElementById(side+'Detail').innerHTML='';
+}
+
+function clearSlot(side, idx){
+  setupParty[side][idx]=null;
+  renderSlotRow(side);
+  if(editingSide===side&&editingSlot===idx) document.getElementById(side+'Detail').innerHTML='';
+}
+
+function filterList(side){
+  const q=document.getElementById(side+'Search').value.trim();
+  const list=POKE_DB.filter(p=>NINTEI.has(p.name)&&(!q||p.name.includes(q)));
+  const el=document.getElementById(side+'List');
+  if(!list.length){el.innerHTML='<div style="padding:14px;text-align:center;font-size:13px;color:var(--text2);">該当なし</div>';return;}
+  el.innerHTML=list.slice(0,300).map(p=>{
+    const row=getRankRow(p.name);
+    const badge=row?`<span style="font-size:9px;font-family:'JetBrains Mono',monospace;margin-left:3px;color:${rankMode==='single'?'var(--accent)':'var(--accent3)'}">#${row.rank}</span>`:'';
+    return `<div class="pi" onclick="pickPokemon('${side}','${encodeURIComponent(p.name)}')">
       <span class="pno">${String(p.no||'').padStart(4,'0')}</span>
-      <span class="pname">${p.name}${badge}</span>
-      <span class="ptypes">
-        <span class="tp tp-${p.type1}">${p.type1}</span>
-        ${p.type2 ? `<span class="tp tp-${p.type2}">${p.type2}</span>` : ''}
-      </span>
+      <span class="pn">${p.name}${badge}</span>
+      <span class="pts"><span class="tp tp-${p.type1}">${p.type1}</span>${p.type2?`<span class="tp tp-${p.type2}">${p.type2}</span>`:''}</span>
     </div>`;
   }).join('');
 }
 
-function clearSearch(side) {
-  document.getElementById(side + 'Search').value = '';
-  filterList(side);
+function clearSrch(side){document.getElementById(side+'Search').value='';filterList(side);}
+
+function pickPokemon(side, enc){
+  const name=decodeURIComponent(enc);
+  const poke=POKE_BY_NAME[name]; if(!poke) return;
+  // find empty slot or use editingSlot
+  let idx=editingSlot!==null&&editingSide===side?editingSlot:setupParty[side].findIndex(s=>!s);
+  if(idx<0) idx=0; // overwrite slot 0 if full
+  const row=getRankRow(name);
+  setupParty[side][idx]=buildSlot(poke,row);
+  editingSide=side; editingSlot=idx;
+  renderSlotRow(side);
+  renderDetail(side, idx, setupParty[side][idx]);
 }
 
-// ============================================================
-//  SELECT POKEMON
-// ============================================================
-function selectPokemon(side, encodedName) {
-  const name = decodeURIComponent(encodedName);
-  const poke = POKE_BY_NAME[name];
-  if (!poke) return;
+// =========================================================
+//  DETAIL PANEL
+// =========================================================
+const SC={hp:'#e53935',atk:'#fb8c00',def:'#fdd835',spa:'#1e88e5',spd:'#00acc1',spe:'#8e24aa'};
+const SL={hp:'HP',atk:'こうげき',def:'ぼうぎょ',spa:'とくこう',spd:'とくぼう',spe:'すばやさ'};
+const SM={hp:255,atk:190,def:250,spa:194,spd:250,spe:200};
 
-  // highlight
-  document.querySelectorAll(`#${side}List .poke-item`).forEach(el => el.classList.remove('selected'));
-  const el = document.getElementById(`${side}-item-${encodedName}`);
-  if (el) el.classList.add('selected');
+function renderDetail(side, idx, slot){
+  const el=document.getElementById(side+'Detail');
+  const p=slot.poke;
+  const stats=calcAllStats(p,slot.evs,slot.natureName);
 
-  const row = getRankRow(name);
-  const state = row ? buildStateFromRankRow(poke, row) : buildStateManual(poke);
+  const rsrcHtml = slot.rankSource==='none'
+    ? `<div class="rsrc none">ランキングデータなし</div>`
+    : (()=>{
+        const r=slot.rankRow;
+        const lbl=slot.rankSource==='single'?'シングル':'ダブル';
+        return `<div class="rsrc ${slot.rankSource}">📊 ${lbl}ランキング #${r.rank}</div>
+          <div style="margin-bottom:4px;">${(r.natures||[]).slice(0,3).map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+          <div style="margin-bottom:6px;">${(r.spreads||[]).slice(0,2).map(s=>`<span class="chip">EV: ${s}</span>`).join('')}</div>`;
+      })();
 
-  if (side === 'player') playerEditing = {...state, evs:{...state.evs}, moves:state.moves.map(m=>({...m}))};
-  else                   cpuEditing    = {...state, evs:{...state.evs}, moves:state.moves.map(m=>({...m}))};
+  const natOptions=NAT_NAMES.map(n=>`<option value="${n}"${n===slot.natureName?' selected':''}>${n}</option>`).join('');
 
-  renderChosenPanel(side);
-  checkStartReady();
-}
-
-// ============================================================
-//  RENDER CHOSEN PANEL
-// ============================================================
-const STAT_COLORS = {hp:'#e53935',atk:'#fb8c00',def:'#fdd835',spa:'#1e88e5',spd:'#00acc1',spe:'#8e24aa'};
-const STAT_LABELS = {hp:'HP',atk:'こうげき',def:'ぼうぎょ',spa:'とくこう',spd:'とくぼう',spe:'すばやさ'};
-const BASE_MAX    = {hp:255,atk:190,def:250,spa:194,spd:250,spe:200};
-
-function renderChosenPanel(side) {
-  const ed = side === 'player' ? playerEditing : cpuEditing;
-  if (!ed) return;
-  const poke = ed.poke;
-
-  document.getElementById(side + 'Chosen').style.display = 'block';
-  document.getElementById(side + 'Name').textContent = poke.name;
-  document.getElementById(side + 'Types').innerHTML =
-    `<span class="tp tp-${poke.type1}">${poke.type1}</span>${poke.type2 ? ` <span class="tp tp-${poke.type2}">${poke.type2}</span>` : ''}`;
-
-  // Rank source header
-  const srcEl = document.getElementById(side + 'RankSource');
-  if (ed.rankSource === 'none') {
-    srcEl.innerHTML = `<div class="rank-source none">ランキングデータなし（技自動選択）</div>`;
-  } else {
-    const r = ed.rankRow;
-    const label = ed.rankSource === 'single' ? 'シングル' : 'ダブル';
-    const ability1 = r.abilities && r.abilities[0] ? parseEntryName(r.abilities[0]) : '—';
-    const item1    = r.items     && r.items[0]     ? parseEntryName(r.items[0])     : '—';
-    srcEl.innerHTML = `
-      <div class="rank-source ${ed.rankSource}">
-        📊 ${label}ランキング #${r.rank} ／ 特性: ${ability1} ／ 持物: ${item1}
-      </div>
-      <div style="margin-bottom:6px;">
-        ${(r.natures||[]).slice(0,3).map(n=>`<span class="chip">${n}</span>`).join('')}
-      </div>
-      <div style="margin-bottom:8px;">
-        ${(r.spreads||[]).slice(0,2).map(s=>`<span class="chip">EV: ${s}</span>`).join('')}
-      </div>`;
-  }
-
-  // Nature select
-  const natSel = document.getElementById(side + 'Nature');
-  natSel.innerHTML = NATURE_NAMES.map(n =>
-    `<option value="${n}"${n === ed.natureName ? ' selected' : ''}>${n}</option>`
-  ).join('');
-
-  // Stats
-  renderStats(side);
-  // Moves
-  renderMoveArea(side);
-}
-
-function renderStats(side) {
-  const ed = side === 'player' ? playerEditing : cpuEditing;
-  if (!ed) return;
-  const stats = calcAllStats(ed.poke, ed.evs, ed.natureName);
-  const keys = ['hp','atk','def','spa','spd','spe'];
-  document.getElementById(side + 'Stats').innerHTML = keys.map(k => {
-    const pct = Math.min(100, Math.round((ed.poke[k]||0) / BASE_MAX[k] * 100));
-    return `<div class="stat-row">
-      <span class="stat-label">${STAT_LABELS[k]}</span>
-      <span class="stat-ev">${ed.evs[k]||0}</span>
-      <div class="stat-bar-bg"><div class="stat-bar-fg" style="width:${pct}%;background:${STAT_COLORS[k]};"></div></div>
-      <span class="stat-val">${stats[k]}</span>
-    </div>`;
+  const statsHtml=['hp','atk','def','spa','spd','spe'].map(k=>{
+    const pct=Math.min(100,Math.round((p[k]||0)/SM[k]*100));
+    return `<div class="srow"><span class="slbl">${SL[k]}</span><span class="sev">${slot.evs[k]||0}</span>
+      <div class="sbg"><div class="sfg" style="width:${pct}%;background:${SC[k]};"></div></div>
+      <span class="sval">${stats[k]}</span></div>`;
   }).join('');
-}
 
-function onNatureChange(side) {
-  const ed = side === 'player' ? playerEditing : cpuEditing;
-  if (!ed) return;
-  ed.natureName = document.getElementById(side + 'Nature').value;
-  renderStats(side);
-}
+  // item selector
+  const itemHtml=renderItemSelector(side, idx, slot.item);
 
-// ============================================================
-//  MOVE AREA
-// ============================================================
-function renderMoveArea(side) {
-  const ed = side === 'player' ? playerEditing : cpuEditing;
-  const el = document.getElementById(side + 'MoveArea');
-  if (!ed) return;
-
-  // Selected moves as removable tags
-  const tagsHtml = ed.moves.map((m, i) => {
-    const pow = m.power ? `威力${m.power}` : '変化';
-    return `<div class="move-tag" style="border-color:var(--border2);" title="${m.description||''}">
+  // moves
+  const moveTagsHtml=slot.moves.map((m,mi)=>{
+    const pow=m.power?`威力${m.power}`:'変化';
+    return `<div class="mtag">
       <span class="tp tp-${m.type}" style="font-size:9px;">${m.type}</span>
-      <span>${m.name}</span>
-      <span style="font-size:10px;color:var(--text3);">${pow}</span>
-      <span style="font-size:10px;color:var(--accent2);cursor:pointer;margin-left:2px;"
-        onclick="removeMove('${side}',${i})">✕</span>
+      <span>${m.name}</span><span style="font-size:10px;color:var(--text3);">${pow}</span>
+      <span class="mx" onclick="removeMove('${side}',${idx},${mi})">✕</span>
     </div>`;
   }).join('');
+  const addMoveHtml=slot.moves.length<4?`
+    <div style="margin-top:5px;">
+      <input class="srch" style="font-size:12px;padding:6px 9px;" id="mi-${side}-${idx}"
+        placeholder="技名で検索して追加..."
+        oninput="renderMoveDd('${side}',${idx},this.value)"
+        onfocus="openMoveDd('${side}',${idx})">
+      <div class="mdrop" id="md-${side}-${idx}"></div>
+    </div>`:''
 
-  // Add move input (if < 4)
-  let addHtml = '';
-  if (ed.moves.length < 4 && ed.allMoves.length > 0) {
-    addHtml = `
-      <div style="margin-top:6px;">
-        <input type="text" class="search-input" style="font-size:12px;padding:6px 10px;"
-          placeholder="技名で検索して追加..."
-          id="moveInput-${side}"
-          oninput="renderMoveDropdown('${side}',this.value)"
-          onfocus="openMoveDropdown('${side}')">
-        <div class="move-dropdown" id="moveDd-${side}"></div>
-      </div>`;
-  }
-
-  el.innerHTML = `<div class="move-tags" style="margin-bottom:4px;">${tagsHtml}</div>${addHtml}`;
-
-  // 初期ドロップダウン
-  if (ed.moves.length < 4) renderMoveDropdown(side, '');
+  el.innerHTML=`<div class="chosen-wrap">
+    <div class="cn">${p.name}</div>
+    <div style="margin-bottom:6px;"><span class="tp tp-${p.type1}">${p.type1}</span>${p.type2?` <span class="tp tp-${p.type2}">${p.type2}</span>`:''}</div>
+    ${rsrcHtml}
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="font-size:11px;color:var(--text3);">性格</span>
+      <select class="isel" onchange="onNature('${side}',${idx},this.value)">${natOptions}</select>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">実数値</div>
+    ${statsHtml}
+    <div style="font-size:11px;color:var(--text3);margin:8px 0 3px;">持ち物</div>
+    ${itemHtml}
+    <div style="font-size:11px;color:var(--text3);margin:8px 0 4px;">技セット（最大4つ）</div>
+    <div style="display:flex;flex-wrap:wrap;gap:3px;">${moveTagsHtml}</div>
+    ${addMoveHtml}
+  </div>`;
 }
 
-function openMoveDropdown(side) {
-  const inp = document.getElementById('moveInput-' + side);
-  renderMoveDropdown(side, inp ? inp.value : '');
-  const dd = document.getElementById('moveDd-' + side);
-  if (dd) dd.classList.add('open');
+// =========================================================
+//  ITEM SELECTOR
+// =========================================================
+function renderItemSelector(side, idx, currentItem){
+  const displayName=currentItem||'—';
+  const enc=encodeURIComponent(currentItem||'');
+  return `<div class="item-wrap" id="iw-${side}-${idx}">
+    <div class="item-display" onclick="toggleItemDrop('${side}',${idx})">
+      <span>🎒</span>
+      <span id="iname-${side}-${idx}" style="flex:1;">${displayName}</span>
+      <span style="font-size:11px;color:var(--text3);">▼</span>
+    </div>
+    <div class="item-drop" id="idrop-${side}-${idx}">
+      <input class="item-srch" placeholder="持ち物名で検索..." oninput="filterItemDrop('${side}',${idx},this.value)" onfocus="this.select()">
+      <div id="ilist-${side}-${idx}"></div>
+    </div>
+  </div>`;
 }
 
-function renderMoveDropdown(side, q) {
-  const ed = side === 'player' ? playerEditing : cpuEditing;
-  if (!ed) return;
-  const dd = document.getElementById('moveDd-' + side);
-  if (!dd) return;
-  const already = new Set(ed.moves.map(m => m.name));
-  const opts = ed.allMoves.filter(m => !already.has(m.name) && (!q || m.name.includes(q)));
-  dd.classList.add('open');
-  dd.innerHTML = opts.slice(0, 80).map(m => {
-    const pow = m.power ? `威力${m.power}` : '変化';
-    const enc = encodeURIComponent(m.name);
-    return `<div class="move-option" onclick="addMove('${side}','${enc}')">
-      <span class="tp tp-${m.type}" style="font-size:9px;">${m.type}</span>
-      <span>${m.name}</span>
-      <span class="mpow">${pow} ／ ${m.category}</span>
-    </div>`;
-  }).join('') || '<div style="padding:8px;font-size:12px;color:var(--text2);">該当なし</div>';
+function toggleItemDrop(side, idx){
+  const drop=document.getElementById(`idrop-${side}-${idx}`);
+  const isOpen=drop.classList.contains('open');
+  // close all
+  document.querySelectorAll('.item-drop').forEach(d=>d.classList.remove('open'));
+  if(!isOpen){drop.classList.add('open');renderItemList(side,idx,'');}
 }
 
-function addMove(side, encodedName) {
-  const ed = side === 'player' ? playerEditing : cpuEditing;
-  if (!ed || ed.moves.length >= 4) return;
-  const name = decodeURIComponent(encodedName);
-  const move = ed.allMoves.find(m => m.name === name);
-  if (!move) return;
-  ed.moves.push({...move, curPP: parseInt(move.pp)||5});
-  renderMoveArea(side);
-  checkStartReady();
-}
+function filterItemDrop(side, idx, q){renderItemList(side,idx,q);}
 
-function removeMove(side, idx) {
-  const ed = side === 'player' ? playerEditing : cpuEditing;
-  if (!ed) return;
-  ed.moves.splice(idx, 1);
-  renderMoveArea(side);
-  checkStartReady();
-}
-
-// Close dropdowns on outside click
-document.addEventListener('click', e => {
-  ['player','cpu'].forEach(side => {
-    const dd  = document.getElementById('moveDd-' + side);
-    const inp = document.getElementById('moveInput-' + side);
-    if (dd && !dd.contains(e.target) && e.target !== inp) dd.classList.remove('open');
-  });
-});
-
-// ============================================================
-//  RANK MODE
-// ============================================================
-function setRankMode(mode) {
-  rankMode = mode;
-  document.getElementById('rankModeSingle').classList.toggle('active', mode === 'single');
-  document.getElementById('rankModeDouble').classList.toggle('active', mode === 'double');
-  filterList('player');
-  filterList('cpu');
-}
-
-// ============================================================
-//  CPU RULES
-// ============================================================
-const CPU_RULES = [
-  {id:'kill',      label:'相手をKOできる技を使う',        desc:'その技で相手HP以上のダメージが出る場合'},
-  {id:'hp50',      label:'自分HP50%以下 → 変化技を優先',  desc:'変化技があれば先に使う'},
-  {id:'effective', label:'効果抜群の技を優先する',         desc:'タイプ相性 ×2 以上の攻撃技'},
-  {id:'stab',      label:'タイプ一致技を優先する',         desc:'STAB技の中で最高威力を選ぶ'},
-  {id:'power',     label:'最高威力の技を使う',             desc:'PPがある中で最大威力の攻撃技'},
-  {id:'random',    label:'ランダムに選ぶ（フォールバック）',desc:'常時有効'},
-];
-let activeRules = new Set(['kill','effective','stab','power','random']);
-
-function renderRuleList() {
-  document.getElementById('ruleList').innerHTML = CPU_RULES.map((r, i) =>
-    `<div class="rule-item ${activeRules.has(r.id)?'active':''}" onclick="toggleRule('${r.id}')">
-      <div class="rule-check">${activeRules.has(r.id)?'✓':''}</div>
-      <div style="flex:1;">
-        <div class="rule-text">${r.label}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:1px;">${r.desc}</div>
-      </div>
-      <div class="rule-prio">優先度 ${i+1}</div>
+function renderItemList(side, idx, q){
+  const el=document.getElementById(`ilist-${side}-${idx}`); if(!el) return;
+  const filtered=ITEMS_DB.filter(it=>!q||it.name.includes(q));
+  // none option
+  const noneHtml=`<div class="item-opt" onclick="selectItem('${side}',${idx},'—')">
+    <div>なし（—）</div></div>`;
+  el.innerHTML=noneHtml+filtered.slice(0,80).map(it=>
+    `<div class="item-opt" onclick="selectItem('${side}',${idx},'${encodeURIComponent(it.name)}')">
+      <div>${it.name}</div>
+      <div class="ieff">${it.effect.slice(0,60)}${it.effect.length>60?'…':''}</div>
     </div>`
   ).join('');
 }
-function toggleRule(id) {
-  if (id === 'random') return; // 常時有効
-  activeRules.has(id) ? activeRules.delete(id) : activeRules.add(id);
-  renderRuleList();
+
+function selectItem(side, idx, encName){
+  const name=decodeURIComponent(encName);
+  if(setupParty[side][idx]) setupParty[side][idx].item=name;
+  const nameEl=document.getElementById(`iname-${side}-${idx}`);
+  if(nameEl) nameEl.textContent=name;
+  document.querySelectorAll('.item-drop').forEach(d=>d.classList.remove('open'));
+  renderSlotRow(side); // update slot card display
 }
 
-// ============================================================
-//  START CHECK
-// ============================================================
-function checkStartReady() {
-  const ok = playerEditing && cpuEditing
-    && playerEditing.poke && cpuEditing.poke
-    && playerEditing.moves.length > 0 && cpuEditing.moves.length > 0;
-  document.getElementById('startBtn').disabled = !ok;
+// close item drops on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.item-wrap')) document.querySelectorAll('.item-drop').forEach(d=>d.classList.remove('open'));
+});
+
+// =========================================================
+//  MOVE MANAGEMENT
+// =========================================================
+function openMoveDd(side, idx){
+  const inp=document.getElementById(`mi-${side}-${idx}`);
+  renderMoveDd(side,idx,inp?inp.value:'');
+  document.getElementById(`md-${side}-${idx}`)?.classList.add('open');
+}
+function renderMoveDd(side, idx, q){
+  const slot=setupParty[side][idx]; if(!slot) return;
+  const dd=document.getElementById(`md-${side}-${idx}`); if(!dd) return;
+  const already=new Set(slot.moves.map(m=>m.name));
+  const opts=slot.allMoves.filter(m=>!already.has(m.name)&&(!q||m.name.includes(q)));
+  dd.classList.add('open');
+  dd.innerHTML=opts.slice(0,80).map(m=>{
+    const pow=m.power?`威力${m.power}`:'変化';
+    return `<div class="mopt" onclick="addMove('${side}',${idx},'${encodeURIComponent(m.name)}')">
+      <span class="tp tp-${m.type}" style="font-size:9px;">${m.type}</span>
+      <span>${m.name}</span><span class="mpow">${pow}/${m.category}</span>
+    </div>`;
+  }).join('')||'<div style="padding:8px;font-size:12px;color:var(--text2);">該当なし</div>';
+}
+function addMove(side, idx, enc){
+  const slot=setupParty[side][idx]; if(!slot||slot.moves.length>=4) return;
+  const name=decodeURIComponent(enc);
+  const m=slot.allMoves.find(m=>m.name===name); if(!m) return;
+  slot.moves.push({...m,curPP:parseInt(m.pp)||5});
+  renderDetail(side,idx,slot); checkReady();
+}
+function removeMove(side, idx, mi){
+  const slot=setupParty[side][idx]; if(!slot) return;
+  slot.moves.splice(mi,1);
+  renderDetail(side,idx,slot); checkReady();
+}
+document.addEventListener('click',e=>{
+  document.querySelectorAll('.mdrop').forEach(dd=>{
+    if(!dd.contains(e.target)&&!e.target.id?.startsWith('mi-')) dd.classList.remove('open');
+  });
+});
+
+function onNature(side, idx, nat){
+  const slot=setupParty[side][idx]; if(!slot) return;
+  slot.natureName=nat;
+  renderDetail(side,idx,slot);
 }
 
-// ============================================================
-//  BATTLE START
-// ============================================================
-function startBattle() {
-  const pED = playerEditing, cED = cpuEditing;
-  const pStats = calcAllStats(pED.poke, pED.evs, pED.natureName);
-  const cStats = calcAllStats(cED.poke, cED.evs, cED.natureName);
+// =========================================================
+//  RANK MODE
+// =========================================================
+function setRankMode(mode){
+  rankMode=mode;
+  document.getElementById('rmSingle').classList.toggle('active',mode==='single');
+  document.getElementById('rmDouble').classList.toggle('active',mode==='double');
+  filterList('player'); filterList('cpu');
+}
 
-  battle = {
-    player: {
-      poke: pED.poke, stats: pStats,
-      hp: pStats.hp, maxHp: pStats.hp,
-      moves: pED.moves.map(m => ({...m, curPP: parseInt(m.pp)||5})),
-      natureName: pED.natureName,
-      item: pED.item || '—', ability: pED.ability || '—',
-    },
-    cpu: {
-      poke: cED.poke, stats: cStats,
-      hp: cStats.hp, maxHp: cStats.hp,
-      moves: cED.moves.map(m => ({...m, curPP: parseInt(m.pp)||5})),
-      natureName: cED.natureName,
-      item: cED.item || '—', ability: cED.ability || '—',
-    },
+// =========================================================
+//  CPU RULES
+// =========================================================
+const CPU_RULES=[
+  {id:'kill',    label:'相手をKOできる技を使う',         desc:'その技で相手HPを削り切れる場合'},
+  {id:'hp50',    label:'自分HP50%以下 → 変化技を優先',   desc:'変化技があれば先に使う'},
+  {id:'effective',label:'効果抜群の技を優先する',          desc:'タイプ相性 ×2 以上の攻撃技'},
+  {id:'stab',    label:'タイプ一致技を優先する',           desc:'STAB技の中で最高威力'},
+  {id:'power',   label:'最高威力の技を使う',              desc:'PPがある中で最大威力'},
+  {id:'random',  label:'ランダムに選ぶ（フォールバック）', desc:'常時有効'},
+];
+let activeRules=new Set(['kill','effective','stab','power','random']);
+function renderRuleList(){
+  document.getElementById('ruleList').innerHTML=CPU_RULES.map((r,i)=>
+    `<div class="ri ${activeRules.has(r.id)?'active':''}" onclick="toggleRule('${r.id}')">
+      <div class="rck">${activeRules.has(r.id)?'✓':''}</div>
+      <div style="flex:1;"><div class="rtxt">${r.label}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px;">${r.desc}</div></div>
+      <div class="rpri">優先度 ${i+1}</div>
+    </div>`
+  ).join('');
+}
+function toggleRule(id){if(id==='random')return;activeRules.has(id)?activeRules.delete(id):activeRules.add(id);renderRuleList();}
+
+function checkReady(){
+  const p=setupParty.player.filter(Boolean), c=setupParty.cpu.filter(Boolean);
+  const ok=p.length===3&&c.length===3&&p.every(s=>s.moves.length>0)&&c.every(s=>s.moves.length>0);
+  document.getElementById('startBtn').disabled=!ok;
+}
+
+// =========================================================
+//  BUILD BATTLE POKEMON
+// =========================================================
+function buildBattlePoke(slot){
+  const stats=calcAllStats(slot.poke, slot.evs, slot.natureName);
+  // スカーフ補正
+  const speMult=getItemSpeMult(slot.item);
+  const adjStats={...stats, spe: Math.floor(stats.spe*speMult)};
+  return{
+    poke:slot.poke, stats:adjStats, baseStats:stats,
+    hp:stats.hp, maxHp:stats.hp,
+    moves:slot.moves.map(m=>({...m, curPP:parseInt(m.pp)||5})),
+    natureName:slot.natureName, item:slot.item, ability:slot.ability,
+    itemUsed:false, taskiUsed:false, fainted:false,
   };
-  turnCount = 1;
-  battleActive = true;
+}
+
+// =========================================================
+//  START BATTLE
+// =========================================================
+function startBattle(){
+  bParty.player=setupParty.player.map(buildBattlePoke);
+  bParty.cpu   =setupParty.cpu.map(buildBattlePoke);
+  bActive={player:0, cpu:0};
+  turnCount=1; battleActive=true; awaitingSwitch=false;
 
   showScreen('screen-battle');
+  renderPartyBars();
   renderBattleField();
   renderMoveBtns();
   clearLog();
-  addLog('system', `バトル開始！  ${battle.player.poke.name}  vs  ${battle.cpu.poke.name}`);
-  addLog('system', '─── ターン 1 ───');
-  updateCpuRuleBar(null);
+  addLog('s',`バトル開始！ あなた: ${bParty.player.map(p=>p.poke.name).join(' / ')}`);
+  addLog('s',`CPU: ${bParty.cpu.map(p=>p.poke.name).join(' / ')}`);
+  addLog('s','─── ターン 1 ───');
+  updateCpuBar(null);
 }
 
-// ============================================================
+// =========================================================
 //  BATTLE FIELD RENDER
-// ============================================================
-function renderBattleField() {
-  const p = battle.player, c = battle.cpu;
-  document.getElementById('battleCpuName').textContent = c.poke.name;
-  document.getElementById('battleCpuTypes').innerHTML = typeBadges(c.poke);
-  document.getElementById('battleCpuInfo').textContent =
-    `性格: ${c.natureName} ／ 持物: ${c.item} ／ 特性: ${c.ability}`;
-  document.getElementById('battlePlayerName').textContent = p.poke.name;
-  document.getElementById('battlePlayerTypes').innerHTML = typeBadges(p.poke);
-  document.getElementById('battlePlayerInfo').textContent =
-    `性格: ${p.natureName} ／ 持物: ${p.item} ／ 特性: ${p.ability}`;
-  updateHpDisplay('player');
-  updateHpDisplay('cpu');
+// =========================================================
+function curPlayer(){return bParty.player[bActive.player];}
+function curCpu(){return bParty.cpu[bActive.cpu];}
+
+function typeBadges(poke){
+  return `<span class="tp tp-${poke.type1}">${poke.type1}</span>`+(poke.type2?` <span class="tp tp-${poke.type2}">${poke.type2}</span>`:'');
 }
 
-function typeBadges(poke) {
-  return `<span class="tp tp-${poke.type1}">${poke.type1}</span>`
-    + (poke.type2 ? ` <span class="tp tp-${poke.type2}">${poke.type2}</span>` : '');
+function renderBattleField(){
+  const p=curPlayer(), c=curCpu();
+  document.getElementById('bCpuName').textContent=c.poke.name;
+  document.getElementById('bCpuTypes').innerHTML=typeBadges(c.poke);
+  document.getElementById('bCpuInfo').textContent=`性格:${c.natureName} / 特性:${c.ability}`;
+  document.getElementById('bCpuItemBadge').innerHTML=`<span class="item-badge ${c.itemUsed?'item-used':''}">🎒 ${c.item}</span>`;
+  document.getElementById('bPlayerName').textContent=p.poke.name;
+  document.getElementById('bPlayerTypes').innerHTML=typeBadges(p.poke);
+  document.getElementById('bPlayerInfo').textContent=`性格:${p.natureName} / 特性:${p.ability}`;
+  document.getElementById('bPlayerItemBadge').innerHTML=`<span class="item-badge ${p.itemUsed?'item-used':''}">🎒 ${p.item}</span>`;
+  updateHpDisplay('player'); updateHpDisplay('cpu');
 }
 
-function updateHpDisplay(side) {
-  const s = battle[side];
-  const pct = Math.max(0, Math.round(s.hp / s.maxHp * 100));
-  document.getElementById(side + 'HpCur').textContent = Math.max(0, s.hp);
-  document.getElementById(side + 'HpMax').textContent = s.maxHp;
-  document.getElementById(side + 'HpPct').textContent = pct + '%';
-  const bar = document.getElementById(side + 'HpBar');
-  bar.style.width = pct + '%';
-  bar.className = 'hp-bar ' + (pct > 50 ? 'hp-green' : pct > 20 ? 'hp-yellow' : 'hp-red');
+function updateHpDisplay(side){
+  const poke=side==='player'?curPlayer():curCpu();
+  const pct=Math.max(0,Math.round(poke.hp/poke.maxHp*100));
+  document.getElementById(side+'HpCur').textContent=Math.max(0,poke.hp);
+  document.getElementById(side+'HpMax').textContent=poke.maxHp;
+  document.getElementById(side+'HpPct').textContent=pct+'%';
+  const bar=document.getElementById(side+'HpBar');
+  bar.style.width=pct+'%';
+  bar.className='hp-bar '+(pct>50?'hp-g':pct>20?'hp-y':'hp-r');
 }
 
-function renderMoveBtns() {
-  document.getElementById('movesGrid').innerHTML = battle.player.moves.map((m, i) => {
-    const pow = m.power ? `威力${m.power}` : '変化技';
-    return `<button class="btn-move" onclick="playerUseMove(${i})"
-      ${(m.curPP <= 0 || !battleActive) ? 'disabled' : ''}>
-      <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+function renderPartyBars(){
+  ['player','cpu'].forEach(side=>{
+    const barEl=document.getElementById(side+'PartyBar');
+    const btns=bParty[side].map((p,i)=>{
+      const pct=Math.max(0,Math.round(p.hp/p.maxHp*100));
+      const barC=pct>50?'#00e676':pct>20?'#ffc800':'#ff3060';
+      const isActive=bActive[side]===i;
+      return `<div class="party-slot-btn ${p.fainted?'fainted':''} ${isActive?'active-poke':''}"
+        onclick="${side==='player'&&!p.fainted&&!isActive&&awaitingSwitch?`doSwitch(${i})`:'void 0'}">
+        <div class="pname-mini">${p.poke.name}</div>
+        <div class="hp-dot" style="background:${p.fainted?'#333':barC};width:${pct*0.24}px;max-width:24px;min-width:2px;"></div>
+      </div>`;
+    }).join('');
+    // rebuild keeping label
+    barEl.innerHTML=`<span class="party-label">${side==='player'?'あなた':'CPU'}</span>${btns}`;
+  });
+}
+
+// =========================================================
+//  MOVE BUTTONS
+// =========================================================
+function renderMoveBtns(){
+  if(awaitingSwitch){
+    document.getElementById('movesGrid').innerHTML='';
+    document.getElementById('moveLabel').textContent='';
+    return;
+  }
+  const p=curPlayer();
+  document.getElementById('moveLabel').textContent='技を選択してください';
+  document.getElementById('movesGrid').innerHTML=p.moves.map((m,i)=>{
+    const pow=m.power?`威力${m.power}`:'変化技';
+    return `<button class="btn-move" onclick="playerUseMove(${i})" ${(m.curPP<=0||!battleActive)?'disabled':''}>
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
         <span class="tp tp-${m.type}" style="font-size:9px;">${m.type}</span>
         <strong>${m.name}</strong>
       </div>
-      <div class="m-meta">${pow} ／ ${m.category}　PP: ${m.curPP}/${m.pp||'?'}</div>
+      <div class="mm">${pow} / ${m.category}　PP:${m.curPP}/${m.pp||'?'}</div>
     </button>`;
   }).join('');
 }
+function setMoveBtnsDisabled(d){document.querySelectorAll('.btn-move').forEach(b=>b.disabled=d);}
 
-function setMoveBtnsDisabled(d) {
-  document.querySelectorAll('.btn-move').forEach(b => b.disabled = d);
+// =========================================================
+//  SWITCH PANEL
+// =========================================================
+function showSwitchPanel(){
+  awaitingSwitch=true;
+  setMoveBtnsDisabled(true);
+  document.getElementById('moveLabel').textContent='';
+  document.getElementById('movesGrid').innerHTML='';
+  const panel=document.getElementById('switchPanel');
+  panel.classList.add('visible');
+  const grid=document.getElementById('switchGrid');
+  grid.innerHTML=bParty.player.map((p,i)=>{
+    if(p.fainted||bActive.player===i) return '';
+    return `<button class="switch-btn" onclick="doSwitch(${i})">${p.poke.name}<br><span style="font-size:10px;color:var(--text3);">HP ${p.hp}/${p.maxHp}</span></button>`;
+  }).join('');
+  renderPartyBars();
+}
+function hideSwitchPanel(){
+  awaitingSwitch=false;
+  document.getElementById('switchPanel').classList.remove('visible');
 }
 
-// ============================================================
+function doSwitch(idx){
+  if(bParty.player[idx].fainted) return;
+  addLog('s',`${curPlayer().poke.name} を引っ込めた！`);
+  bActive.player=idx;
+  addLog('p',`${curPlayer().poke.name} を繰り出した！`);
+  hideSwitchPanel();
+  renderBattleField();
+  renderMoveBtns();
+  battleActive=true;
+  renderPartyBars();
+}
+
+// =========================================================
+//  CPU SWITCH
+// =========================================================
+function cpuForcedSwitch(){
+  const avail=bParty.cpu.map((p,i)=>({p,i})).filter(({p,i})=>!p.fainted&&i!==bActive.cpu);
+  if(!avail.length) return false; // no one left
+  // pick best: highest max HP
+  const best=avail.sort((a,b)=>b.p.maxHp-a.p.maxHp)[0];
+  addLog('s',`CPUは ${curCpu().poke.name} を引っ込めた！`);
+  bActive.cpu=best.i;
+  addLog('c',`CPUは ${curCpu().poke.name} を繰り出した！`);
+  renderBattleField();
+  renderPartyBars();
+  return true;
+}
+
+// =========================================================
 //  PLAYER MOVE
-// ============================================================
-function playerUseMove(idx) {
-  if (!battleActive) return;
-  const move = battle.player.moves[idx];
-  if (!move || move.curPP <= 0) return;
-  setMoveBtnsDisabled(true);
-  battleActive = false;
+// =========================================================
+function playerUseMove(idx){
+  if(!battleActive||awaitingSwitch) return;
+  const move=curPlayer().moves[idx];
+  if(!move||move.curPP<=0) return;
+  setMoveBtnsDisabled(true); battleActive=false;
 
-  const playerFirst = battle.player.stats.spe >= battle.cpu.stats.spe;
-
-  if (playerFirst) {
-    // プレイヤー先攻
-    execMove(battle.player, battle.cpu, move, 'player');
-    move.curPP = Math.max(0, move.curPP - 1);
+  const playerFirst=curPlayer().stats.spe>=curCpu().stats.spe;
+  if(playerFirst){
+    execMove(curPlayer(),curCpu(),move,'p');
+    move.curPP=Math.max(0,move.curPP-1);
     updateHpDisplay('cpu');
-    if (battle.cpu.hp <= 0) { endBattle('player'); return; }
-    setTimeout(() => doCpuTurn(), 700);
+    checkItemEffects(curPlayer(),'p');
+    if(curCpu().hp<=0){
+      curCpu().fainted=true;
+      addLog('s',`${curCpu().poke.name} は倒れた！`);
+      renderPartyBars();
+      // CPU switch or end
+      const cpuAlive=bParty.cpu.some(p=>!p.fainted);
+      if(!cpuAlive){endBattle('player');return;}
+      cpuForcedSwitch();
+      setTimeout(()=>nextTurn(),600);
+    } else {
+      setTimeout(()=>doCpuTurn(),700);
+    }
   } else {
-    // CPU先攻
-    const cpuMove = chooseCpuMove();
-    updateCpuRuleBar(cpuMove);
-    execMove(battle.cpu, battle.player, cpuMove, 'cpu');
-    cpuMove.curPP = Math.max(0, cpuMove.curPP - 1);
+    // CPU first
+    const cpuMove=chooseCpuMove();
+    updateCpuBar(cpuMove);
+    execMove(curCpu(),curPlayer(),cpuMove,'c');
+    cpuMove.curPP=Math.max(0,cpuMove.curPP-1);
     updateHpDisplay('player');
-    if (battle.player.hp <= 0) { endBattle('cpu'); return; }
-    setTimeout(() => {
-      execMove(battle.player, battle.cpu, move, 'player');
-      move.curPP = Math.max(0, move.curPP - 1);
+    checkItemEffects(curCpu(),'c');
+    if(curPlayer().hp<=0){
+      curPlayer().fainted=true;
+      addLog('s',`${curPlayer().poke.name} は倒れた！`);
+      renderPartyBars();
+      const playerAlive=bParty.player.some(p=>!p.fainted);
+      if(!playerAlive){endBattle('cpu');return;}
+      // player must switch
+      showSwitchPanel();
+      return;
+    }
+    setTimeout(()=>{
+      execMove(curPlayer(),curCpu(),move,'p');
+      move.curPP=Math.max(0,move.curPP-1);
       updateHpDisplay('cpu');
+      checkItemEffects(curPlayer(),'p');
       renderMoveBtns();
-      if (battle.cpu.hp <= 0) endBattle('player');
-      else nextTurn();
-    }, 700);
+      if(curCpu().hp<=0){
+        curCpu().fainted=true;
+        addLog('s',`${curCpu().poke.name} は倒れた！`);
+        renderPartyBars();
+        const cpuAlive=bParty.cpu.some(p=>!p.fainted);
+        if(!cpuAlive){endBattle('player');return;}
+        cpuForcedSwitch();
+        setTimeout(()=>nextTurn(),600);
+      } else {
+        doEndOfTurn();
+        nextTurn();
+      }
+    },700);
   }
 }
 
-function doCpuTurn() {
-  const cpuMove = chooseCpuMove();
-  updateCpuRuleBar(cpuMove);
-  execMove(battle.cpu, battle.player, cpuMove, 'cpu');
-  cpuMove.curPP = Math.max(0, cpuMove.curPP - 1);
+function doCpuTurn(){
+  const cpuMove=chooseCpuMove();
+  updateCpuBar(cpuMove);
+  execMove(curCpu(),curPlayer(),cpuMove,'c');
+  cpuMove.curPP=Math.max(0,cpuMove.curPP-1);
   updateHpDisplay('player');
+  checkItemEffects(curCpu(),'c');
   renderMoveBtns();
-  if (battle.player.hp <= 0) endBattle('cpu');
-  else nextTurn();
-}
-
-// ============================================================
-//  EXECUTE MOVE
-// ============================================================
-function execMove(atk, def, move, side) {
-  addLog(side, `${atk.poke.name} の ${move.name}！`);
-  if (move.category === '変化' || !move.power) {
-    addLog('system', '（変化技 — 効果は簡略化）');
+  if(curPlayer().hp<=0){
+    curPlayer().fainted=true;
+    addLog('s',`${curPlayer().poke.name} は倒れた！`);
+    renderPartyBars();
+    const playerAlive=bParty.player.some(p=>!p.fainted);
+    if(!playerAlive){endBattle('cpu');return;}
+    showSwitchPanel();
     return;
   }
-  const result = calcDamage(atk, def, move);
-  if (!result) return;
-  def.hp = Math.max(0, def.hp - result.damage);
-
-  let effHtml = '';
-  if (result.eff === 0)      effHtml = '<span class="log-noeff">効果がない…</span>';
-  else if (result.eff >= 2)  effHtml = '<span class="log-eff">効果は抜群だ！</span>';
-  else if (result.eff < 1)   effHtml = '<span class="log-noeff">効果はいまひとつ…</span>';
-
-  addLogHTML(`<span class="log-damage">${result.damage} のダメージ！</span>${effHtml ? '　' + effHtml : ''}`);
-
-  // shake animation on defender
-  const fieldId = side === 'player' ? 'cpuField' : 'playerField';
-  const fieldEl = document.getElementById(fieldId);
-  fieldEl.classList.add('shake');
-  setTimeout(() => fieldEl.classList.remove('shake'), 420);
+  doEndOfTurn();
+  nextTurn();
 }
 
-// ============================================================
+// =========================================================
+//  EXEC MOVE
+// =========================================================
+function execMove(atk, def, move, logSide){
+  addLog(logSide,`${atk.poke.name} の ${move.name}！`);
+  if(move.category==='変化'||!move.power){addLog('s','（変化技 — 効果は簡略化）');return;}
+  const result=calcDamage(atk,def,move);
+  if(!result) return;
+
+  // タスキ発動チェック
+  let absorbed=false;
+  if(def.hp===def.maxHp&&isTaski(def)&&result.damage>=def.hp){
+    result.damage=def.hp-1;
+    def.taskiUsed=true; def.itemUsed=true;
+    absorbed=true;
+  }
+
+  def.hp=Math.max(0,def.hp-result.damage);
+
+  let effHtml='';
+  if(result.eff===0)     effHtml='<span class="lne">効果がない…</span>';
+  else if(result.eff>=2) effHtml='<span class="leff">効果は抜群だ！</span>';
+  else if(result.eff<1)  effHtml='<span class="lne">効果はいまひとつ…</span>';
+
+  addLogHTML(`<span class="ldmg">${result.damage} のダメージ！</span>${effHtml?'　'+effHtml:''}`);
+  if(result.berryUsed) addLogHTML(`<span class="litem">🍓 ${def.item} が発動した！</span>`);
+  if(absorbed) addLogHTML(`<span class="litem">🎽 きあいのタスキ で耐えた！</span>`);
+
+  // かいがらのすず
+  if(isKaigara(atk)&&result.damage>0){
+    const heal=Math.floor(result.damage/8);
+    atk.hp=Math.min(atk.maxHp,atk.hp+heal);
+    addLogHTML(`<span class="litem">🐚 かいがらのすず で ${heal} 回復！</span>`);
+  }
+
+  // item used update
+  const fside=atk===curPlayer()?'player':'cpu';
+  document.getElementById('b'+(fside==='player'?'Player':'Cpu')+'ItemBadge').innerHTML=
+    `<span class="item-badge ${atk.itemUsed?'item-used':''}">🎒 ${atk.item}</span>`;
+  updateHpDisplay(def===curPlayer()?'player':'cpu');
+
+  // shake
+  const fieldId=logSide==='p'?'cpuField':'playerField';
+  const fe=document.getElementById(fieldId);
+  fe.classList.add('shake'); setTimeout(()=>fe.classList.remove('shake'),420);
+}
+
+function checkItemEffects(poke, logSide){
+  // オボンのみ
+  const obon=checkObon(poke);
+  if(obon>0) addLogHTML(`<span class="litem">🍊 オボンのみ で ${obon} 回復！</span>`);
+}
+
+function doEndOfTurn(){
+  // たべのこし
+  [curPlayer(),curCpu()].forEach((p,i)=>{
+    if(isTabenososhi(p)){
+      const heal=Math.max(1,Math.floor(p.maxHp/16));
+      p.hp=Math.min(p.maxHp,p.hp+heal);
+      addLogHTML(`<span class="litem">🍽 ${p.poke.name} の たべのこし で ${heal} 回復！</span>`);
+      updateHpDisplay(i===0?'player':'cpu');
+    }
+  });
+}
+
+// =========================================================
 //  CPU AI
-// ============================================================
-function chooseCpuMove() {
-  const cpu = battle.cpu, player = battle.player;
-  const avail = cpu.moves.filter(m => (m.curPP || 0) > 0);
-  if (!avail.length) return cpu.moves[0]; // struggle fallback
-
-  for (const rule of CPU_RULES) {
-    if (!activeRules.has(rule.id)) continue;
-
-    if (rule.id === 'kill') {
-      for (const m of avail) {
-        const r = calcDamage(cpu, player, m);
-        if (r && r.damage >= player.hp) return m;
-      }
+// =========================================================
+function chooseCpuMove(){
+  const cpu=curCpu(), player=curPlayer();
+  const avail=cpu.moves.filter(m=>(m.curPP||0)>0);
+  if(!avail.length) return cpu.moves[0];
+  for(const rule of CPU_RULES){
+    if(!activeRules.has(rule.id)) continue;
+    if(rule.id==='kill'){
+      for(const m of avail){const r=calcDamage(cpu,player,m);if(r&&r.damage>=player.hp)return m;}
     }
-    if (rule.id === 'hp50') {
-      if (cpu.hp <= cpu.maxHp * 0.5) {
-        const sm = avail.find(m => m.category === '変化');
-        if (sm) return sm;
-      }
+    if(rule.id==='hp50'){
+      if(cpu.hp<=cpu.maxHp*0.5){const sm=avail.find(m=>m.category==='変化');if(sm)return sm;}
     }
-    if (rule.id === 'effective') {
-      const eff = avail.filter(m =>
-        parseInt(m.power) > 0 &&
-        typeEff(m.type, player.poke.type1, player.poke.type2 || '') >= 2
-      );
-      if (eff.length) return eff.sort((a,b) => parseInt(b.power)-parseInt(a.power))[0];
+    if(rule.id==='effective'){
+      const ef=avail.filter(m=>parseInt(m.power)>0&&typeEff(m.type,player.poke.type1,player.poke.type2||'')>=2);
+      if(ef.length)return ef.sort((a,b)=>parseInt(b.power)-parseInt(a.power))[0];
     }
-    if (rule.id === 'stab') {
-      const stab = avail.filter(m =>
-        parseInt(m.power) > 0 &&
-        (m.type === cpu.poke.type1 || m.type === cpu.poke.type2)
-      );
-      if (stab.length) return stab.sort((a,b) => parseInt(b.power)-parseInt(a.power))[0];
+    if(rule.id==='stab'){
+      const st=avail.filter(m=>parseInt(m.power)>0&&(m.type===cpu.poke.type1||m.type===cpu.poke.type2));
+      if(st.length)return st.sort((a,b)=>parseInt(b.power)-parseInt(a.power))[0];
     }
-    if (rule.id === 'power') {
-      const atk = avail.filter(m => parseInt(m.power) > 0);
-      if (atk.length) return atk.sort((a,b) => parseInt(b.power)-parseInt(a.power))[0];
+    if(rule.id==='power'){
+      const at=avail.filter(m=>parseInt(m.power)>0);
+      if(at.length)return at.sort((a,b)=>parseInt(b.power)-parseInt(a.power))[0];
     }
-    if (rule.id === 'random') {
-      return avail[Math.floor(Math.random() * avail.length)];
-    }
+    if(rule.id==='random') return avail[Math.floor(Math.random()*avail.length)];
   }
   return avail[0];
 }
 
-function updateCpuRuleBar(move) {
-  const el = document.getElementById('cpuRuleBar');
-  if (!move) { el.innerHTML = 'CPU: 行動選択中...'; return; }
-  el.innerHTML = `CPU: <strong>${move.name}</strong> を選択`;
+function updateCpuBar(move){
+  const el=document.getElementById('cpuBar');
+  if(!move){el.innerHTML='CPU: 行動選択中...';return;}
+  el.innerHTML=`CPU: <strong>${curCpu().poke.name}</strong> の <strong>${move.name}</strong>`;
 }
 
-// ============================================================
+// =========================================================
 //  TURN / END
-// ============================================================
-function nextTurn() {
+// =========================================================
+function nextTurn(){
   turnCount++;
-  document.getElementById('turnLabel').textContent = `ターン ${turnCount}`;
-  addLog('system', `─── ターン ${turnCount} ───`);
+  document.getElementById('turnLbl').textContent=`ターン ${turnCount}`;
+  addLog('s',`─── ターン ${turnCount} ───`);
+  renderBattleField();
   renderMoveBtns();
-  battleActive = true;
+  battleActive=true;
   setMoveBtnsDisabled(false);
+  renderPartyBars();
 }
 
-function endBattle(winner) {
-  battleActive = false;
+function endBattle(winner){
+  battleActive=false;
   setMoveBtnsDisabled(true);
-  const isWin = winner === 'player';
-  addLog('system', isWin
-    ? `${battle.cpu.poke.name} は倒れた！`
-    : `${battle.player.poke.name} は倒れた！`);
-  setTimeout(() => {
-    const titleEl = document.getElementById('resultTitle');
-    titleEl.textContent   = isWin ? 'WIN' : 'LOSE';
-    titleEl.className     = 'result-title ' + (isWin ? 'result-win' : 'result-lose');
-    document.getElementById('resultSub').textContent = isWin
-      ? `${battle.player.poke.name} の勝利！`
-      : `${battle.cpu.poke.name} の勝利…`;
+  const isWin=winner==='player';
+  addLog('s',isWin?'CPUのポケモンが全員倒れた！':'あなたのポケモンが全員倒れた…');
+  setTimeout(()=>{
+    const t=document.getElementById('resultTitle');
+    t.textContent=isWin?'WIN':'LOSE';
+    t.className='result-title '+(isWin?'rw':'rl');
+    document.getElementById('resultSub').textContent=isWin?'完全勝利！　おめでとうございます🎉':'全滅… 次は勝てる！';
     showScreen('screen-result');
-  }, 1200);
+  },1400);
 }
 
-function rematch() { startBattle(); }
+function rematch(){startBattle();}
 
-// ============================================================
+// =========================================================
 //  LOG
-// ============================================================
-function clearLog() { document.getElementById('battleLog').innerHTML = ''; }
-function addLog(type, msg) {
-  const el = document.getElementById('battleLog');
-  const div = Object.assign(document.createElement('div'), {className: 'log-' + type, textContent: msg});
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+// =========================================================
+function clearLog(){document.getElementById('battleLog').innerHTML='';}
+function addLog(type,msg){
+  const el=document.getElementById('battleLog');
+  const d=document.createElement('div');
+  d.className={'p':'lp','c':'lc','s':'ls'}[type]||'ls';
+  d.textContent=msg; el.appendChild(d); el.scrollTop=el.scrollHeight;
 }
-function addLogHTML(html) {
-  const el = document.getElementById('battleLog');
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+function addLogHTML(html){
+  const el=document.getElementById('battleLog');
+  const d=document.createElement('div');
+  d.innerHTML=html; el.appendChild(d); el.scrollTop=el.scrollHeight;
 }
 
-// ============================================================
+// =========================================================
 //  SCREEN
-// ============================================================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+// =========================================================
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-// ============================================================
+// =========================================================
 //  LOAD DATA
-// ============================================================
-function setLoading(pct, text) {
-  document.getElementById('loading-bar').style.width = pct + '%';
-  document.getElementById('loading-text').textContent = text;
-}
+// =========================================================
+function setLoad(pct,txt){document.getElementById('lbar').style.width=pct+'%';document.getElementById('ltxt').textContent=txt;}
 
-window.addEventListener('load', async () => {
-  try {
-    setLoading(10, 'データを読み込み中...');
-    const bust = '?v=' + Date.now();
-    const [pd, sd, md, rs, rd] = await Promise.all([
-      fetch('pokemon.json'               + bust).then(r => r.json()),
-      fetch('season.json'                + bust).then(r => r.json()).catch(() => ({})),
-      fetch('pokemon_moves.json'         + bust).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('season_ranking_single.json' + bust).then(r => r.ok ? r.json() : {rows:[]}).catch(() => ({rows:[]})),
-      fetch('season_ranking_double.json' + bust).then(r => r.ok ? r.json() : {rows:[]}).catch(() => ({rows:[]})),
+window.addEventListener('load',async()=>{
+  try{
+    setLoad(10,'データを読み込み中...');
+    const v='?v='+Date.now();
+    const[pd,sd,md,rs,rd,bd]=await Promise.all([
+      fetch('pokemon.json'+v).then(r=>r.json()),
+      fetch('season.json'+v).then(r=>r.json()).catch(()=>({})),
+      fetch('pokemon_moves.json'+v).then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch('season_ranking_single.json'+v).then(r=>r.ok?r.json():{rows:[]}).catch(()=>({rows:[]})),
+      fetch('season_ranking_double.json'+v).then(r=>r.ok?r.json():{rows:[]}).catch(()=>({rows:[]})),
+      fetch('belongings.json'+v).then(r=>r.ok?r.json():[]).catch(()=>[]),
     ]);
-    setLoading(60, 'ポケモンデータを処理中...');
+    setLoad(60,'ポケモンデータを処理中...');
+    POKE_DB=Array.isArray(pd)?pd:[];
+    POKE_DB.forEach(p=>{POKE_BY_NAME[p.name]=p;});
+    NINTEI=new Set(Array.isArray(sd['内定'])?sd['内定']:[]);
+    setLoad(75,'pokemon_movesを処理中...');
+    if(md) POKE_MOVES=(md.pokemon&&typeof md.pokemon==='object')?md.pokemon:{};
+    setLoad(88,'ランキング・持ち物データを処理中...');
+    RANK_SINGLE=rs.rows||[];
+    RANK_DOUBLE=rd.rows||[];
+    ITEMS_DB=Array.isArray(bd)?bd:[];
+    setLoad(100,'完了！');
 
-    // pokemon.json
-    POKE_DB = Array.isArray(pd) ? pd : [];
-    POKE_DB.forEach(p => { POKE_BY_NAME[p.name] = p; });
-
-    // season.json → 内定リスト
-    const ninteiArr = Array.isArray(sd['内定']) ? sd['内定'] : [];
-    NINTEI_NAMES = new Set(ninteiArr);
-
-    setLoading(80, 'pokemon_moves.json を処理中...');
-    if (md) {
-      POKE_MOVES = (md.pokemon && typeof md.pokemon === 'object') ? md.pokemon : {};
-    }
-
-    setLoading(90, 'ランキングデータを処理中...');
-    RANK_SINGLE = rs.rows || [];
-    RANK_DOUBLE = rd.rows || [];
-
-    setLoading(100, '完了！');
-    filterList('player');
-    filterList('cpu');
+    // init slot rows
+    renderSlotRow('player'); renderSlotRow('cpu');
+    filterList('player'); filterList('cpu');
     renderRuleList();
-
-    setTimeout(() => {
-      document.getElementById('loading-screen').style.display = 'none';
-    }, 300);
-
-  } catch(e) {
+    setTimeout(()=>{document.getElementById('loading-screen').style.display='none';},300);
+  }catch(e){
     console.error(e);
-    document.getElementById('loading-text').textContent = 'エラー: ' + e.message;
+    document.getElementById('ltxt').textContent='エラー: '+e.message;
   }
 });
 </script>
