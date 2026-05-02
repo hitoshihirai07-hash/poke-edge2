@@ -288,12 +288,52 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 /* パーティ管理 新CSS */
 .party-layout{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start;}
 @media(max-width:700px){.party-layout{grid-template-columns:1fr;}}
-.party-top-grid,.party-mid-grid,.party-coverage-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,0.92fr);gap:16px;align-items:start;margin-bottom:16px;}
-@media(max-width:920px){.party-top-grid,.party-mid-grid,.party-coverage-grid{grid-template-columns:1fr;}}
+.party-top-grid,.party-mid-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,0.92fr);gap:16px;align-items:start;margin-bottom:16px;}
+@media(max-width:920px){.party-top-grid,.party-mid-grid{grid-template-columns:1fr;}}
 .party-slot-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
 @media(max-width:560px){.party-slot-list{grid-template-columns:repeat(2,minmax(0,1fr));}}
-.party-side-stack{display:flex;flex-direction:column;gap:14px;}
-.party-side-panel{margin-top:0 !important;}
+.party-workspace{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;}
+.party-workspace-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.party-workspace-tab-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);padding:8px 14px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:1px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all 0.18s;}
+.party-workspace-tab-btn:hover{border-color:var(--accent);color:var(--accent);}
+.party-workspace-tab-btn.active{border-color:var(--accent);background:rgba(0,200,240,0.12);color:var(--accent);}
+.party-workspace-panel{display:none;}
+.party-workspace-panel.active{display:block;}
+.party-workspace .cov-wrap,.party-workspace .add-section{margin-top:0;border-radius:16px;}
+.party-workspace .add-section{padding:0;border:none;background:transparent;}
+.party-workspace .add-section-title{margin-bottom:10px;}
+.party-workspace .party-coverage-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+.party-workspace .party-coverage-grid .cov-wrap{padding:14px;}
+.party-recommend-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.party-ranking-mode{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.party-ranking-mode-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);padding:8px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:1px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all 0.18s;}
+.party-ranking-mode-btn:hover{border-color:var(--accent);color:var(--accent);}
+.party-ranking-mode-btn.active{border-color:var(--accent3);background:rgba(255,200,0,0.14);color:var(--accent3);}
+.party-ranking-meta{font-size:10px;color:var(--text2);line-height:1.7;}
+.recommend-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+@media(max-width:560px){.recommend-summary-grid{grid-template-columns:1fr;}}
+.recommend-summary-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px 14px;}
+.recommend-summary-title{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.recommend-summary-main{font-size:13px;font-weight:700;line-height:1.8;color:var(--text);}
+.recommend-summary-sub{font-size:10px;color:var(--text2);line-height:1.7;margin-top:6px;}
+.recommend-group-wrap{display:flex;flex-direction:column;gap:12px;}
+.recommend-group{background:rgba(7,9,15,0.42);border:1px solid var(--border);border-radius:16px;padding:12px;}
+.recommend-group-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.recommend-group-title{font-size:13px;font-weight:700;color:var(--text);}
+.recommend-group-note{font-size:10px;color:var(--text2);line-height:1.7;}
+.recommend-group-list{display:flex;flex-direction:column;gap:8px;}
+.recommend-card{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;border-radius:14px;transition:all 0.18s;cursor:pointer;}
+.recommend-card:hover{border-color:var(--accent);transform:translateY(-1px);}
+.recommend-card.disabled{opacity:0.55;cursor:default;}
+.recommend-head{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;}
+.recommend-rank{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--accent);}
+.recommend-score{margin-left:auto;font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;}
+.recommend-role-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:rgba(255,200,0,0.14);border:1px solid var(--border2);font-size:9px;color:var(--accent3);letter-spacing:1px;font-weight:700;}
+.recommend-targets,.recommend-reasons{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.8;}
+.recommend-targets strong,.recommend-reasons strong{color:var(--text);font-weight:700;}
+.recommend-add-btn{margin-top:10px;padding:8px 12px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:999px;font-size:11px;cursor:pointer;transition:all 0.18s;}
+.recommend-add-btn:hover{background:rgba(0,200,240,0.08);}
+.recommend-add-btn:disabled{border-color:var(--border2);color:var(--text2);cursor:default;background:transparent;}
 .party-slot-btn{
   padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;
   transition:all 0.18s;position:relative;border:1px solid var(--border);background:var(--panel);border-radius:14px;min-height:82px;
@@ -310,15 +350,6 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-slot-remove:hover{color:var(--accent2);}
 .party-slot-info{padding-right:12px;}
 .party-slot-name{line-height:1.45;}
-.recommend-card{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;border-radius:14px;transition:all 0.18s;cursor:pointer;}
-.recommend-card:hover{border-color:var(--accent);transform:translateY(-1px);}
-.recommend-card.disabled{opacity:0.55;cursor:default;}
-.recommend-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.recommend-rank{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--accent);}
-.recommend-score{margin-left:auto;font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;}
-.recommend-add-btn{margin-top:10px;padding:8px 12px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:999px;font-size:11px;cursor:pointer;transition:all 0.18s;}
-.recommend-add-btn:hover{background:rgba(0,200,240,0.08);}
-.recommend-add-btn:disabled{border-color:var(--border2);color:var(--text2);cursor:default;background:transparent;}
 .party-section-box{background:var(--panel);border:1px solid var(--border);padding:14px;border-radius:16px;}
 .party-section-box .sec{margin-bottom:12px;}
 .party-editor{background:var(--panel);border:1px solid var(--border);padding:18px;}
@@ -459,17 +490,22 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .party-slot-num{font-size:16px;width:13px;}
   .party-slot-name{font-size:11px;}
   .party-slot-types{display:none;}
-  .party-mid-grid,.party-coverage-grid{display:block;margin-bottom:12px;}
-  .party-mid-grid > div:first-child,.party-side-stack,.party-coverage-grid,.saved-parties-section{display:none;}
-  body.party-mobile-tab-six .party-mid-grid,
-  body.party-mobile-tab-six .party-coverage-grid{display:none;}
+  .party-mid-grid{display:block;margin-bottom:12px;}
+  .party-mid-grid > div:first-child,.party-workspace,.saved-parties-section{display:none;}
+  .party-workspace{padding:12px;}
+  .party-workspace-tabs{display:none;}
+  body.party-mobile-tab-six .party-mid-grid{display:none;}
   body.party-mobile-tab-six .saved-parties-section{display:block;margin-top:12px;}
   body.party-mobile-tab-edit .party-mid-grid{display:block;}
   body.party-mobile-tab-edit .party-mid-grid > div:first-child{display:block;}
   body.party-mobile-tab-add .party-mid-grid{display:block;}
-  body.party-mobile-tab-add .party-side-stack{display:block;}
-  body.party-mobile-tab-coverage .party-coverage-grid{display:block;}
+  body.party-mobile-tab-add .party-workspace{display:block;}
+  body.party-mobile-tab-add .party-workspace-panel[data-party-workspace-panel="add"]{display:block;}
+  body.party-mobile-tab-coverage .party-mid-grid{display:block;}
+  body.party-mobile-tab-coverage .party-workspace{display:block;}
+  body.party-mobile-tab-coverage .party-workspace-panel[data-party-workspace-panel="coverage"]{display:block;}
   .party-editor-header{position:sticky;top:112px;z-index:65;background:rgba(15,20,35,.96);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:16px;padding:12px;margin:-2px -2px 12px;}
+  .recommend-summary-grid{grid-template-columns:1fr;}
   .party-editor-pokename{font-size:17px;}
   #party-editor-content input,#party-editor-content select,#party-editor-content textarea,
   #party-reg-search,#direct-poke-search{font-size:16px!important;}
@@ -685,66 +721,83 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         </div>
       </div>
 
-      <div class="party-side-stack">
-        <div class="cov-wrap party-side-panel">
+      <div class="party-workspace">
+        <div class="party-workspace-tabs" aria-label="PC用表示切替">
+          <button type="button" class="party-workspace-tab-btn active" data-party-workspace-tab="recommend" onclick="switchPartyWorkspace('recommend')">おすすめ</button>
+          <button type="button" class="party-workspace-tab-btn" data-party-workspace-tab="add" onclick="switchPartyWorkspace('add')">追加</button>
+          <button type="button" class="party-workspace-tab-btn" data-party-workspace-tab="coverage" onclick="switchPartyWorkspace('coverage')">相性</button>
+        </div>
+
+        <div class="party-workspace-panel active" data-party-workspace-panel="recommend">
           <div class="sec">おすすめ表示</div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">現在の構築で足りない打点と受け先を、主に内定ポケモンから提案します。候補を押すとそのままパーティに追加できます。</div>
-          <div id="party-recommend-summary" class="note" style="padding:0 0 8px;"></div>
-          <div id="party-recommend-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <div class="party-recommend-toolbar">
+            <div class="party-ranking-mode">
+              <span style="font-size:10px;color:var(--text2);letter-spacing:2px;">参照ランキング</span>
+              <button type="button" class="party-ranking-mode-btn" data-party-ranking-mode="single" onclick="setPartyRankingMode('single')">シングル</button>
+              <button type="button" class="party-ranking-mode-btn" data-party-ranking-mode="double" onclick="setPartyRankingMode('double')">ダブル</button>
+            </div>
+            <div id="party-ranking-meta" class="party-ranking-meta"></div>
+          </div>
+          <div style="font-size:10px;color:var(--text2);margin-bottom:10px;line-height:1.8;">ランキング上位20匹の代表型を参照して、今の構築で重い相手と、総合・対物理・対特殊で改善幅の大きい候補を出します。</div>
+          <div id="party-recommend-summary" class="recommend-summary-grid"></div>
+          <div id="party-recommend-list" class="recommend-group-wrap"></div>
         </div>
 
-        <div class="add-section party-side-panel">
-          <div class="add-section-title">登録済みから選ぶ</div>
-          <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
-            <button id="tab-btn-reg" onclick="switchAddTab('reg')" style="flex:1;padding:8px;background:var(--accent);color:#000;border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">登録済みから選ぶ</button>
-            <button id="tab-btn-direct" onclick="switchAddTab('direct')" style="flex:1;padding:8px;background:var(--bg2);color:var(--text2);border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;">名前/タイプから選ぶ</button>
-          </div>
-
-          <div id="tab-reg">
-            <input type="text" id="party-reg-search" placeholder="絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;margin-bottom:8px;" oninput="renderRegPokeList(this.value)">
-            <div id="party-reg-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
-          </div>
-
-          <div id="tab-direct" style="display:none;">
-            <div style="display:flex;gap:6px;margin-bottom:6px;">
-              <div style="flex:1;">
-                <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ1</div>
-                <select id="direct-type1" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
-              </div>
-              <div style="flex:1;">
-                <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ2</div>
-                <select id="direct-type2" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
-              </div>
+        <div class="party-workspace-panel" data-party-workspace-panel="add">
+          <div class="add-section party-side-panel">
+            <div class="add-section-title">登録済みから選ぶ</div>
+            <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
+              <button id="tab-btn-reg" onclick="switchAddTab('reg')" style="flex:1;padding:8px;background:var(--accent);color:#000;border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">登録済みから選ぶ</button>
+              <button id="tab-btn-direct" onclick="switchAddTab('direct')" style="flex:1;padding:8px;background:var(--bg2);color:var(--text2);border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;">名前/タイプから選ぶ</button>
             </div>
-            <div style="position:relative;margin-bottom:6px;">
-              <input type="text" id="direct-poke-search" placeholder="ポケモン名で絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;" oninput="renderDirectPokeList()">
-            </div>
-            <label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:11px;color:var(--text3);">
-              <input type="checkbox" id="direct-season-only" onchange="renderDirectPokeList()" style="accent-color:var(--accent3);">
-              <span>使用可能ポケモンのみ表示</span>
-            </label>
-            <div id="direct-poke-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;"></div>
-          </div>
 
-          <div style="font-size:10px;color:var(--text2);margin-top:8px;">クリックでパーティに追加。パーティが6体の場合は追加できません。</div>
+            <div id="tab-reg">
+              <input type="text" id="party-reg-search" placeholder="絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;margin-bottom:8px;" oninput="renderRegPokeList(this.value)">
+              <div id="party-reg-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+            </div>
+
+            <div id="tab-direct" style="display:none;">
+              <div style="display:flex;gap:6px;margin-bottom:6px;">
+                <div style="flex:1;">
+                  <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ1</div>
+                  <select id="direct-type1" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">タイプ2</div>
+                  <select id="direct-type2" onchange="onDirectTypeChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"><option value="">すべて</option><option value="ノーマル">ノーマル</option><option value="ほのお">ほのお</option><option value="みず">みず</option><option value="でんき">でんき</option><option value="くさ">くさ</option><option value="こおり">こおり</option><option value="かくとう">かくとう</option><option value="どく">どく</option><option value="じめん">じめん</option><option value="ひこう">ひこう</option><option value="エスパー">エスパー</option><option value="むし">むし</option><option value="いわ">いわ</option><option value="ゴースト">ゴースト</option><option value="ドラゴン">ドラゴン</option><option value="あく">あく</option><option value="はがね">はがね</option><option value="フェアリー">フェアリー</option></select>
+                </div>
+              </div>
+              <div style="position:relative;margin-bottom:6px;">
+                <input type="text" id="direct-poke-search" placeholder="ポケモン名で絞り込み..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:12px;outline:none;" oninput="renderDirectPokeList()">
+              </div>
+              <label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:11px;color:var(--text3);">
+                <input type="checkbox" id="direct-season-only" onchange="renderDirectPokeList()" style="accent-color:var(--accent3);">
+                <span>使用可能ポケモンのみ表示</span>
+              </label>
+              <div id="direct-poke-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;"></div>
+            </div>
+
+            <div style="font-size:10px;color:var(--text2);margin-top:8px;">クリックでパーティに追加。パーティが6体の場合は追加できません。</div>
+          </div>
+        </div>
+
+        <div class="party-workspace-panel" data-party-workspace-panel="coverage">
+          <div class="party-coverage-grid">
+            <div class="cov-wrap">
+              <div class="sec">攻撃相性タイプ</div>
+              <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">登録した技で各タイプに抜群を取れるか</div>
+              <div id="cov-chart-atk"></div>
+            </div>
+
+            <div class="cov-wrap">
+              <div class="sec">防御相性タイプ</div>
+              <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">各タイプの技に対するパーティ全体の耐性。選択中の特性による無効（ふゆう・どしょく・もらいび等）も反映します。</div>
+              <div id="cov-chart-def"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="party-coverage-grid">
-      <div class="cov-wrap">
-        <div class="sec">攻撃相性タイプ</div>
-        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">登録した技で各タイプに抜群を取れるか</div>
-        <div id="cov-chart-atk"></div>
-      </div>
-
-      <div class="cov-wrap">
-        <div class="sec">防御相性タイプ</div>
-        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">各タイプの技に対するパーティ全体の耐性。選択中の特性による無効（ふゆう・どしょく・もらいび等）も反映します。</div>
-        <div id="cov-chart-def"></div>
-      </div>
-    </div>
-  </div>
   </div>
 
 </div>
@@ -775,6 +828,10 @@ let ITEMS_DATA   = [];
 let POKEMON_MOVES = {};
 let pokeIndex    = [];
 let moveIndex    = [];
+let MOVE_LOOKUP  = {};
+let PARTY_RANKING_DATA = {single:{rows:[],updatedAt:''}, double:{rows:[],updatedAt:''}};
+let PARTY_RANKING_MODE = localStorage.getItem('pokeedge_party_ranking_mode') || 'single';
+let PARTY_WORKSPACE_TAB = 'recommend';
 let _dataLoaded  = false;
 let _pokemonMovesLoaded = false;
 let _pokemonMovesPromise = null;
@@ -793,6 +850,28 @@ async function ensurePokemonMovesLoaded(){
   return _pokemonMovesPromise;
 }
 
+function normalizeRankingPayload(payload, battleType){
+  const rows = payload && Array.isArray(payload.rows) ? payload.rows : [];
+  const updatedAt = payload && payload.updatedAt ? String(payload.updatedAt) : '';
+  return {battleType, updatedAt, rows};
+}
+function normalizeMoveLookupName(name){
+  return String(name||'').replace(/[\s　]+/g,'').trim();
+}
+function getMoveMetaByName(name){
+  return MOVE_LOOKUP[normalizeMoveLookupName(name)] || null;
+}
+function parseUsageEntry(entry){
+  const raw = String(entry||'').trim();
+  const m = raw.match(/^(.*?)(?:\s*\(([-\d.]+)%\))?$/);
+  return {
+    name: m ? String(m[1]||'').trim() : raw,
+    percent: m && m[2] != null ? Number(m[2]) : 0
+  };
+}
+function getRankingDataset(mode){
+  return PARTY_RANKING_DATA[mode === 'double' ? 'double' : 'single'] || {rows:[],updatedAt:''};
+}
 
 // ===== 特殊フォルムの登録名統一 =====
 const AEGISLASH_BASE_NAME = 'ギルガルド';
@@ -936,12 +1015,14 @@ function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata] = await Promise.all([
+    const [pd, md, ad, sd, idata, rankingSingle, rankingDouble] = await Promise.all([
       fetchDataJson('pokemon.json', []),
       fetchDataJson('moves.json', []),
       fetchDataJson('abilities.json', {}),
       fetchDataJson('season.json', {seasons:[]}),
       fetchDataJson('belongings.json', []),
+      fetchDataJson('season_ranking_single.json', {rows:[], updatedAt:''}),
+      fetchDataJson('season_ranking_double.json', {rows:[], updatedAt:''}),
     ]);
     POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
     MOVES_DATA   = md;
@@ -950,6 +1031,11 @@ async function loadGameData() {
     ITEMS_DATA   = Array.isArray(idata) ? idata : [];
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
+    MOVE_LOOKUP  = Object.fromEntries(moveIndex.map(m=>[normalizeMoveLookupName(m.name), m]));
+    PARTY_RANKING_DATA = {
+      single: normalizeRankingPayload(rankingSingle, 'single'),
+      double: normalizeRankingPayload(rankingDouble, 'double')
+    };
     _dataLoaded  = true;
   } catch(e) {
     console.error('データ読み込みエラー:', e);
@@ -1056,6 +1142,8 @@ function isMegaCandidateName(name) {
 function getRecommendationGroupKey(name) {
   const raw = String(name||'').trim();
   if(!raw) return raw;
+  const specialBase = getSpecialFormBaseName(raw);
+  if(specialBase) return specialBase;
   if(!/^メガ/.test(raw)) return raw;
   return raw.replace(/^メガ/,'').replace(/[XYZ]$/,'');
 }
@@ -1746,6 +1834,26 @@ let party = []; // 最大6匹（null不使用）
 let selectedSlot = -1;
 
 
+function switchPartyWorkspace(tab){
+  const safe = ['recommend','add','coverage'].includes(tab) ? tab : 'recommend';
+  PARTY_WORKSPACE_TAB = safe;
+  document.querySelectorAll('[data-party-workspace-tab]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.partyWorkspaceTab === safe);
+  });
+  document.querySelectorAll('[data-party-workspace-panel]').forEach(panel=>{
+    panel.classList.toggle('active', panel.dataset.partyWorkspacePanel === safe);
+  });
+}
+function setPartyRankingMode(mode){
+  const safe = mode === 'double' ? 'double' : 'single';
+  PARTY_RANKING_MODE = safe;
+  localStorage.setItem('pokeedge_party_ranking_mode', safe);
+  document.querySelectorAll('[data-party-ranking-mode]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.partyRankingMode === safe);
+  });
+  updateCoverage();
+}
+
 // ===== スマホ用: パーティ管理タブ切り替え =====
 function switchPartyMobileTab(tab){
   const safe = ['six','edit','add','coverage'].includes(tab) ? tab : 'six';
@@ -1754,6 +1862,9 @@ function switchPartyMobileTab(tab){
   document.querySelectorAll('[data-party-mobile-tab]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyMobileTab === safe);
   });
+  if(safe === 'add') switchPartyWorkspace('add');
+  if(safe === 'coverage') switchPartyWorkspace('coverage');
+  if(safe === 'edit' && !window.matchMedia('(max-width:820px)').matches) switchPartyWorkspace(PARTY_WORKSPACE_TAB);
   if(window.matchMedia && window.matchMedia('(max-width:820px)').matches){
     const tabs = document.getElementById('mobile-party-tabs');
     if(tabs) tabs.scrollIntoView({block:'nearest'});
@@ -2388,18 +2499,264 @@ function updateCoverage() {
   renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCount);
 }
 
+function getThreatCandidateAttackTypes(memberOrCandidate) {
+  const poke = memberOrCandidate && memberOrCandidate.poke ? memberOrCandidate.poke : memberOrCandidate;
+  if(!poke) return [];
+  const seen = new Set();
+  const result = [];
+  const explicitMoves = memberOrCandidate && Array.isArray(memberOrCandidate.moves) ? memberOrCandidate.moves : [];
+  explicitMoves.forEach(mv=>{
+    const moveType = String(mv && mv.type || '').trim();
+    const power = Number(mv && mv.power);
+    if(!moveType || !Number.isFinite(power) || power <= 0 || seen.has(moveType)) return;
+    seen.add(moveType);
+    result.push(moveType);
+  });
+  if(result.length) return result;
+  return getCandidateAttackTypes(poke);
+}
+function getCandidateRoleLabel(candidate){
+  const def = Number(candidate && candidate.def || 0);
+  const spd = Number(candidate && candidate.spd || 0);
+  if(def >= spd + 18) return '物理寄り';
+  if(spd >= def + 18) return '特殊寄り';
+  return '両対応';
+}
+function inferThreatClassFromNature(row){
+  const first = parseUsageEntry((row && row.natures && row.natures[0]) || '').name;
+  if(/A↑/.test(first)) return 'physical';
+  if(/C↑/.test(first)) return 'special';
+  return 'mixed';
+}
+function buildThreatProfile(row){
+  const threatPokemon = findPokemonByDisplayName(row && (row.name || row.siteName) || '');
+  const threatTypes = threatPokemon ? [threatPokemon.type1, threatPokemon.type2].filter(Boolean) : [];
+  const moveProfiles = ((row && row.moves) || []).slice(0,4).map(parseUsageEntry).map(entry=>{
+    const meta = getMoveMetaByName(entry.name);
+    const type = String((meta && meta.type) || '').trim();
+    const category = String((meta && meta.category) || '').trim();
+    const power = Number(meta && meta.power) || 0;
+    if(!type || power <= 0) return null;
+    return {name: entry.name, type, category, power, weight: entry.percent > 0 ? entry.percent : 1};
+  }).filter(Boolean);
+
+  let physicalWeight = 0;
+  let specialWeight = 0;
+  const attackTypeMap = {};
+  moveProfiles.forEach(move=>{
+    if(move.category === '物理') physicalWeight += move.weight;
+    else if(move.category === '特殊') specialWeight += move.weight;
+    attackTypeMap[move.type] = (attackTypeMap[move.type] || 0) + move.weight;
+  });
+
+  let threatClass = 'mixed';
+  if(physicalWeight > specialWeight * 1.2) threatClass = 'physical';
+  else if(specialWeight > physicalWeight * 1.2) threatClass = 'special';
+  else if((physicalWeight + specialWeight) === 0) threatClass = inferThreatClassFromNature(row);
+
+  const rankedAttackTypes = Object.entries(attackTypeMap).sort((a,b)=>b[1]-a[1]).map(([type, weight])=>({type, weight}));
+  const topAttackTypes = rankedAttackTypes.slice(0,3);
+  return {
+    row,
+    rank: Number(row && row.rank) || 999,
+    name: String((row && row.name) || '').trim(),
+    threatPokemon,
+    threatTypes,
+    moveProfiles,
+    rankedAttackTypes,
+    topAttackTypes,
+    threatClass,
+    rankWeight: Math.max(1, 22 - (Number(row && row.rank) || 21))
+  };
+}
+function getProfileRelevantBulk(candidate, threatClass){
+  const def = Number(candidate && candidate.def || 0);
+  const spd = Number(candidate && candidate.spd || 0);
+  if(threatClass === 'physical') return def;
+  if(threatClass === 'special') return spd;
+  return (def + spd) / 2;
+}
+function getWeightedDefenseValue(subject, threatProfile){
+  const candidate = subject && subject.poke ? subject.poke : subject;
+  const defTypes = [candidate && candidate.type1, candidate && candidate.type2].filter(Boolean);
+  if(!defTypes.length || !threatProfile || !threatProfile.topAttackTypes.length) return 1.05;
+  const abilities = subject && subject.poke ? [subject.ability || ''] : (getAbilityOptions(candidate && candidate.name) || []).slice();
+  if(!abilities.includes('')) abilities.push('');
+  let bestEff = Infinity;
+  abilities.forEach(ability=>{
+    let totalWeight = 0;
+    let totalEff = 0;
+    threatProfile.topAttackTypes.forEach(entry=>{
+      const eff = getAdjustedTypeEff(entry.type, defTypes, ability);
+      totalWeight += entry.weight;
+      totalEff += eff * entry.weight;
+    });
+    const avg = totalWeight ? (totalEff / totalWeight) : 1;
+    if(avg < bestEff) bestEff = avg;
+  });
+  const bulk = getProfileRelevantBulk(candidate, threatProfile.threatClass);
+  const bulkFactor = Math.max(0, Math.min(0.42, (bulk - 80) / 140));
+  return Math.max(0, bestEff - bulkFactor);
+}
+function getWeightedAttackEff(attackTypes, threatTypes){
+  if(!threatTypes || !threatTypes.length || !attackTypes || !attackTypes.length) return 1;
+  let best = 0;
+  attackTypes.forEach(type=>{
+    const moveType = POKE_TYPE_TO_MOVE_TYPE[type] || type;
+    const eff = getTypeEff(moveType, threatTypes);
+    if(eff > best) best = eff;
+  });
+  return best;
+}
+function evaluateThreatAgainstCurrentParty(threatProfile, members){
+  const defaultWorst = {concernScore: threatProfile.rankWeight * 2.4, defenseValue: 2, offenseEff: 0.5};
+  if(!members.length) return Object.assign({threat: threatProfile}, defaultWorst);
+  let bestDefenseValue = Infinity;
+  let bestOffenseEff = 1;
+  members.forEach(member=>{
+    if(!member || !member.poke) return;
+    const defenseValue = getWeightedDefenseValue(member, threatProfile);
+    if(defenseValue < bestDefenseValue) bestDefenseValue = defenseValue;
+    const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), threatProfile.threatTypes);
+    if(attackEff > bestOffenseEff) bestOffenseEff = attackEff;
+  });
+  const defenseConcern = bestDefenseValue >= 1.35 ? 1.8 : bestDefenseValue >= 1.05 ? 1.25 : bestDefenseValue >= 0.8 ? 0.8 : bestDefenseValue >= 0.55 ? 0.45 : 0.15;
+  const offenseConcern = bestOffenseEff >= 4 ? 0.05 : bestOffenseEff >= 2 ? 0.28 : bestOffenseEff > 1 ? 0.65 : 1.1;
+  return {
+    threat: threatProfile,
+    defenseValue: bestDefenseValue,
+    offenseEff: bestOffenseEff,
+    concernScore: threatProfile.rankWeight * (defenseConcern + offenseConcern)
+  };
+}
+function evaluateCandidateAgainstThreat(candidate, threatProfile){
+  const defenseValue = getWeightedDefenseValue(candidate, threatProfile);
+  const attackTypes = getThreatCandidateAttackTypes(candidate);
+  const attackEff = getWeightedAttackEff(attackTypes, threatProfile.threatTypes);
+  const bulk = getProfileRelevantBulk(candidate, threatProfile.threatClass);
+  let defenseScore = 0;
+  if(defenseValue <= 0.2) defenseScore = 2.3;
+  else if(defenseValue <= 0.45) defenseScore = 1.8;
+  else if(defenseValue <= 0.75) defenseScore = 1.25;
+  else if(defenseValue <= 1.0) defenseScore = 0.7;
+  else if(defenseValue <= 1.15) defenseScore = 0.3;
+  if(bulk >= 110) defenseScore += 0.2;
+  else if(bulk >= 95) defenseScore += 0.1;
+
+  let attackScore = 0;
+  if(attackEff >= 4) attackScore = 1.5;
+  else if(attackEff >= 2) attackScore = 1.0;
+  else if(attackEff > 1) attackScore = 0.2;
+
+  const roleLabel = getCandidateRoleLabel(candidate);
+  let roleBonus = 0;
+  if(threatProfile.threatClass === 'physical' && roleLabel === '物理寄り') roleBonus += 0.25;
+  if(threatProfile.threatClass === 'special' && roleLabel === '特殊寄り') roleBonus += 0.25;
+  if(roleLabel === '両対応' && threatProfile.threatClass === 'mixed') roleBonus += 0.15;
+
+  const primaryAttackType = threatProfile.topAttackTypes[0] ? (MOVE_TYPE_TO_POKE_TYPE[threatProfile.topAttackTypes[0].type] || threatProfile.topAttackTypes[0].type) : '';
+  let defenseReason = '';
+  if(primaryAttackType){
+    const abilities = getAbilityOptions(candidate.name) || [];
+    defenseReason = abilities.map(ab=>getAbilityImmunityReason(ab, primaryAttackType)).find(Boolean) || '';
+    if(!defenseReason){
+      if(defenseValue <= 0.45) defenseReason = `${primaryAttackType}を受けやすい`;
+      else if(defenseValue <= 0.75) defenseReason = `${primaryAttackType}に後出ししやすい`;
+    }
+  }
+  let attackReason = '';
+  if(attackEff >= 2 && threatProfile.threatTypes.length){
+    const bestType = attackTypes.map(type=>({type, eff:getTypeEff(POKE_TYPE_TO_MOVE_TYPE[type] || type, threatProfile.threatTypes)})).sort((a,b)=>b.eff-a.eff)[0];
+    if(bestType && bestType.eff >= 2) attackReason = `${bestType.type}打点で圧力`;
+  }
+  return {
+    candidate,
+    threat: threatProfile,
+    weightedScore: threatProfile.rankWeight * (defenseScore + attackScore + roleBonus),
+    defenseValue,
+    attackEff,
+    reason: [defenseReason, attackReason].filter(Boolean).join(' / ')
+  };
+}
+function buildRecommendationRow(candidate, threatEvaluations){
+  const total = threatEvaluations.reduce((sum,row)=>sum + row.weightedScore, 0);
+  const physicalScore = threatEvaluations.filter(row=>row.threat.threatClass === 'physical').reduce((sum,row)=>sum + row.weightedScore, 0);
+  const specialScore = threatEvaluations.filter(row=>row.threat.threatClass === 'special').reduce((sum,row)=>sum + row.weightedScore, 0);
+  const mixedScore = threatEvaluations.filter(row=>row.threat.threatClass === 'mixed').reduce((sum,row)=>sum + row.weightedScore, 0);
+  const matchedThreats = threatEvaluations.filter(row=>row.weightedScore >= 2.2).sort((a,b)=>b.weightedScore-a.weightedScore).slice(0,3);
+  const reasonText = matchedThreats.map(row=>row.reason).filter(Boolean).slice(0,2).join(' / ');
+  return {
+    candidate,
+    total,
+    physicalScore,
+    specialScore,
+    mixedScore,
+    matchedThreatNames: matchedThreats.map(row=>row.threat.name),
+    reasonText,
+    roleLabel: getCandidateRoleLabel(candidate)
+  };
+}
+function renderRecommendationGroup(title, note, rows, scoreKey, limit, isFull){
+  const picked = rows.filter(row=>row[scoreKey] > 0).sort((a,b)=>b[scoreKey] - a[scoreKey] || b.total - a.total || a.candidate.name.localeCompare(b.candidate.name,'ja')).slice(0, limit);
+  if(!picked.length) {
+    return `<div class="recommend-group"><div class="recommend-group-head"><div><div class="recommend-group-title">${escapePartyHtml(title)}</div><div class="recommend-group-note">${escapePartyHtml(note)}</div></div></div><div class="recommend-group-note">候補が見つからないため、別の構築役割が必要そうです。</div></div>`;
+  }
+  return `<div class="recommend-group"><div class="recommend-group-head"><div><div class="recommend-group-title">${escapePartyHtml(title)}</div><div class="recommend-group-note">${escapePartyHtml(note)}</div></div></div><div class="recommend-group-list">${picked.map((row, idx)=>{
+    const c = row.candidate;
+    const t1 = c.type1 ? `<span class="type-pill tp-${c.type1}">${c.type1}</span>` : '';
+    const t2 = c.type2 ? `<span class="type-pill tp-${c.type2}">${c.type2}</span>` : '';
+    const safeName = escapePartyHtml(c.name);
+    const targets = row.matchedThreatNames.length ? row.matchedThreatNames.join(' / ') : '上位20全体に薄く補完';
+    const scoreValue = Math.round(row[scoreKey] * 10) / 10;
+    return `<div class="recommend-card${isFull ? ' disabled' : ''}" ${isFull ? '' : `onclick="addRecommendedPokemon('${safeName}')"`}>
+      <div class="recommend-head">
+        <div class="recommend-rank" style="color:${idx===0?'var(--accent3)':'var(--accent)'};">${idx+1}</div>
+        <div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);">${safeName}</div>
+            <span class="recommend-role-badge">${escapePartyHtml(row.roleLabel)}</span>
+            <div>${t1}${t2}</div>
+          </div>
+        </div>
+        <div class="recommend-score">${escapePartyHtml(title)} ${scoreValue}</div>
+      </div>
+      <div class="recommend-targets"><strong>強めの相手:</strong> ${escapePartyHtml(targets)}</div>
+      <div class="recommend-reasons"><strong>補完理由:</strong> ${escapePartyHtml(row.reasonText || '上位20に対して攻守の改善幅が大きい候補です。')}</div>
+      <button type="button" class="recommend-add-btn" ${isFull ? 'disabled' : `onclick="event.stopPropagation();addRecommendedPokemon('${safeName}')"`}>${isFull ? 'パーティが埋まっています' : 'このポケモンを追加'}</button>
+    </div>`;
+  }).join('')}</div></div>`;
+}
 function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCount) {
   const summaryEl = document.getElementById('party-recommend-summary');
   const listEl = document.getElementById('party-recommend-list');
+  const metaEl = document.getElementById('party-ranking-meta');
   if(!summaryEl || !listEl) return;
+
+  const dataset = getRankingDataset(PARTY_RANKING_MODE);
+  const rows = (dataset.rows || []).slice(0,20);
+  const modeLabel = PARTY_RANKING_MODE === 'double' ? 'ダブル' : 'シングル';
+  if(metaEl){
+    metaEl.innerHTML = `上位20参照 / <span style="color:var(--accent3);">${modeLabel}</span>${dataset.updatedAt ? ` / 更新 ${escapePartyHtml(dataset.updatedAt)}` : ''}`;
+  }
 
   const members = party.filter(Boolean);
   if(!members.length) {
-    summaryEl.textContent = 'ポケモンを追加すると、足りない打点と受け先から補完候補を提案します。';
+    summaryEl.innerHTML = `<div class="recommend-summary-card"><div class="recommend-summary-title">おすすめ表示</div><div class="recommend-summary-main">ポケモンを追加すると、ランキング上位20に重い相手と補完候補を表示します。</div></div>`;
+    listEl.innerHTML = '';
+    return;
+  }
+  if(!rows.length) {
+    summaryEl.innerHTML = `<div class="recommend-summary-card"><div class="recommend-summary-title">ランキング参照</div><div class="recommend-summary-main">参照用データが見つかりませんでした。</div></div>`;
     listEl.innerHTML = '';
     return;
   }
 
+  const threatProfiles = rows.map(buildThreatProfile).filter(profile=>profile.name);
+  const threatEvaluations = threatProfiles.map(profile=>evaluateThreatAgainstCurrentParty(profile, members)).sort((a,b)=>b.concernScore - a.concernScore);
+  const heavyThreats = threatEvaluations.slice(0,5);
+  const physicalThreats = threatProfiles.filter(profile=>profile.threatClass === 'physical').length;
+  const specialThreats = threatProfiles.filter(profile=>profile.threatClass === 'special').length;
+  const mixedThreats = threatProfiles.filter(profile=>profile.threatClass === 'mixed').length;
   const offensiveNeeds = PARTY_ALL_TYPES.filter(t => (atkMap[t]||0) < 2);
   const defensiveNeeds = PARTY_ALL_TYPES.filter(t => {
     const weak = defWeakCount[t] || 0;
@@ -2408,14 +2765,34 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
     return weak >= 2 || (weak >= 1 && res === 0 && imm === 0);
   });
 
+  summaryEl.innerHTML = `
+    <div class="recommend-summary-card">
+      <div class="recommend-summary-title">重い相手 TOP5</div>
+      <div class="recommend-summary-main">${escapePartyHtml(heavyThreats.map(row=>row.threat.name).join(' / ') || '大きな偏りなし')}</div>
+      <div class="recommend-summary-sub">今の6体で受け先・返しの打点が不足しやすい相手です。</div>
+    </div>
+    <div class="recommend-summary-card">
+      <div class="recommend-summary-title">欲しい役割</div>
+      <div class="recommend-summary-main">${escapePartyHtml(physicalThreats > specialThreats ? '物理寄りの受け先を厚くしたい' : specialThreats > physicalThreats ? '特殊寄りの受け先を厚くしたい' : '両対応の補完が欲しい')}</div>
+      <div class="recommend-summary-sub">環境内訳: 物理${physicalThreats} / 特殊${specialThreats} / 混合${mixedThreats}</div>
+    </div>
+    <div class="recommend-summary-card">
+      <div class="recommend-summary-title">攻撃面の穴</div>
+      <div class="recommend-summary-main">${escapePartyHtml(offensiveNeeds.length ? offensiveNeeds.slice(0,6).join(' / ') : '大きな不足なし')}</div>
+      <div class="recommend-summary-sub">技範囲ベースで不足しやすいタイプです。</div>
+    </div>
+    <div class="recommend-summary-card">
+      <div class="recommend-summary-title">防御面の穴</div>
+      <div class="recommend-summary-main">${escapePartyHtml(defensiveNeeds.length ? defensiveNeeds.slice(0,6).join(' / ') : '大きな不安なし')}</div>
+      <div class="recommend-summary-sub">弱点の重なりや受け先不足が出やすいタイプです。</div>
+    </div>`;
+
   const currentNames = new Set(members.map(m => m.poke && m.poke.name).filter(Boolean));
   const currentGroupKeys = new Set(Array.from(currentNames).map(getRecommendationGroupKey));
-  let sourceLabel = '現在の表示中ポケモン';
   let pool = [];
   if(SEASON_DATA && Array.isArray(SEASON_DATA['内定']) && SEASON_DATA['内定'].length) {
-    sourceLabel = '内定ポケモン';
     const usable = new Set(SEASON_DATA['内定']);
-    pool = pokeIndex.filter(p => usable.has(p.name));
+    pool = pokeIndex.filter(p => isVisiblePokemon(p) && usable.has(p.name));
   } else {
     pool = getSeasonFilteredPokes();
   }
@@ -2426,100 +2803,30 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
     const key = getRecommendationGroupKey(p.name);
     if(currentGroupKeys.has(key)) return;
     const existing = unique.get(key);
-    if(!existing || preferRecommendationCandidate(p, existing)) {
-      unique.set(key, p);
-    }
+    if(!existing || preferRecommendationCandidate(p, existing)) unique.set(key, p);
   });
   const candidates = Array.from(unique.values());
-
-  const offenseText = offensiveNeeds.length ? offensiveNeeds.slice(0,6).join(' / ') : '大きな不足なし';
-  const defenseText = defensiveNeeds.length ? defensiveNeeds.slice(0,6).join(' / ') : '大きな不安なし';
-  summaryEl.innerHTML = `候補参照: <span style="color:var(--accent3);">${escapePartyHtml(sourceLabel)}</span> / 打点で不足しやすいタイプ: <span style="color:var(--text);">${escapePartyHtml(offenseText)}</span> / 受けで不安なタイプ: <span style="color:var(--text);">${escapePartyHtml(defenseText)}</span>`;
-
   if(!candidates.length) {
-    listEl.innerHTML = '<div class="note" style="padding:0;">候補ポケモンが見つかりませんでした。</div>';
+    listEl.innerHTML = '<div class="recommend-group"><div class="recommend-group-note">候補ポケモンが見つかりませんでした。</div></div>';
     return;
   }
 
-  const recommendations = candidates.map(candidate => {
-    const attackTypes = getCandidateAttackTypes(candidate);
-    const offenseReasons = [];
-    let offenseScore = 0;
-    offensiveNeeds.forEach(targetType => {
-      let bestType = '';
-      let bestEff = 0;
-      attackTypes.forEach(atkType => {
-        const moveType = POKE_TYPE_TO_MOVE_TYPE[atkType] || atkType;
-        const eff = getTypeEff(moveType, [targetType]);
-        if(eff > bestEff) {
-          bestEff = eff;
-          bestType = atkType;
-        }
-      });
-      if(bestEff >= 2 && bestType) {
-        offenseScore += 4;
-        offenseReasons.push(`${targetType}に${bestType}打点`);
-      }
-    });
+  const recommendationRows = candidates.map(candidate=>{
+    const evaluations = threatProfiles.map(profile=>evaluateCandidateAgainstThreat(candidate, profile));
+    return buildRecommendationRow(candidate, evaluations);
+  }).filter(row=>row.total > 0);
 
-    const defenseReasons = [];
-    let defenseScore = 0;
-    defensiveNeeds.forEach(atkType => {
-      const bestEff = getCandidateBestDefEff(candidate, atkType);
-      if(bestEff === 0) {
-        defenseScore += 5;
-        const abilityReason = (getAbilityOptions(candidate.name) || []).map(ab => getAbilityImmunityReason(ab, atkType)).find(Boolean);
-        defenseReasons.push(abilityReason || `${atkType}無効`);
-      } else if(bestEff <= 0.5) {
-        defenseScore += 3;
-        defenseReasons.push(`${atkType}半減`);
-      }
-    });
-
-    const stabTypes = [candidate.type1, candidate.type2].filter(Boolean);
-    let varietyBonus = 0;
-    stabTypes.forEach(tp => {
-      if(offensiveNeeds.includes(tp)) varietyBonus += 1;
-    });
-    const total = defenseScore + offenseScore + varietyBonus;
-
-    return {
-      candidate,
-      total,
-      offenseScore,
-      defenseScore,
-      offenseReasons: Array.from(new Set(offenseReasons)).slice(0,3),
-      defenseReasons: Array.from(new Set(defenseReasons)).slice(0,3)
-    };
-  }).filter(row => row.total > 0)
-    .sort((a,b) => b.total - a.total || b.defenseScore - a.defenseScore || b.offenseScore - a.offenseScore || a.candidate.name.localeCompare(b.candidate.name,'ja'))
-    .slice(0,8);
-
-  if(!recommendations.length) {
-    listEl.innerHTML = '<div class="note" style="padding:0;">今の条件では、タイプ相性ベースで強く出せる補完候補が見つかりませんでした。</div>';
+  if(!recommendationRows.length) {
+    listEl.innerHTML = '<div class="recommend-group"><div class="recommend-group-note">今の条件では、上位20に対して改善幅の大きい補完候補が見つかりませんでした。</div></div>';
     return;
   }
 
   const isFull = party.length >= 6;
-  listEl.innerHTML = recommendations.map((row, idx) => {
-    const c = row.candidate;
-    const t1 = c.type1 ? `<span class="type-pill tp-${c.type1}">${c.type1}</span>` : '';
-    const t2 = c.type2 ? `<span class="type-pill tp-${c.type2}">${c.type2}</span>` : '';
-    const attackText = row.offenseReasons.length ? row.offenseReasons.join(' / ') : '大きな打点補完は少なめ';
-    const defenseText = row.defenseReasons.length ? row.defenseReasons.join(' / ') : '大きな受け補完は少なめ';
-    const safeName = escapePartyHtml(c.name);
-    return `<div class="recommend-card${isFull ? ' disabled' : ''}" ${isFull ? '' : `onclick="addRecommendedPokemon('${safeName}')"`}>
-      <div class="recommend-head">
-        <div class="recommend-rank" style="color:${idx===0?'var(--accent3)':'var(--accent)'};">${idx+1}</div>
-        <div style="font-size:13px;font-weight:700;color:var(--text);">${safeName}</div>
-        <div>${t1}${t2}</div>
-        <div class="recommend-score">DEF ${row.defenseScore} / ATK ${row.offenseScore}</div>
-      </div>
-      <div style="font-size:10px;color:var(--text2);margin-top:6px;line-height:1.7;">受け補完: <span style="color:var(--text);">${escapePartyHtml(defenseText)}</span></div>
-      <div style="font-size:10px;color:var(--text2);margin-top:4px;line-height:1.7;">打点補完: <span style="color:var(--text);">${escapePartyHtml(attackText)}</span></div>
-      <button type="button" class="recommend-add-btn" ${isFull ? 'disabled' : `onclick="event.stopPropagation();addRecommendedPokemon('${safeName}')"`}>${isFull ? 'パーティが埋まっています' : 'このポケモンを追加'}</button>
-    </div>`;
-  }).join('');
+  listEl.innerHTML = [
+    renderRecommendationGroup('総合補完', '重い相手全体に対して改善幅が大きい候補です。', recommendationRows, 'total', 4, isFull),
+    renderRecommendationGroup('対物理', '物理寄りの上位ポケモンを意識した受け・切り返し候補です。', recommendationRows, 'physicalScore', 3, isFull),
+    renderRecommendationGroup('対特殊', '特殊寄りの上位ポケモンを意識した受け・切り返し候補です。', recommendationRows, 'specialScore', 3, isFull)
+  ].join('');
 }
 
 // saveParty: supabase-sync.jsで定義
@@ -2557,7 +2864,12 @@ function onStatChange(){ recalcAtk(); recalcDef(); }
 
 window.onload = async () => {
   await initAuth();
+  await loadGameData();
   initSeasonFilter();
+  switchPartyWorkspace('recommend');
+  document.querySelectorAll('[data-party-ranking-mode]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.partyRankingMode === PARTY_RANKING_MODE);
+  });
 
   // シーズンフィルター初期化
   const sfWrap = document.getElementById('season-filter-wrap');
@@ -2572,7 +2884,6 @@ window.onload = async () => {
     });
   }
 
-  await loadGameData();
   setupItemMasterList();
   if(window.requestIdleCallback){
     requestIdleCallback(()=>{
