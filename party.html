@@ -640,11 +640,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
             <span style="font-size:9px;color:var(--text2);">ゲーム:</span>
             <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:11px;">
-              <input type="radio" name="pe-mode" id="pe-mode-classic" value="classic" checked onchange="onPeModeChange()">
+              <input type="radio" name="pe-mode" id="pe-mode-classic" value="classic" onchange="onPeModeChange()">
               <span style="color:var(--text);">従来作（最大252）</span>
             </label>
             <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:11px;">
-              <input type="radio" name="pe-mode" id="pe-mode-champ" value="champions" onchange="onPeModeChange()">
+              <input type="radio" name="pe-mode" id="pe-mode-champ" value="champions" checked onchange="onPeModeChange()">
               <span style="color:var(--accent3);">Champions（最大32）</span>
             </label>
           </div>
@@ -659,13 +659,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">レベル</div>
               <input type="number" id="pe-lv" value="50" min="1" max="100" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-size:11px;outline:none;" oninput="updateRealStats()">
             </div>
-            <div>
+            <div id="pe-iv-block">
               <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">個体値</div>
               <div style="display:flex;gap:4px;align-items:center;">
                 <input type="range" id="pe-iv-range" min="0" max="31" value="31" style="flex:1;accent-color:var(--accent);" oninput="pe_syncIV(this.value)">
                 <span id="pe-iv-disp" style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--accent3);width:20px;">31</span>
                 <input type="hidden" id="pe-iv" value="31">
               </div>
+              <div id="pe-iv-fixed-note" style="display:none;font-size:10px;color:var(--text2);line-height:1.6;">Championsは個体値31固定です。</div>
             </div>
             <div>
               <div style="font-size:9px;color:var(--text2);margin-bottom:2px;">性格</div>
@@ -699,7 +700,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             </div>
           </div>
 
-          <div style="font-size:9px;color:var(--text2);margin-bottom:4px;"><span id="pe-ev-title">努力値（合計上限510）</span> <span id="pe-ev-remain" style="color:var(--accent3);">残り510</span></div>
+          <div style="font-size:9px;color:var(--text2);margin-bottom:4px;"><span id="pe-ev-title">努力値（合計上限66）</span> <span id="pe-ev-remain" style="color:var(--accent3);">残り66</span></div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px;">
             <div><div style="font-size:8px;color:var(--text2);">HP</div><input type="number" id="pe-ev-hp"  value="0" min="0" max="252" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 5px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;outline:none;" oninput="pe_syncEV('hp',this.value)"><input type="range" id="pe-ev-hp-r"  min="0" max="252" step="4" value="0" style="width:100%;accent-color:#e53935;" oninput="pe_syncEV('hp',this.value)"></div>
             <div><div style="font-size:8px;color:var(--text2);">攻撃</div><input type="number" id="pe-ev-atk" value="0" min="0" max="252" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 5px;font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;outline:none;" oninput="pe_syncEV('atk',this.value)"><input type="range" id="pe-ev-atk-r" min="0" max="252" step="4" value="0" style="width:100%;accent-color:#fb8c00;" oninput="pe_syncEV('atk',this.value)"></div>
@@ -1351,7 +1352,7 @@ function buildPartyStoredMember(member){
     lv: member.lv || 50,
     nature: normalizeNatureName(member.nature),
     ability: member.ability || '',
-    iv: member.iv || 31,
+    iv: String(member.gameMode || '').toLowerCase() === 'champions' ? 31 : (member.iv || 31),
     ev: Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, member.ev || {}),
     moves: (member.moves || []).slice(0,4).map(mv=>{
       const meta = getMoveMetaByName(mv && mv.name || '');
@@ -1366,25 +1367,50 @@ function buildPartyStoredMember(member){
     }).filter(mv=>mv.name),
     item: normalizeItemName(member.item),
     memo: member.memo || '',
-    gameMode: member.gameMode || 'classic',
+    gameMode: member.gameMode || 'champions',
     regId: member._regId || ''
   };
 }
+function buildPartyMoveEntry(pokeName, move){
+  if(!move) return null;
+  const moveName = String((move && move.name) || move || '').trim();
+  if(!moveName) return null;
+  const known = getKnownMoveEntryForPokemon(pokeName, moveName);
+  const meta = getMoveMetaByName(moveName);
+  const powerRaw = (move && move.power != null && move.power !== '') ? move.power : ((known && known.power != null && known.power !== '') ? known.power : (meta && meta.power));
+  const powerNum = Number(powerRaw);
+  return {
+    name: moveName,
+    type: String((move && move.type) || (known && known.type) || (meta && meta.type) || '').trim(),
+    power: Number.isFinite(powerNum) && powerNum > 0 ? powerNum : '',
+    category: String((move && move.category) || (known && known.category) || (meta && meta.category) || '').trim(),
+    hits: String((move && (move.hits || move.hitCount)) || (known && known.hits) || (meta && meta.hits) || '1').trim(),
+    notes: String((move && (move.notes || move.effect)) || (known && known.description) || (meta && (meta.notes || meta.effect)) || '').trim()
+  };
+}
+
+function normalizePartyMemberMoves(pokeName, moves){
+  return (Array.isArray(moves) ? moves : [])
+    .map(mv=>buildPartyMoveEntry(pokeName, mv))
+    .filter(mv=>mv && mv.name);
+}
+
 function buildPartyRuntimeMember(saved){
   const pokeName = normalizeAegislashDisplayName(saved && saved.pokeName || '');
   const poke = findPokemonByDisplayName(pokeName) || {name:pokeName,no:saved && saved.pokeNo || '',type1:saved && saved.type1 || '',type2:saved && saved.type2 || '',hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+  const gameMode = saved && saved.gameMode ? saved.gameMode : 'champions';
   return {
     _regId: saved && (saved.regId || saved._regId) || '',
     poke,
     lv: saved && saved.lv || 50,
     nature: normalizeNatureName(saved && saved.nature || ''),
     ability: saved && saved.ability || (getAbilityOptions(poke.name)[0] || ''),
-    iv: saved && saved.iv || 31,
+    iv: String(gameMode).toLowerCase() === 'champions' ? 31 : (saved && saved.iv || 31),
     ev: Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, saved && saved.ev || {}),
-    moves: Array.isArray(saved && saved.moves) ? saved.moves : [],
+    moves: normalizePartyMemberMoves(poke.name, saved && saved.moves),
     item: saved && saved.item || '',
     memo: saved && saved.memo || '',
-    gameMode: saved && saved.gameMode || 'classic'
+    gameMode
   };
 }
 function savePartyDraftNow(){
@@ -1452,7 +1478,7 @@ async function registerCurrentPartyPokemon(){
     item: normalizeItemName(member.item),
     iv: member.iv || 31,
     ev: Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, member.ev || {}),
-    gameMode: member.gameMode || 'classic',
+    gameMode: member.gameMode || 'champions',
     moves: storedMember ? storedMember.moves : [],
     memo: member.memo || '',
     updatedAt: new Date().toLocaleDateString('ja-JP'),
@@ -2308,7 +2334,7 @@ function addToParty(p) {
   party.push({
     poke: Object.assign({}, p, {name: normalizeAegislashDisplayName(p.name)}), lv:50, nature:'がんばりや', ability:abilities[0]||'', iv:31,
     ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},
-    moves:[], item:'', memo:'', gameMode:'classic'
+    moves:[], item:'', memo:'', gameMode:'champions'
   });
   renderPartySlotList();
   renderRegPokeList();
@@ -2446,11 +2472,12 @@ function addRegPoke(id) {
     lv:   rec.lv||50,
     nature: normalizeNatureName(rec.nature),
     ability: rec.ability || (getAbilityOptions(pokeData.name)[0]||''),
-    iv:   rec.iv||31,
+    iv:   String(rec.gameMode || '').toLowerCase() === 'champions' ? 31 : (rec.iv||31),
     ev:   rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},
-    moves: rec.moves||[],
+    moves: normalizePartyMemberMoves(pokeData.name, rec.moves),
     item:  rec.item||'',
     memo:  rec.memo||'',
+    gameMode: rec.gameMode || 'champions'
   });
   renderPartySlotList();
   renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
@@ -2511,6 +2538,7 @@ function selectSlot(i) {
   (document.getElementById('party-editor-empty')||{style:{}}).style.display='none';
   (document.getElementById('party-editor-content')||{style:{}}).style.display='block';
   document.getElementById('pe-pokename').textContent = p.name;
+  m.moves = normalizePartyMemberMoves(p.name, m.moves);
   const t1=p.type1?`<span class="type-pill tp-${p.type1}">${p.type1}</span>`:'';
   const t2=p.type2?`<span class="type-pill tp-${p.type2}">${p.type2}</span>`:'';
   document.getElementById('pe-types').innerHTML = t1+t2;
@@ -2583,9 +2611,14 @@ function updateRealStats() {
   const m = party[selectedSlot];
   const p = m.poke;
   const lv = parseInt(document.getElementById('pe-lv').value)||50;
-  const iv = parseInt(document.getElementById('pe-iv').value)||31;
-  const nat = PERSONALITIES[document.getElementById('pe-nature').value]||{atk:1,def:1,spa:1,spd:1,spe:1};
   const champ = document.getElementById('pe-mode-champ')?.checked;
+  const iv = champ ? 31 : (parseInt(document.getElementById('pe-iv').value)||31);
+  if(champ){
+    if(document.getElementById('pe-iv')) document.getElementById('pe-iv').value = 31;
+    if(document.getElementById('pe-iv-range')) document.getElementById('pe-iv-range').value = 31;
+    if(document.getElementById('pe-iv-disp')) document.getElementById('pe-iv-disp').textContent = 31;
+  }
+  const nat = PERSONALITIES[document.getElementById('pe-nature').value]||{atk:1,def:1,spa:1,spd:1,spe:1};
   const ev = {
     hp: parseInt(document.getElementById('pe-ev-hp').value)||0,
     atk:parseInt(document.getElementById('pe-ev-atk').value)||0,
@@ -2629,7 +2662,8 @@ function updatePartyMember() {
   const m = party[selectedSlot];
   m.lv     = parseInt(document.getElementById('pe-lv').value)||50;
   m.nature = document.getElementById('pe-nature').value;
-  m.iv     = parseInt(document.getElementById('pe-iv').value)||31;
+  const champ = document.getElementById('pe-mode-champ')?.checked;
+  m.iv     = champ ? 31 : (parseInt(document.getElementById('pe-iv').value)||31);
   m.ev     = {
     hp: parseInt(document.getElementById('pe-ev-hp').value)||0,
     atk:parseInt(document.getElementById('pe-ev-atk').value)||0,
@@ -2655,7 +2689,8 @@ function pe_save() {
   const m = party[selectedSlot];
   m.lv     = parseInt(document.getElementById('pe-lv').value)||50;
   m.nature = document.getElementById('pe-nature').value;
-  m.iv     = parseInt(document.getElementById('pe-iv').value)||31;
+  const champ = document.getElementById('pe-mode-champ')?.checked;
+  m.iv     = champ ? 31 : (parseInt(document.getElementById('pe-iv').value)||31);
   m.ev = {
     hp:  parseInt(document.getElementById('pe-ev-hp').value)||0,
     atk: parseInt(document.getElementById('pe-ev-atk').value)||0,
@@ -2677,6 +2712,15 @@ function onPeModeChange() {
   const champ = document.getElementById('pe-mode-champ')?.checked;
   const max = champ ? 32 : 252;
   const step = champ ? 1 : 4;
+  const ivBlock = document.getElementById('pe-iv-block');
+  const ivNote = document.getElementById('pe-iv-fixed-note');
+  if(ivBlock) ivBlock.style.display = champ ? 'none' : '';
+  if(ivNote) ivNote.style.display = champ ? 'block' : 'none';
+  if(champ){
+    if(document.getElementById('pe-iv')) document.getElementById('pe-iv').value = 31;
+    if(document.getElementById('pe-iv-range')) document.getElementById('pe-iv-range').value = 31;
+    if(document.getElementById('pe-iv-disp')) document.getElementById('pe-iv-disp').textContent = 31;
+  }
   ['hp','atk','def','spa','spd','spe'].forEach(k => {
     const r = document.getElementById('pe-ev-'+k+'-r');
     const n = document.getElementById('pe-ev-'+k);
@@ -2822,7 +2866,7 @@ async function loadPartyById(id) {
   const d = s.data || s;
   party = (d.members||[]).map(m=>{
     const poke = pokeIndex.find(x=>x.name===m.pokeName)||{name:m.pokeName,no:m.pokeNo,type1:m.type1,type2:m.type2,hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
-    return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'classic'};
+    return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:String(m.gameMode||'').toLowerCase()==='champions' ? 31 : (m.iv||31), ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:normalizePartyMemberMoves(poke.name, m.moves), item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'champions'};
   });
   selectedSlot = -1;
   renderPartySlotList();
@@ -2843,7 +2887,7 @@ function loadParty(i) {
   if(!s) return;
   party = s.members.map(m=>{
     const poke = pokeIndex.find(x=>x.name===m.pokeName) || {name:m.pokeName,no:m.pokeNo,type1:m.type1,type2:m.type2,hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
-    return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:m.iv||31, ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:m.moves||[], item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'classic'};
+    return {poke, lv:m.lv||50, nature:normalizeNatureName(m.nature), ability:m.ability || (getAbilityOptions(poke.name)[0]||''), iv:String(m.gameMode||'').toLowerCase()==='champions' ? 31 : (m.iv||31), ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, moves:normalizePartyMemberMoves(poke.name, m.moves), item:m.item||'', memo:m.memo||'', gameMode:m.gameMode||'champions'};
   });
   selectedSlot = -1;
   renderPartySlotList();
@@ -2862,16 +2906,18 @@ function updateCoverageNow() {
   allTypes.forEach(t => atkMap[t] = 0);
 
   party.filter(m=>m).forEach(m => {
-    (m.moves||[]).forEach(mv => {
+    const normalizedMoves = normalizePartyMemberMoves(m.poke && m.poke.name, m.moves);
+    if(normalizedMoves.length && normalizedMoves.length !== (m.moves||[]).length) m.moves = normalizedMoves;
+    normalizedMoves.forEach(mv => {
       if(!mv) return;
       const power = Number(mv.power);
       if(!Number.isFinite(power) || power <= 0) return;
-      const moveType = mv.type;
-      const chart = TYPE_EFF[moveType] || {};
+      const moveType = String(mv.type || '').trim();
+      if(!moveType) return;
       const pokeTypes = [m.poke.type1, m.poke.type2].filter(Boolean);
       const hasStab = pokeTypes.includes(MOVE_TYPE_TO_POKE_TYPE[moveType] || moveType);
       allTypes.forEach(defT => {
-        const eff = chart[defT] !== undefined ? chart[defT] : 1;
+        const eff = getTypeEff(moveType, [defT], mv.name || '');
         if(eff >= 2) {
           atkMap[defT] = Math.max(atkMap[defT]||0, hasStab ? 3 : 2);
         } else if(eff === 1) {
