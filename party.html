@@ -1140,39 +1140,87 @@ function getMoveDescriptionText(moveEntry, moveMeta){
   if(!raw) return '通常の攻撃技。';
   return raw.length > 58 ? `${raw.slice(0, 58)}…` : raw;
 }
-function buildCandidateMoveDetails(candidate, rankingMode=PARTY_RANKING_MODE){
-  const details = [];
-  const seen = new Set();
-  const pushMove = (moveName, sourceLabel, usagePercent=0)=>{
-    const safeName = String(moveName || '').trim();
-    if(!safeName || seen.has(safeName)) return;
-    const knownEntry = getKnownMoveEntryForPokemon(candidate.name, safeName);
-    const meta = getMoveMetaByName(safeName);
-    const category = String((knownEntry && knownEntry.category) || (meta && meta.category) || '').trim();
-    const type = String((knownEntry && knownEntry.type) || (meta && meta.type) || '').trim();
-    const power = Number((knownEntry && knownEntry.power) || (meta && meta.power)) || 0;
-    if(!type || !category || category === '変化' || power <= 0) return;
-    seen.add(safeName);
-    details.push({
-      name: safeName,
-      type,
-      category,
-      power,
-      usagePercent,
-      sourceLabel,
-      description: getMoveDescriptionText(knownEntry, meta)
-    });
+function inferCandidateAttackBiasFromStats(candidate){
+  const atk = Number(candidate && candidate.atk || 0);
+  const spa = Number(candidate && candidate.spa || 0);
+  if(atk >= spa + 20) return 'physical';
+  if(spa >= atk + 20) return 'special';
+  return 'mixed';
+}
+function normalizeCandidateMoveRecord(candidate, moveName, extra={}){
+  const safeName = String(moveName || '').trim();
+  if(!safeName) return null;
+  const knownEntry = getKnownMoveEntryForPokemon(candidate && candidate.name, safeName);
+  const meta = getMoveMetaByName(safeName);
+  const category = String((knownEntry && knownEntry.category) || (meta && meta.category) || '').trim();
+  const type = String((knownEntry && knownEntry.type) || (meta && meta.type) || '').trim();
+  const power = Number((knownEntry && knownEntry.power) || (meta && meta.power)) || 0;
+  if(!type || !category || category === '変化' || power <= 0) return null;
+  return {
+    name: safeName,
+    type,
+    category,
+    power,
+    accuracy: Number((knownEntry && knownEntry.accuracy) || (meta && meta.accuracy)) || 0,
+    usagePercent: Number(extra && extra.usagePercent) || 0,
+    sourceLabel: String((extra && extra.sourceLabel) || '').trim(),
+    description: getMoveDescriptionText(knownEntry, meta)
   };
-
+}
+function isPlausibleFallbackMove(candidate, move){
+  if(!candidate || !move) return false;
+  if(move.category === '変化' || Number(move.power || 0) <= 0) return false;
+  const stabTypes = new Set([candidate.type1, candidate.type2].filter(Boolean));
+  const isStab = stabTypes.has(move.type);
+  const statBias = inferCandidateAttackBiasFromStats(candidate);
+  if(statBias === 'physical' && move.category !== '物理') return false;
+  if(statBias === 'special' && move.category !== '特殊') return false;
+  if(isStab) return Number(move.power || 0) >= 60;
+  return Number(move.power || 0) >= (statBias === 'mixed' ? 80 : 90);
+}
+function getCandidateUsableMoves(candidate, rankingMode=PARTY_RANKING_MODE){
+  if(!candidate) return [];
+  const stabTypes = new Set([candidate.type1, candidate.type2].filter(Boolean));
+  const statBias = inferCandidateAttackBiasFromStats(candidate);
+  const scoreMove = (move)=>{
+    const isStab = stabTypes.has(move.type);
+    const classMatch = statBias === 'mixed' ? 1 : (move.category === (statBias === 'physical' ? '物理' : '特殊') ? 1 : 0);
+    const usage = Number(move.usagePercent || 0);
+    const power = Number(move.power || 0);
+    const accuracy = Number(move.accuracy || 0);
+    return (
+      (usage * 1000000) +
+      (classMatch * 100000) +
+      (isStab ? 10000 : 0) +
+      (power * 100) +
+      accuracy
+    );
+  };
+  const rankingMoves = [];
+  const seenRanking = new Set();
   const rankingRow = findRankingRowForPokemon(candidate.name, rankingMode);
   (((rankingRow && rankingRow.moves) || []).slice(0, 10)).forEach(entry=>{
     const parsed = parseUsageEntry(entry);
-    pushMove(parsed.name, 'ランキング', parsed.percent || 0);
+    const move = normalizeCandidateMoveRecord(candidate, parsed.name, {usagePercent: parsed.percent || 0, sourceLabel: 'ランキング'});
+    if(!move || seenRanking.has(move.name)) return;
+    seenRanking.add(move.name);
+    rankingMoves.push(move);
   });
-  if(details.length < 3){
-    (getPokemonKnownMoves(candidate.name) || []).forEach(mv=>pushMove(mv && mv.name, 'pokemon_moves', 0));
+  if(rankingMoves.length){
+    return rankingMoves.sort((a,b)=>scoreMove(b) - scoreMove(a)).slice(0, 4);
   }
-  return details.slice(0, 3);
+  const fallbackMoves = [];
+  const seenFallback = new Set();
+  (getPokemonKnownMoves(candidate.name) || []).forEach(entry=>{
+    const move = normalizeCandidateMoveRecord(candidate, entry && entry.name, {sourceLabel: 'pokemon_moves'});
+    if(!move || seenFallback.has(move.name) || !isPlausibleFallbackMove(candidate, move)) return;
+    seenFallback.add(move.name);
+    fallbackMoves.push(move);
+  });
+  return fallbackMoves.sort((a,b)=>scoreMove(b) - scoreMove(a)).slice(0, 4);
+}
+function buildCandidateMoveDetails(candidate, rankingMode=PARTY_RANKING_MODE){
+  return getCandidateUsableMoves(candidate, rankingMode).slice(0, 3);
 }
 const PARTY_ALL_TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
 const MOVE_TYPE_TO_POKE_TYPE = {
@@ -1310,12 +1358,10 @@ function preferRecommendationCandidate(nextCandidate, currentCandidate) {
 function getCandidateAttackTypes(candidate) {
   const seen = new Set();
   const result = [];
-  const knownMoves = getPokemonKnownMoves(candidate.name) || [];
-  knownMoves.forEach(mv => {
-    const power = Number(mv && mv.power);
+  getCandidateUsableMoves(candidate, PARTY_RANKING_MODE).forEach(mv => {
     const moveType = String(mv && mv.type || '').trim();
     const moveName = String(mv && mv.name || '').trim();
-    if(!moveType || !Number.isFinite(power) || power <= 0) return;
+    if(!moveType) return;
     const key = `${moveName}__${moveType}`;
     if(seen.has(key)) return;
     seen.add(key);
@@ -1449,7 +1495,7 @@ function getTypeEff(movetype, defTypes, moveName='') {
   let e = 1;
   const chart = TYPE_EFF[movetype] || {};
   defTypes.forEach(t => { if(chart[t] !== undefined) e *= chart[t]; });
-  if(String(moveName||'').trim() === 'フリーズドライ' && defTypes.includes('みず')) e *= 2;
+  if(String(moveName||'').trim() === 'フリーズドライ' && defTypes.includes('みず')) e *= 4;
   return e;
 }
 
@@ -2681,24 +2727,19 @@ function getThreatCandidateAttackTypes(memberOrCandidate) {
   return getCandidateAttackTypes(poke);
 }
 function inferCandidateAttackClass(candidate){
-  const knownMoves = getPokemonKnownMoves(candidate && candidate.name) || [];
+  const usableMoves = getCandidateUsableMoves(candidate, PARTY_RANKING_MODE);
   let physicalWeight = 0;
   let specialWeight = 0;
-  knownMoves.forEach(mv=>{
-    const meta = getMoveMetaByName(mv && mv.name);
-    const category = String((mv && mv.category) || (meta && meta.category) || '').trim();
-    const power = Number((mv && mv.power) || (meta && meta.power)) || 0;
-    const weight = power > 0 ? power : 30;
-    if(category === '物理') physicalWeight += weight;
-    else if(category === '特殊') specialWeight += weight;
+  usableMoves.forEach(mv=>{
+    const power = Number(mv && mv.power) || 0;
+    const usage = Number(mv && mv.usagePercent) || 0;
+    const weight = Math.max(power, 30) * (usage > 0 ? usage : 1);
+    if(mv.category === '物理') physicalWeight += weight;
+    else if(mv.category === '特殊') specialWeight += weight;
   });
   if(physicalWeight > specialWeight * 1.18) return 'physical';
   if(specialWeight > physicalWeight * 1.18) return 'special';
-  const atk = Number(candidate && candidate.atk || 0);
-  const spa = Number(candidate && candidate.spa || 0);
-  if(atk >= spa + 15) return 'physical';
-  if(spa >= atk + 15) return 'special';
-  return 'mixed';
+  return inferCandidateAttackBiasFromStats(candidate);
 }
 function getCandidateOffenseStat(candidate){
   const attackClass = inferCandidateAttackClass(candidate);
