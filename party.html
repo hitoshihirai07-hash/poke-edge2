@@ -947,7 +947,6 @@ function getRegisteredMoveEffectAgainstTypes(move, defendTypes){
   }, 1);
 }
 function getCoverageSourceMembers(){
-  if(selectedSlot >= 0 && party[selectedSlot]) return [party[selectedSlot]];
   return party.filter(Boolean);
 }
 function parseUsageEntry(entry){
@@ -2917,7 +2916,7 @@ function updateCoverageNow() {
 
   const atkMap = {};
   const atkDetailMap = {};
-  allTypes.forEach(t => { atkMap[t] = 0; atkDetailMap[t] = ''; });
+  allTypes.forEach(t => { atkMap[t] = 0; atkDetailMap[t] = []; });
 
   const coverageMembers = getCoverageSourceMembers();
   coverageMembers.forEach(member => {
@@ -2931,9 +2930,14 @@ function updateCoverageNow() {
         let score = 0;
         if(eff >= 2) score = hasStab ? 3 : 2;
         else if(eff === 1) score = hasStab ? 1.5 : 1;
+        if(score <= 0) return;
         if(score > (atkMap[defT] || 0)){
           atkMap[defT] = score;
-          atkDetailMap[defT] = mv.name || '';
+          atkDetailMap[defT] = [mv.name || ''];
+        } else if(score === (atkMap[defT] || 0)){
+          const list = Array.isArray(atkDetailMap[defT]) ? atkDetailMap[defT] : [];
+          if(mv.name && !list.includes(mv.name)) list.push(mv.name);
+          atkDetailMap[defT] = list;
         }
       });
     });
@@ -2941,11 +2945,8 @@ function updateCoverageNow() {
 
   const atkChartEl = document.getElementById('cov-chart-atk');
   const atkNoteEl = document.getElementById('cov-attack-note');
-  const selectedMember = selectedSlot >= 0 ? party[selectedSlot] : null;
   if(atkNoteEl){
-    atkNoteEl.textContent = selectedMember
-      ? '選択中ポケモンの登録技で各タイプにどこまで通るか'
-      : 'パーティ全体の登録技で各タイプにどこまで通るか';
+    atkNoteEl.textContent = 'パーティ全体の登録技で各タイプにどこまで通るか';
   }
   if(atkChartEl) {
     const atkMax = Math.max(...allTypes.map(t => atkMap[t]||0), 1);
@@ -2954,7 +2955,13 @@ function updateCoverageNow() {
       const pct = Math.round((score/atkMax)*100);
       const color = score>=3?'var(--accent)':score>=2?'var(--accent3)':score>0?'var(--text3)':'var(--border2)';
       const label = score>=3?'抜群+STAB':score>=2?'抜群':score>1?'等倍STAB':score>0?'等倍':'未対応';
-      const moveLabel = atkDetailMap[t] ? `<div style="font-size:9px;color:var(--text2);margin-top:2px;">${escapePartyHtml(atkDetailMap[t])}</div>` : '';
+      const moveNames = Array.isArray(atkDetailMap[t]) ? atkDetailMap[t].filter(Boolean) : [];
+      let moveLabel = '';
+      if(moveNames.length){
+        const shown = moveNames.slice(0, 3).map(name => escapePartyHtml(name));
+        const extra = moveNames.length > 3 ? ` ほか${moveNames.length - 3}` : '';
+        moveLabel = `<div style="font-size:9px;color:var(--text2);margin-top:2px;line-height:1.45;">${shown.join(' / ')}${extra}</div>`;
+      }
       return `<div class="cov-row">
         <div class="cov-label">${t}</div>
         <div style="flex:1;min-width:0;">
