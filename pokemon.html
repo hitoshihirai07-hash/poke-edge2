@@ -624,7 +624,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           </div>
         </div>
       </div>
-      <div id="poke-iv-fixed-note" style="display:none;font-size:10px;color:var(--text2);line-height:1.8;margin-top:-6px;margin-bottom:12px;">Championsは個体値31固定です。</div>
+      <div id="poke-iv-fixed-note" class="section" style="display:none;font-size:11px;color:var(--text2);line-height:1.8;">Championsでは個体値31固定です。</div>
 
       <!-- 努力値 -->
       <div class="section">
@@ -1531,6 +1531,14 @@ function syncIV(val) {
 function isPokeChampions() {
   return document.getElementById('poke-mode-champions')?.checked || false;
 }
+function syncPokeModeVisuals() {
+  const champ = isPokeChampions();
+  const ivSection = document.getElementById('poke-iv-section');
+  const ivNote = document.getElementById('poke-iv-fixed-note');
+  if(ivSection) ivSection.style.display = champ ? 'none' : '';
+  if(ivNote) ivNote.style.display = champ ? '' : 'none';
+  if(champ) syncIV(31);
+}
 
 function onPokeModeChange() {
   const champ = isPokeChampions();
@@ -1538,22 +1546,14 @@ function onPokeModeChange() {
   const step  = champ ? 1   : 4;
   const limit = champ ? 66  : 510;
   const title = document.getElementById('ev-title');
-  const ivSection = document.getElementById('poke-iv-section');
-  const ivNote = document.getElementById('poke-iv-fixed-note');
   if(title) title.textContent = champ ? '努力値（合計上限66）' : '努力値（合計上限510）';
-  if(ivSection) ivSection.style.display = champ ? 'none' : '';
-  if(ivNote) ivNote.style.display = champ ? 'block' : 'none';
-  if(champ){
-    document.getElementById('iv-range').value=31;
-    document.getElementById('iv-num').value=31;
-    document.getElementById('iv-disp').textContent=31;
-  }
   ['hp','atk','def','spa','spd','spe'].forEach(s => {
     const r = document.getElementById('ev-'+s+'-r');
     const n = document.getElementById('ev-'+s);
     if(r){ r.max=max; r.step=step; if(parseInt(r.value)>max) r.value=0; }
     if(n){ n.max=max; if(parseInt(n.value)>max) n.value=0; }
   });
+  syncPokeModeVisuals();
   updateEVRemain();
   updateBulkRatioLabel();
   resetBulkRecommendView();
@@ -1584,11 +1584,6 @@ function recalcReal() {
   const p=currentPokeData;
   const lv=parseInt(document.getElementById('f-lv').value)||50;
   const iv=isPokeChampions() ? 31 : (parseInt(document.getElementById('iv-num').value)||31);
-  if(isPokeChampions()){
-    document.getElementById('iv-range').value=31;
-    document.getElementById('iv-num').value=31;
-    document.getElementById('iv-disp').textContent=31;
-  }
   const nat=NATURES[document.getElementById('f-nature').value]||{atk:1,def:1,spa:1,spd:1,spe:1};
   const ev=getEVs();
   const pokeChamp = isPokeChampions();
@@ -1808,7 +1803,7 @@ function getCurrentRealStatsForExport(){
   if(!currentPokeData) return null;
   const p=currentPokeData;
   const lv=parseInt(document.getElementById('f-lv').value)||50;
-  const iv=parseInt(document.getElementById('iv-num').value)||31;
+  const iv=isPokeChampions() ? 31 : (parseInt(document.getElementById('iv-num').value)||31);
   const nat=NATURES[document.getElementById('f-nature').value]||{atk:1,def:1,spa:1,spd:1,spe:1};
   const ev=getEVs();
   const champ=isPokeChampions();
@@ -2157,12 +2152,13 @@ function loadPokemon(id) {
   renderAbilityOptions(rec.pokeName||'', rec.ability || '');
   document.getElementById('f-item').value=normalizeItemName(rec.item||'');
   document.getElementById('f-memo').value=rec.memo||'';
-  document.getElementById('iv-range').value=rec.iv||31;
-  document.getElementById('iv-num').value=rec.iv||31;
-  document.getElementById('iv-disp').textContent=rec.iv||31;
+  const safeIv = isChampionsSaved ? 31 : (rec.iv||31);
+  document.getElementById('iv-range').value=safeIv;
+  document.getElementById('iv-num').value=safeIv;
+  document.getElementById('iv-disp').textContent=safeIv;
   const classic=document.getElementById('poke-mode-classic');
   const champions=document.getElementById('poke-mode-champions');
-  const isChampionsSaved=String(rec.gameMode||'classic').toLowerCase()==='champions';
+  const isChampionsSaved=String(rec.gameMode||'champions').toLowerCase()==='champions';
   if(classic) classic.checked=!isChampionsSaved;
   if(champions) champions.checked=isChampionsSaved;
   onPokeModeChange();
