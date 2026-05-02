@@ -866,6 +866,9 @@ let MOVE_LOOKUP  = {};
 let PARTY_RANKING_DATA = {single:{rows:[],updatedAt:''}, double:{rows:[],updatedAt:''}};
 let PARTY_RANKING_MODE = localStorage.getItem('pokeedge_party_ranking_mode') || 'single';
 let PARTY_MEGA_TARGET = Math.max(0, Math.min(6, parseInt(localStorage.getItem('pokeedge_party_mega_target') || '1', 10) || 1));
+const PARTY_DRAFT_KEY = 'pokeedge_party_draft_v1';
+let _partyCoverageTimer = null;
+let _partyDraftTimer = null;
 let PARTY_WORKSPACE_TAB = 'recommend';
 let _dataLoaded  = false;
 let _pokemonMovesLoaded = false;
@@ -1326,6 +1329,155 @@ function findRegisteredPokemonByName(name){
     return getRecommendationGroupKey(recName) === key;
   }) || null;
 }
+
+function buildPartyStoredMember(member){
+  if(!member || !member.poke) return null;
+  return {
+    pokeName: member.poke.name,
+    pokeNo: member.poke.no,
+    type1: member.poke.type1,
+    type2: member.poke.type2,
+    lv: member.lv || 50,
+    nature: normalizeNatureName(member.nature),
+    ability: member.ability || '',
+    iv: member.iv || 31,
+    ev: Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, member.ev || {}),
+    moves: (member.moves || []).slice(0,4).map(mv=>{
+      const meta = getMoveMetaByName(mv && mv.name || '');
+      return {
+        name: mv && mv.name || '',
+        type: mv && mv.type || meta?.type || '',
+        power: mv && mv.power || meta?.power || '',
+        category: mv && mv.category || meta?.category || '',
+        hits: mv && mv.hits || meta?.hits || '1',
+        notes: mv && (mv.notes || mv.effect) || meta?.notes || meta?.effect || ''
+      };
+    }).filter(mv=>mv.name),
+    item: normalizeItemName(member.item),
+    memo: member.memo || '',
+    gameMode: member.gameMode || 'classic',
+    regId: member._regId || ''
+  };
+}
+function buildPartyRuntimeMember(saved){
+  const pokeName = normalizeAegislashDisplayName(saved && saved.pokeName || '');
+  const poke = findPokemonByDisplayName(pokeName) || {name:pokeName,no:saved && saved.pokeNo || '',type1:saved && saved.type1 || '',type2:saved && saved.type2 || '',hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+  return {
+    _regId: saved && (saved.regId || saved._regId) || '',
+    poke,
+    lv: saved && saved.lv || 50,
+    nature: normalizeNatureName(saved && saved.nature || ''),
+    ability: saved && saved.ability || (getAbilityOptions(poke.name)[0] || ''),
+    iv: saved && saved.iv || 31,
+    ev: Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, saved && saved.ev || {}),
+    moves: Array.isArray(saved && saved.moves) ? saved.moves : [],
+    item: saved && saved.item || '',
+    memo: saved && saved.memo || '',
+    gameMode: saved && saved.gameMode || 'classic'
+  };
+}
+function savePartyDraftNow(){
+  try {
+    const payload = {
+      selectedSlot,
+      members: party.filter(Boolean).map(buildPartyStoredMember).filter(Boolean)
+    };
+    localStorage.setItem(PARTY_DRAFT_KEY, JSON.stringify(payload));
+  } catch(e) {
+    console.warn('party draft save failed', e);
+  }
+}
+function schedulePartyDraftSave(){
+  clearTimeout(_partyDraftTimer);
+  _partyDraftTimer = setTimeout(savePartyDraftNow, 120);
+}
+function restorePartyDraft(){
+  try {
+    const raw = localStorage.getItem(PARTY_DRAFT_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    const members = Array.isArray(data && data.members) ? data.members : [];
+    if(!members.length) return false;
+    party = members.map(buildPartyRuntimeMember).filter(m=>m && m.poke && m.poke.name);
+    renderPartySlotList();
+    renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
+    const restoreIndex = Math.max(0, Math.min(party.length - 1, parseInt(data && data.selectedSlot, 10) || 0));
+    if(party.length) selectSlot(restoreIndex);
+    return true;
+  } catch(e) {
+    console.warn('party draft restore failed', e);
+    return false;
+  }
+}
+function openPartyRegisteredPanel(){
+  switchPartyWorkspace('add');
+  switchAddTab('reg');
+  renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
+  switchPartyMobileTabIfMobile('add');
+  const input = document.getElementById('party-reg-search');
+  if(input) input.focus();
+}
+async function registerCurrentPartyPokemon(){
+  if(selectedSlot < 0 || !party[selectedSlot] || !party[selectedSlot].poke){
+    alert('先にパーティのポケモンを選択してください');
+    return;
+  }
+  pe_save();
+  const member = party[selectedSlot];
+  const pokeName = normalizeAegislashDisplayName(member.poke.name || '');
+  const regs = getRegisteredPokes();
+  const existing = member._regId
+    ? regs.find(rec=>rec.id===member._regId) || findRegisteredPokemonByName(pokeName)
+    : findRegisteredPokemonByName(pokeName);
+  const storedMember = buildPartyStoredMember(member);
+  const record = {
+    id: existing?.id || ('party_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7)),
+    pokeName,
+    displayName: existing?.displayName || pokeName,
+    nickname: existing?.nickname || '',
+    type1: member.poke.type1 || '',
+    type2: member.poke.type2 || '',
+    lv: member.lv || 50,
+    nature: normalizeNatureName(member.nature),
+    ability: member.ability || '',
+    item: normalizeItemName(member.item),
+    iv: member.iv || 31,
+    ev: Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, member.ev || {}),
+    gameMode: member.gameMode || 'classic',
+    moves: storedMember ? storedMember.moves : [],
+    memo: member.memo || '',
+    updatedAt: new Date().toLocaleDateString('ja-JP'),
+  };
+  const next = Array.isArray(regs) ? regs.slice() : [];
+  const idx = next.findIndex(rec=>rec.id===record.id);
+  if(idx >= 0) next[idx] = record;
+  else next.unshift(record);
+  try {
+    localStorage.setItem(LS_REG_KEY, JSON.stringify(next));
+  } catch(e) {
+    console.warn('pokemon register local save failed', e);
+  }
+  if(typeof savePokemonData === 'function'){
+    Promise.resolve(savePokemonData(next)).catch(err=>console.warn('pokemon register cloud sync failed', err));
+  }
+  member._regId = record.id;
+  renderPartyRegisterStatus();
+  renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
+  schedulePartyDraftSave();
+  alert('パーティの内容をポケモン登録へ追加しました');
+}
+function promptRegisterPokemon(name){
+  const normalized = normalizeAegislashDisplayName(name || '');
+  const key = getRecommendationGroupKey(normalized);
+  const targetIndex = party.findIndex(member=>member && member.poke && getRecommendationGroupKey(member.poke.name) === key);
+  if(targetIndex >= 0){
+    selectSlot(targetIndex);
+    registerCurrentPartyPokemon();
+    return;
+  }
+  alert('先にそのポケモンをパーティへ追加してから登録してください');
+}
+
 function renderPartyRegisterStatus(){
   const wrap = document.getElementById('party-register-status');
   if(!wrap) return;
@@ -1339,16 +1491,12 @@ function renderPartyRegisterStatus(){
   const member = party[selectedSlot];
   const registered = member._regId ? getRegisteredPokes().find(rec=>rec.id===member._regId) || findRegisteredPokemonByName(member.poke.name) : findRegisteredPokemonByName(member.poke.name);
   if(registered){
-    main.innerHTML = `<strong>登録済み:</strong> ${escapePartyHtml(registered.displayName || registered.pokeName || member.poke.name)}<br>登録済み一覧からも呼び出せます。`;
-    actions.innerHTML = `<button type="button" class="party-inline-btn" onclick="window.location.href='pokemon.html'">ポケモン登録を見る</button>`;
+    main.innerHTML = `<strong>登録済み:</strong> ${escapePartyHtml(registered.displayName || registered.pokeName || member.poke.name)}<br>ページ移動なしで登録済み一覧から呼び出せます。`;
+    actions.innerHTML = `<button type="button" class="party-inline-btn" onclick="openPartyRegisteredPanel()">登録済み一覧を見る</button>`;
   } else {
-    main.innerHTML = '<strong>未登録:</strong> ' + escapePartyHtml(member.poke.name) + ' はポケモン登録にまだありません。<br>登録しておくと、次回から登録済み一覧からそのまま使えます。';
-    actions.innerHTML = '<button type="button" class="party-inline-btn" onclick="promptRegisterPokemon(&quot;' + escapePartyHtml(member.poke.name) + '&quot;)">このポケモンを登録しますか？</button>';
+    main.innerHTML = '<strong>未登録:</strong> ' + escapePartyHtml(member.poke.name) + ' はポケモン登録にまだありません。<br>このページのまま、今の内容をそのまま登録へ追加できます。';
+    actions.innerHTML = '<button type="button" class="party-inline-btn" onclick="registerCurrentPartyPokemon()">この内容でポケモン登録へ追加</button><button type="button" class="party-inline-btn" onclick="openPartyRegisteredPanel()">登録済み一覧を見る</button>';
   }
-}
-function promptRegisterPokemon(name){
-  localStorage.setItem('pokeedge_party_register_suggest_name', String(name || '').trim());
-  window.location.href = 'pokemon.html';
 }
 
 function preferRecommendationCandidate(nextCandidate, currentCandidate) {
@@ -2097,6 +2245,7 @@ function addToParty(p) {
   renderPartySlotList();
   renderRegPokeList();
   selectSlot(party.length - 1);
+  schedulePartyDraftSave();
 }
 
 // 登録済みポケモン（pokemon.htmlのLS）をパーティタブに表示
@@ -2155,7 +2304,7 @@ function renderDirectPokeList() {
     const registered = findRegisteredPokemonByName(p.name);
     const status = registered
       ? '<span class="direct-register-badge registered">登録済み</span>'
-      : `<span class="direct-register-badge">未登録</span><button type="button" class="direct-register-btn" onclick="event.stopPropagation();promptRegisterPokemon('${safeName}')">ポケモン登録しますか？</button>`;
+      : `<span class="direct-register-badge">未登録</span><button type="button" class="direct-register-btn" onclick="event.stopPropagation();promptRegisterPokemon('${safeName}')">追加後に登録</button>`;
     return `<div class="direct-card" onclick="addToPartyDirect('${safeName}')">
       <div class="direct-card-head">
         <span class="direct-card-no">#${String(p.no||'').padStart(3,'0')}</span>
@@ -2239,6 +2388,7 @@ function addRegPoke(id) {
   renderRegPokeList(document.getElementById('party-reg-search')?.value||'');
   selectSlot(party.length - 1);
   switchPartyMobileTabIfMobile('edit');
+  schedulePartyDraftSave();
 }
 
 function renderPartySlotList() {
@@ -2272,6 +2422,7 @@ function removeFromParty(i) {
   party.splice(i, 1);
   if(selectedSlot >= party.length) selectedSlot = party.length - 1;
   renderPartySlotList();
+  schedulePartyDraftSave();
   if(selectedSlot >= 0 && party[selectedSlot]) {
     selectSlot(selectedSlot);
   } else {
@@ -2425,6 +2576,7 @@ function updatePartyMember() {
   updateRealStats();
   updateEvRemain();
   updateEvSummary();
+  schedulePartyDraftSave();
 }
 
 // 技管理
@@ -2450,6 +2602,7 @@ function pe_save() {
   m.gameMode = document.getElementById('pe-mode-champ')?.checked ? 'champions' : 'classic';
   updateEvSummary();
   updateCoverage();
+  schedulePartyDraftSave();
 }
 
 function onPeModeChange() {
@@ -2494,6 +2647,7 @@ function clearPartyMove(i) {
   party[selectedSlot].moves.splice(i,1);
   renderPeMoves(party[selectedSlot].moves);
   updateCoverage();
+  schedulePartyDraftSave();
 }
 
 function setupPeMoveSearch() {
@@ -2530,6 +2684,7 @@ function addPartyMove(idx) {
   document.getElementById('pe-move-search').value='';
   document.getElementById('pe-move-drop').classList.remove('show');
   updateCoverage();
+  schedulePartyDraftSave();
 }
 
 // ローカル保存
@@ -2537,18 +2692,18 @@ async function savePartyLocal() {
   const name = prompt('パーティ名を入力してください', 'マイパーティ');
   if(!name) return;
   if(party.length===0){alert('ポケモンを追加してください');return;}
+  pe_save();
   const partyData = {
     name,
     date: new Date().toLocaleDateString('ja-JP'),
-    members: party.filter(m=>m).map(m =>({
-      pokeName: m.poke.name, pokeNo: m.poke.no,
-      type1: m.poke.type1, type2: m.poke.type2,
-      lv:m.lv, nature:m.nature, ability:m.ability||'', iv:m.iv, ev:m.ev,
-      moves:m.moves, item:m.item, memo:m.memo, gameMode:m.gameMode||'classic'
-    }))
+    members: party.filter(m=>m).map(buildPartyStoredMember).filter(Boolean)
   };
   await saveParty(name, partyData);
-  await renderSavedPartyList();
+  savePartyDraftNow();
+  renderSavedPartyListFast();
+  if(typeof isLoggedIn === 'function' && isLoggedIn()) {
+    setTimeout(()=>{ renderSavedPartyList().catch(err=>console.warn('party refresh failed', err)); }, 30);
+  }
   alert(`「${name}」を保存しました！`);
 }
 
@@ -2556,10 +2711,9 @@ function showSavedParties() {
   refreshSavedPartiesPanel();
 }
 
-async function renderSavedPartyList() {
+function renderSavedPartyListRecords(saved) {
   const el = document.getElementById('saved-party-list');
-  el.innerHTML = '<div style="font-size:11px;color:var(--text2);padding:8px;">読み込み中...</div>';
-  const saved = await loadParties();
+  if(!el) return;
   if(!saved.length){el.innerHTML='<div style="font-size:11px;color:var(--text2);padding:8px;">保存済みパーティはありません</div>';return;}
   el.innerHTML = saved.map((s,i)=>{
     const d = s.data || s;
@@ -2581,6 +2735,17 @@ async function renderSavedPartyList() {
     </div>`;
   }).join('');
 }
+function renderSavedPartyListFast() {
+  if(typeof loadLocalPartiesRaw !== 'function' || typeof normalizePartyRecord !== 'function' || typeof dedupePartyRecords !== 'function') return;
+  const localSaved = dedupePartyRecords(loadLocalPartiesRaw().map(normalizePartyRecord));
+  renderSavedPartyListRecords(localSaved);
+}
+async function renderSavedPartyList() {
+  const el = document.getElementById('saved-party-list');
+  if(el) el.innerHTML = '<div style="font-size:11px;color:var(--text2);padding:8px;">読み込み中...</div>';
+  const saved = await loadParties();
+  renderSavedPartyListRecords(saved);
+}
 
 async function loadPartyById(id) {
   const saved = await loadParties();
@@ -2594,6 +2759,7 @@ async function loadPartyById(id) {
   selectedSlot = -1;
   renderPartySlotList();
   if(party.length) selectSlot(0);
+  schedulePartyDraftSave();
   alert(`「${s.name||d.name}」を読み込みました`);
 }
 
@@ -2614,13 +2780,14 @@ function loadParty(i) {
   selectedSlot = -1;
   renderPartySlotList();
   if(party.length) selectSlot(0);
+  schedulePartyDraftSave();
   alert(`「${s.name}」を読み込みました`);
 }
 
 
 // renderPartyGrid は後方互換のために残す
 function renderPartyGrid() { renderPartySlotList(); }
-function updateCoverage() {
+function updateCoverageNow() {
   const allTypes = PARTY_ALL_TYPES.slice();
 
   const atkMap = {};
@@ -2719,6 +2886,11 @@ function updateCoverage() {
   }
 
   renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCount);
+}
+
+function updateCoverage() {
+  clearTimeout(_partyCoverageTimer);
+  _partyCoverageTimer = setTimeout(updateCoverageNow, 40);
 }
 
 function getThreatCandidateAttackTypes(memberOrCandidate) {
@@ -3202,7 +3374,7 @@ setupIfExists('atk2-search','atk2-drop');
 if(el('pe-move-search')) setupPeMoveSearch();
 
 // パーティ管理
-if(el('party-slot-list')){ switchPartyMobileTab('six'); renderPartySlotList(); renderRegPokeList(); renderSavedPartyList(); }
+if(el('party-slot-list')){ switchPartyMobileTab('six'); renderPartySlotList(); renderRegPokeList(); renderSavedPartyListFast(); renderSavedPartyList(); if(!restorePartyDraft()) renderPartySlotList(); }
 
 // ダメージ計算スライダー（要素が存在するページのみ）
 ['atk-lv','def-lv'].forEach(id=>{
@@ -3517,6 +3689,7 @@ window.exportPartyImage = exportPartyImage;
 
 document.addEventListener('DOMContentLoaded',()=>{ renderRegPokeList(); renderPartySlotList(); });
 };
+window.addEventListener('beforeunload', savePartyDraftNow);
 
 </script>
 <script>

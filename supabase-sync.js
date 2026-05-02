@@ -250,20 +250,25 @@ async function saveParty(name, partyData) {
     created_at: new Date().toISOString()
   });
 
+  const saved = loadLocalPartiesRaw().map(normalizePartyRecord);
+  saved.unshift(record);
+  saveLocalPartiesRaw(dedupePartyRecords(saved).slice(0, 20));
+
   if(!isLoggedIn()) {
-    const saved = loadLocalPartiesRaw().map(normalizePartyRecord);
-    saved.unshift(record);
-    saveLocalPartiesRaw(dedupePartyRecords(saved).slice(0, 20));
     return true;
   }
 
-  const { error } = await getSB().from('parties').insert({
+  getSB().from('parties').insert({
     user_id: _currentUser.id,
     name: record.name,
     data: record.data,
     created_at: record.created_at
+  }).then(({ error }) => {
+    if(error) console.warn('saveParty cloud insert failed', error);
+  }).catch(error => {
+    console.warn('saveParty cloud insert failed', error);
   });
-  return !error;
+  return true;
 }
 
 async function deleteParty(id) {
