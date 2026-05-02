@@ -834,7 +834,19 @@ function calcFullStats(slot){
     spe: calcStat(Number(p.spe||0), slot.iv, slot.ev.spe, slot.lv, nat.spe, champions)
   };
 }
-function getTypeEff(moveType, defTypes, moveName=''){ let eff = 1; const chart = TYPE_EFF_TABLE[moveType] || {}; defTypes.forEach(type=>{ if(chart[type] !== undefined) eff *= chart[type]; }); if(String(moveName||'').trim()==='フリーズドライ' && defTypes.includes('みず')) eff *= 2; return eff; }
+function getTypeEff(moveType, defTypes, moveName=''){
+  let eff = 1;
+  const chart = TYPE_EFF_TABLE[moveType] || {};
+  const isFreezeDry = String(moveName||'').trim() === 'フリーズドライ';
+  defTypes.forEach(type=>{
+    if(isFreezeDry && type === 'みず') {
+      eff *= 2;
+      return;
+    }
+    if(chart[type] !== undefined) eff *= chart[type];
+  });
+  return eff;
+}
 function typeEffWithAbility(moveType, defTypes, ability, moveName=''){ if(ability && IMMUNE_AB[ability] === moveType) return 0; const ad = ability ? getAbilityData(ability) : null; if(ad && ad.immuneType && ad.immuneType === moveType) return 0; return getTypeEff(moveType, defTypes, moveName); }
 function getAuraModifier(moveType, atkAbility, defAbility){ const fairyAura = atkAbility==='フェアリーオーラ' || defAbility==='フェアリーオーラ'; const darkAura = atkAbility==='ダークオーラ' || defAbility==='ダークオーラ'; const auraBreak = atkAbility==='オーラブレイク' || defAbility==='オーラブレイク'; if(moveType==='フェアリー' && fairyAura) return auraBreak ? 3072/4096 : 5448/4096; if(moveType==='あく' && darkAura) return auraBreak ? 3072/4096 : 5448/4096; return 1; }
 function getDisplayedCategory(move, atkStats, defStats){ if(move.name==='シェルアームズ'){ const physicalScore = Math.max(1, atkStats.atk) / Math.max(1, defStats.def); const specialScore = Math.max(1, atkStats.spa) / Math.max(1, defStats.spd); return physicalScore > specialScore ? '物理' : '特殊'; } return move.category; }

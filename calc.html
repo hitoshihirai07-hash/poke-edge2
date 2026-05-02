@@ -1994,8 +1994,11 @@ const TYPE_EFF_TABLE = {
 };
 function getTypeEff(mt, defTypes, moveName='') {
   let e=1; const c=TYPE_EFF_TABLE[mt]||{};
-  defTypes.forEach(t=>{ if(c[t]!==undefined) e*=c[t]; });
-  if(String(moveName||'').trim() === 'フリーズドライ' && defTypes.includes('みず')) e*=2;
+  const isFreezeDry = String(moveName||'').trim() === 'フリーズドライ';
+  defTypes.forEach(t=>{
+    if(isFreezeDry && t === 'みず') { e *= 2; return; }
+    if(c[t]!==undefined) e*=c[t];
+  });
   return e;
 }
 
