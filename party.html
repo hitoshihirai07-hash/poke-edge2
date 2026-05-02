@@ -1167,16 +1167,23 @@ function normalizeCandidateMoveRecord(candidate, moveName, extra={}){
     description: getMoveDescriptionText(knownEntry, meta)
   };
 }
-function isPlausibleFallbackMove(candidate, move){
+function isRecommendedAttackMove(candidate, move, opts={}){
   if(!candidate || !move) return false;
-  if(move.category === '変化' || Number(move.power || 0) <= 0) return false;
+  const power = Number(move.power || 0);
+  const usage = Number(move.usagePercent || 0);
+  if(move.category === '変化' || power <= 0) return false;
   const stabTypes = new Set([candidate.type1, candidate.type2].filter(Boolean));
   const isStab = stabTypes.has(move.type);
   const statBias = inferCandidateAttackBiasFromStats(candidate);
-  if(statBias === 'physical' && move.category !== '物理') return false;
-  if(statBias === 'special' && move.category !== '特殊') return false;
-  if(isStab) return Number(move.power || 0) >= 60;
-  return Number(move.power || 0) >= (statBias === 'mixed' ? 80 : 90);
+  const expectedCategory = statBias === 'physical' ? '物理' : (statBias === 'special' ? '特殊' : '');
+  if(expectedCategory && move.category !== expectedCategory) return false;
+  if(isStab){
+    if(power >= 60) return true;
+    return usage >= 18 && power >= 40;
+  }
+  if(usage < 8) return false;
+  if(power >= 90) return true;
+  return usage >= 15 && power >= 70;
 }
 function getCandidateUsableMoves(candidate, rankingMode=PARTY_RANKING_MODE){
   if(!candidate) return [];
@@ -1202,7 +1209,7 @@ function getCandidateUsableMoves(candidate, rankingMode=PARTY_RANKING_MODE){
   (((rankingRow && rankingRow.moves) || []).slice(0, 10)).forEach(entry=>{
     const parsed = parseUsageEntry(entry);
     const move = normalizeCandidateMoveRecord(candidate, parsed.name, {usagePercent: parsed.percent || 0, sourceLabel: 'ランキング'});
-    if(!move || seenRanking.has(move.name)) return;
+    if(!move || seenRanking.has(move.name) || !isRecommendedAttackMove(candidate, move, {preferRanking:true})) return;
     seenRanking.add(move.name);
     rankingMoves.push(move);
   });
@@ -1213,7 +1220,7 @@ function getCandidateUsableMoves(candidate, rankingMode=PARTY_RANKING_MODE){
   const seenFallback = new Set();
   (getPokemonKnownMoves(candidate.name) || []).forEach(entry=>{
     const move = normalizeCandidateMoveRecord(candidate, entry && entry.name, {sourceLabel: 'pokemon_moves'});
-    if(!move || seenFallback.has(move.name) || !isPlausibleFallbackMove(candidate, move)) return;
+    if(!move || seenFallback.has(move.name) || !isRecommendedAttackMove(candidate, move)) return;
     seenFallback.add(move.name);
     fallbackMoves.push(move);
   });
@@ -1494,8 +1501,14 @@ const TYPE_EFF = {
 function getTypeEff(movetype, defTypes, moveName='') {
   let e = 1;
   const chart = TYPE_EFF[movetype] || {};
-  defTypes.forEach(t => { if(chart[t] !== undefined) e *= chart[t]; });
-  if(String(moveName||'').trim() === 'フリーズドライ' && defTypes.includes('みず')) e *= 4;
+  const isFreezeDry = String(moveName||'').trim() === 'フリーズドライ';
+  defTypes.forEach(t => {
+    if(isFreezeDry && t === 'みず') {
+      e *= 2;
+      return;
+    }
+    if(chart[t] !== undefined) e *= chart[t];
+  });
   return e;
 }
 
