@@ -834,8 +834,8 @@ function calcFullStats(slot){
     spe: calcStat(Number(p.spe||0), slot.iv, slot.ev.spe, slot.lv, nat.spe, champions)
   };
 }
-function getTypeEff(moveType, defTypes){ let eff = 1; const chart = TYPE_EFF_TABLE[moveType] || {}; defTypes.forEach(type=>{ if(chart[type] !== undefined) eff *= chart[type]; }); return eff; }
-function typeEffWithAbility(moveType, defTypes, ability){ if(ability && IMMUNE_AB[ability] === moveType) return 0; const ad = ability ? getAbilityData(ability) : null; if(ad && ad.immuneType && ad.immuneType === moveType) return 0; return getTypeEff(moveType, defTypes); }
+function getTypeEff(moveType, defTypes, moveName=''){ let eff = 1; const chart = TYPE_EFF_TABLE[moveType] || {}; defTypes.forEach(type=>{ if(chart[type] !== undefined) eff *= chart[type]; }); if(String(moveName||'').trim()==='フリーズドライ' && defTypes.includes('みず')) eff *= 2; return eff; }
+function typeEffWithAbility(moveType, defTypes, ability, moveName=''){ if(ability && IMMUNE_AB[ability] === moveType) return 0; const ad = ability ? getAbilityData(ability) : null; if(ad && ad.immuneType && ad.immuneType === moveType) return 0; return getTypeEff(moveType, defTypes, moveName); }
 function getAuraModifier(moveType, atkAbility, defAbility){ const fairyAura = atkAbility==='フェアリーオーラ' || defAbility==='フェアリーオーラ'; const darkAura = atkAbility==='ダークオーラ' || defAbility==='ダークオーラ'; const auraBreak = atkAbility==='オーラブレイク' || defAbility==='オーラブレイク'; if(moveType==='フェアリー' && fairyAura) return auraBreak ? 3072/4096 : 5448/4096; if(moveType==='あく' && darkAura) return auraBreak ? 3072/4096 : 5448/4096; return 1; }
 function getDisplayedCategory(move, atkStats, defStats){ if(move.name==='シェルアームズ'){ const physicalScore = Math.max(1, atkStats.atk) / Math.max(1, defStats.def); const specialScore = Math.max(1, atkStats.spa) / Math.max(1, defStats.spd); return physicalScore > specialScore ? '物理' : '特殊'; } return move.category; }
 function resolveMoveType(move, atkAbility, weather){ let type = move.type; let skin = 1; let notes = []; if(SKIN_MAP[atkAbility] && type==='ノーマル' && move.name!=='わるあがき'){ type = SKIN_MAP[atkAbility]; skin = 1.2; notes.push(`${atkAbility}で${type}化`); } if(move.name==='ウェザーボール' && weather && WB_MAP[weather]){ type = WB_MAP[weather]; notes.push(`ウェザーボール→${type}`); } return {type, skin, notes}; }
@@ -880,7 +880,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const isFoulPlay = move.name==='イカサマ';
   const offenseCategory = isBodyPress ? 'ぼうぎょ' : (isFoulPlay ? 'こうげき' : (SPECIAL_DEFENSE_MOVES.has(move.name) ? '特殊' : rawCategory));
   const defenseCategory = SPECIAL_DEFENSE_MOVES.has(move.name) || isBodyPress || rawCategory==='物理' ? '物理' : '特殊';
-  const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability);
+  const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability, move.name || '');
   if(eff === 0){
     return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'無効', score:0, eff:0, moveType:resolvedType.type, category:rawCategory, attackStatName:offenseCategory, defenseStatName:defenseCategory, notes:[...(resolvedType.notes||[]), ...(powerInfo.notes||[])]};
   }

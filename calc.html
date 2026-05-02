@@ -1992,9 +1992,10 @@ const TYPE_EFF_TABLE = {
   'フェアリー':{'かくとう':2,'ドラゴン':2,'あく':2,'ほのお':.5,'どく':.5,'はがね':.5},
   'ノーマル':  {'いわ':.5,'はがね':.5,'ゴースト':0},
 };
-function getTypeEff(mt, defTypes) {
+function getTypeEff(mt, defTypes, moveName='') {
   let e=1; const c=TYPE_EFF_TABLE[mt]||{};
   defTypes.forEach(t=>{ if(c[t]!==undefined) e*=c[t]; });
+  if(String(moveName||'').trim() === 'フリーズドライ' && defTypes.includes('みず')) e*=2;
   return e;
 }
 
@@ -3539,7 +3540,7 @@ function calcDamage(options={}) {
     defStat=Math.floor(defStat*1.5);
     weatherDefLabel=' [砂嵐:いわ特防×1.5]';
   }
-  const eff=getTypeEff(mtype,defTypes);
+  const eff=getTypeEff(mtype,defTypes, moveName || '');
   const atkTypes=getEffectiveAtkTypes(window._atkBase, atkAbNamePre, mtype, moveName);
   if(['へんげんじざい','リベロ'].includes(atkAbNamePre) && mtype && moveName!=='わるあがき'){
     abilityExtraInfo.push(atkAbNamePre+'→'+mtype+'タイプ化');
@@ -3996,7 +3997,7 @@ function calcOneDamage(atkSt,atkBase,defSt,defBase,lv,mtype,mcat,hits,power,item
   if(isFoulPlay){ atkStat=defSt.atk||atkStat; }
   const defStat=defenseCategory==='物理'?defSt.def:defSt.spd;
   const defTypes=defBase?[defBase.type1,defBase.type2].filter(Boolean):[];
-  const eff=getTypeEff(mtype,defTypes);
+  const eff=getTypeEff(mtype,defTypes, moveName || '');
   const defAbilityNamePre=el('def-ability')?.value||'';
   const fieldName=getActiveFieldName(abilityName, defAbilityNamePre);
   const atkTypes=getEffectiveAtkTypes(atkBase, abilityName, mtype, moveName);
@@ -4290,7 +4291,7 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   const defTypes=[window._defBase.type1,window._defBase.type2].filter(Boolean);
   if(weather==='snow'&&defTypes.includes('こおり')&&defenseCategory==='物理') defStat=Math.floor(defStat*1.5);
   if(weather==='sand'&&defTypes.includes('いわ')&&defenseCategory==='特殊') defStat=Math.floor(defStat*1.5);
-  const eff=getTypeEff(mtype,defTypes);
+  const eff=getTypeEff(mtype,defTypes, moveName || '');
   const atkTypes=getEffectiveAtkTypes(atkBase, atkAbilityName, mtype, moveName);
   let stab=atkTypes.includes(mtype)?1.5:1;
   if(stab>1&&atkAbilityName==='てきおうりょく') stab=2.0;

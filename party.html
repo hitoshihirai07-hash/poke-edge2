@@ -329,8 +329,10 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .recommend-rank{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--accent);}
 .recommend-score{margin-left:auto;font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;}
 .recommend-role-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:rgba(255,200,0,0.14);border:1px solid var(--border2);font-size:9px;color:var(--accent3);letter-spacing:1px;font-weight:700;}
-.recommend-targets,.recommend-reasons{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.8;}
-.recommend-targets strong,.recommend-reasons strong{color:var(--text);font-weight:700;}
+.recommend-targets,.recommend-reasons,.recommend-moves{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.8;}
+.recommend-targets strong,.recommend-reasons strong,.recommend-moves strong{color:var(--text);font-weight:700;}
+.recommend-move-line{margin-top:4px;padding-top:4px;border-top:1px dashed var(--border2);}
+.recommend-move-line:first-of-type{margin-top:6px;}
 .recommend-add-btn{margin-top:10px;padding:8px 12px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:999px;font-size:11px;cursor:pointer;transition:all 0.18s;}
 .recommend-add-btn:hover{background:rgba(0,200,240,0.08);}
 .recommend-add-btn:disabled{border-color:var(--border2);color:var(--text2);cursor:default;background:transparent;}
@@ -1110,6 +1112,68 @@ function getPokemonKnownMoves(pokeName){
   }
   return [];
 }
+
+function getKnownMoveEntryForPokemon(pokeName, moveName){
+  const safeName = String(moveName || '').trim();
+  if(!safeName) return null;
+  for(const lookupName of getLookupNamesForPokemon(pokeName)){
+    const row = POKEMON_MOVES && POKEMON_MOVES[lookupName];
+    if(!row || !Array.isArray(row.moves)) continue;
+    const found = row.moves.find(mv => String(mv && mv.name || '').trim() === safeName);
+    if(found) return found;
+  }
+  return null;
+}
+function findRankingRowForPokemon(pokeName, mode=PARTY_RANKING_MODE){
+  const dataset = getRankingDataset(mode);
+  const rows = Array.isArray(dataset && dataset.rows) ? dataset.rows : [];
+  const lookupNames = new Set(getLookupNamesForPokemon(pokeName).map(v=>String(v||'').trim()).filter(Boolean));
+  const groupKey = getRecommendationGroupKey(pokeName);
+  return rows.find(row=>{
+    const rowNames = [row && row.name, row && row.siteName].map(v=>String(v||'').trim()).filter(Boolean);
+    if(rowNames.some(v=>lookupNames.has(v))) return true;
+    return rowNames.some(v=>getRecommendationGroupKey(v) === groupKey);
+  }) || null;
+}
+function getMoveDescriptionText(moveEntry, moveMeta){
+  const raw = String((moveEntry && moveEntry.description) || (moveMeta && moveMeta.effect) || (moveMeta && moveMeta.notes) || '').trim();
+  if(!raw) return '通常の攻撃技。';
+  return raw.length > 58 ? `${raw.slice(0, 58)}…` : raw;
+}
+function buildCandidateMoveDetails(candidate, rankingMode=PARTY_RANKING_MODE){
+  const details = [];
+  const seen = new Set();
+  const pushMove = (moveName, sourceLabel, usagePercent=0)=>{
+    const safeName = String(moveName || '').trim();
+    if(!safeName || seen.has(safeName)) return;
+    const knownEntry = getKnownMoveEntryForPokemon(candidate.name, safeName);
+    const meta = getMoveMetaByName(safeName);
+    const category = String((knownEntry && knownEntry.category) || (meta && meta.category) || '').trim();
+    const type = String((knownEntry && knownEntry.type) || (meta && meta.type) || '').trim();
+    const power = Number((knownEntry && knownEntry.power) || (meta && meta.power)) || 0;
+    if(!type || !category || category === '変化' || power <= 0) return;
+    seen.add(safeName);
+    details.push({
+      name: safeName,
+      type,
+      category,
+      power,
+      usagePercent,
+      sourceLabel,
+      description: getMoveDescriptionText(knownEntry, meta)
+    });
+  };
+
+  const rankingRow = findRankingRowForPokemon(candidate.name, rankingMode);
+  (((rankingRow && rankingRow.moves) || []).slice(0, 10)).forEach(entry=>{
+    const parsed = parseUsageEntry(entry);
+    pushMove(parsed.name, 'ランキング', parsed.percent || 0);
+  });
+  if(details.length < 3){
+    (getPokemonKnownMoves(candidate.name) || []).forEach(mv=>pushMove(mv && mv.name, 'pokemon_moves', 0));
+  }
+  return details.slice(0, 3);
+}
 const PARTY_ALL_TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
 const MOVE_TYPE_TO_POKE_TYPE = {
   '炎':'ほのお','水':'みず','電気':'でんき','草':'くさ','氷':'こおり',
@@ -1250,15 +1314,18 @@ function getCandidateAttackTypes(candidate) {
   knownMoves.forEach(mv => {
     const power = Number(mv && mv.power);
     const moveType = String(mv && mv.type || '').trim();
+    const moveName = String(mv && mv.name || '').trim();
     if(!moveType || !Number.isFinite(power) || power <= 0) return;
-    if(seen.has(moveType)) return;
-    seen.add(moveType);
-    result.push(moveType);
+    const key = `${moveName}__${moveType}`;
+    if(seen.has(key)) return;
+    seen.add(key);
+    result.push({name: moveName, type: moveType});
   });
   [candidate.type1, candidate.type2].filter(Boolean).forEach(tp => {
-    if(!seen.has(tp)) {
-      seen.add(tp);
-      result.push(tp);
+    const key = `__fallback__${tp}`;
+    if(!seen.has(key)) {
+      seen.add(key);
+      result.push({name:'', type:tp});
     }
   });
   return result;
@@ -1378,10 +1445,11 @@ const TYPE_EFF = {
   'ノーマル':{'いわ':0.5,'はがね':0.5,'ゴースト':0},
 };
 
-function getTypeEff(movetype, defTypes) {
+function getTypeEff(movetype, defTypes, moveName='') {
   let e = 1;
   const chart = TYPE_EFF[movetype] || {};
   defTypes.forEach(t => { if(chart[t] !== undefined) e *= chart[t]; });
+  if(String(moveName||'').trim() === 'フリーズドライ' && defTypes.includes('みず')) e *= 2;
   return e;
 }
 
@@ -1892,7 +1960,7 @@ function judgeMove() {
     const opt = sel.selectedOptions[0];
     if(!opt||!opt.value) return;
     const m = MOVES_DATA[parseInt(opt.value)];
-    const eff = getTypeEff(m.type, defTypes);
+    const eff = getTypeEff(m.type, defTypes, m.name);
     results.push({...m, eff, score: m.power * m.hits * eff});
   });
   if(!results.length) { alert('技を選択してください'); return; }
@@ -2602,10 +2670,12 @@ function getThreatCandidateAttackTypes(memberOrCandidate) {
   const explicitMoves = memberOrCandidate && Array.isArray(memberOrCandidate.moves) ? memberOrCandidate.moves : [];
   explicitMoves.forEach(mv=>{
     const moveType = String(mv && mv.type || '').trim();
+    const moveName = String(mv && mv.name || '').trim();
     const power = Number(mv && mv.power);
-    if(!moveType || !Number.isFinite(power) || power <= 0 || seen.has(moveType)) return;
-    seen.add(moveType);
-    result.push(moveType);
+    const key = `${moveName}__${moveType}`;
+    if(!moveType || !Number.isFinite(power) || power <= 0 || seen.has(key)) return;
+    seen.add(key);
+    result.push({name: moveName, type: moveType});
   });
   if(result.length) return result;
   return getCandidateAttackTypes(poke);
@@ -2732,9 +2802,11 @@ function getWeightedDefenseValue(subject, threatProfile){
 function getWeightedAttackEff(attackTypes, threatTypes){
   if(!threatTypes || !threatTypes.length || !attackTypes || !attackTypes.length) return 1;
   let best = 0;
-  attackTypes.forEach(type=>{
-    const moveType = POKE_TYPE_TO_MOVE_TYPE[type] || type;
-    const eff = getTypeEff(moveType, threatTypes);
+  attackTypes.forEach(entry=>{
+    const rawType = typeof entry === 'string' ? entry : (entry && entry.type);
+    const moveName = typeof entry === 'string' ? '' : String(entry && entry.name || '').trim();
+    const moveType = POKE_TYPE_TO_MOVE_TYPE[rawType] || rawType;
+    const eff = getTypeEff(moveType, threatTypes, moveName);
     if(eff > best) best = eff;
   });
   return best;
@@ -2810,8 +2882,13 @@ function evaluateCandidateAgainstThreat(candidate, threatProfile){
   }
   let attackReason = '';
   if(attackEff >= 2 && threatProfile.threatTypes.length){
-    const bestType = attackTypes.map(type=>({type, eff:getTypeEff(POKE_TYPE_TO_MOVE_TYPE[type] || type, threatProfile.threatTypes)})).sort((a,b)=>b.eff-a.eff)[0];
-    if(bestType && bestType.eff >= 2) attackReason = `${bestType.type}打点で殴れる`;
+    const bestType = attackTypes.map(entry=>{
+      const rawType = typeof entry === 'string' ? entry : (entry && entry.type);
+      const moveName = typeof entry === 'string' ? '' : String(entry && entry.name || '').trim();
+      return {entry, eff:getTypeEff(POKE_TYPE_TO_MOVE_TYPE[rawType] || rawType, threatProfile.threatTypes, moveName)};
+    }).sort((a,b)=>b.eff-a.eff)[0];
+    const bestLabel = bestType && bestType.entry ? (typeof bestType.entry === 'string' ? bestType.entry : (bestType.entry.name || bestType.entry.type || '')) : '';
+    if(bestType && bestType.eff >= 2) attackReason = `${bestLabel}で殴れる`;
   }
   let statReason = '';
   if(offenseStat >= 130) statReason = `${getCandidateRoleLabel(candidate)}の火力が高い`;
@@ -2835,6 +2912,7 @@ function buildRecommendationRow(candidate, threatEvaluations){
   const offenseTotal = threatEvaluations.reduce((sum,row)=>sum + (row.offenseFloor || 0), 0);
   const matchedThreats = threatEvaluations.filter(row=>row.weightedScore >= 2.8 && row.attackEff >= 2).sort((a,b)=>b.weightedScore-a.weightedScore).slice(0,3);
   const reasonText = matchedThreats.map(row=>row.reason).filter(Boolean).slice(0,2).join(' / ');
+  const recommendedMoves = buildCandidateMoveDetails(candidate, PARTY_RANKING_MODE);
   return {
     candidate,
     total,
@@ -2844,7 +2922,8 @@ function buildRecommendationRow(candidate, threatEvaluations){
     offenseTotal,
     matchedThreatNames: matchedThreats.map(row=>row.threat.name),
     reasonText,
-    roleLabel: getCandidateRoleLabel(candidate)
+    roleLabel: getCandidateRoleLabel(candidate),
+    recommendedMoves
   };
 }
 function renderRecommendationGroup(title, note, rows, scoreKey, limit, isFull){
@@ -2873,6 +2952,7 @@ function renderRecommendationGroup(title, note, rows, scoreKey, limit, isFull){
       </div>
       <div class="recommend-targets"><strong>強めの相手:</strong> ${escapePartyHtml(targets)}</div>
       <div class="recommend-reasons"><strong>補完理由:</strong> ${escapePartyHtml(row.reasonText || '上位20に対して受けるだけでなく打点でも返しやすい候補です。')}</div>
+      <div class="recommend-moves"><strong>候補技:</strong>${(row.recommendedMoves || []).map(move=>`<div class="recommend-move-line">${escapePartyHtml(move.name)}（${escapePartyHtml(move.category)} / ${escapePartyHtml(move.type)} / 威力${escapePartyHtml(move.power)}${move.usagePercent ? ` / 採用率${escapePartyHtml((Math.round(move.usagePercent * 10) / 10).toFixed(1))}%` : ''}）<br>${escapePartyHtml(move.description)}</div>`).join('')}</div>
       <button type="button" class="recommend-add-btn" ${isFull ? 'disabled' : `onclick="event.stopPropagation();addRecommendedPokemon('${safeName}')"`}>${isFull ? 'パーティが埋まっています' : 'このポケモンを追加'}</button>
     </div>`;
   }).join('')}</div></div>`;
@@ -2965,7 +3045,7 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
   const recommendationRows = candidates.map(candidate=>{
     const evaluations = threatProfiles.map(profile=>evaluateCandidateAgainstThreat(candidate, profile));
     return buildRecommendationRow(candidate, evaluations);
-  }).filter(row=>row.total > 0 && row.offenseTotal >= 4.2);
+  }).filter(row=>row.total > 0 && row.offenseTotal >= 4.2 && row.recommendedMoves && row.recommendedMoves.length);
 
   if(!recommendationRows.length) {
     listEl.innerHTML = '<div class="recommend-group"><div class="recommend-group-note">今の条件では、上位20に対して殴り返しまで含めて改善幅の大きい候補が見つかりませんでした。</div></div>';
