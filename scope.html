@@ -1074,21 +1074,53 @@ function rebuildSlotStats(slot){
 }
 function createSlot(poke, opts){
   opts = opts || {};
-  const profile = opts.profile || getEstimatedProfile(poke);
-  const abilityOptions = getAbilityOptions(poke);
+  const megaFormName = opts.megaFormName || (isMegaPokemon(poke && poke.name) ? poke.name : '');
+  const displayPoke = megaFormName ? (pokeIndex.find(p=>p.name===getBaseName(megaFormName)) || poke) : poke;
+  const profile = opts.profile || getEstimatedProfile(displayPoke);
+  const abilityOptions = getAbilityOptions(displayPoke);
+  const hasExplicitMoves = Object.prototype.hasOwnProperty.call(opts,'moves');
+  const moveSource = opts.moveSource || (hasExplicitMoves ? 'manual' : 'season');
+  const preferredAbility = opts.ability && abilityOptions.includes(opts.ability) ? opts.ability : '';
   const slot = {
-    poke,
+    poke: displayPoke,
+    megaFormName,
     natureName: Object.prototype.hasOwnProperty.call(opts,'natureName') ? (opts.natureName || 'がんばりや') : (profile.natureName || 'がんばりや'),
     baseSpread: cloneSpread(opts.spread || profile.spread),
     lv: opts.lv || 50,
-    moves: opts.moves || getEstimatedAtkMoves(poke),
+    moves: hasExplicitMoves ? (Array.isArray(opts.moves) ? opts.moves : []) : getEstimatedAtkMoves(displayPoke),
+    moveSource,
     abilityOptions: abilityOptions,
-    ability: opts.ability || getDefaultAbilityForPokemon(poke),
+    ability: preferredAbility || getDefaultAbilityForPokemon(displayPoke),
     presetKey: opts.presetKey || (Object.prototype.hasOwnProperty.call(opts,'spread') ? 'custom' : 'season'),
     profileSource: opts.profileSource || profile.source
   };
   rebuildSlotStats(slot);
   return slot;
+}
+function shouldUseEstimatedMovesForSlot(slot){
+  if(!slot) return true;
+  return !['saved','registered','manual'].includes(String(slot.moveSource || ''));
+}
+function normalizeScopeStoredMoves(rawMoves){
+  if(!Array.isArray(rawMoves)) return [];
+  return rawMoves.map(m=>{
+    if(!m) return null;
+    const moveName = typeof m === 'string' ? m : m.name;
+    if(!moveName) return null;
+    const md = moveIndex.find(x=>x.name===moveName);
+    if(md) return Object.assign({}, md);
+    return {
+      name: moveName,
+      type: (typeof m === 'object' && m.type) ? m.type : '',
+      category: (typeof m === 'object' && m.category) ? m.category : '',
+      power: parseInt(typeof m === 'object' ? m.power : 0,10) || 0,
+      accuracy: (typeof m === 'object' && m.accuracy) ? m.accuracy : '',
+      pp: (typeof m === 'object' && m.pp) ? m.pp : '',
+      hits: (typeof m === 'object' && m.hits) ? m.hits : '',
+      effect: (typeof m === 'object' && (m.effect || m.description)) ? (m.effect || m.description) : '',
+      notes: (typeof m === 'object' && m.notes) ? m.notes : ''
+    };
+  }).filter(Boolean);
 }
 function isSoundMove(move){
   const txt = ((move && move.effect) || '') + ' ' + ((move && move.notes) || '');
@@ -1161,7 +1193,10 @@ function getScopeSpecialFormPokes(name){
   return forms.map(fn=>pokeIndex.find(p=>p.name===fn)).filter(Boolean);
 }
 function getScopeSlotDisplayName(slot){
-  return slot && slot.poke ? getScopeCompactPokemonName(slot.poke.name) : '';
+  if(!slot || !slot.poke) return '';
+  const megaPlan = slot.megaFormName ? getBaseName(slot.megaFormName) : '';
+  if(megaPlan) return getScopeCompactPokemonName(megaPlan);
+  return getScopeCompactPokemonName(slot.poke.name);
 }
 function getScopeDamageEntryName(entry){
   if(entry && entry.variantName) return entry.variantName;
@@ -1175,7 +1210,7 @@ function isScopeMegaCandidateName(name){
 }
 function getScopeFormOptionsForSlot(slot){
   if(!slot || !slot.poke) return [];
-  const name = slot.poke.name;
+  const name = slot.megaFormName ? getBaseName(slot.megaFormName) : slot.poke.name;
   // ギルガルド・イルカマンは検索/表示は代表名にし、メガ進化のフォーム切替とは別扱いにする。
   // ダメージ確認など、数値差が出る場所だけ必要に応じて形態別に展開する。
   if(getScopeSpecialBaseName(name)) return [];
@@ -1191,19 +1226,48 @@ function getScopeFormOptionsForSlot(slot){
 function setSlotForm(side, idx, formName){
   const party = side==='my' ? myParty : oppParty;
   const slot = party[idx];
-  const poke = pokeIndex.find(p=>p.name===formName);
-  if(!slot || !poke) return;
-  slot.poke = poke;
-  slot.abilityOptions = getAbilityOptions(poke);
+  const selected = pokeIndex.find(p=>p.name===formName);
+  if(!slot || !selected) return;
+
+  // 見せ合い段階ではメガ前を表示・管理し、メガは予定情報としてだけ保持する。
+  if(isMegaPokemon(formName)){
+    const baseName = getBaseName(formName);
+    const basePoke = pokeIndex.find(p=>p.name===baseName);
+    if(!basePoke) return;
+    slot.megaFormName = formName;
+    slot.poke = basePoke;
+    slot.abilityOptions = getAbilityOptions(basePoke);
+    slot.ability = getDefaultAbilityForPokemon(basePoke);
+    const profile = getEstimatedProfile(basePoke);
+    if(slot.profileSource !== 'registered' && slot.profileSource !== 'saved' && slot.presetKey !== 'custom'){
+      slot.natureName = profile.natureName || slot.natureName || 'がんばりや';
+      slot.baseSpread = cloneSpread(profile.spread);
+      slot.profileSource = profile.source;
+    }
+    if(shouldUseEstimatedMovesForSlot(slot)){
+      slot.moves = getEstimatedAtkMoves(basePoke);
+      slot.moveSource = 'season';
+    }
+    rebuildSlotStats(slot);
+    refreshAfterSlotChange(side);
+    return;
+  }
+
+  slot.megaFormName = '';
+  slot.poke = selected;
+  slot.abilityOptions = getAbilityOptions(selected);
   // フォーム・メガ切替後は、前フォームの特性を引きずらず、そのフォームに合う特性へ必ず合わせる
-  slot.ability = getDefaultAbilityForPokemon(poke);
-  const profile = getEstimatedProfile(poke);
+  slot.ability = getDefaultAbilityForPokemon(selected);
+  const profile = getEstimatedProfile(selected);
   if(slot.profileSource !== 'registered' && slot.profileSource !== 'saved' && slot.presetKey !== 'custom'){
     slot.natureName = profile.natureName || slot.natureName || 'がんばりや';
     slot.baseSpread = cloneSpread(profile.spread);
     slot.profileSource = profile.source;
   }
-  slot.moves = getEstimatedAtkMoves(poke);
+  if(shouldUseEstimatedMovesForSlot(slot)){
+    slot.moves = getEstimatedAtkMoves(selected);
+    slot.moveSource = 'season';
+  }
   rebuildSlotStats(slot);
   refreshAfterSlotChange(side);
 }
@@ -1951,14 +2015,9 @@ function addFromReg(id){
   if(!rec) return;
   const poke = getScopePokeByName(rec.pokeName);
   if(!poke){alert('ポケモンが見つかりません: '+rec.pokeName);return;}
-  // 登録データの性格・努力値から実数値を計算
-  const stats = calcAllStats(poke, rec.nature, rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, rec.lv||50);
-  // 登録技を使用
-  const moves = (rec.moves||[]).filter(m=>m&&m.name).map(m=>{
-    const md = moveIndex.find(x=>x.name===m.name);
-    return md ? Object.assign({}, md) : {name:m.name, type:m.type||'', category:m.category||'', power:parseInt(m.power)||0};
-  }).filter(m=>m.power>0);
-  myParty.push(buildSlot(poke, {natureName:rec.nature||null, spread:rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:rec.lv||50, moves: moves.length ? moves : getEstimatedAtkMoves(poke), ability:rec.ability||getDefaultAbilityForPokemon(poke), presetKey:'season', profileSource:'registered'}));
+  // 登録済み個体は、登録した技をそのまま使う（ランキング推定へ差し替えない）
+  const moves = normalizeScopeStoredMoves(rec.moves||[]);
+  myParty.push(buildSlot(poke, {natureName:rec.nature||null, spread:rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:rec.lv||50, moves, moveSource:'registered', ability:rec.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'registered'}));
   renderParty('my');
   autoAnalyze();
 }
@@ -1989,12 +2048,8 @@ async function loadFromParty(id){
   (d.members||[]).forEach(m=>{
     const poke = getScopePokeByName(m.pokeName);
     if(!poke) return;
-    const stats = calcAllStats(poke, m.nature, m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, m.lv||50);
-    const moves = (m.moves||[]).filter(mv=>mv&&mv.name).map(mv=>{
-      const md = moveIndex.find(x=>x.name===mv.name);
-      return md ? Object.assign({}, md) : {name:mv.name, type:mv.type||'', category:mv.category||'', power:parseInt(mv.power)||0};
-    }).filter(mv=>mv.power>0);
-    myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves: moves.length ? moves : getEstimatedAtkMoves(poke), ability:m.ability||getDefaultAbilityForPokemon(poke), presetKey:'season', profileSource:'saved'}));
+    const moves = normalizeScopeStoredMoves(m.moves||[]);
+    myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves, moveSource:'saved', ability:m.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'saved'}));
   });
   renderParty('my');
   autoAnalyze();
@@ -2110,11 +2165,13 @@ function renderSlotSettings(side){
     const presetOptions = Object.keys(EV_PRESETS).map(key=>'<option value="'+key+'" '+((slot.presetKey||'season')===key?'selected':'')+'>'+EV_PRESETS[key].label+'</option>').join('');
     const presetSelect = '<select class="settings-select" onchange="setSlotPreset(\''+side+'\','+i+',this.value)">'+presetOptions+'</select>';
     const formOptions = getScopeFormOptionsForSlot(slot);
-    const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\''+side+'\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(slot.poke.name===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '<div></div>';
+    const currentFormValue = slot.megaFormName || slot.poke.name;
+    const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\''+side+'\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(currentFormValue===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '<div></div>';
     const spread = getSpreadForSlot(slot);
     const spreadText = 'EV H'+(spread.hp||0)+' A'+(spread.atk||0)+' B'+(spread.def||0)+' C'+(spread.spa||0)+' D'+(spread.spd||0)+' S'+(spread.spe||0);
+    const megaPlanText = slot.megaFormName ? '<div class="settings-mini">メガ予定：'+escapeHtml(slot.megaFormName)+'</div>' : '';
     const activeEdit = getScopeMobileEditIndex(side)===i;
-    return '<div class="settings-row '+(activeEdit?'mobile-active-edit':'')+'"><div class="settings-name">編集中：'+escapeHtml(getScopeSlotDisplayName(slot))+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div></div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
+    return '<div class="settings-row '+(activeEdit?'mobile-active-edit':'')+'"><div class="settings-name">編集中：'+escapeHtml(getScopeSlotDisplayName(slot))+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div>'+megaPlanText+'</div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
   }).join('');
 }
 
@@ -2332,7 +2389,7 @@ function makeScopeDamageVariant(entry, formPoke){
   const variant = Object.assign({}, source, {
     poke: formPoke,
     abilityOptions: getAbilityOptions(formPoke),
-    moves: source.moves && source.moves.length ? source.moves : getEstimatedAtkMoves(formPoke)
+    moves: source.moves && source.moves.length ? source.moves : (shouldUseEstimatedMovesForSlot(source) ? getEstimatedAtkMoves(formPoke) : [])
   });
   if(!variant.abilityOptions.includes(variant.ability)) variant.ability = getDefaultAbilityForPokemon(formPoke);
   variant.stats = calcAllStats(formPoke, source.natureName || 'がんばりや', spread, source.lv || 50);
