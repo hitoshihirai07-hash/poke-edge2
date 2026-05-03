@@ -293,6 +293,35 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-calc-ko{font-size:12px;font-weight:700;color:var(--accent2);}
 .scope-calc-note{font-size:10px;color:var(--text2);line-height:1.7;}
 @media(max-width:760px){.scope-stats-grid{grid-template-columns:1fr;}.scope-history-body{grid-template-columns:1fr;}.scope-calc-grid,.scope-calc-result{grid-template-columns:1fr;}}
+.scope-track-wrap{display:grid;gap:12px;margin-top:10px;}
+.scope-track-battle-memo{display:grid;gap:6px;}
+.scope-track-label{font-size:11px;color:var(--text2);font-weight:700;letter-spacing:.8px;}
+.scope-track-textarea{width:100%;min-height:84px;padding:10px 12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:12px;font:inherit;resize:vertical;}
+.scope-track-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.scope-track-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px;display:grid;gap:10px;}
+.scope-track-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.scope-track-name{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.scope-track-move-list{display:grid;gap:8px;}
+.scope-track-move-row{border:1px solid var(--border);border-radius:12px;padding:10px;display:grid;gap:8px;background:rgba(255,255,255,.02);}
+.scope-track-move-top{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;}
+.scope-track-select,.scope-track-search{width:100%;min-height:38px;padding:8px 10px;border-radius:10px;border:1px solid var(--border2);background:var(--panel);color:var(--text);font:inherit;}
+.scope-track-clear{border:none;border-radius:10px;padding:8px 10px;background:var(--accent2);color:#fff;font-weight:700;cursor:pointer;min-height:38px;}
+.scope-track-move-main{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.scope-track-move-name{font-weight:700;font-size:13px;}
+.scope-track-meta{display:flex;gap:6px;flex-wrap:wrap;font-size:10px;color:var(--text2);}
+.scope-track-meta span{padding:2px 6px;border:1px solid var(--border);border-radius:999px;background:var(--panel);}
+.scope-track-pp{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.scope-track-pp-btn{width:34px;height:34px;border:none;border-radius:10px;background:var(--border2);color:var(--text);font-size:18px;font-weight:700;cursor:pointer;}
+.scope-track-pp-val{min-width:110px;font-weight:700;font-size:12px;}
+.scope-track-effect{font-size:11px;color:var(--text2);line-height:1.6;}
+.scope-track-mon-memo{width:100%;min-height:70px;padding:10px 12px;border-radius:12px;border:1px solid var(--border2);background:var(--panel);color:var(--text);font:inherit;resize:vertical;}
+.scope-track-history-block{margin-top:10px;display:grid;gap:8px;}
+.scope-track-history-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:10px;}
+.scope-track-history-title{font-size:11px;color:var(--text2);margin-bottom:6px;}
+.scope-track-history-moves{display:flex;flex-wrap:wrap;gap:6px;}
+.scope-track-history-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border2);border-radius:999px;padding:4px 8px;font-size:10px;background:var(--panel);}
+.scope-track-history-note{margin-top:6px;font-size:11px;line-height:1.6;color:var(--text);white-space:pre-wrap;}
+@media(max-width:960px){.scope-track-grid{grid-template-columns:1fr;}.scope-track-move-top{grid-template-columns:1fr;}.scope-track-clear{width:100%;}}
 .scope-record-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
 .scope-record-btn{flex:1;min-width:120px;padding:10px 12px;border:none;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;}
 .scope-record-btn.win{background:linear-gradient(135deg,var(--green),#0a8f56);}
@@ -743,6 +772,18 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
         <div class="gauge-verdict" id="gauge-verdict">—</div>
       </div>
       <div class="speed-compare" id="speed-compare">素早さ比較: —</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title yellow">相手選出3体の技・PP管理</div>
+      <div class="scope-track-wrap">
+        <div class="scope-track-battle-memo">
+          <label class="scope-track-label" for="scope-battle-memo">対戦メモ</label>
+          <textarea id="scope-battle-memo" class="scope-track-textarea" placeholder="自由入力" oninput="setScopeBattleMemo(this.value)"></textarea>
+        </div>
+        <div id="scope-opp-tracker"></div>
+        <datalist id="scope-global-move-list"></datalist>
+      </div>
     </div>
 
     <div class="card">
@@ -1462,6 +1503,247 @@ let myLeadSlot=null, oppLeadSlot=null;
 let myActiveIdx=0, oppActiveIdx=0;
 let myHP=[100,100,100], oppHP=[100,100,100];
 let scopeMobileEdit = {my:0, opp:0};
+const LS_SCOPE_TRACKER_KEY = 'pokeedge_scope_tracker_v1';
+let scopeBattleTracker = loadScopeBattleTrackerState();
+
+function loadScopeBattleTrackerState(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LS_SCOPE_TRACKER_KEY)||'{}');
+    return raw && typeof raw==='object' ? raw : {};
+  }catch(e){
+    return {};
+  }
+}
+function saveScopeBattleTrackerState(){
+  try{ localStorage.setItem(LS_SCOPE_TRACKER_KEY, JSON.stringify(scopeBattleTracker||{})); }catch(e){}
+}
+function getCurrentScopeBattleSignature(){
+  const myNames = mySelect.map(i=>myParty[i]).filter(Boolean).map(s=>normalizeScopeRecordName(s.poke.name)).join('|');
+  const oppNames = oppSelect.map(i=>oppParty[i]).filter(Boolean).map(s=>normalizeScopeRecordName(s.poke.name)).join('|');
+  return 'my:'+myNames+'__opp:'+oppNames;
+}
+function getScopeTrackerMonKey(slotOrName){
+  if(!slotOrName) return '';
+  if(typeof slotOrName === 'string') return normalizeScopeRecordName(slotOrName) || String(slotOrName||'').trim();
+  return normalizeScopeRecordName((slotOrName && slotOrName.poke ? slotOrName.poke.name : slotOrName.name) || '') || '';
+}
+function getScopeMoveEffectText(move){
+  return String((move && (move.effect || move.description || move.notes)) || '').trim();
+}
+function getScopeMoveMetaByName(name){
+  const n = String(name || '').trim();
+  if(!n) return null;
+  const meta = moveIndex.find(x=>x.name===n);
+  if(meta) return Object.assign({}, meta, {effect:getScopeMoveEffectText(meta)});
+  return null;
+}
+function normalizeScopeTrackedMove(moveLike){
+  if(!moveLike || !moveLike.name) return null;
+  const meta = getScopeMoveMetaByName(moveLike.name) || moveLike;
+  const basePp = Math.max(0, parseInt(meta.pp,10) || parseInt(moveLike.pp,10) || 0);
+  const used = Math.max(0, Math.min(basePp || 99, parseInt(moveLike.used,10) || 0));
+  return {
+    name: meta.name || moveLike.name || '',
+    type: meta.type || moveLike.type || '',
+    category: meta.category || moveLike.category || '',
+    power: parseInt(meta.power,10) || parseInt(moveLike.power,10) || 0,
+    accuracy: meta.accuracy || moveLike.accuracy || '',
+    pp: basePp,
+    hits: meta.hits || moveLike.hits || '',
+    effect: getScopeMoveEffectText(meta) || getScopeMoveEffectText(moveLike),
+    rate: parseFloat(moveLike.rate) || 0,
+    used
+  };
+}
+function getScopeMoveSuggestionsForPokemon(poke){
+  if(!poke) return [];
+  const out = [];
+  const seen = new Set();
+  function pushMove(meta, rate){
+    if(!meta || !meta.name || seen.has(meta.name)) return;
+    seen.add(meta.name);
+    out.push(Object.assign({}, meta, {rate:parseFloat(rate)||0}));
+  }
+  const sr = getSeasonRow(poke.name);
+  if(sr && Array.isArray(sr.moves)) {
+    sr.moves.slice(0,12).forEach(entry=>{
+      const parsed = parseRateEntry(entry);
+      const meta = getScopeMoveMetaByName(parsed.name);
+      if(meta) pushMove(meta, parsed.rate);
+    });
+  }
+  if(out.length < 8){
+    const pmData = getPokemonMovesRow(poke.name);
+    const rawMoves = Array.isArray(pmData && pmData.moves) ? pmData.moves : [];
+    rawMoves.forEach(row=>{
+      const normalized = normalizePokemonMoveRow(row);
+      if(normalized && normalized.name){
+        pushMove(Object.assign({}, normalized, {effect:getScopeMoveEffectText(normalized)}), normalized.rate || 0);
+      }
+    });
+  }
+  return out.slice(0,12);
+}
+function ensureScopeTrackerMonEntry(slot){
+  if(!slot || !slot.poke) return null;
+  const key = getScopeTrackerMonKey(slot);
+  if(!key) return null;
+  if(!scopeBattleTracker || typeof scopeBattleTracker !== 'object') scopeBattleTracker = {};
+  if(!scopeBattleTracker.opp || typeof scopeBattleTracker.opp !== 'object') scopeBattleTracker.opp = {};
+  let entry = scopeBattleTracker.opp[key];
+  if(!entry || typeof entry !== 'object') entry = {name:getScopeSlotDisplayName(slot), actualName:slot.poke.name, memo:'', moves:[]};
+  entry.name = getScopeSlotDisplayName(slot);
+  entry.actualName = slot.poke.name;
+  entry.memo = String(entry.memo || '');
+  entry.moves = Array.isArray(entry.moves) ? entry.moves.map(normalizeScopeTrackedMove).slice(0,4) : [];
+  const suggestions = getScopeMoveSuggestionsForPokemon(slot.poke).slice(0,4).map(normalizeScopeTrackedMove).filter(Boolean);
+  for(let i=0;i<4;i++){
+    if(!entry.moves[i] && suggestions[i]) entry.moves[i] = suggestions[i];
+  }
+  while(entry.moves.length < 4) entry.moves.push(null);
+  scopeBattleTracker.opp[key] = entry;
+  return entry;
+}
+function initScopeTrackerForCurrentBattle(forceReset){
+  const sig = getCurrentScopeBattleSignature();
+  if(forceReset || !scopeBattleTracker || scopeBattleTracker.signature !== sig){
+    scopeBattleTracker = {signature:sig, battleMemo:'', opp:{}};
+  }
+  scopeBattleTracker.battleMemo = String(scopeBattleTracker.battleMemo || '');
+  const keep = new Set();
+  oppSelect.map(i=>oppParty[i]).filter(Boolean).slice(0,3).forEach(slot=>{
+    const key = getScopeTrackerMonKey(slot);
+    if(!key) return;
+    keep.add(key);
+    ensureScopeTrackerMonEntry(slot);
+  });
+  Object.keys(scopeBattleTracker.opp || {}).forEach(key=>{ if(!keep.has(key)) delete scopeBattleTracker.opp[key]; });
+  saveScopeBattleTrackerState();
+  return scopeBattleTracker;
+}
+function getScopeTrackedOppData(slot){
+  initScopeTrackerForCurrentBattle(false);
+  const key = getScopeTrackerMonKey(slot);
+  return key && scopeBattleTracker && scopeBattleTracker.opp ? scopeBattleTracker.opp[key] || null : null;
+}
+function getScopeTrackedOppMoves(slot){
+  const entry = getScopeTrackedOppData(slot);
+  if(!entry) return [];
+  return (entry.moves || []).map(normalizeScopeTrackedMove).filter(Boolean);
+}
+function getScopeBattleMovesForSlot(side, slot){
+  if(side === 'opp'){
+    const tracked = getScopeTrackedOppMoves(slot);
+    if(tracked.length) return tracked;
+  }
+  return Array.isArray(slot && slot.moves) ? slot.moves : [];
+}
+function syncScopeTrackedBattleViews(){
+  saveScopeBattleTrackerState();
+  if(document.getElementById('phase-2') && document.getElementById('phase-2').classList.contains('active')) calcBattleActions();
+  if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+}
+function setScopeBattleMemo(value){
+  initScopeTrackerForCurrentBattle(false);
+  scopeBattleTracker.battleMemo = String(value || '');
+  saveScopeBattleTrackerState();
+}
+function setScopeTrackerMonMemo(monKey, value){
+  initScopeTrackerForCurrentBattle(false);
+  const entry = scopeBattleTracker && scopeBattleTracker.opp ? scopeBattleTracker.opp[monKey] : null;
+  if(!entry) return;
+  entry.memo = String(value || '');
+  saveScopeBattleTrackerState();
+}
+function setScopeTrackedMoveByName(monKey, idx, moveName){
+  initScopeTrackerForCurrentBattle(false);
+  const entry = scopeBattleTracker && scopeBattleTracker.opp ? scopeBattleTracker.opp[monKey] : null;
+  if(!entry) return;
+  const meta = normalizeScopeTrackedMove({name:moveName});
+  if(!meta) return;
+  entry.moves[idx] = meta;
+  renderScopeBattleTracker();
+  syncScopeTrackedBattleViews();
+}
+function setScopeTrackedMoveFromCandidate(monKey, idx, moveName){
+  if(!moveName) return;
+  setScopeTrackedMoveByName(monKey, idx, moveName);
+}
+function setScopeTrackedMoveFromSearch(monKey, idx, moveName){
+  if(!moveName) return;
+  setScopeTrackedMoveByName(monKey, idx, moveName);
+}
+function clearScopeTrackedMove(monKey, idx){
+  initScopeTrackerForCurrentBattle(false);
+  const entry = scopeBattleTracker && scopeBattleTracker.opp ? scopeBattleTracker.opp[monKey] : null;
+  if(!entry) return;
+  entry.moves[idx] = null;
+  renderScopeBattleTracker();
+  syncScopeTrackedBattleViews();
+}
+function adjustScopeTrackedMoveUsed(monKey, idx, delta){
+  initScopeTrackerForCurrentBattle(false);
+  const entry = scopeBattleTracker && scopeBattleTracker.opp ? scopeBattleTracker.opp[monKey] : null;
+  const move = entry && entry.moves && entry.moves[idx] ? normalizeScopeTrackedMove(entry.moves[idx]) : null;
+  if(!move) return;
+  const basePp = Math.max(0, parseInt(move.pp,10) || 0);
+  move.used = Math.max(0, Math.min(basePp || 99, (parseInt(move.used,10) || 0) + delta));
+  entry.moves[idx] = move;
+  renderScopeBattleTracker();
+  syncScopeTrackedBattleViews();
+}
+function initScopeMoveDatalist(){
+  const dl = document.getElementById('scope-global-move-list');
+  if(!dl || dl.dataset.ready === '1') return;
+  dl.innerHTML = moveIndex.map(m=>'<option value="'+escapeHtml(m.name)+'"></option>').join('');
+  dl.dataset.ready = '1';
+}
+function renderScopeBattleTracker(){
+  const wrap = document.getElementById('scope-opp-tracker');
+  const memoEl = document.getElementById('scope-battle-memo');
+  if(!wrap) return;
+  initScopeMoveDatalist();
+  initScopeTrackerForCurrentBattle(false);
+  if(memoEl && memoEl.value !== String(scopeBattleTracker.battleMemo || '')) memoEl.value = String(scopeBattleTracker.battleMemo || '');
+  const oppSlots = oppSelect.map(i=>oppParty[i]).filter(Boolean).slice(0,3);
+  if(!oppSlots.length){
+    wrap.innerHTML = '<div class="note">相手の選出を決めると表示されます。</div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="scope-track-grid">'+oppSlots.map(slot=>{
+    const key = getScopeTrackerMonKey(slot);
+    const entry = ensureScopeTrackerMonEntry(slot);
+    const suggestions = getScopeMoveSuggestionsForPokemon(slot.poke).slice(0,10);
+    const moveRows = (entry.moves || []).slice(0,4).map((move, idx)=>{
+      const tracked = move ? normalizeScopeTrackedMove(move) : null;
+      const moveName = tracked ? tracked.name : '';
+      const pp = Math.max(0, parseInt(tracked && tracked.pp,10) || 0);
+      const used = Math.max(0, parseInt(tracked && tracked.used,10) || 0);
+      const remaining = Math.max(0, pp - used);
+      const suggestionOptions = ['<option value="">ランキングから選ぶ</option>'].concat(suggestions.map(s=>'<option value="'+escapeHtml(s.name)+'" '+(s.name===moveName?'selected':'')+'>'+escapeHtml(s.name)+(s.rate?(' ('+s.rate+'%)'):'')+'</option>'));
+      return '<div class="scope-track-move-row">'
+        + '<div class="scope-track-move-top">'
+        +   '<select class="scope-track-select" onchange="setScopeTrackedMoveFromCandidate(\''+escapeJs(key)+'\','+idx+',this.value)">'+suggestionOptions.join('')+'</select>'
+        +   '<input class="scope-track-search" type="text" list="scope-global-move-list" placeholder="手動検索で技を入れる" onchange="setScopeTrackedMoveFromSearch(\''+escapeJs(key)+'\','+idx+',this.value);this.value=\'\';">'
+        +   '<button type="button" class="scope-track-clear" onclick="clearScopeTrackedMove(\''+escapeJs(key)+'\','+idx+')">クリア</button>'
+        + '</div>'
+        + (tracked ? ('<div class="scope-track-move-main"><div class="scope-track-move-name">'+escapeHtml(tracked.name)+'</div><div class="scope-track-meta">'
+        + (tracked.type?'<span>'+escapeHtml(tracked.type)+'</span>':'')
+        + (tracked.category?'<span>'+escapeHtml(tracked.category)+'</span>':'')
+        + (tracked.power?'<span>威力 '+tracked.power+'</span>':'')
+        + (tracked.pp?'<span>PP '+tracked.pp+'</span>':'')
+        + '</div></div>'
+        + '<div class="scope-track-pp"><button type="button" class="scope-track-pp-btn" onclick="adjustScopeTrackedMoveUsed(\''+escapeJs(key)+'\','+idx+',-1)">−</button><div class="scope-track-pp-val">使用 '+used+' / 残り '+remaining+'</div><button type="button" class="scope-track-pp-btn" onclick="adjustScopeTrackedMoveUsed(\''+escapeJs(key)+'\','+idx+',1)">＋</button></div>'
+        + '<div class="scope-track-effect">'+escapeHtml(tracked.effect || '説明なし')+'</div>') : '<div class="scope-track-effect">技を入れるとPPと説明を表示します。</div>')
+        + '</div>';
+    }).join('');
+    return '<div class="scope-track-card">'
+      + '<div class="scope-track-head"><div class="scope-track-name">'+escapeHtml(getScopeSlotDisplayName(slot))+typeHTML(slot.poke)+'</div></div>'
+      + '<div class="scope-track-move-list">'+moveRows+'</div>'
+      + '<div><label class="scope-track-label">ポケモンメモ</label><textarea class="scope-track-mon-memo" placeholder="自由入力" oninput="setScopeTrackerMonMemo(\''+escapeJs(key)+'\',this.value)">'+escapeHtml(entry.memo || '')+'</textarea></div>'
+      + '</div>';
+  }).join('')+'</div>';
+}
 
 // 各パーティスロット: {poke, stats, moves, ability}
 function buildSlot(poke, opts){
@@ -1621,6 +1903,7 @@ function goToBattle(){
   myActiveIdx=Math.max(0, mySelect.indexOf(myLeadSlot));
   oppActiveIdx=Math.max(0, oppSelect.indexOf(oppLeadSlot));
   myHP=[100,100,100]; oppHP=[100,100,100];
+  initScopeTrackerForCurrentBattle(false);
   showPhase(2);
 }
 
@@ -2037,7 +2320,10 @@ function getDamageSelectedSlots(side){
   const sel = side==='my' ? mySelect : oppSelect;
   return sel.map((partyIndex, selectedIndex)=>{
     const slot = party[partyIndex];
-    return slot ? {slot, partyIndex, selectedIndex} : null;
+    if(!slot) return null;
+    const moves = getScopeBattleMovesForSlot(side, slot);
+    const scopedSlot = (side==='opp' && moves !== slot.moves) ? Object.assign({}, slot, {moves}) : slot;
+    return {slot:scopedSlot, partyIndex, selectedIndex};
   }).filter(Boolean).slice(0,3);
 }
 function makeScopeDamageVariant(entry, formPoke){
@@ -2187,8 +2473,10 @@ function renderDamagePhaseRows(){
 
 // ===== バトルフェーズ描画 =====
 function renderBattlePhase(){
+  initScopeTrackerForCurrentBattle(false);
   renderBattleField('my');
   renderBattleField('opp');
+  renderScopeBattleTracker();
   calcBattleActions();
 }
 
@@ -2252,7 +2540,8 @@ function calcBattleActions(){
   // --- 自分の技 → 相手 ---
   const myDmgEl = document.getElementById('my-dmg-list');
   if(oppSlot){
-    const results = mySlot.moves.map(m=>{
+    const myMoves = getScopeBattleMovesForSlot('my', mySlot);
+    const results = myMoves.map(m=>{
       const r = calcMoveDmg(mySlot, m, oppSlot, oppHP[oppActiveIdx]);
       return {move:m, result:r};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
@@ -2274,7 +2563,8 @@ function calcBattleActions(){
   // --- 相手の推定技 → 自分 ---
   const oppDmgEl = document.getElementById('opp-dmg-list');
   if(oppSlot){
-    const oppResults = oppSlot.moves.map(m=>{
+    const oppMoves = getScopeBattleMovesForSlot('opp', oppSlot);
+    const oppResults = oppMoves.map(m=>{
       const r = calcMoveDmg(oppSlot, m, mySlot, myHP[myActiveIdx]);
       return {move:m, result:r, rate:m.rate||0};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
@@ -2300,7 +2590,7 @@ function calcBattleActions(){
       if(!benchSlot || myHP[i]<=0) return '';
       // 相手の最大ダメ技で被ダメ計算
       let worstDmg = 0, worstMove = '';
-      oppSlot.moves.forEach(m=>{
+      oppMoves.forEach(m=>{
         const r = calcMoveDmg(oppSlot, m, benchSlot, 100);
         if(r && r.max > worstDmg){worstDmg=r.max; worstMove=m.name;}
       });
@@ -2325,7 +2615,7 @@ function calcBattleActions(){
       if(!benchOpp || oppHP[i]<=0) return '';
       // 自分の最大ダメ技
       let myBest=0, myBestMove='';
-      mySlot.moves.forEach(m=>{
+      myMoves.forEach(m=>{
         const r = calcMoveDmg(mySlot, m, benchOpp, 100);
         if(r && r.max > myBest){myBest=r.max; myBestMove=m.name;}
       });
@@ -2401,9 +2691,16 @@ async function recordScopeBattle(result){
   const oppSel = oppSelect.map(i=>oppParty[i]).filter(Boolean);
   if(!mySel.length){ alert('自分の選出を選んでください'); return; }
   if(!oppSel.length){ alert('相手の選出を選んでください'); return; }
-  const battle = {id:Date.now(),date:new Date().toLocaleDateString('ja-JP'),result,
+  initScopeTrackerForCurrentBattle(false);
+  const battle = {id:Date.now(),date:new Date().toLocaleDateString('ja-JP'),result,battleMemo:String(scopeBattleTracker && scopeBattleTracker.battleMemo || ''),
     my:{party6:myParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),select3:mySel.map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),lead:recordLeadFromSelection('my')},
-    opp:{party6:oppParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,true)).filter(Boolean),select3:oppSel.map(s=>scopeRecordPokemonPayload(s,true)).filter(Boolean),lead:recordLeadFromSelection('opp')}};
+    opp:{party6:oppParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,true)).filter(Boolean),select3:oppSel.map(s=>{
+      const payload = scopeRecordPokemonPayload(s,true) || {};
+      const tracked = getScopeTrackedOppData(s);
+      payload.trackedMoves = (tracked && tracked.moves || []).map(normalizeScopeTrackedMove).filter(Boolean).map(m=>({name:m.name,type:m.type||'',category:m.category||'',power:parseInt(m.power)||0,pp:parseInt(m.pp)||0,used:parseInt(m.used)||0,effect:m.effect||''}));
+      if(tracked && tracked.memo) payload.memo = String(tracked.memo);
+      return payload;
+    }).filter(Boolean),lead:recordLeadFromSelection('opp')}};
   await saveBattleRecord(battle);
   await renderScopeStats();
   await renderScopeHistory();
@@ -2494,13 +2791,33 @@ async function renderScopeHistory(){
       const selectedMark = oppSelectedNames.has(m.name)?'<span class="lead-mini">選出</span>':'';
       return '<span class="scope-poke-tag scope-opp-tag'+leadCls+'">'+escapeHtml(m.name)+selectedMark+'</span>';
     }).join('');
+    const battleMemo = String(b.battleMemo || '').trim();
+    const trackedBlocks = (b.opp?.select3 || []).map(m=>{
+      const trackedMoves = Array.isArray(m.trackedMoves) ? m.trackedMoves.filter(x=>x && x.name) : [];
+      const monMemo = String(m.memo || '').trim();
+      if(!trackedMoves.length && !monMemo) return '';
+      const moveHtml = trackedMoves.length ? '<div class="scope-track-history-moves">'+trackedMoves.map(tm=>{
+        const remain = Math.max(0, (parseInt(tm.pp,10)||0) - (parseInt(tm.used,10)||0));
+        return '<span class="scope-track-history-chip">'+escapeHtml(tm.name)+' 使用'+(parseInt(tm.used,10)||0)+' / 残り'+remain+'</span>';
+      }).join('')+'</div>' : '';
+      const memoHtml = monMemo ? '<div class="scope-track-history-note">'+escapeHtml(monMemo)+'</div>' : '';
+      return '<div class="scope-track-history-card"><div class="scope-track-history-title">'+escapeHtml(m.actualName || m.name || '')+'</div>'+moveHtml+memoHtml+'</div>';
+    }).filter(Boolean).join('');
+    const trackerSection = (battleMemo || trackedBlocks)
+      ? '<div class="scope-track-history-block">'
+        + (battleMemo ? '<div class="scope-track-history-card"><div class="scope-track-history-title">対戦メモ</div><div class="scope-track-history-note">'+escapeHtml(battleMemo)+'</div></div>' : '')
+        + trackedBlocks
+        + '</div>'
+      : '';
+    const deleteId = escapeJs(String(b._id ?? b.id ?? ''));
     return '<div class="scope-history-item '+escapeHtml(b.result||'')+'">'
-      + '<div class="scope-history-head"><span class="scope-history-result '+escapeHtml(b.result||'')+'">'+(b.result==='win'?'WIN':(b.result==='draw'?'DRAW':'LOSE'))+'</span><span style="font-size:11px;color:var(--text2);">'+escapeHtml(b.date||'')+'</span><button class="scope-del-btn" onclick="deleteScopeBattleById(\''+escapeJs(String(b._id ?? b.id ?? ''))+'\')">削除</button></div>'
+      + '<div class="scope-history-head"><span class="scope-history-result '+escapeHtml(b.result||'')+'">'+(b.result==='win'?'WIN':(b.result==='draw'?'DRAW':'LOSE'))+'</span><span style="font-size:11px;color:var(--text2);">'+escapeHtml(b.date||'')+'</span><button class="scope-del-btn" onclick="deleteScopeBattleById(\''+deleteId+'\')">削除</button></div>'
       + '<div class="scope-history-body">'
       +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">自分の6体'+(b.my?.lead?' / 初手: '+escapeHtml(b.my.lead.name):'')+'</div><div>'+myTags+'</div></div>'
       +   '<div style="font-size:18px;color:var(--border2);align-self:center;">vs</div>'
       +   '<div><div style="font-size:9px;color:var(--text2);margin-bottom:3px;">相手の6体'+(b.opp?.lead?' / 初手: '+escapeHtml(b.opp.lead.name):'')+'</div><div>'+oppPartyTags+'</div></div>'
       + '</div>'
+      + trackerSection
       + '</div>';
   }).join('');
 }
@@ -2604,6 +2921,7 @@ window.onload=async()=>{
   await initPartySelect();
   renderParty('my');
   renderParty('opp');
+  initScopeMoveDatalist();
   await renderScopeStats();
   await renderScopeHistory();
   await renderCalcHistory();
@@ -2614,6 +2932,8 @@ window.onload=async()=>{
   runtimePromise.then(async()=>{
     renderParty('my');
     renderParty('opp');
+    initScopeMoveDatalist();
+    if(document.getElementById('phase-2') && document.getElementById('phase-2').classList.contains('active')) renderScopeBattleTracker();
     await renderScopeStats();
   });
 };
