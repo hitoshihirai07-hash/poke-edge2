@@ -133,6 +133,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 
 /* バトルフェーズ */
 .battle-field{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start;margin-bottom:12px;}
+.battle-active-extra{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.battle-mega-btn{border:1px solid var(--accent3);background:rgba(255,200,0,0.10);color:var(--accent3);border-radius:999px;padding:7px 12px;font-size:11px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;}
+.battle-mega-btn.active{background:rgba(255,200,0,0.18);}
+.battle-mega-label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent3);background:rgba(255,200,0,0.12);color:var(--accent3);border-radius:999px;padding:7px 12px;font-size:11px;font-weight:700;}
 @media(max-width:700px){.battle-field{grid-template-columns:1fr;}}
 .field-side{background:var(--panel);border:1px solid var(--border);padding:12px;}
 .field-vs{display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--border2);letter-spacing:4px;}
@@ -707,6 +711,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <div class="field-side" id="my-field">
         <div class="active-name" id="my-active-name">—</div>
         <div class="active-types" id="my-active-types"></div>
+        <div class="battle-active-extra" id="my-active-extra"></div>
         <div class="hp-bar-wrap">
           <div class="hp-bar"><div class="hp-fill" id="my-hp-fill" style="width:100%;background:var(--green);"></div></div>
           <div class="hp-label" id="my-hp-label">100%</div>
@@ -721,6 +726,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <div class="field-side" id="opp-field">
         <div class="active-name" id="opp-active-name">—</div>
         <div class="active-types" id="opp-active-types"></div>
+        <div class="battle-active-extra" id="opp-active-extra"></div>
         <div class="hp-bar-wrap">
           <div class="hp-bar"><div class="hp-fill" id="opp-hp-fill" style="width:100%;background:var(--green);"></div></div>
           <div class="hp-label" id="opp-hp-label">100%</div>
@@ -1200,7 +1206,7 @@ function getScopeSlotDisplayName(slot){
 }
 function getScopeDamageEntryName(entry){
   if(entry && entry.variantName) return entry.variantName;
-  return entry && entry.slot ? getScopeSlotDisplayName(entry.slot) : '';
+  return entry && entry.slot ? getScopeBattleDisplayName(entry.slot) : '';
 }
 function isScopeMegaCandidateName(name){
   const n = String(name || '').trim();
@@ -1271,6 +1277,58 @@ function setSlotForm(side, idx, formName){
   rebuildSlotStats(slot);
   refreshAfterSlotChange(side);
 }
+function getScopeBattleResolvedPokemon(slot){
+  if(!slot || !slot.poke) return null;
+  if(slot.battleMegaActive && slot.megaFormName){
+    return pokeIndex.find(p=>p.name===slot.megaFormName) || slot.poke;
+  }
+  return slot.poke;
+}
+function getScopeBattleResolvedAbility(slot, resolvedPoke){
+  if(!slot) return '';
+  if(slot.battleMegaActive && resolvedPoke && resolvedPoke.name !== (slot.poke && slot.poke.name)){
+    return getDefaultAbilityForPokemon(resolvedPoke) || slot.ability || '';
+  }
+  return slot.ability || '';
+}
+function getScopeBattleResolvedSlot(slot){
+  if(!slot || !slot.poke) return slot;
+  const resolvedPoke = getScopeBattleResolvedPokemon(slot);
+  if(!resolvedPoke || resolvedPoke.name === slot.poke.name){
+    return slot;
+  }
+  const spread = getSpreadForSlot(slot);
+  const resolved = Object.assign({}, slot, {
+    poke: resolvedPoke,
+    abilityOptions: getAbilityOptions(resolvedPoke),
+    ability: getScopeBattleResolvedAbility(slot, resolvedPoke)
+  });
+  resolved.stats = calcAllStats(resolvedPoke, slot.natureName || 'がんばりや', spread, slot.lv || 50);
+  return resolved;
+}
+function getScopeBattleDisplayName(slot){
+  const resolved = getScopeBattleResolvedSlot(slot);
+  return resolved && resolved.poke ? getScopeCompactPokemonName(resolved.poke.name) : getScopeSlotDisplayName(slot);
+}
+function getScopeActivePartyIndex(side){
+  const sel = side==='my' ? mySelect : oppSelect;
+  const activeIdx = side==='my' ? myActiveIdx : oppActiveIdx;
+  return Number.isInteger(activeIdx) ? sel[activeIdx] : null;
+}
+function canScopeBattleMega(slot){
+  return !!(slot && slot.megaFormName && pokeIndex.find(p=>p.name===slot.megaFormName));
+}
+function toggleScopeBattleMega(side){
+  const party = side==='my' ? myParty : oppParty;
+  const partyIdx = getScopeActivePartyIndex(side);
+  const slot = partyIdx===null || partyIdx===undefined ? null : party[partyIdx];
+  if(!slot || !canScopeBattleMega(slot)) return;
+  slot.battleMegaActive = !slot.battleMegaActive;
+  renderBattleField(side);
+  calcBattleActions();
+  if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+}
+
 function clampScopeEvValue(value){
   const n = parseInt(value,10);
   if(!Number.isFinite(n)) return 0;
@@ -1967,6 +2025,8 @@ function goToBattle(){
   myActiveIdx=Math.max(0, mySelect.indexOf(myLeadSlot));
   oppActiveIdx=Math.max(0, oppSelect.indexOf(oppLeadSlot));
   myHP=[100,100,100]; oppHP=[100,100,100];
+  myParty.forEach(slot=>{ if(slot) slot.battleMegaActive = false; });
+  oppParty.forEach(slot=>{ if(slot) slot.battleMegaActive = false; });
   initScopeTrackerForCurrentBattle(false);
   showPhase(2);
 }
@@ -2379,7 +2439,10 @@ function getDamageSelectedSlots(side){
     const slot = party[partyIndex];
     if(!slot) return null;
     const moves = getScopeBattleMovesForSlot(side, slot);
-    const scopedSlot = (side==='opp' && moves !== slot.moves) ? Object.assign({}, slot, {moves}) : slot;
+    let scopedSlot = getScopeBattleResolvedSlot(slot);
+    if(side==='opp' && moves !== slot.moves){
+      scopedSlot = Object.assign({}, scopedSlot, {moves});
+    }
     return {slot:scopedSlot, partyIndex, selectedIndex};
   }).filter(Boolean).slice(0,3);
 }
@@ -2504,7 +2567,7 @@ function renderDamageRanking(side){
 function renderDamageSummary(mySlots, oppSlots){
   const el = document.getElementById('scope-dmg-summary');
   if(!el) return;
-  const chipList = list => list.length ? list.map(x=>'<span class="damage-pick-chip">'+escapeHtml(getScopeSlotDisplayName(x.slot))+'</span>').join('') : '<span class="damage-pick-chip">未選出</span>';
+  const chipList = list => list.length ? list.map(x=>'<span class="damage-pick-chip">'+escapeHtml(getScopeBattleDisplayName(x.slot))+'</span>').join('') : '<span class="damage-pick-chip">未選出</span>';
   const cond = '天候 '+getWeatherLabelForScope(SCOPE_DAMAGE_OPTIONS.weather)+' / 判定HP '+(SCOPE_DAMAGE_OPTIONS.defHpPct||100)+'% / おはかまいり '+(SCOPE_DAMAGE_OPTIONS.lastRespects||0)+'体 / そうだいしょう '+(SCOPE_DAMAGE_OPTIONS.supreme||0)+'体';
   el.innerHTML = '<div class="damage-summary-title">選出中の3体で一括判定</div>'+
     '<div class="damage-summary-meta">ダメージは現在の選出3体と詳細条件を基準に計算します。'+escapeHtml(cond)+'</div>'+
@@ -2546,9 +2609,22 @@ function renderBattleField(side){
   if(!sel.length) return;
   const active = party[sel[activeIdx]];
   if(!active) return;
+  const activeResolved = getScopeBattleResolvedSlot(active);
 
-  document.getElementById(side+'-active-name').textContent = getScopeSlotDisplayName(active);
-  document.getElementById(side+'-active-types').innerHTML = typeHTML(active.poke) + (active.ability ? '<span class="ability-chip">'+active.ability+'</span>' : '');
+  document.getElementById(side+'-active-name').textContent = getScopeBattleDisplayName(active);
+  document.getElementById(side+'-active-types').innerHTML = typeHTML(activeResolved.poke) + (activeResolved.ability ? '<span class="ability-chip">'+activeResolved.ability+'</span>' : '');
+  const extra = document.getElementById(side+'-active-extra');
+  if(extra){
+    if(canScopeBattleMega(active)){
+      if(active.battleMegaActive){
+        extra.innerHTML = '<button type="button" class="battle-mega-btn active" onclick="toggleScopeBattleMega(\''+side+'\')">メガ進化中</button>';
+      } else {
+        extra.innerHTML = '<button type="button" class="battle-mega-btn" onclick="toggleScopeBattleMega(\''+side+'\')">メガ進化</button>';
+      }
+    } else {
+      extra.innerHTML = '';
+    }
+  }
   const pct = hp[activeIdx]||100;
   document.getElementById(side+'-hp-fill').style.width = pct+'%';
   document.getElementById(side+'-hp-fill').style.background = hpColor(pct);
@@ -2563,7 +2639,7 @@ function renderBattleField(side){
     const s = party[pi];
     if(!s) return '';
     const faint = hp[i]<=0;
-    return '<div class="bench-slot '+(faint?'fainted':'')+'" onclick="switchActive(\''+side+'\','+i+')">'+s.poke.name+'<br><span style="font-size:8px;">'+hp[i]+'%</span></div>';
+    return '<div class="bench-slot '+(faint?'fainted':'')+'" onclick="switchActive(\''+side+'\','+i+')">'+escapeHtml(getScopeBattleDisplayName(s))+'<br><span style="font-size:8px;">'+hp[i]+'%</span></div>';
   }).join('');
 }
 
@@ -2590,8 +2666,10 @@ function calcBattleActions(){
   const mySel = mySelect, oppSel = oppSelect;
   if(!mySel.length) return;
 
-  const mySlot = myParty[mySel[myActiveIdx]];
-  const oppSlot = oppParty[oppSel[oppActiveIdx]] || null;
+  const myBaseSlot = myParty[mySel[myActiveIdx]];
+  const oppBaseSlot = oppParty[oppSel[oppActiveIdx]] || null;
+  const mySlot = getScopeBattleResolvedSlot(myBaseSlot);
+  const oppSlot = oppBaseSlot ? getScopeBattleResolvedSlot(oppBaseSlot) : null;
   if(!mySlot) return;
 
   // --- 自分の技 → 相手 ---
@@ -2643,8 +2721,9 @@ function calcBattleActions(){
   if(oppSlot && mySel.length>1){
     const rows = mySel.map((pi,i)=>{
       if(i===myActiveIdx) return '';
-      const benchSlot = myParty[pi];
-      if(!benchSlot || myHP[i]<=0) return '';
+      const benchSlotRaw = myParty[pi];
+      if(!benchSlotRaw || myHP[i]<=0) return '';
+      const benchSlot = getScopeBattleResolvedSlot(benchSlotRaw);
       // 相手の最大ダメ技で被ダメ計算
       let worstDmg = 0, worstMove = '';
       oppMoves.forEach(m=>{
@@ -2668,8 +2747,9 @@ function calcBattleActions(){
   if(oppSel.length>1){
     const rows = oppSel.map((pi,i)=>{
       if(i===oppActiveIdx) return '';
-      const benchOpp = oppParty[pi];
-      if(!benchOpp || oppHP[i]<=0) return '';
+      const benchOppRaw = oppParty[pi];
+      if(!benchOppRaw || oppHP[i]<=0) return '';
+      const benchOpp = getScopeBattleResolvedSlot(benchOppRaw);
       // 自分の最大ダメ技
       let myBest=0, myBestMove='';
       myMoves.forEach(m=>{
