@@ -238,8 +238,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 /* パーティ詳細設定 */
 .slot-sub{font-size:8px;color:var(--text2);line-height:1.3;margin-top:2px;}
 .settings-wrap{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
-.settings-row{display:grid;grid-template-columns:minmax(86px,120px) 1fr;gap:8px;align-items:start;padding:8px;background:var(--bg2);border:1px solid var(--border);font-size:10px;}
-.settings-main{display:grid;grid-template-columns:repeat(4,minmax(92px,1fr));gap:6px;align-items:center;}
+.settings-row{display:grid;grid-template-columns:minmax(86px,120px) 1fr;gap:8px;align-items:start;padding:8px;background:var(--bg2);border:1px solid var(--border);font-size:10px;min-width:0;}
+.settings-main{display:grid;grid-template-columns:repeat(4,minmax(92px,1fr));gap:6px;align-items:center;min-width:0;}
+.settings-main > *{min-width:0;}
 .settings-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.5;}
 .settings-mini{font-size:8px;color:var(--text2);font-weight:400;white-space:normal;}
 .settings-select{width:100%;background:var(--panel);border:1px solid var(--border2);color:var(--text);padding:4px 6px;font-size:10px;font-family:'Noto Sans JP',sans-serif;outline:none;}
@@ -343,6 +344,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .party-slot.lead-slot{box-shadow:inset 0 0 0 1px rgba(255,200,0,0.4);}
 .lead-mini{display:inline-block;font-size:8px;padding:1px 5px;border:1px solid rgba(255,200,0,0.35);color:var(--accent3);margin-top:2px;}
 
+@media(max-width:1500px){.scope-party-columns{grid-template-columns:1fr!important;}.settings-main{grid-template-columns:repeat(2,minmax(0,1fr));}.settings-row{grid-template-columns:minmax(110px,150px) minmax(0,1fr);}}
 @media(max-width:700px){.settings-row{grid-template-columns:1fr;}.settings-main{grid-template-columns:1fr 1fr;}.ev-edit-grid{grid-template-columns:repeat(3,1fr);}.damage-detail-grid{grid-template-columns:1fr 1fr;}}
 
 .side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
@@ -1080,8 +1082,10 @@ function rebuildSlotStats(slot){
 }
 function createSlot(poke, opts){
   opts = opts || {};
-  const megaFormName = opts.megaFormName || (isMegaPokemon(poke && poke.name) ? poke.name : '');
-  const displayPoke = megaFormName ? (pokeIndex.find(p=>p.name===getBaseName(megaFormName)) || poke) : poke;
+  const explicitMegaFormName = opts.megaFormName || (isMegaPokemon(poke && poke.name) ? poke.name : '');
+  const basePoke = explicitMegaFormName ? (pokeIndex.find(p=>p.name===getBaseName(explicitMegaFormName)) || poke) : poke;
+  const megaFormName = inferMegaFormName(basePoke && basePoke.name, opts.item || '', explicitMegaFormName);
+  const displayPoke = megaFormName ? (pokeIndex.find(p=>p.name===getBaseName(megaFormName)) || basePoke || poke) : (basePoke || poke);
   const profile = opts.profile || getEstimatedProfile(displayPoke);
   const abilityOptions = getAbilityOptions(displayPoke);
   const hasExplicitMoves = Object.prototype.hasOwnProperty.call(opts,'moves');
@@ -1095,6 +1099,7 @@ function createSlot(poke, opts){
     lv: opts.lv || 50,
     moves: hasExplicitMoves ? (Array.isArray(opts.moves) ? opts.moves : []) : getEstimatedAtkMoves(displayPoke),
     moveSource,
+    item: opts.item || '',
     abilityOptions: abilityOptions,
     ability: preferredAbility || getDefaultAbilityForPokemon(displayPoke),
     presetKey: opts.presetKey || (Object.prototype.hasOwnProperty.call(opts,'spread') ? 'custom' : 'season'),
@@ -1146,6 +1151,27 @@ function getBaseName(megaName){
 function getMegaFormsOf(baseName){
   const prefix = 'メガ'+baseName;
   return pokeIndex.filter(p=>p.name===prefix||p.name===prefix+'X'||p.name===prefix+'Y'||p.name===prefix+'Z');
+}
+function inferMegaFormName(baseName, itemName, explicitMegaFormName){
+  const forms = getMegaFormsOf(baseName);
+  if(!forms.length) return '';
+  if(explicitMegaFormName && forms.some(p=>p.name===explicitMegaFormName)) return explicitMegaFormName;
+  const item = String(itemName || '').trim();
+  if(!item || !item.includes('ナイト')) return '';
+  const upper = item.toUpperCase();
+  if(upper.includes('X')){
+    const hit = forms.find(p=>/X$/i.test(p.name));
+    if(hit) return hit.name;
+  }
+  if(upper.includes('Y')){
+    const hit = forms.find(p=>/Y$/i.test(p.name));
+    if(hit) return hit.name;
+  }
+  if(upper.includes('Z')){
+    const hit = forms.find(p=>/Z$/i.test(p.name));
+    if(hit) return hit.name;
+  }
+  return forms[0] ? forms[0].name : '';
 }
 
 
@@ -2077,7 +2103,7 @@ function addFromReg(id){
   if(!poke){alert('ポケモンが見つかりません: '+rec.pokeName);return;}
   // 登録済み個体は、登録した技をそのまま使う（ランキング推定へ差し替えない）
   const moves = normalizeScopeStoredMoves(rec.moves||[]);
-  myParty.push(buildSlot(poke, {natureName:rec.nature||null, spread:rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:rec.lv||50, moves, moveSource:'registered', ability:rec.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'registered'}));
+  myParty.push(buildSlot(poke, {natureName:rec.nature||null, spread:rec.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:rec.lv||50, moves, moveSource:'registered', item:rec.item||'', ability:rec.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'registered'}));
   renderParty('my');
   autoAnalyze();
 }
@@ -2109,7 +2135,7 @@ async function loadFromParty(id){
     const poke = getScopePokeByName(m.pokeName);
     if(!poke) return;
     const moves = normalizeScopeStoredMoves(m.moves||[]);
-    myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves, moveSource:'saved', ability:m.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'saved'}));
+    myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves, moveSource:'saved', item:m.item||'', ability:m.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'saved'}));
   });
   renderParty('my');
   autoAnalyze();
@@ -2203,7 +2229,7 @@ function renderParty(side){
       '<button type="button" class="scope-mobile-edit-btn" onclick="event.stopPropagation();focusScopeMobileEdit(\''+side+'\','+i+')">編集</button>'+
       '<div class="slot-name">'+escapeHtml(getScopeSlotDisplayName(s))+'</div>'+
       '<div>'+typeHTML(s.poke)+'</div>'+
-      '<div class="slot-sub">'+(s.ability||'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+(isLead?'<br><span class="lead-mini">初手</span>':'')+'</div>'+
+      '<div class="slot-sub">'+(s.ability||'')+((s.item||'')?'<br>'+escapeHtml(s.item):'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+(s.megaFormName?'<br><span class="lead-mini">メガ可</span>':'')+(isLead?'<br><span class="lead-mini">初手</span>':'')+'</div>'+
     '</div>';
   }).join('')+(party.length<6?'<div class="party-slot"><div class="slot-empty">＋</div></div>':'');
   renderSlotSettings(side);
@@ -2229,7 +2255,7 @@ function renderSlotSettings(side){
     const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\''+side+'\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(currentFormValue===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '<div></div>';
     const spread = getSpreadForSlot(slot);
     const spreadText = 'EV H'+(spread.hp||0)+' A'+(spread.atk||0)+' B'+(spread.def||0)+' C'+(spread.spa||0)+' D'+(spread.spd||0)+' S'+(spread.spe||0);
-    const megaPlanText = slot.megaFormName ? '<div class="settings-mini">メガ予定：'+escapeHtml(slot.megaFormName)+'</div>' : '';
+    const megaPlanText = slot.megaFormName ? '<div class="settings-mini">メガ予定：'+escapeHtml(slot.megaFormName)+'</div>' : (slot.item && slot.item.includes('ナイト') ? '<div class="settings-mini">メガ可能：'+escapeHtml(slot.item)+'</div>' : '');
     const activeEdit = getScopeMobileEditIndex(side)===i;
     return '<div class="settings-row '+(activeEdit?'mobile-active-edit':'')+'"><div class="settings-name">編集中：'+escapeHtml(getScopeSlotDisplayName(slot))+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div>'+megaPlanText+'</div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
   }).join('');
