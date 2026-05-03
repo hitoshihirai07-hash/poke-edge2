@@ -1,6 +1,7 @@
 (function(){
-  var UPDATE_VERSION = '2026.05.01';
+  var UPDATE_VERSION = '2026.05.03';
   var ITEMS = [
+    {date:'2026.05.03', title:'ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました', href:'articles/update-summary-calc-party-analyzer-fixes.html'},
     {date:'2026.05.01', title:'ランキング更新・登録おすすめ表示・更新履歴アイコン追加を行いました', href:'articles/update-summary-ranking-register-updates-icon.html'},
     {date:'2026.04.26', title:'スマホ表示・検索機能・ダメージ計算の修正を行いました', href:'articles/update-summary-mobile-search-damage-fix.html'},
     {date:'2026.04.19', title:'耐久調整ツール追加・ダメージ計算強化・アナライザー整理など', href:'articles/update-summary-endure-history-analyzer.html'}

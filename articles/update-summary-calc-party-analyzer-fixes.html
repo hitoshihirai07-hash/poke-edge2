@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました | PokeEdge</title>
-<meta name="description" content="PokeEdgeで行ったダメージ計算の一部修正、パーティ登録の使い勝手改善、バトルアナライザーのアップデート内容をまとめています。">
+<meta name="description" content="PokeEdgeのダメージ計算一部修正、パーティ登録の調整、バトルアナライザーのアップデート内容をまとめました。">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました | PokeEdge">
-<meta property="og:description" content="PokeEdgeで行ったダメージ計算の一部修正、パーティ登録の使い勝手改善、バトルアナライザーのアップデート内容をまとめています。">
+<meta property="og:description" content="PokeEdgeのダメージ計算一部修正、パーティ登録の調整、バトルアナライザーのアップデート内容をまとめました。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-calc-party-analyzer-fixes.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-calc-party-analyzer-fixes.html">
@@ -63,8 +63,6 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .article-body ul,.article-body ol{margin:12px 0 16px 24px;}
 .article-body li{margin-bottom:8px;}
 .article-body strong{color:var(--text);font-weight:700;}
-.article-body a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(0,200,240,0.24);}
-.article-body a:hover{opacity:0.9;}
 .note-box{background:rgba(0,200,240,0.08);border:1px solid rgba(0,200,240,0.2);padding:16px 18px;margin:22px 0;color:var(--text);}
 .related-section{margin-top:48px;padding-top:28px;border-top:1px solid var(--border);}
 .related-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--accent);margin-bottom:16px;}
@@ -142,7 +140,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="mobile-tool-nav-title">ツール移動</div>
   <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">技判定</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
-
 <div class="main">
   <div class="breadcrumb">
     <a href="../index.html">トップ</a><span class="sep">/</span>
@@ -156,58 +153,45 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <span class="article-tag tool">更新まとめ</span>
     </div>
     <h1 class="article-h1">ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました</h1>
-    <p class="article-lead">本日の更新では、ダメージ計算の一部修正、パーティ登録の使い勝手改善、バトルアナライザーのアップデートを行いました。今回の調整では、実際に使う流れの中で引っかかりやすかった部分を中心に見直しています。</p>
+    <p class="article-lead">PokeEdgeのダメージ計算まわりの一部修正、パーティ登録の使いやすさの調整、バトルアナライザーのアップデートをまとめました。今回の更新は、実際に触るときの引っかかりを減らすことを優先して整理しています。</p>
   </div>
   <div class="article-body">
-    <h2>1. ダメージ計算の一部を見直しました</h2>
-    <p>ダメージ計算まわりでは、特定条件で確認しづらかった箇所や、チャンピオンズ前提で使うときに気になりやすい部分を中心に調整しました。</p>
-    <p>今回の更新では、表示の整合性と、チャンピオンズ基準での扱いを揃えることを意識しています。</p>
+    <h2>今回の更新項目</h2>
     <ul>
-      <li>一部の技相性や計算条件の見直し</li>
-      <li>関連ページとの表示差が出にくいよう調整</li>
-      <li>チャンピオンズ使用時の前提を揃えやすい形に整理</li>
+      <li>ダメージ計算の一部修正</li>
+      <li>パーティ登録の修正</li>
+      <li>バトルアナライザーのアップデート</li>
     </ul>
-    <p>細かな条件確認が必要な場面でも、以前より迷いにくい形を目指しています。</p>
+    <p>細かい修正をばらばらに進めるのではなく、実際によく触る3か所に絞って更新しています。今回の内容は、構築を作るときと対戦中に使う部分の両方を触りやすくするためのものです。</p>
 
-    <h2>2. パーティ登録を使いやすくしました</h2>
-    <p>パーティ登録では、新しく作るときと、既存パーティを読み込んで編集するときの動きが分かりやすくなるように修正しました。</p>
-    <p>これまでは、次のパーティを作るたびに1匹ずつ消す必要があったり、読み込んだパーティをそのまま更新するのか、別構築として保存するのかが分かりにくい場面がありました。</p>
-    <p>今回の更新では、そのあたりの保存導線を整理しています。</p>
-    <ul>
-      <li>新しく組み直しやすいように操作を見直し</li>
-      <li>読み込んだパーティをそのまま更新するか、新規保存するかを選びやすく調整</li>
-      <li>登録済みデータやランキング情報を見ながら編集しやすいよう改善</li>
-    </ul>
-    <p>普段の構築更新や、似た形のパーティを派生で作る流れでも使いやすくなっています。</p>
+    <h2>1. ダメージ計算の一部修正</h2>
+    <p>ダメージ計算では、技や相性の扱いでズレやすかった部分を見直しました。登録済みデータや選択内容がそのまま反映される流れを意識して、計算結果のズレを減らす方向で修正しています。</p>
+    <p>特に、対戦で使う前提のデータをそのまま計算に持ち込みたいときに、余計な推定でブレにくい形へ寄せています。普段の確認用としても使いやすくしつつ、登録やアナライザー側とつながる流れも意識しています。</p>
 
-    <h2>3. バトルアナライザーをアップデートしました</h2>
-    <p>バトルアナライザーでは、見せ合いから選出後の確認までを使いやすくする方向で調整を行いました。</p>
-    <p>今回の更新では、選出後の相手情報を整理しながら見返しやすくすることを重視しています。</p>
-    <ul>
-      <li>表示崩れが起きやすかった部分の調整</li>
-      <li>自分側・相手側それぞれの読み込み挙動を見直し</li>
-      <li>メガ進化まわりの表示と切り替えを整理</li>
-      <li>対戦中の確認内容を記録として残しやすいよう更新</li>
-    </ul>
-    <p>実戦中の確認だけでなく、あとから見返す用途でも使いやすい形を目指しています。</p>
+    <h2>2. パーティ登録の修正</h2>
+    <p>パーティ登録は、次の構築を作るときの手間を減らす方向で調整しました。毎回いちいち全削除してから組み直すよりも、今の内容を基準に扱いやすくすることを優先しています。</p>
+    <p>また、保存済みパーティを読み込んだあとに、そのまま元データとして保存し直すのか、新規の別構築として保存するのかを選びやすくしています。似た構築を派生で作りたいときにも使いやすい形です。</p>
 
     <div class="note-box">
-      <strong>今回の主な更新内容</strong><br>
-      ・ダメージ計算の一部修正<br>
-      ・パーティ登録の保存導線と編集まわりの改善<br>
-      ・バトルアナライザーの表示と記録まわりのアップデート
+      <strong>今回のパーティ登録まわりで意識した点</strong><br>
+      ・次の構築を作るときに手間を減らすこと<br>
+      ・保存済み構築を編集するときの流れをわかりやすくすること<br>
+      ・登録済み内容をベースにしつつ、別構築も作りやすくすること
     </div>
 
-    <h2>4. 今後について</h2>
-    <p>今回は大きく機能を増やすというより、実際に触っていて引っかかりやすい部分を整える更新が中心です。</p>
-    <p>ダメージ計算、パーティ登録、バトルアナライザーはどれも続けて使うページなので、1つずつの細かいストレスを減らしながら、流れで使いやすい形に寄せていきます。</p>
-    <p>今後も、対戦準備から対戦中の確認まで、できるだけ同じ感覚で触れるように調整を続けていきます。</p>
+    <h2>3. バトルアナライザーのアップデート</h2>
+    <p>バトルアナライザーは、選出後に確認したい情報を扱いやすくする方向でアップデートしました。見せ合い段階とバトルフェーズで扱いを分けて、必要なタイミングで触る内容がズレないようにしています。</p>
+    <p>また、相手側の情報を見返しやすくする流れや、選出率の記録側であとから確認しやすい形も意識しています。対戦中に使うときだけでなく、あとで振り返るときにも見やすい方向で整理しました。</p>
+
+    <h2>まとめ</h2>
+    <p>今回の更新は、ダメージ計算・パーティ登録・バトルアナライザーの3つを中心に、日常的に触る場面でストレスになりやすい部分を減らすことを目的にしています。</p>
+    <p>構築を作る、調整する、対戦中に確認する、あとで見返すという流れをできるだけつなげやすくするための更新です。今後も、使う場面での引っかかりを減らしながら整えていきます。</p>
   </div>
   <div class="related-section">
     <div class="related-title">RELATED ARTICLES</div>
     <div class="related-list">
-      <a class="related-link" href="update-summary-ranking-register-updates-icon.html">ランキング更新・ポケモン登録おすすめ表示・更新履歴アイコン追加を行いました</a>
-      <a class="related-link" href="update-summary-mobile-search-damage-fix.html">スマホ表示・検索機能・ダメージ計算の修正を行いました</a>
+      <a class="related-link" href="update-summary-ranking-register-updates-icon.html">ランキング更新・ポケモン登録おすすめ・更新履歴アイコン追加を行いました</a>
+      <a class="related-link" href="update-summary-endure-history-analyzer.html">耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</a>
       <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
     </div>
   </div>
