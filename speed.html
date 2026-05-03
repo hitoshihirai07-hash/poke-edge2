@@ -98,8 +98,30 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .my-speed-pill{padding:5px 8px;border:1px solid var(--border);background:var(--panel);font-size:11px;color:var(--text);}
 .my-speed-pill strong{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;}
 .manual-note{font-size:10px;color:var(--text2);}
-@media(max-width:980px){.my-speed-grid{grid-template-columns:repeat(3,minmax(110px,1fr));}}
-@media(max-width:640px){.my-speed-grid{grid-template-columns:repeat(2,minmax(110px,1fr));}}
+.compare-wrap{display:flex;flex-direction:column;gap:12px;padding:14px;background:var(--panel);border:1px solid var(--border);margin-bottom:14px;}
+.compare-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;}
+.compare-title{font-size:12px;color:var(--text);font-weight:700;}
+.compare-note{font-size:10px;color:var(--text2);line-height:1.7;max-width:760px;}
+.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:12px;}
+.compare-card{display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--bg2);border:1px solid var(--border);min-width:0;}
+.compare-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.compare-card-title{font-size:11px;letter-spacing:1px;color:var(--accent);}
+.compare-quick{font-size:10px;color:var(--text2);}
+.compare-speed-grid{display:grid;grid-template-columns:repeat(3,minmax(110px,1fr));gap:8px;}
+.compare-speed-grid .ctrl-input,.compare-speed-grid .ctrl-sel,.compare-speed-grid .ctrl-search{width:100%;}
+.compare-summary{display:flex;gap:8px;flex-wrap:wrap;}
+.compare-pill{padding:5px 8px;border:1px solid var(--border);background:var(--panel);font-size:11px;color:var(--text);}
+.compare-pill strong{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.compare-result{padding:12px;border:1px solid var(--accent);background:rgba(0,200,240,0.05);display:flex;flex-direction:column;gap:6px;}
+.compare-result-main{font-size:13px;color:var(--text);font-weight:700;}
+.compare-result-sub{font-size:11px;color:var(--text2);line-height:1.7;}
+.compare-winner{color:var(--green);}
+.compare-loser{color:var(--accent2);}
+.compare-even{color:var(--accent3);}
+.ability-detail{display:block;margin-top:4px;font-size:9px;color:var(--text2);line-height:1.5;}
+.head-sub{display:block;margin-top:3px;font-size:9px;color:var(--text2);font-weight:400;letter-spacing:0;}
+@media(max-width:980px){.my-speed-grid{grid-template-columns:repeat(3,minmax(110px,1fr));}.compare-grid{grid-template-columns:1fr;}}
+@media(max-width:640px){.my-speed-grid{grid-template-columns:repeat(2,minmax(110px,1fr));}.compare-speed-grid{grid-template-columns:1fr;}}
 
 /* 自分ポケモン：名前ヒット候補 */
 .name-hit-list{display:none;margin-top:6px;border:1px solid var(--border);background:var(--panel);max-height:230px;overflow-y:auto;padding:6px;gap:6px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));}
@@ -111,6 +133,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
   .name-hit-list{max-height:190px;grid-template-columns:repeat(2,minmax(0,1fr));}
   .my-speed-grid{grid-template-columns:1fr!important;}
   .my-speed-head{display:grid;gap:6px;}
+  .compare-speed-grid{grid-template-columns:1fr!important;}
+  .compare-result{padding:10px;}
 }
 
 /* テーブル */
@@ -357,6 +381,122 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     </div>
   </div>
 
+  <div class="compare-wrap">
+    <div class="compare-head">
+      <div>
+        <div class="compare-title">2匹の素早さ比較</div>
+        <div class="compare-note">ポケモン・ポイント・性格・特性・補正を左右それぞれ入れて、どちらが先に動けるかを確認できます。ゲーム設定は上のChampions / 従来作を共通で使います。</div>
+      </div>
+    </div>
+    <datalist id="compare-pokemon-list"></datalist>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-card-head">
+          <div class="compare-card-title">比較A</div>
+          <div class="compare-quick" id="cmp-a-quick">未入力</div>
+        </div>
+        <div class="compare-speed-grid">
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">ポケモン名</span>
+            <input class="ctrl-search" id="cmp-a-name" type="text" list="compare-pokemon-list" placeholder="ポケモン名" oninput="handleComparePokemonChange('cmp-a')">
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">ポイント / 努力値</span>
+            <input class="ctrl-input" id="cmp-a-ev" type="number" min="0" max="32" step="1" value="32" oninput="render()">
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">個体値</span>
+            <input class="ctrl-input" id="cmp-a-iv" type="number" min="0" max="31" value="31" oninput="render()">
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">性格</span>
+            <select class="ctrl-sel" id="cmp-a-nature" onchange="render()"></select>
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">素早さ特性</span>
+            <select class="ctrl-sel" id="cmp-a-ability" onchange="render()">
+              <option value="1">なし</option>
+            </select>
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">ランク補正</span>
+            <select class="ctrl-sel" id="cmp-a-rank" onchange="render()">
+              <option value="0">なし</option>
+              <option value="1">+1 (×1.5)</option>
+              <option value="2">+2 (×2.0)</option>
+              <option value="3">+3 (×2.5)</option>
+              <option value="-1">-1 (×0.67)</option>
+              <option value="-2">-2 (×0.5)</option>
+            </select>
+          </div>
+        </div>
+        <div class="my-speed-toggles">
+          <div class="tgl tgl-scarf" id="cmp-a-tgl-scarf" onclick="toggleTgl(this)">🧣 スカーフ ×1.5</div>
+          <div class="tgl tgl-tw" id="cmp-a-tgl-tailwind" onclick="toggleTgl(this)">🌪 追い風 ×2</div>
+          <div class="tgl tgl-para" id="cmp-a-tgl-para" onclick="toggleTgl(this)">⚡ 麻痺 ×0.5</div>
+        </div>
+        <div class="compare-summary">
+          <div class="compare-pill">未補正 <strong id="cmp-a-base">—</strong></div>
+          <div class="compare-pill">補正後 <strong id="cmp-a-effective">—</strong></div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-card-head">
+          <div class="compare-card-title">比較B</div>
+          <div class="compare-quick" id="cmp-b-quick">未入力</div>
+        </div>
+        <div class="compare-speed-grid">
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">ポケモン名</span>
+            <input class="ctrl-search" id="cmp-b-name" type="text" list="compare-pokemon-list" placeholder="ポケモン名" oninput="handleComparePokemonChange('cmp-b')">
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">ポイント / 努力値</span>
+            <input class="ctrl-input" id="cmp-b-ev" type="number" min="0" max="32" step="1" value="32" oninput="render()">
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">個体値</span>
+            <input class="ctrl-input" id="cmp-b-iv" type="number" min="0" max="31" value="31" oninput="render()">
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">性格</span>
+            <select class="ctrl-sel" id="cmp-b-nature" onchange="render()"></select>
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">素早さ特性</span>
+            <select class="ctrl-sel" id="cmp-b-ability" onchange="render()">
+              <option value="1">なし</option>
+            </select>
+          </div>
+          <div class="ctrl-item">
+            <span class="ctrl-lbl">ランク補正</span>
+            <select class="ctrl-sel" id="cmp-b-rank" onchange="render()">
+              <option value="0">なし</option>
+              <option value="1">+1 (×1.5)</option>
+              <option value="2">+2 (×2.0)</option>
+              <option value="3">+3 (×2.5)</option>
+              <option value="-1">-1 (×0.67)</option>
+              <option value="-2">-2 (×0.5)</option>
+            </select>
+          </div>
+        </div>
+        <div class="my-speed-toggles">
+          <div class="tgl tgl-scarf" id="cmp-b-tgl-scarf" onclick="toggleTgl(this)">🧣 スカーフ ×1.5</div>
+          <div class="tgl tgl-tw" id="cmp-b-tgl-tailwind" onclick="toggleTgl(this)">🌪 追い風 ×2</div>
+          <div class="tgl tgl-para" id="cmp-b-tgl-para" onclick="toggleTgl(this)">⚡ 麻痺 ×0.5</div>
+        </div>
+        <div class="compare-summary">
+          <div class="compare-pill">未補正 <strong id="cmp-b-base">—</strong></div>
+          <div class="compare-pill">補正後 <strong id="cmp-b-effective">—</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="compare-result">
+      <div class="compare-result-main" id="compare-result-main">2匹を入れると比較結果が出ます。</div>
+      <div class="compare-result-sub" id="compare-result-sub">同速かどうか、どちらが何差で上を取れるかをここに表示します。</div>
+    </div>
+  </div>
+
   <div class="count-info" id="count-info"></div>
 
   <!-- テーブル -->
@@ -378,9 +518,9 @@ let POKEMON_DATA=[], ABILITY_MAP={}, SEASON_DATA={seasons:[]}, ABILITY_DATA=[];
 let MY_POKEMON_CANDIDATES=[];
 const SPEED_DOUBLE_ABILITIES = {
   'すいすい':'あめ','すなかき':'すなあらし','ようりょくそ':'にほんばれ',
-  'ゆきかき':'ゆき','サーフテール':'エレキフィールド'
+  'ゆきかき':'ゆき','サーフテール':'エレキフィールド','かるわざ':'道具消費'
 };
-const SPEED_15_ABILITIES = {'はやあし':'状態異常','かるわざ':'道具消費'};
+const SPEED_15_ABILITIES = {'はやあし':'状態異常'};
 const RANK_MULT = {'-6':2/8,'-5':2/7,'-4':2/6,'-3':2/5,'-2':2/4,'-1':2/3,'0':1,'1':3/2,'2':4/2,'3':5/2,'4':6/2,'5':7/2,'6':8/2};
 const NATURE_OPTIONS = [
   'がんばりや','さみしがり','いじっぱり','やんちゃ','ゆうかん',
@@ -406,9 +546,12 @@ async function loadData(){
   POKEMON_DATA=pd; ABILITY_MAP=ad; SEASON_DATA=sd; ABILITY_DATA=abd;
   initSeasonFilter();
   initNatureOptions();
+  initCompareControls();
   initMyPokemonList();
   applyGameModeSettings(false);
   updateMyAbilityOptions();
+  updateCompareAbilityOptions('cmp-a');
+  updateCompareAbilityOptions('cmp-b');
   render();
 }
 
@@ -428,6 +571,13 @@ function initNatureOptions(){
   sel.innerHTML = NATURE_OPTIONS.map(n=>`<option value="${n}"${n==='ようき'?' selected':''}>${n}</option>`).join('');
 }
 
+function initCompareControls(){
+  ['cmp-a-nature','cmp-b-nature'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(sel) sel.innerHTML = NATURE_OPTIONS.map(n=>`<option value="${n}"${n==='ようき'?' selected':''}>${n}</option>`).join('');
+  });
+}
+
 function getCurrentGameRule(){
   const mode = document.getElementById('game-mode')?.value || 'champions';
   return GAME_RULES[mode] || GAME_RULES.champions;
@@ -435,16 +585,22 @@ function getCurrentGameRule(){
 
 function applyGameModeSettings(resetValue){
   const rule = getCurrentGameRule();
-  const evInput = document.getElementById('my-spe-ev');
+  const pointText = rule.label==='Champions' ? '素早さポイント' : '努力値';
   const pointLabel = document.getElementById('my-point-label');
-  if(evInput){
+  ['my-spe-ev','cmp-a-ev','cmp-b-ev'].forEach(id=>{
+    const evInput = document.getElementById(id);
+    if(!evInput) return;
     evInput.min = '0';
     evInput.max = String(rule.evMax);
     evInput.step = String(rule.evStep);
     if(resetValue || !evInput.value){ evInput.value = String(rule.defaultEv); }
     else { evInput.value = String(clampEvForSpeed(evInput.value)); }
-  }
-  if(pointLabel){ pointLabel.textContent = rule.label==='Champions' ? '素早さポイント' : '努力値'; }
+  });
+  if(pointLabel){ pointLabel.textContent = pointText; }
+  ['cmp-a','cmp-b'].forEach(prefix=>{
+    const label=document.querySelector(`#${prefix}-ev`)?.closest('.ctrl-item')?.querySelector('.ctrl-lbl');
+    if(label) label.textContent = pointText;
+  });
 }
 
 function handleGameModeChange(){
@@ -477,6 +633,10 @@ function getFilteredPokemonNamesForDatalist(){
 
 function initMyPokemonList(){
   MY_POKEMON_CANDIDATES = getFilteredPokemonNamesForDatalist();
+  const compareList = document.getElementById('compare-pokemon-list');
+  if(compareList){
+    compareList.innerHTML = MY_POKEMON_CANDIDATES.map(name=>`<option value="${escapeSpeedHtml(name)}"></option>`).join('');
+  }
   renderMyPokemonHits();
 }
 
@@ -591,10 +751,35 @@ function handleMyPokemonChange(){
   render();
 }
 
+function handleComparePokemonChange(prefix){
+  const input = document.getElementById(`${prefix}-name`);
+  if(!input) return;
+  const name = input.value.trim();
+  if(isMegaPokemonName(name)){
+    const scarf = document.getElementById(`${prefix}-tgl-scarf`);
+    if(scarf) scarf.classList.remove('on');
+  }
+  updateCompareAbilityOptions(prefix);
+  render();
+}
+
 function updateMyAbilityOptions(){
   const sel = document.getElementById('my-speed-ability');
   if(!sel) return;
   const name = document.getElementById('my-pokemon-name').value.trim();
+  const abilities = getSpeedAbilities(name);
+  const current = sel.value || '1';
+  let html = '<option value="1">なし</option>';
+  abilities.forEach(a=>{ html += `<option value="${a.mult}">${a.name} ×${a.mult}（${a.condition}）</option>`; });
+  sel.innerHTML = html;
+  const values = Array.from(sel.options).map(o=>o.value);
+  sel.value = values.includes(current) ? current : '1';
+}
+
+function updateCompareAbilityOptions(prefix){
+  const sel = document.getElementById(`${prefix}-ability`);
+  if(!sel) return;
+  const name = document.getElementById(`${prefix}-name`)?.value.trim() || '';
   const abilities = getSpeedAbilities(name);
   const current = sel.value || '1';
   let html = '<option value="1">なし</option>';
@@ -643,12 +828,35 @@ function calculateMySpeedValues(){
   return { baseSpeed, effectiveSpeed, helpText, hasInput: baseSpeed > 0 };
 }
 
-function applyOverallMods(baseVal, speedAbs, isMega){
+function calculateCompareSpeedValues(prefix){
+  const name = document.getElementById(`${prefix}-name`)?.value.trim() || '';
+  const pokemon = findPokemonByName(name);
+  const ev = clampEvForSpeed(document.getElementById(`${prefix}-ev`)?.value || 0);
+  const iv = Math.max(0, Math.min(31, Number(document.getElementById(`${prefix}-iv`)?.value)||31));
+  const nature = document.getElementById(`${prefix}-nature`)?.value || 'ようき';
+  const rankMult = RANK_MULT[document.getElementById(`${prefix}-rank`)?.value || '0'] || 1;
+  const abilityMult = Number(document.getElementById(`${prefix}-ability`)?.value || '1');
+  const tailwind = document.getElementById(`${prefix}-tgl-tailwind`)?.classList.contains('on');
+  const para = document.getElementById(`${prefix}-tgl-para`)?.classList.contains('on');
+  const scarf = document.getElementById(`${prefix}-tgl-scarf`)?.classList.contains('on');
+  const natureMult = getNatureMult(nature);
+  let baseSpeed = 0;
+  if(pokemon) baseSpeed = calcSpe(pokemon.spe, iv, ev, 50, natureMult);
+  let effectiveSpeed = baseSpeed;
+  effectiveSpeed = Math.floor(effectiveSpeed * abilityMult);
+  if(scarf && !isMegaPokemonName(name)) effectiveSpeed = Math.floor(effectiveSpeed * 1.5);
+  if(tailwind) effectiveSpeed = Math.floor(effectiveSpeed * 2);
+  if(para) effectiveSpeed = Math.floor(effectiveSpeed * 0.5);
+  effectiveSpeed = Math.floor(effectiveSpeed * rankMult);
+  return { name, baseSpeed, effectiveSpeed, hasInput: !!pokemon };
+}
+
+function applyOverallMods(baseVal, speedAbs, isMega, forceAbility){
   let v = baseVal;
   const scarf = document.getElementById('tgl-scarf').classList.contains('on');
   const tailwind = document.getElementById('tgl-tailwind').classList.contains('on');
   const para = document.getElementById('tgl-para').classList.contains('on');
-  const abilityBoost = document.getElementById('tgl-ability').classList.contains('on');
+  const abilityBoost = forceAbility || document.getElementById('tgl-ability').classList.contains('on');
   const rankMult = RANK_MULT[document.getElementById('rank-mod').value] || 1;
   const maxAbMult = speedAbs.length > 0 ? Math.max(...speedAbs.map(a=>a.mult)) : 1;
   if(abilityBoost && maxAbMult > 1) v = Math.floor(v * maxAbMult);
@@ -668,12 +876,40 @@ function render(){
   const speMin = parseInt(document.getElementById('spe-min').value)||0;
   const speMax = parseInt(document.getElementById('spe-max').value)||9999;
   const mySpeedState = calculateMySpeedValues();
+  const compareLabelMap = {fastest:'相手の最速', semi:'相手の準速', no:'相手の無振り', slowest:'相手の最遅'};
+  const compareKeyMap = {fastest:'fastest', semi:'semi', no:'noev', slowest:'slowest'};
+  const compareKey = compareKeyMap[compareMode] || 'fastest';
 
   document.getElementById('my-speed-base').textContent = mySpeedState.baseSpeed > 0 ? mySpeedState.baseSpeed : '—';
   document.getElementById('my-speed-effective').textContent = mySpeedState.effectiveSpeed > 0 ? mySpeedState.effectiveSpeed : '—';
   document.getElementById('my-speed-help').textContent = mySpeedState.helpText;
-  const compareLabelMap = {fastest:'相手の最速', semi:'相手の準速', no:'相手の無振り', slowest:'相手の最遅'};
   document.getElementById('compare-mode-label').textContent = compareLabelMap[compareMode] || '相手の最速';
+
+  const cmpA = calculateCompareSpeedValues('cmp-a');
+  const cmpB = calculateCompareSpeedValues('cmp-b');
+  document.getElementById('cmp-a-base').textContent = cmpA.baseSpeed > 0 ? cmpA.baseSpeed : '—';
+  document.getElementById('cmp-a-effective').textContent = cmpA.effectiveSpeed > 0 ? cmpA.effectiveSpeed : '—';
+  document.getElementById('cmp-b-base').textContent = cmpB.baseSpeed > 0 ? cmpB.baseSpeed : '—';
+  document.getElementById('cmp-b-effective').textContent = cmpB.effectiveSpeed > 0 ? cmpB.effectiveSpeed : '—';
+  document.getElementById('cmp-a-quick').textContent = cmpA.hasInput ? `${cmpA.name} / ${cmpA.effectiveSpeed}` : '未入力';
+  document.getElementById('cmp-b-quick').textContent = cmpB.hasInput ? `${cmpB.name} / ${cmpB.effectiveSpeed}` : '未入力';
+  const compareMain = document.getElementById('compare-result-main');
+  const compareSub = document.getElementById('compare-result-sub');
+  if(cmpA.hasInput && cmpB.hasInput){
+    if(cmpA.effectiveSpeed > cmpB.effectiveSpeed){
+      compareMain.innerHTML = `<span class="compare-winner">${escapeSpeedHtml(cmpA.name)}</span> の方が先に動けます。`;
+      compareSub.textContent = `補正後素早さは ${cmpA.effectiveSpeed} と ${cmpB.effectiveSpeed} で ${cmpA.effectiveSpeed - cmpB.effectiveSpeed} 差です。`;
+    }else if(cmpA.effectiveSpeed < cmpB.effectiveSpeed){
+      compareMain.innerHTML = `<span class="compare-winner">${escapeSpeedHtml(cmpB.name)}</span> の方が先に動けます。`;
+      compareSub.textContent = `補正後素早さは ${cmpA.effectiveSpeed} と ${cmpB.effectiveSpeed} で ${cmpB.effectiveSpeed - cmpA.effectiveSpeed} 差です。`;
+    }else{
+      compareMain.innerHTML = `<span class="compare-even">同速です。</span>`;
+      compareSub.textContent = `どちらも補正後素早さ ${cmpA.effectiveSpeed} です。`;
+    }
+  }else{
+    compareMain.textContent = '2匹を入れると比較結果が出ます。';
+    compareSub.textContent = '同速かどうか、どちらが何差で上を取れるかをここに表示します。';
+  }
 
   let pokes = POKEMON_DATA.filter(p=>{
     if(season && SEASON_DATA[season] && !SEASON_DATA[season].includes(p.name)) return false;
@@ -697,12 +933,14 @@ function render(){
       fastest: applyOverallMods(fastestRaw, speedAbs, isMegaPokemonName(p.name)),
       semi: applyOverallMods(semiRaw, speedAbs, isMegaPokemonName(p.name)),
       noev: applyOverallMods(noevRaw, speedAbs, isMegaPokemonName(p.name)),
-      slowest: applyOverallMods(slowestRaw, speedAbs, isMegaPokemonName(p.name))
+      slowest: applyOverallMods(slowestRaw, speedAbs, isMegaPokemonName(p.name)),
+      fastestAbility: applyOverallMods(fastestRaw, speedAbs, isMegaPokemonName(p.name), true),
+      semiAbility: applyOverallMods(semiRaw, speedAbs, isMegaPokemonName(p.name), true),
+      noevAbility: applyOverallMods(noevRaw, speedAbs, isMegaPokemonName(p.name), true),
+      slowestAbility: applyOverallMods(slowestRaw, speedAbs, isMegaPokemonName(p.name), true)
     };
   });
 
-  const compareKeyMap = {fastest:'fastest', semi:'semi', no:'noev', slowest:'slowest'};
-  const compareKey = compareKeyMap[compareMode] || 'fastest';
   rows.sort((a,b)=>(b[compareKey]-a[compareKey]) || (b.fastest-a.fastest) || (b.baseSpe-a.baseSpe));
 
   const thead = document.getElementById('speed-thead');
@@ -711,6 +949,7 @@ function render(){
   if(colMode==='all'||colMode==='semi') thHtml += '<th class="num">準速</th>';
   if(colMode==='all'||colMode==='no') thHtml += '<th class="num">無振り</th>';
   if(colMode==='all'||colMode==='slowest') thHtml += '<th class="num">最遅</th>';
+  thHtml += `<th class="num">特性発動時<span class="head-sub">${compareLabelMap[compareMode] || '相手の最速'}</span></th>`;
   thHtml += '<th>素早さ特性</th></tr>';
   thead.innerHTML = thHtml;
 
@@ -727,6 +966,8 @@ function render(){
     const t1 = r.type1 ? `<span class="tp tp-${r.type1}">${r.type1}</span>` : '';
     const t2 = r.type2 ? `<span class="tp tp-${r.type2}">${r.type2}</span>` : '';
     const abHtml = r.speedAbs.map(a=>`<span class="ab-badge" title="${a.condition}で×${a.mult}">${a.name}</span>`).join('');
+    const abilityCompareValue = r[`${compareKey}Ability`] || r[compareKey];
+    const abilityDetail = r.speedAbs.length ? `<span class="ability-detail">通常 ${r[compareKey]} → 発動 ${abilityCompareValue}</span>` : '<span style="color:var(--border2);">—</span>';
     html += `<tr class="${rowClass}">`;
     html += `<td><span class="poke-name">${r.name}</span></td>`;
     html += `<td>${t1}${t2}</td>`;
@@ -735,7 +976,8 @@ function render(){
     if(colMode==='all'||colMode==='semi') html += `<td class="num">${r.semi}</td>`;
     if(colMode==='all'||colMode==='no') html += `<td class="num">${r.noev}</td>`;
     if(colMode==='all'||colMode==='slowest') html += `<td class="num">${r.slowest}</td>`;
-    html += `<td>${abHtml || '<span style="color:var(--border2);">—</span>'}</td>`;
+    html += `<td class="num">${r.speedAbs.length ? abilityCompareValue : '—'}</td>`;
+    html += `<td>${abHtml || '<span style="color:var(--border2);">—</span>'}${r.speedAbs.length ? abilityDetail : ''}</td>`;
     html += '</tr>';
   });
   tbody.innerHTML = html;
