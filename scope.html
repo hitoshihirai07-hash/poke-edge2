@@ -1341,14 +1341,55 @@ function getScopeActivePartyIndex(side){
   const activeIdx = side==='my' ? myActiveIdx : oppActiveIdx;
   return Number.isInteger(activeIdx) ? sel[activeIdx] : null;
 }
+function getScopeBattleMegaOptions(slot){
+  if(!slot || !slot.poke) return [];
+  const baseName = slot.megaFormName ? (getBaseName(slot.megaFormName) || slot.poke.name) : slot.poke.name;
+  return getMegaFormsOf(baseName).map(p=>p.name).filter(Boolean);
+}
+function resolveScopeBattleMegaFormName(slot){
+  if(!slot || !slot.poke) return '';
+  const options = getScopeBattleMegaOptions(slot);
+  if(!options.length) return '';
+  if(slot.megaFormName && options.includes(slot.megaFormName)) return slot.megaFormName;
+  const inferred = inferMegaFormName(slot.poke.name, slot.item || '', slot.megaFormName || '');
+  if(inferred && options.includes(inferred)) return inferred;
+  return options[0] || '';
+}
+function getScopeBattleMegaLabel(slot){
+  const resolvedName = resolveScopeBattleMegaFormName(slot);
+  if(!resolvedName) return '';
+  const suffix = resolvedName.replace(/^メガ/,'').replace(String(slot.poke && slot.poke.name || ''),'').trim();
+  if(/^[XYZ]$/i.test(suffix)) return suffix.toUpperCase();
+  return getScopeCompactPokemonName(resolvedName);
+}
 function canScopeBattleMega(slot){
-  return !!(slot && slot.megaFormName && pokeIndex.find(p=>p.name===slot.megaFormName));
+  return getScopeBattleMegaOptions(slot).length > 0;
+}
+function cycleScopeBattleMegaForm(side){
+  const party = side==='my' ? myParty : oppParty;
+  const partyIdx = getScopeActivePartyIndex(side);
+  const slot = partyIdx===null || partyIdx===undefined ? null : party[partyIdx];
+  if(!slot) return;
+  const options = getScopeBattleMegaOptions(slot);
+  if(options.length <= 1) return;
+  const current = resolveScopeBattleMegaFormName(slot) || options[0];
+  const idx = Math.max(0, options.indexOf(current));
+  slot.megaFormName = options[(idx + 1) % options.length];
+  if(slot.battleMegaActive){
+    renderBattleField(side);
+    calcBattleActions();
+    if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+  } else {
+    renderBattleField(side);
+  }
 }
 function toggleScopeBattleMega(side){
   const party = side==='my' ? myParty : oppParty;
   const partyIdx = getScopeActivePartyIndex(side);
   const slot = partyIdx===null || partyIdx===undefined ? null : party[partyIdx];
   if(!slot || !canScopeBattleMega(slot)) return;
+  const resolvedFormName = resolveScopeBattleMegaFormName(slot);
+  if(resolvedFormName) slot.megaFormName = resolvedFormName;
   slot.battleMegaActive = !slot.battleMegaActive;
   renderBattleField(side);
   calcBattleActions();
@@ -2229,7 +2270,7 @@ function renderParty(side){
       '<button type="button" class="scope-mobile-edit-btn" onclick="event.stopPropagation();focusScopeMobileEdit(\''+side+'\','+i+')">編集</button>'+
       '<div class="slot-name">'+escapeHtml(getScopeSlotDisplayName(s))+'</div>'+
       '<div>'+typeHTML(s.poke)+'</div>'+
-      '<div class="slot-sub">'+(s.ability||'')+((s.item||'')?'<br>'+escapeHtml(s.item):'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+(s.megaFormName?'<br><span class="lead-mini">メガ可</span>':'')+(isLead?'<br><span class="lead-mini">初手</span>':'')+'</div>'+
+      '<div class="slot-sub">'+(s.ability||'')+((s.item||'')?'<br>'+escapeHtml(s.item):'')+((s.natureName||'')?'<br>'+s.natureName:'')+(presetLabel?'<br>'+presetLabel:'')+(((s.megaFormName || isScopeMegaCandidateName(s.poke && s.poke.name) || String(s.item||'').includes('ナイト')))?'<br><span class="lead-mini">メガ可</span>':'')+(isLead?'<br><span class="lead-mini">初手</span>':'')+'</div>'+
     '</div>';
   }).join('')+(party.length<6?'<div class="party-slot"><div class="slot-empty">＋</div></div>':'');
   renderSlotSettings(side);
@@ -2255,7 +2296,7 @@ function renderSlotSettings(side){
     const formSelect = formOptions.length ? '<select class="settings-select" onchange="setSlotForm(\''+side+'\','+i+',this.value)">'+formOptions.map(fn=>'<option value="'+escapeHtml(fn)+'" '+(currentFormValue===fn?'selected':'')+'>'+escapeHtml(fn)+'</option>').join('')+'</select>' : '<div></div>';
     const spread = getSpreadForSlot(slot);
     const spreadText = 'EV H'+(spread.hp||0)+' A'+(spread.atk||0)+' B'+(spread.def||0)+' C'+(spread.spa||0)+' D'+(spread.spd||0)+' S'+(spread.spe||0);
-    const megaPlanText = slot.megaFormName ? '<div class="settings-mini">メガ予定：'+escapeHtml(slot.megaFormName)+'</div>' : (slot.item && slot.item.includes('ナイト') ? '<div class="settings-mini">メガ可能：'+escapeHtml(slot.item)+'</div>' : '');
+    const megaPlanText = slot.megaFormName ? '<div class="settings-mini">メガ予定：'+escapeHtml(slot.megaFormName)+'</div>' : (((slot.item && slot.item.includes('ナイト')) || isScopeMegaCandidateName(slot.poke && slot.poke.name)) ? '<div class="settings-mini">メガ可能'+((slot.item && slot.item.includes('ナイト')) ? '：'+escapeHtml(slot.item) : '')+'</div>' : '');
     const activeEdit = getScopeMobileEditIndex(side)===i;
     return '<div class="settings-row '+(activeEdit?'mobile-active-edit':'')+'"><div class="settings-name">編集中：'+escapeHtml(getScopeSlotDisplayName(slot))+'<div class="settings-mini">'+escapeHtml(spreadText)+'</div>'+megaPlanText+'</div><div class="settings-main">'+formSelect+abilitySelect+natureSelect+presetSelect+renderEvEditor(side,i,slot)+'</div></div>';
   }).join('');
@@ -2642,11 +2683,15 @@ function renderBattleField(side){
   const extra = document.getElementById(side+'-active-extra');
   if(extra){
     if(canScopeBattleMega(active)){
-      if(active.battleMegaActive){
-        extra.innerHTML = '<button type="button" class="battle-mega-btn active" onclick="toggleScopeBattleMega(\''+side+'\')">メガ進化中</button>';
-      } else {
-        extra.innerHTML = '<button type="button" class="battle-mega-btn" onclick="toggleScopeBattleMega(\''+side+'\')">メガ進化</button>';
+      const megaLabel = getScopeBattleMegaLabel(active);
+      const options = getScopeBattleMegaOptions(active);
+      const labelText = megaLabel && options.length > 1 ? '（'+escapeHtml(megaLabel)+'）' : '';
+      const btnClass = active.battleMegaActive ? 'battle-mega-btn active' : 'battle-mega-btn';
+      let html = '<button type="button" class="'+btnClass+'" onclick="toggleScopeBattleMega(\''+side+'\')">'+(active.battleMegaActive ? 'メガ進化中' : 'メガ進化')+labelText+'</button>';
+      if(options.length > 1){
+        html += '<button type="button" class="battle-mega-btn" onclick="cycleScopeBattleMegaForm(\''+side+'\')">フォーム切替</button>';
       }
+      extra.innerHTML = html;
     } else {
       extra.innerHTML = '';
     }
