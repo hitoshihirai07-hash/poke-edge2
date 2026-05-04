@@ -1961,12 +1961,14 @@ function drawPokemonMovesBlock(ctx, data, x, y, w, moveCardH, gap){
     drawRoundedRect(ctx,x,my,w,moveCardH,18,mv?'rgba(0,200,240,0.07)':'rgba(26,37,64,0.55)','rgba(36,51,86,0.9)');
     ctx.fillStyle=mv?'#d8e8ff':'#7a90b0';
     ctx.font='700 18px "Noto Sans JP", sans-serif';
-    ctx.fillText(`${i+1}. ${mv?mv.name:'未選択'}`,x+24,my+34);
+    ctx.fillText(`${i+1}. ${mv?mv.name:'未選択'}`,x+24,my+30);
     if(mv){
-      let px=x+24;
-      px += drawPill(ctx,mv.type||'不明',px,my+44,getTypeColor(mv.type||''),(mv.type||'')==='でんき'?'#000':'#fff')+8;
-      if(mv.category) px += drawPill(ctx,mv.category,px,my+44,'#243356','#d8e8ff')+8;
-      drawPill(ctx,'威力 '+(mv.power||'—'),px,my+44,'#1a2540','#d8e8ff');
+      const meta=`タイプ ${mv.type||'不明'} / ${mv.category||'—'} / 威力 ${mv.power||'—'}`;
+      drawTextBlock(ctx,meta,x+24,my+54,w-48,18,'#9fb3cb','500 15px "Noto Sans JP", sans-serif');
+    }else{
+      ctx.fillStyle='#7a90b0';
+      ctx.font='500 15px "Noto Sans JP", sans-serif';
+      ctx.fillText('まだ技を選択していません',x+24,my+56);
     }
   }
 }
@@ -2024,6 +2026,52 @@ function drawMegaComparisonCard(ctx, compare, x, y, w, h, compact){
     ctx.fillText(`種族値 ${compare.megaBase[key]}`,megaX-10,rowY+(isCompact?16:20));
     rowY+=rowGap;
   });
+}
+function drawExportStatsRows(ctx, data, x, y, w, options){
+  const opt=options||{};
+  const stats=[['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
+  const hasMega=!!data.megaComparison;
+  const rowH=opt.rowH || (hasMega ? 96 : 92);
+  const gap=opt.gap || 10;
+  if(hasMega){
+    const headingY=y-14;
+    const normalX=x+(opt.normalX||230);
+    const megaX=x+(opt.megaX||370);
+    ctx.fillStyle='#7a90b0';
+    ctx.font=`500 ${opt.headingFont||15}px "Noto Sans JP", sans-serif`;
+    ctx.fillText('通常',normalX,headingY);
+    ctx.fillText('メガ',megaX,headingY);
+    if(opt.showCompareItem){
+      ctx.fillStyle='#7a90b0';
+      ctx.font='500 14px "Noto Sans JP", sans-serif';
+      ctx.fillText(data.megaComparison.item,x+110,y-14);
+    }
+    let sy=y;
+    stats.forEach(([label,key])=>{
+      drawRoundedRect(ctx,x,sy,w,rowH,18,'rgba(15,20,35,0.72)','rgba(36,51,86,0.9)');
+      ctx.fillStyle=STAT_COLORS[key];
+      ctx.font=`700 ${opt.labelFont||18}px "Noto Sans JP", sans-serif`;
+      ctx.fillText(label,x+24,sy+30);
+      ctx.fillStyle='#7a90b0';
+      ctx.font=`500 ${opt.subFont||14}px "JetBrains Mono", monospace`;
+      ctx.fillText(`努力値 ${data.ev[key]}`,x+24,sy+60);
+      ctx.fillStyle='#d8e8ff';
+      ctx.font=`700 ${opt.valueFont||40}px "Bebas Neue", "Noto Sans JP", sans-serif`;
+      ctx.fillText(String(data.megaComparison.normalReal[key]),normalX,sy+44);
+      ctx.fillText(String(data.megaComparison.megaReal[key]),megaX,sy+44);
+      ctx.fillStyle='#7a90b0';
+      ctx.font=`500 ${opt.baseFont||13}px "JetBrains Mono", monospace`;
+      ctx.fillText(`種族値 ${data.megaComparison.normalBase[key]}`,normalX,sy+68);
+      ctx.fillText(`種族値 ${data.megaComparison.megaBase[key]}`,megaX,sy+68);
+      sy += rowH + gap;
+    });
+  }else{
+    let sy=y;
+    stats.forEach(([label,key])=>{
+      drawStatCardRow(ctx,x,sy,w,label,data.real[key],`種族値 ${data.base[key]} / 努力値 ${data.ev[key]}`,STAT_COLORS[key],opt.singleOptions||null);
+      sy += (opt.singleStep || (rowH + gap));
+    });
+  }
 }
 function drawLandscapeExportCard(ctx, data, canvas){
   const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
@@ -2084,17 +2132,12 @@ function drawLandscapeExportCard(ctx, data, canvas){
   ctx.fillStyle='#ffc800';
   ctx.font='700 18px "Noto Sans JP", sans-serif';
   ctx.fillText('技',68,648);
-  drawPokemonMovesBlock(ctx,data,68,682,472,86,12);
+  drawPokemonMovesBlock(ctx,data,68,682,472,78,12);
 
   ctx.fillStyle='#ffc800';
   ctx.font='700 18px "Noto Sans JP", sans-serif';
-  ctx.fillText('実数値',612,208);
-  const stats=[['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
-  let sy=248;
-  stats.forEach(([label,key])=>{
-    drawStatCardRow(ctx,612,sy,496,label,data.real[key],`種族値 ${data.base[key]} / 努力値 ${data.ev[key]}`,STAT_COLORS[key]);
-    sy+=112;
-  });
+  ctx.fillText(data.megaComparison ? '実数値（通常 / メガ）' : '実数値',612,208);
+  drawExportStatsRows(ctx,data,612,256,496,{rowH:data.megaComparison?90:92,gap:10,normalX:246,megaX:382,showCompareItem:true});
 
   ctx.fillStyle='#ffc800';
   ctx.font='700 18px "Noto Sans JP", sans-serif';
@@ -2105,7 +2148,7 @@ function drawLandscapeExportCard(ctx, data, canvas){
   ctx.fillStyle='#ffc800';
   ctx.font='700 18px "Noto Sans JP", sans-serif';
   ctx.fillText('型のポイント',1180,208);
-  drawRoundedRect(ctx,1180,234,352,data.megaComparison ? 240 : 710,18,'rgba(15,20,35,0.72)','rgba(36,51,86,0.9)');
+  drawRoundedRect(ctx,1180,234,352,866,18,'rgba(15,20,35,0.72)','rgba(36,51,86,0.9)');
   const pointLines=[
     `表示名: ${data.name}`,
     `ゲーム: ${data.gameMode}`,
@@ -2113,14 +2156,11 @@ function drawLandscapeExportCard(ctx, data, canvas){
     `努力値合計: ${data.ev.hp+data.ev.atk+data.ev.def+data.ev.spa+data.ev.spd+data.ev.spe}`,
     data.ability ? `特性: ${data.ability}` : '特性: なし',
     data.item!=='なし' ? `持ち物: ${data.item}` : '持ち物: なし',
+    data.megaComparison ? 'メガ比較: 実数値欄に統合表示' : 'メガ比較: なし',
     data.memo && data.memo!=='メモなし' ? 'メモあり' : 'メモなし'
   ];
   let ry=270;
   pointLines.forEach(line=>{ ry=drawTextBlock(ctx,'・'+line,1204,ry,304,30,'#d8e8ff','500 18px "Noto Sans JP", sans-serif')+8; });
-
-  if(data.megaComparison){
-    drawMegaComparisonCard(ctx,data.megaComparison,1180,520,352,580);
-  }
 
   drawRoundedRect(ctx,44,1154,1512,24,12,'rgba(15,20,35,0.96)','rgba(36,51,86,0.9)');
   ctx.fillStyle='#7a90b0';
@@ -2129,6 +2169,7 @@ function drawLandscapeExportCard(ctx, data, canvas){
   ctx.fillStyle='#d8e8ff';
   ctx.fillText('※ 現在画面の入力内容をもとに生成した型紹介画像です。',1192,1171);
 }
+
 function drawPortraitExportCard(ctx, data, canvas){
   const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
   grad.addColorStop(0,'#07090f');
@@ -2170,7 +2211,6 @@ function drawPortraitExportCard(ctx, data, canvas){
     ['個体値',`全 ${data.iv}`],
     ['努力値',`H${data.ev.hp} A${data.ev.atk} B${data.ev.def} C${data.ev.spa} D${data.ev.spd} S${data.ev.spe}`]
   ];
-  let infoY=374;
   infoRows.forEach(([label,val], idx)=>{
     const left= idx<3 ? 60 : 530;
     const row= idx<3 ? idx : idx-3;
@@ -2181,56 +2221,44 @@ function drawPortraitExportCard(ctx, data, canvas){
     drawTextBlock(ctx,val,left+84,py,350,24,'#d8e8ff','500 16px "Noto Sans JP", sans-serif');
   });
 
-  drawRoundedRect(ctx,36,514,1008,502,24,'rgba(11,14,26,0.98)','rgba(36,51,86,0.9)');
+  drawRoundedRect(ctx,36,514,1008,548,24,'rgba(11,14,26,0.98)','rgba(36,51,86,0.9)');
   ctx.fillStyle='#ffc800';
   ctx.font='700 18px "Noto Sans JP", sans-serif';
-  ctx.fillText('実数値',60,552);
-  const stats=[['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
-  let sy=584;
-  stats.forEach(([label,key])=>{
-    drawStatCardRow(ctx,60,sy,960,label,data.real[key],`種族値 ${data.base[key]} / 努力値 ${data.ev[key]}`,STAT_COLORS[key],{height:70,valueFont:34,labelFont:16,subFont:13,subX:650});
-    sy+=76;
-  });
+  ctx.fillText(data.megaComparison ? '実数値（通常 / メガ）' : '実数値',60,552);
+  drawExportStatsRows(ctx,data,60,598,960,{rowH:data.megaComparison?74:70,gap:8,normalX:686,megaX:834,headingFont:16,labelFont:16,subFont:13,baseFont:12,showCompareItem:true,singleOptions:{height:70,valueFont:34,labelFont:16,subFont:13,subX:650},singleStep:78});
 
-  drawRoundedRect(ctx,36,1044,1008,392,24,'rgba(15,20,35,0.95)','rgba(36,51,86,0.9)');
+  drawRoundedRect(ctx,36,1090,1008,460,24,'rgba(15,20,35,0.95)','rgba(36,51,86,0.9)');
   ctx.fillStyle='#ffc800';
   ctx.font='700 18px "Noto Sans JP", sans-serif';
-  ctx.fillText('技',60,1082);
-  drawPokemonMovesBlock(ctx,data,60,1112,960,58,10);
+  ctx.fillText('技',60,1128);
+  drawPokemonMovesBlock(ctx,data,60,1156,960,68,10);
   ctx.fillStyle='#ffc800';
   ctx.font='700 18px "Noto Sans JP", sans-serif';
-  ctx.fillText('メモ',60,1382);
-  drawRoundedRect(ctx,60,1402,960,22,11,'rgba(36,51,86,0.65)',null);
-  drawTextBlock(ctx,data.memo,60,1428,960,26,'#d8e8ff','500 16px "Noto Sans JP", sans-serif');
+  ctx.fillText('メモ',60,1478);
+  drawRoundedRect(ctx,60,1498,960,30,11,'rgba(36,51,86,0.65)',null);
+  drawTextBlock(ctx,data.memo,72,1520,936,24,'#d8e8ff','500 16px "Noto Sans JP", sans-serif');
 
-  if(data.megaComparison){
-    drawMegaComparisonCard(ctx,data.megaComparison,36,1462,1008,328,true);
-    drawRoundedRect(ctx,36,1810,1008,58,18,'rgba(15,20,35,0.9)','rgba(36,51,86,0.9)');
-    ctx.fillStyle='#7a90b0';
-    ctx.font='500 14px "Noto Sans JP", sans-serif';
-    ctx.fillText(`PokeEdge | ${data.site} | 出力: ${data.exportedAt}`,60,1846);
-  }else{
-    drawRoundedRect(ctx,36,1462,1008,328,24,'rgba(15,20,35,0.95)','rgba(36,51,86,0.9)');
-    ctx.fillStyle='#ffc800';
-    ctx.font='700 18px "Noto Sans JP", sans-serif';
-    ctx.fillText('型のポイント',60,1500);
-    const pointLines=[
-      `表示名: ${data.name}`,
-      `ゲーム: ${data.gameMode}`,
-      `登録技数: ${data.moves.length} / 4`,
-      `努力値合計: ${data.ev.hp+data.ev.atk+data.ev.def+data.ev.spa+data.ev.spd+data.ev.spe}`,
-      data.ability ? `特性: ${data.ability}` : '特性: なし',
-      data.item!=='なし' ? `持ち物: ${data.item}` : '持ち物: なし',
-      data.memo && data.memo!=='メモなし' ? 'メモあり' : 'メモなし'
-    ];
-    let pointY=1536;
-    pointLines.forEach(line=>{ pointY=drawTextBlock(ctx,'・'+line,60,pointY,940,30,'#d8e8ff','500 18px "Noto Sans JP", sans-serif')+6; });
-    drawRoundedRect(ctx,36,1810,1008,58,18,'rgba(15,20,35,0.9)','rgba(36,51,86,0.9)');
-    ctx.fillStyle='#7a90b0';
-    ctx.font='500 14px "Noto Sans JP", sans-serif';
-    ctx.fillText(`PokeEdge | ${data.site} | 出力: ${data.exportedAt}`,60,1846);
-  }
+  drawRoundedRect(ctx,36,1576,1008,214,24,'rgba(15,20,35,0.95)','rgba(36,51,86,0.9)');
+  ctx.fillStyle='#ffc800';
+  ctx.font='700 18px "Noto Sans JP", sans-serif';
+  ctx.fillText('型のポイント',60,1614);
+  const pointLines=[
+    `表示名: ${data.name}`,
+    `ゲーム: ${data.gameMode}`,
+    `登録技数: ${data.moves.length} / 4`,
+    `努力値合計: ${data.ev.hp+data.ev.atk+data.ev.def+data.ev.spa+data.ev.spd+data.ev.spe}`,
+    data.item!=='なし' ? `持ち物: ${data.item}` : '持ち物: なし',
+    data.megaComparison ? 'メガ比較: 実数値欄に統合表示' : 'メガ比較: なし'
+  ];
+  let pointY=1650;
+  pointLines.forEach(line=>{ pointY=drawTextBlock(ctx,'・'+line,60,pointY,940,24,'#d8e8ff','500 16px "Noto Sans JP", sans-serif')+4; });
+
+  drawRoundedRect(ctx,36,1810,1008,58,18,'rgba(15,20,35,0.9)','rgba(36,51,86,0.9)');
+  ctx.fillStyle='#7a90b0';
+  ctx.font='500 14px "Noto Sans JP", sans-serif';
+  ctx.fillText(`PokeEdge | ${data.site} | 出力: ${data.exportedAt}`,60,1846);
 }
+
 async function exportPokemonCardImage(){
   const data=getPokemonCardExportData();
   const statusEl=document.getElementById('pokemon-export-status');
