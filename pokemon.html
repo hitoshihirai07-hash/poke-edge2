@@ -2152,16 +2152,16 @@ function loadPokemon(id) {
   renderAbilityOptions(rec.pokeName||'', rec.ability || '');
   document.getElementById('f-item').value=normalizeItemName(rec.item||'');
   document.getElementById('f-memo').value=rec.memo||'';
-  const safeIv = isChampionsSaved ? 31 : (rec.iv||31);
-  document.getElementById('iv-range').value=safeIv;
-  document.getElementById('iv-num').value=safeIv;
-  document.getElementById('iv-disp').textContent=safeIv;
   const classic=document.getElementById('poke-mode-classic');
   const champions=document.getElementById('poke-mode-champions');
   const isChampionsSaved=String(rec.gameMode||'champions').toLowerCase()==='champions';
   if(classic) classic.checked=!isChampionsSaved;
   if(champions) champions.checked=isChampionsSaved;
   onPokeModeChange();
+  const safeIv = isChampionsSaved ? 31 : (rec.iv||31);
+  document.getElementById('iv-range').value=safeIv;
+  document.getElementById('iv-num').value=safeIv;
+  document.getElementById('iv-disp').textContent=safeIv;
   ['hp','atk','def','spa','spd','spe'].forEach(k=>{
     const v=rec.ev?rec.ev[k]||0:0;
     document.getElementById('ev-'+k+'-r').value=v;
