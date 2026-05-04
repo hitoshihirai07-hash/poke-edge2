@@ -638,6 +638,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       </div>
       <a href="pokemon.html" style="padding:6px 14px;border:1px solid var(--accent);color:var(--accent);font-size:11px;text-decoration:none;letter-spacing:1px;transition:all 0.18s;" onmouseover="this.style.background='rgba(0,200,240,0.07)'" onmouseout="this.style.background='transparent'">＋ ポケモンを登録</a>
       <button class="party-action-btn" type="button" onclick="refreshSavedPartiesPanel()">↻ 保存一覧を更新</button>
+      <div class="export-size-switch" id="party-export-size-switch" aria-label="画像保存サイズ切り替え">
+        <button type="button" class="export-size-btn is-active" data-party-export-size="wide">16:9</button>
+        <button type="button" class="export-size-btn" data-party-export-size="vertical">9:16</button>
+      </div>
       <button class="party-action-btn primary" type="button" onclick="exportPartyImage()">📷 構築画像を保存</button>
     </div>
 
@@ -1402,6 +1406,7 @@ function setPartyMegaTarget(value){
   PARTY_MEGA_TARGET = Math.max(0, Math.min(6, parseInt(value, 10) || 0));
   localStorage.setItem('pokeedge_party_mega_target', String(PARTY_MEGA_TARGET));
   syncPartyMegaTargetUI();
+  setupPartyExportSizeSwitch();
   updateCoverage();
 }
 function syncPartyMegaTargetUI(){
@@ -3727,58 +3732,62 @@ if(urlParty){
 
 
 
-function exportPartyImage() {
-  pe_save();
-  if(!party.length) {
-    alert('パーティにポケモンを追加してください');
-    return;
-  }
-
-  const title = 'PokeEdge PARTY';
-  const canvas = document.createElement('canvas');
-  const width = 1400;
-  const cardCols = 2;
-  const cardW = 620;
-  const cardH = 300;
-  const gapX = 40;
-  const gapY = 34;
-  const marginX = 60;
-  const startY = 190;
-  const rows = 3;
-  const footerH = 72;
-  const height = startY + rows * cardH + (rows - 1) * gapY + footerH;
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-
+const PARTY_EXPORT_PRESETS={
+  wide:{key:'wide',width:1400,height:1200,fileSuffix:'16x9'},
+  vertical:{key:'vertical',width:1080,height:1920,fileSuffix:'9x16'}
+};
+let partyExportImageSize='wide';
+function setPartyExportImageSize(next){
+  partyExportImageSize = next==='vertical' ? 'vertical' : 'wide';
+  document.querySelectorAll('[data-party-export-size]').forEach(btn=>{
+    btn.classList.toggle('is-active', btn.dataset.partyExportSize===partyExportImageSize);
+  });
+}
+function setupPartyExportSizeSwitch(){
+  document.querySelectorAll('[data-party-export-size]').forEach(btn=>{
+    if(btn.dataset.bound==='1') return;
+    btn.dataset.bound='1';
+    btn.addEventListener('click', ()=>setPartyExportImageSize(btn.dataset.partyExportSize));
+  });
+  setPartyExportImageSize(partyExportImageSize);
+}
+function getSelectedPartyExportPreset(){
+  return PARTY_EXPORT_PRESETS[partyExportImageSize] || PARTY_EXPORT_PRESETS.wide;
+}
+function drawPartyExportBackground(ctx,width,height){
   const bgGrad = ctx.createLinearGradient(0, 0, width, height);
   bgGrad.addColorStop(0, '#08111f');
   bgGrad.addColorStop(1, '#0b1830');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
-
   drawGlow(ctx, 180, 120, 280, 'rgba(0,200,240,0.12)');
   drawGlow(ctx, width - 180, height - 220, 320, 'rgba(255,48,96,0.10)');
-
   ctx.strokeStyle = 'rgba(0,200,240,0.08)';
   ctx.lineWidth = 1;
-  for(let x=0; x<width; x+=52){
-    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke();
-  }
-  for(let y=0; y<height; y+=52){
-    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
-  }
-
+  for(let x=0; x<width; x+=52){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke(); }
+  for(let y=0; y<height; y+=52){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke(); }
+}
+function drawPartyExportHeader(ctx,width,ratioLabel,memberCount,leftX){
   ctx.fillStyle = '#00c8f0';
   ctx.font = "700 52px 'Noto Sans JP', sans-serif";
-  ctx.fillText(title, marginX, 78);
+  ctx.fillText('PokeEdge PARTY', leftX, 78);
   ctx.fillStyle = '#d8e8ff';
   ctx.font = "400 22px 'Noto Sans JP', sans-serif";
-  ctx.fillText('パーティ管理で作成した構築を1枚にまとめた投稿用画像', marginX, 116);
+  ctx.fillText('パーティ管理で作成した構築を1枚にまとめた投稿用画像', leftX, 116);
   ctx.fillStyle = '#7a90b0';
   ctx.font = "400 18px 'Noto Sans JP', sans-serif";
-  ctx.fillText(`${party.filter(Boolean).length}匹編成`, marginX, 148);
-
+  ctx.fillText(`${memberCount}匹編成`, leftX, 148);
+  roundRect(ctx, width-250, 46, 96, 34, 17, '#ffc800', null, 0);
+  ctx.fillStyle='#000'; ctx.font="700 18px 'Noto Sans JP', sans-serif"; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('Party', width-202, 63);
+  roundRect(ctx, width-140, 46, 90, 34, 17, 'rgba(36,51,86,0.9)', null, 0);
+  ctx.fillStyle='#d8e8ff'; ctx.fillText(ratioLabel, width-95, 63);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+}
+function drawPartyLandscapeImage(ctx,canvas){
+  const width=canvas.width, height=canvas.height;
+  const marginX = 60, startY = 190, cardCols = 2, cardW = 620, cardH = 300, gapX = 40, gapY = 34;
+  drawPartyExportBackground(ctx,width,height);
+  drawPartyExportHeader(ctx,width,'16:9',party.filter(Boolean).length,marginX);
   for(let i=0; i<6; i++) {
     const col = i % cardCols;
     const row = Math.floor(i / cardCols);
@@ -3786,18 +3795,49 @@ function exportPartyImage() {
     const y = startY + row * (cardH + gapY);
     drawPartyCard(ctx, x, y, cardW, cardH, party[i], i);
   }
-
   ctx.fillStyle = 'rgba(216,232,255,0.75)';
   ctx.font = "400 18px 'Noto Sans JP', sans-serif";
   ctx.fillText('https://poke-edge.pages.dev/', marginX, height - 28);
   ctx.textAlign = 'right';
   ctx.fillText('PokeEdge', width - marginX, height - 28);
   ctx.textAlign = 'left';
-
+}
+function drawPartyPortraitImage(ctx,canvas){
+  const width=canvas.width, height=canvas.height;
+  const marginX = 60, startY = 210, cardCols = 2, cardW = 470, cardH = 300, gapX = 20, gapY = 28;
+  drawPartyExportBackground(ctx,width,height);
+  drawPartyExportHeader(ctx,width,'9:16',party.filter(Boolean).length,marginX);
+  for(let i=0; i<6; i++) {
+    const col = i % cardCols;
+    const row = Math.floor(i / cardCols);
+    const x = marginX + col * (cardW + gapX);
+    const y = startY + row * (cardH + gapY);
+    drawPartyCard(ctx, x, y, cardW, cardH, party[i], i);
+  }
+  ctx.fillStyle = 'rgba(216,232,255,0.75)';
+  ctx.font = "400 18px 'Noto Sans JP', sans-serif";
+  ctx.fillText('https://poke-edge.pages.dev/', marginX, height - 36);
+  ctx.textAlign = 'right';
+  ctx.fillText('PokeEdge', width - marginX, height - 36);
+  ctx.textAlign = 'left';
+}
+function exportPartyImage() {
+  pe_save();
+  if(!party.length) {
+    alert('パーティにポケモンを追加してください');
+    return;
+  }
+  const preset=getSelectedPartyExportPreset();
+  const canvas = document.createElement('canvas');
+  canvas.width = preset.width;
+  canvas.height = preset.height;
+  const ctx = canvas.getContext('2d');
+  if(preset.key==='vertical') drawPartyPortraitImage(ctx,canvas);
+  else drawPartyLandscapeImage(ctx,canvas);
   const link = document.createElement('a');
   const date = new Date();
   const ymd = `${date.getFullYear()}${String(date.getMonth()+1).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}`;
-  link.download = `pokeedge-party-${ymd}.png`;
+  link.download = `pokeedge-party-${preset.fileSuffix}-${ymd}.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
