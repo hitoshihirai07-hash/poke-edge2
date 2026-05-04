@@ -1406,7 +1406,6 @@ function setPartyMegaTarget(value){
   PARTY_MEGA_TARGET = Math.max(0, Math.min(6, parseInt(value, 10) || 0));
   localStorage.setItem('pokeedge_party_mega_target', String(PARTY_MEGA_TARGET));
   syncPartyMegaTargetUI();
-  setupPartyExportSizeSwitch();
   updateCoverage();
 }
 function syncPartyMegaTargetUI(){
@@ -3645,6 +3644,7 @@ window.onload = async () => {
     btn.classList.toggle('active', btn.dataset.partyRankingMode === PARTY_RANKING_MODE);
   });
   syncPartyMegaTargetUI();
+  setupPartyExportSizeSwitch();
 
   // シーズンフィルター初期化
   const sfWrap = document.getElementById('season-filter-wrap');

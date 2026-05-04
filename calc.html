@@ -1714,7 +1714,6 @@ function renderSpecialFormCalcControl(side, poke){
       renderSpecialFormCalcControl(side, poke);
       if(side==='def') recalcDef(); else if(side==='atk2') recalcAtk2 && recalcAtk2(); else recalcAtk();
       updateDamageSetupSummary();
-  setupDamageExportSizeSwitch();
       scheduleAutoCalc();
     });
     wrap.appendChild(btn);
@@ -4863,6 +4862,7 @@ window.onload = async()=>{
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePokemonPicker(); closeDamageSetupModal(); } });
   renderQuickMoveChips('');
   updateDamageSetupSummary();
+  setupDamageExportSizeSwitch();
   initContextUI();
   initMobileResultUI();
   initMobileCalcSideTabs();
