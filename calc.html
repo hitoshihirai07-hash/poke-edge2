@@ -3813,6 +3813,8 @@ function calcDamage(options={}) {
     return `${data.mn} 〜 ${data.mx}`;
   }
 
+  const extraInfo = [weightInfo, skinInfo, weatherInfo, specialMoveInfo].concat(abilityExtraInfo).concat(parentalBondInfo?[parentalBondInfo]:[]).filter(Boolean).map(s=>' ('+s+')').join('');
+
   function getScenarioRangeText(data, label){
     const prefix=label?`${label} `:'';
     return parentalBondActive
