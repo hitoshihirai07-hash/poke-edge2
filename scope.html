@@ -131,6 +131,45 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .threat-detail .warn{color:var(--accent2);}
 .threat-detail .safe{color:var(--green);}
 
+/* 選出予測PRO */
+.scope-pro-badge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;border:1px solid var(--border2);font-size:9px;letter-spacing:1px;color:var(--accent3);background:rgba(255,200,0,0.08);margin-left:8px;}
+.scope-pro-meta{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;}
+.scope-pro-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--bg2);padding:5px 9px;font-size:10px;color:var(--text2);border-radius:999px;}
+.scope-pro-chip b{color:var(--text);font-size:11px;}
+.scope-pro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px;}
+.scope-pro-panel{background:var(--bg2);border:1px solid var(--border);padding:10px;}
+.scope-pro-title{font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:6px;}
+.scope-pro-main{font-size:14px;font-weight:700;line-height:1.7;}
+.scope-pro-main .pro-sep{color:var(--text2);margin:0 4px;}
+.scope-pro-sub{font-size:10px;color:var(--text2);line-height:1.7;margin-top:6px;}
+.scope-pro-line{margin-top:6px;font-size:11px;line-height:1.7;}
+.scope-pro-line b{color:var(--text);}
+.scope-pro-line.warn{color:var(--accent3);}
+.scope-pro-line.danger{color:var(--accent2);}
+.scope-pro-line.safe{color:var(--green);}
+.scope-pro-alt-list{display:flex;flex-direction:column;gap:7px;}
+.scope-pro-alt{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:8px;cursor:pointer;transition:border-color 0.15s;}
+.scope-pro-alt:hover{border-color:var(--accent);}
+.scope-pro-alt-no{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent3);min-width:20px;text-align:center;}
+.scope-pro-alt-main{font-size:11px;font-weight:700;line-height:1.5;}
+.scope-pro-alt-sub{font-size:9px;color:var(--text2);line-height:1.5;margin-top:2px;}
+.scope-pro-reason{background:rgba(0,200,240,0.06);border:1px solid var(--border);padding:10px;font-size:11px;line-height:1.8;margin-top:10px;}
+.scope-pro-cta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.scope-pro-mini-btn,.scope-pro-link-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:11px;font-weight:700;font-family:'Noto Sans JP',sans-serif;text-decoration:none;cursor:pointer;}
+.scope-pro-mini-btn.primary,.scope-pro-link-btn.primary{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.08);}
+.scope-pro-lock{border:1px dashed var(--border2);background:rgba(255,255,255,0.02);padding:12px;}
+.scope-pro-lock-title{font-size:12px;font-weight:700;margin-bottom:6px;}
+.scope-pro-lock-text{font-size:11px;color:var(--text2);line-height:1.8;}
+.scope-pro-lock-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.scope-pro-modal-backdrop{display:none;position:fixed;inset:0;z-index:420;background:rgba(0,0,0,0.72);padding:16px;align-items:center;justify-content:center;}
+.scope-pro-modal-backdrop.show{display:flex;}
+.scope-pro-modal{width:min(520px,100%);background:var(--panel);border:1px solid var(--border2);box-shadow:0 24px 56px rgba(0,0,0,0.36);padding:18px;}
+.scope-pro-modal-title{font-size:18px;font-weight:700;margin-bottom:8px;}
+.scope-pro-modal-text{font-size:12px;color:var(--text2);line-height:1.9;}
+.scope-pro-modal-note{margin-top:8px;font-size:11px;color:var(--accent3);line-height:1.8;}
+.scope-pro-modal-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+@media(max-width:900px){.scope-pro-grid{grid-template-columns:1fr;}}
+
 /* バトルフェーズ */
 .battle-field{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start;margin-bottom:12px;}
 .battle-active-extra{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
@@ -518,18 +557,25 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   .lead-pick-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
   .lead-btn{min-height:34px;font-size:10px;padding:5px;}
   .act-btn{width:100%;min-height:42px;border-radius:12px;}
-  .scope-mobile-analysis-tabs{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 8px;}
+  .scope-mobile-analysis-tabs{display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:0 0 8px;}
   body.scope-mobile-select-analysis .scope-mobile-analysis-tabs{display:grid;}
   .scope-mobile-analysis-btn,.scope-mobile-damage-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:12px;padding:9px 6px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;}
   body.scope-mobile-analysis-rec .scope-mobile-analysis-btn[data-scope-analysis="rec"],
   body.scope-mobile-analysis-threat .scope-mobile-analysis-btn[data-scope-analysis="threat"],
-  body.scope-mobile-analysis-matrix .scope-mobile-analysis-btn[data-scope-analysis="matrix"]{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.10);}
+  body.scope-mobile-analysis-matrix .scope-mobile-analysis-btn[data-scope-analysis="matrix"],
+  body.scope-mobile-analysis-pro .scope-mobile-analysis-btn[data-scope-analysis="pro"]{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.10);}
   body.scope-mobile-select-analysis.scope-mobile-analysis-rec #matrix-card,
-  body.scope-mobile-select-analysis.scope-mobile-analysis-rec #threat-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-rec #threat-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-rec #pro-card{display:none!important;}
   body.scope-mobile-select-analysis.scope-mobile-analysis-threat #matrix-card,
-  body.scope-mobile-select-analysis.scope-mobile-analysis-threat #rec-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-threat #rec-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-threat #pro-card{display:none!important;}
   body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #rec-card,
-  body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #threat-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #threat-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #pro-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-pro #rec-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-pro #threat-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-pro #matrix-card{display:none!important;}
   .matrix-mobile-targets{grid-template-columns:1fr!important;}
   .rec-team,.threat-item{padding:9px;border-radius:12px;}
   .scope-mobile-damage-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 8px;position:sticky;top:102px;z-index:78;background:rgba(7,9,15,0.96);border:1px solid var(--border);border-radius:14px;padding:7px;backdrop-filter:blur(14px);}
@@ -649,6 +695,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="rec" onclick="showScopeMobileAnalysis('rec')">推奨</button>
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="threat" onclick="showScopeMobileAnalysis('threat')">脅威</button>
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="matrix" onclick="showScopeMobileAnalysis('matrix')">対面</button>
+      <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="pro" onclick="showScopeMobileAnalysis('pro')">PRO</button>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
@@ -701,6 +748,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     <div class="card scope-analysis-card" id="threat-card" style="display:none;">
       <div class="card-title red">相手の脅威分析</div>
       <div id="threat-list"></div>
+    </div>
+
+    <div class="card scope-analysis-card" id="pro-card" style="display:none;">
+      <div class="card-title yellow">選出予測PRO <span class="scope-pro-badge" id="scope-pro-badge">7日無料体験</span></div>
+      <div class="note">相手の想定選出・初手候補・危険な並びまで、見せ合い段階の判断をまとめて表示します。</div>
+      <div class="scope-pro-meta" id="scope-pro-meta"></div>
+      <div id="scope-pro-lock"></div>
+      <div id="scope-pro-result"></div>
     </div>
 
     <button class="act-btn primary" onclick="goToBattle()">選出を決定 → バトルフェーズへ</button>
@@ -909,6 +964,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   </div>
 
 </div>
+
+<div class="scope-pro-modal-backdrop" id="scope-pro-modal" onclick="closeScopeProModal(event)"><div class="scope-pro-modal" role="dialog" aria-modal="true" aria-labelledby="scope-pro-modal-title" onclick="event.stopPropagation()"><div class="scope-pro-modal-title" id="scope-pro-modal-title">選出予測PRO</div><div class="scope-pro-modal-text" id="scope-pro-modal-text"></div><div class="scope-pro-modal-note" id="scope-pro-modal-note"></div><div class="scope-pro-modal-actions" id="scope-pro-modal-actions"></div></div></div>
 
 <footer>
   <div class="footer-logo">PokeEdge</div>
@@ -1950,8 +2007,8 @@ function showScopeMobileSelect(mode){
   });
 }
 function showScopeMobileAnalysis(mode){
-  mode = ['rec','threat','matrix'].includes(mode) ? mode : 'rec';
-  document.body.classList.remove('scope-mobile-analysis-rec','scope-mobile-analysis-threat','scope-mobile-analysis-matrix');
+  mode = ['rec','threat','matrix','pro'].includes(mode) ? mode : 'rec';
+  document.body.classList.remove('scope-mobile-analysis-rec','scope-mobile-analysis-threat','scope-mobile-analysis-matrix','scope-mobile-analysis-pro');
   document.body.classList.add('scope-mobile-analysis-'+mode);
   document.querySelectorAll('.scope-mobile-analysis-btn').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.scopeAnalysis===mode);
@@ -2000,7 +2057,7 @@ function showPhase(n){
     if(mtab) mtab.classList.toggle('active',i===n);
   });
   renderScopeMobileState(n);
-  if(n===1 && !document.body.classList.contains('scope-mobile-analysis-rec') && !document.body.classList.contains('scope-mobile-analysis-threat') && !document.body.classList.contains('scope-mobile-analysis-matrix')) showScopeMobileAnalysis('rec');
+  if(n===1 && !document.body.classList.contains('scope-mobile-analysis-rec') && !document.body.classList.contains('scope-mobile-analysis-threat') && !document.body.classList.contains('scope-mobile-analysis-matrix') && !document.body.classList.contains('scope-mobile-analysis-pro')) showScopeMobileAnalysis('rec');
   if(n===2) renderBattlePhase();
   if(n===3){
     if(!document.body.classList.contains('scope-mobile-damage-detail') && !document.body.classList.contains('scope-mobile-damage-my') && !document.body.classList.contains('scope-mobile-damage-opp') && !document.body.classList.contains('scope-mobile-damage-rank')) showScopeMobileDamage('my');
@@ -2348,11 +2405,14 @@ function autoAnalyze(){
     document.getElementById('matrix-card').style.display='none';
     document.getElementById('rec-card').style.display='none';
     document.getElementById('threat-card').style.display='none';
+    const proCard = document.getElementById('pro-card');
+    if(proCard) proCard.style.display='none';
     return;
   }
   renderMatrix();
   renderRecommendation();
   renderThreatAnalysis();
+  renderSelectionForecastPro();
 }
 
 // ===== 全対面マトリクス =====
@@ -2498,6 +2558,303 @@ function renderThreatAnalysis(){
   document.getElementById('threat-list').innerHTML = html;
 }
 
+
+
+// ===== 選出予測PRO =====
+const SCOPE_PRO_TRIAL_DAYS = 7;
+const SCOPE_PRO_GATE_KEY = 'pokeedge_scope_pro_gate_v1';
+const SCOPE_PRO_DEVICE_KEY = 'pokeedge_scope_pro_device_v1';
+const SCOPE_PRO_CONTACT_URL = 'https://x.com/sorasitekanri';
+let scopeProPromptedInSession = {};
+
+function getScopeProDeviceKey(){
+  try{
+    let id = localStorage.getItem(SCOPE_PRO_DEVICE_KEY) || '';
+    if(!id){
+      id = 'g-' + Math.random().toString(36).slice(2,10);
+      localStorage.setItem(SCOPE_PRO_DEVICE_KEY, id);
+    }
+    return id;
+  }catch(e){
+    return 'guest';
+  }
+}
+function getScopeProActorKey(){
+  const user = (typeof getCurrentUser==='function') ? getCurrentUser() : null;
+  if(user && user.id) return 'user:' + user.id;
+  return 'guest:' + getScopeProDeviceKey();
+}
+function loadScopeProGateStore(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(SCOPE_PRO_GATE_KEY) || '{}');
+    return raw && typeof raw==='object' ? raw : {};
+  }catch(e){
+    return {};
+  }
+}
+function saveScopeProGateStore(store){
+  try{ localStorage.setItem(SCOPE_PRO_GATE_KEY, JSON.stringify(store || {})); }catch(e){}
+}
+function getScopeProEntry(createIfMissing){
+  const store = loadScopeProGateStore();
+  const key = getScopeProActorKey();
+  if(!store[key] && createIfMissing){
+    store[key] = {trialStartedAt:'', unlocked:false};
+    saveScopeProGateStore(store);
+  }
+  return {key, store, entry:store[key] || null};
+}
+function saveScopeProEntry(entry){
+  const ctx = getScopeProEntry(false);
+  const store = ctx.store || {};
+  store[getScopeProActorKey()] = entry;
+  saveScopeProGateStore(store);
+}
+function startScopeProTrial(){
+  const ctx = getScopeProEntry(true);
+  const entry = ctx.entry || {trialStartedAt:'', unlocked:false};
+  if(!entry.trialStartedAt) entry.trialStartedAt = new Date().toISOString();
+  saveScopeProEntry(entry);
+  return getScopeProStatus();
+}
+function getScopeProStatus(){
+  const ctx = getScopeProEntry(true);
+  const entry = ctx.entry || {trialStartedAt:'', unlocked:false};
+  const startedAt = entry.trialStartedAt ? new Date(entry.trialStartedAt) : null;
+  const now = new Date();
+  const elapsedDays = startedAt ? Math.floor((now.getTime() - startedAt.getTime()) / 86400000) : 0;
+  const remaining = startedAt ? Math.max(0, SCOPE_PRO_TRIAL_DAYS - elapsedDays) : SCOPE_PRO_TRIAL_DAYS;
+  const activeTrial = !!startedAt && elapsedDays < SCOPE_PRO_TRIAL_DAYS;
+  const expired = !!startedAt && !entry.unlocked && !activeTrial;
+  return {
+    unlocked: !!entry.unlocked,
+    trialStartedAt: entry.trialStartedAt || '',
+    trialPending: !entry.trialStartedAt,
+    trialActive: activeTrial,
+    expired,
+    remainingDays: remaining,
+    canUse: !!entry.unlocked || activeTrial,
+    actorKey: getScopeProActorKey()
+  };
+}
+function renderScopeProMeta(status){
+  const el = document.getElementById('scope-pro-meta');
+  const badge = document.getElementById('scope-pro-badge');
+  if(!el || !badge) return;
+  if(status.unlocked){
+    badge.textContent = 'PRO利用中';
+    el.innerHTML = '<span class="scope-pro-chip"><b>状態</b>利用中</span><span class="scope-pro-chip"><b>内容</b>想定選出 / 初手 / 危険な並び</span>';
+    return;
+  }
+  if(status.trialPending){
+    badge.textContent = SCOPE_PRO_TRIAL_DAYS + '日無料体験';
+    el.innerHTML = '<span class="scope-pro-chip"><b>無料体験</b>初回利用から ' + SCOPE_PRO_TRIAL_DAYS + '日</span><span class="scope-pro-chip"><b>開始</b>このカードから</span>';
+    return;
+  }
+  if(status.trialActive){
+    badge.textContent = '無料体験中';
+    el.innerHTML = '<span class="scope-pro-chip"><b>残り</b>' + Math.max(1, status.remainingDays) + '日</span><span class="scope-pro-chip"><b>内容</b>選出判断をまとめて表示</span>';
+    return;
+  }
+  badge.textContent = '無料期間終了';
+  el.innerHTML = '<span class="scope-pro-chip"><b>状態</b>無料期間終了</span><span class="scope-pro-chip"><b>案内</b>今後は課金機能として表示</span>';
+}
+function formatScopeComboNames(teamIndices, party){
+  return (teamIndices || []).map(i=>party[i]).filter(Boolean).map(slot=>escapeHtml(getScopeSlotDisplayName(slot))).join('<span class="pro-sep">/</span>');
+}
+function hasMegaSelectionConflictForParty(teamIndices, party){
+  return (teamIndices || []).map(i=>party[i]).filter(slot=>slot && slot.poke && isScopeMegaCandidateName(slot.poke.name)).length > 1;
+}
+function scoreScopeCombo(teamIndices, party, foeParty){
+  const reports = (foeParty || []).map((foe, foeIdx)=>{
+    let bestScore = -999;
+    let bestIdx = null;
+    let bestMu = null;
+    (teamIndices || []).forEach(idx=>{
+      const slot = party[idx];
+      if(!slot || !foe) return;
+      const mu = evaluateMatchup(slot, foe);
+      if(mu.score > bestScore){
+        bestScore = mu.score;
+        bestIdx = idx;
+        bestMu = mu;
+      }
+    });
+    return {foeIdx, foe, bestIdx, bestMu, bestScore};
+  });
+  const typeSet = new Set();
+  (teamIndices || []).forEach(idx=>{
+    const slot = party[idx];
+    if(!slot || !slot.poke) return;
+    if(slot.poke.type1) typeSet.add(slot.poke.type1);
+    if(slot.poke.type2) typeSet.add(slot.poke.type2);
+  });
+  const total = reports.reduce((sum, r)=>sum + (Number.isFinite(r.bestScore) ? r.bestScore : 0), 0);
+  const winCount = reports.filter(r=>r.bestScore >= 10).length;
+  const loseCount = reports.filter(r=>r.bestScore <= -15).length;
+  const speedEdges = reports.filter(r=>r.bestMu && r.bestMu.faster).length;
+  const uniqueHandlers = new Set(reports.map(r=>r.bestIdx).filter(v=>v!==null)).size;
+  const score = total + typeSet.size * 1.5 + uniqueHandlers * 2 + winCount * 3 - loseCount * 3 + speedEdges;
+  return {team:teamIndices.slice(), score, reports, winCount, loseCount, speedEdges, uniqueHandlers};
+}
+function getScopeComboRanking(party, foeParty, maxResults){
+  if(!party.length || !foeParty.length) return [];
+  const size = Math.min(3, party.length);
+  const indices = party.map((_,i)=>i);
+  const combos = getCombinations(indices, size);
+  const filtered = combos.filter(team=>!hasMegaSelectionConflictForParty(team, party));
+  const source = filtered.length ? filtered : combos;
+  return source.map(team=>scoreScopeCombo(team, party, foeParty)).sort((a,b)=>b.score-a.score).slice(0, maxResults || 3);
+}
+function getScopeLeadRanking(teamIndices, party, foeParty){
+  return (teamIndices || []).map(idx=>{
+    const slot = party[idx];
+    if(!slot) return null;
+    let sum = 0;
+    let fastCount = 0;
+    (foeParty || []).forEach(foe=>{
+      const mu = evaluateMatchup(slot, foe);
+      sum += mu.score;
+      if(mu.faster) fastCount += 1;
+    });
+    const leadScore = sum + fastCount * 2;
+    return {idx, slot, leadScore, fastCount, avg: foeParty.length ? (sum / foeParty.length) : sum};
+  }).filter(Boolean).sort((a,b)=>b.leadScore-a.leadScore);
+}
+function buildScopeReasonText(myBest, oppBest, dangerNames){
+  const coverNames = myBest.reports.filter(r=>r.bestScore >= 12).slice(0,3).map(r=>getScopeSlotDisplayName(r.foe));
+  const speedLead = (myBest.leads && myBest.leads[0] && myBest.leads[0].fastCount) ? '初手候補で上を取りやすい枠があります。' : '初手は対面の通しより引き先も意識した並びです。';
+  let text = '';
+  if(coverNames.length){
+    text += coverNames.join('・') + ' に強めの回答を残しやすい並びです。';
+  } else {
+    text += '相手全体に対して極端な不利を減らす寄せ方です。';
+  }
+  if(oppBest && oppBest.team && oppBest.team.length){
+    text += ' 相手は ' + oppBest.team.map(i=>getScopeSlotDisplayName(oppParty[i])).join(' / ') + ' の並びを想定しています。';
+  }
+  text += ' ' + speedLead;
+  if(dangerNames.length){
+    text += ' 特に ' + dangerNames.join('・') + ' は崩されやすいので、雑に切らない前提で見ておくと安全です。';
+  }
+  return text;
+}
+function buildScopeProForecast(){
+  if(myParty.length < 3 || oppParty.length < 3) return null;
+  const oppRanking = getScopeComboRanking(oppParty, myParty, 3);
+  if(!oppRanking.length) return null;
+  const oppBest = oppRanking[0];
+  const oppProjectedParty = oppBest.team.map(i=>oppParty[i]).filter(Boolean);
+  const myRanking = getScopeComboRanking(myParty, oppProjectedParty, 3);
+  if(!myRanking.length) return null;
+  const myBest = myRanking[0];
+  myBest.leads = getScopeLeadRanking(myBest.team, myParty, oppProjectedParty).slice(0,2);
+  oppBest.leads = getScopeLeadRanking(oppBest.team, oppParty, myBest.team.map(i=>myParty[i]).filter(Boolean)).slice(0,2);
+  const dangerNames = myBest.reports.filter(r=>r.bestScore < 0).sort((a,b)=>a.bestScore-b.bestScore).slice(0,2).map(r=>getScopeSlotDisplayName(r.foe));
+  const safeNames = myBest.reports.filter(r=>r.bestScore >= 15).slice(0,2).map(r=>getScopeSlotDisplayName(r.foe));
+  const finisher = myBest.leads.length ? getScopeSlotDisplayName(myBest.leads[0].slot) : '';
+  const altPlans = myRanking.slice(1,3);
+  return {
+    myBest,
+    oppBest,
+    altPlans,
+    dangerNames,
+    safeNames,
+    finisher,
+    reasonText: buildScopeReasonText(myBest, oppBest, dangerNames)
+  };
+}
+function renderScopeProLocked(status){
+  const el = document.getElementById('scope-pro-lock');
+  const resultEl = document.getElementById('scope-pro-result');
+  if(resultEl) resultEl.innerHTML = '';
+  if(!el) return;
+  let title = '選出予測PROを開く';
+  let text = '相手の想定選出3体、初手候補、危険な並び、こちらの推奨選出までまとめて表示します。';
+  let actions = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(\'trial\')">無料で試す</button>';
+  if(status.expired){
+    title = '無料期間が終了しました';
+    text = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。以降は課金機能として案内する想定です。';
+    actions = '<button type="button" class="scope-pro-mini-btn" onclick="openScopeProModal(\'expired\')">課金案内を見る</button><a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">問い合わせ</a>';
+  }
+  el.innerHTML = '<div class="scope-pro-lock"><div class="scope-pro-lock-title">' + title + '</div><div class="scope-pro-lock-text">' + text + '</div><div class="scope-pro-lock-actions">' + actions + '</div></div>';
+}
+function renderScopeProResult(forecast){
+  const lockEl = document.getElementById('scope-pro-lock');
+  const resultEl = document.getElementById('scope-pro-result');
+  if(lockEl) lockEl.innerHTML = '';
+  if(!resultEl) return;
+  if(!forecast){
+    resultEl.innerHTML = '<div class="damage-empty-note">自分・相手ともに3体以上入れると、想定選出と初手候補を表示します。</div>';
+    return;
+  }
+  const oppLeadText = forecast.oppBest.leads.length ? forecast.oppBest.leads.map(x=>escapeHtml(getScopeSlotDisplayName(x.slot))).join(' / ') : '—';
+  const myLeadText = forecast.myBest.leads.length ? forecast.myBest.leads.map(x=>escapeHtml(getScopeSlotDisplayName(x.slot))).join(' / ') : '—';
+  const safeText = forecast.safeNames.length ? forecast.safeNames.map(escapeHtml).join(' / ') : '広く対応';
+  const dangerText = forecast.dangerNames.length ? forecast.dangerNames.map(escapeHtml).join(' / ') : '大きな危険なし';
+  const altHtml = forecast.altPlans.length ? forecast.altPlans.map((plan, idx)=>{
+    const safeCount = plan.reports.filter(r=>r.bestScore >= 10).length;
+    return '<div class="scope-pro-alt" onclick="applySelection([' + plan.team.join(',') + '])"><div class="scope-pro-alt-no">' + (idx + 2) + '</div><div><div class="scope-pro-alt-main">' + formatScopeComboNames(plan.team, myParty) + '</div><div class="scope-pro-alt-sub">相手想定 ' + safeCount + ' 体に有利寄り / ' + Math.round(plan.score) + 'pt</div></div></div>';
+  }).join('') : '<div class="damage-empty-note">別案はまだありません。</div>';
+  resultEl.innerHTML = '<div class="scope-pro-grid">'
+    + '<div class="scope-pro-panel"><div class="scope-pro-title">相手の想定選出</div><div class="scope-pro-main">' + formatScopeComboNames(forecast.oppBest.team, oppParty) + '</div><div class="scope-pro-line"><b>初手候補</b> ' + oppLeadText + '</div><div class="scope-pro-line warn"><b>要注意</b> ' + dangerText + '</div><div class="scope-pro-sub">見せ合い全体への通りと対面スコアから想定しています。</div></div>'
+    + '<div class="scope-pro-panel"><div class="scope-pro-title">こちらの推奨選出</div><div class="scope-pro-main">' + formatScopeComboNames(forecast.myBest.team, myParty) + '</div><div class="scope-pro-line"><b>初手候補</b> ' + myLeadText + '</div><div class="scope-pro-line safe"><b>通しやすい相手</b> ' + safeText + '</div><div class="scope-pro-line"><b>締め候補</b> ' + escapeHtml(forecast.finisher || '—') + '</div><div class="scope-pro-cta-row"><button type="button" class="scope-pro-mini-btn primary" onclick="applySelection([' + forecast.myBest.team.join(',') + '])">この3体を反映</button></div></div>'
+    + '</div>'
+    + '<div class="scope-pro-panel"><div class="scope-pro-title">別案</div><div class="scope-pro-alt-list">' + altHtml + '</div></div>'
+    + '<div class="scope-pro-reason"><b>理由</b><br>' + escapeHtml(forecast.reasonText) + '</div>';
+}
+function maybePromptScopePro(status){
+  if(!status || status.canUse) return;
+  const promptKey = status.expired ? 'expired' : (status.trialPending ? 'trial' : '');
+  if(!promptKey || scopeProPromptedInSession[promptKey]) return;
+  if(getCurrentScopePhase() !== 1) return;
+  scopeProPromptedInSession[promptKey] = true;
+  openScopeProModal(promptKey);
+}
+function renderSelectionForecastPro(){
+  const card = document.getElementById('pro-card');
+  if(!card) return;
+  if(!myParty.length || !oppParty.length){
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  const status = getScopeProStatus();
+  renderScopeProMeta(status);
+  if(!status.canUse){
+    renderScopeProLocked(status);
+    maybePromptScopePro(status);
+    return;
+  }
+  renderScopeProResult(buildScopeProForecast());
+}
+function openScopeProModal(mode){
+  const modal = document.getElementById('scope-pro-modal');
+  const textEl = document.getElementById('scope-pro-modal-text');
+  const noteEl = document.getElementById('scope-pro-modal-note');
+  const actionsEl = document.getElementById('scope-pro-modal-actions');
+  if(!modal || !textEl || !noteEl || !actionsEl) return;
+  if(mode==='expired'){
+    textEl.innerHTML = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。これ以降は課金となりますが、どうでしょうか。';
+    noteEl.textContent = '課金導線を入れる前の段階でも、まずは案内ポップアップとして運用できます。';
+    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">閉じる</button><a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">課金案内を見る</a>';
+  } else {
+    textEl.innerHTML = '初回利用から ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料です。相手の想定選出・初手候補・危険な並びまでまとめて表示します。';
+    noteEl.textContent = '無料期間終了後は課金機能として案内する流れにできます。';
+    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">あとで</button><button type="button" class="scope-pro-mini-btn primary" onclick="activateScopeProFromModal()">無料で使う</button>';
+  }
+  modal.classList.add('show');
+}
+function activateScopeProFromModal(){
+  startScopeProTrial();
+  closeScopeProModal();
+  renderSelectionForecastPro();
+}
+function closeScopeProModal(e){
+  if(e && e.target && e.target.id && e.target.id !== 'scope-pro-modal') return;
+  const modal = document.getElementById('scope-pro-modal');
+  if(modal) modal.classList.remove('show');
+}
 // ===== 技選択・対面ダメージ =====
 function getDamageSelectedSlots(side){
   const party = side==='my' ? myParty : oppParty;
