@@ -3694,7 +3694,6 @@ function calcDamage(options={}) {
   dmgMult*=fieldMods.dmgMult;
   dmgMult*=repAtkMods.dmgMult;
   if(fieldName) abilityExtraInfo.push('場: '+getFieldLabel(fieldName));
-  if(atkAbName==='スナイパー') dmgMult*=1.5;
   if(atkAbName==='ちからずく') dmgMult*=1.3;
   if(atkAbName==='いろめがね'&&eff<1) dmgMult*=2;
   if(atkAbName==='そうだいしょう'){
@@ -3747,91 +3746,170 @@ function calcDamage(options={}) {
   if(defAlly==='def_0.75_waza2') defStatMult*=(1/0.75);
   if(defItem==='def_0.5_handi') dmgMult*=0.5;
   if(defAlly==='def_0.75_fureka') dmgMult*=0.75;
-  if(defWall==='wall_0.5_hikari'&&moveCategory==='特殊') dmgMult*=0.5;
-  if(defWall==='wall_0.5_reflect'&&moveCategory==='物理') dmgMult*=0.5;
 
   // ランク
   const RANK=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
-  const atkRankVal = isBodyPress ? getStageValue('atk-extra-rank-def') : (isFoulPlay ? getStageValue('def-atk-rank') : getStageValue('atk-rank'));
-  const atkRank=RANK[atkRankVal+6];
-  const defRank=RANK[(parseInt(el('def-rank').value)||0)+6];
-  const effAtk=Math.floor(atkStat*atkStatMult*atkRank);
-  const effDef=Math.floor(defStat*defStatMult*defRank);
+  const atkRankValRaw = isBodyPress ? getStageValue('atk-extra-rank-def') : (isFoulPlay ? getStageValue('def-atk-rank') : getStageValue('atk-rank'));
+  const defRankValRaw = parseInt(el('def-rank').value)||0;
   const effPow=Math.floor(power*powerMult*skinMult);
-
-  // 16乱数ダメージ
-  let mn, mx, totalMn, totalMx, pmn, pmx, rolls, dmg1Min, dmg1Max;
-  let parentalSecondMn=0, parentalSecondMx=0, parentalSecondRolls=[];
-
-  if(isTripleEscalating) {
-    // トリプルアクセル/キック: 各ヒットの威力が異なるので個別計算
-    let triTotalMin = 0, triTotalMax = 0;
-    const triDetails = [];
-    tripleHits.forEach((hitPow, idx) => {
-      const ep = Math.floor(hitPow * powerMult * skinMult);
-      const b = Math.floor(Math.floor(Math.floor(lv*2/5+2)*ep*effAtk/effDef)/50+2);
-      const bm = Math.floor(b*stab)*eff*itemMult*dmgMult*weatherDmgMult;
-      const hMin = Math.floor(bm*85/100);
-      const hMax = Math.floor(bm);
-      triTotalMin += hMin;
-      triTotalMax += hMax;
-      triDetails.push({pow:hitPow, min:hMin, max:hMax});
-    });
-    mn = triDetails[0].min;
-    mx = triDetails[0].max;
-    totalMn = triTotalMin;
-    totalMx = triTotalMax;
-    pmn = Math.round(totalMn/hp*100);
-    pmx = Math.round(totalMx/hp*100);
-    dmg1Min = mn;
-    dmg1Max = mx;
-    // 16段階の乱数ロール（1hit目ベース）
-    rolls = [];
-    const ep1 = Math.floor(tripleHits[0]*powerMult*skinMult);
-    const b1 = Math.floor(Math.floor(Math.floor(lv*2/5+2)*ep1*effAtk/effDef)/50+2);
-    const bm1 = Math.floor(b1*stab)*eff*itemMult*dmgMult*weatherDmgMult;
-    for(let i=0;i<16;i++) rolls.push(Math.floor(bm1*(85+i)/100));
-  } else {
-    const firstHit = calcBaseDamageRolls(lv, effPow, effAtk, effDef, stab, eff, itemMult, dmgMult, weatherDmgMult);
-    rolls = firstHit.rolls;
-    mn = firstHit.mn; mx = firstHit.mx;
-    dmg1Min = mn; dmg1Max = mx;
-
-    if(parentalBondActive){
-      const secondPower = Math.max(1, Math.floor(effPow * 0.25));
-      const secondHit = calcBaseDamageRolls(lv, secondPower, effAtk, effDef, stab, eff, itemMult, dmgMult, weatherDmgMult);
-      parentalSecondRolls = secondHit.rolls;
-      parentalSecondMn = secondHit.mn;
-      parentalSecondMx = secondHit.mx;
-      totalMn = (dmg1Min + parentalSecondMn) * hitsInfo.min;
-      totalMx = (dmg1Max + parentalSecondMx) * hitsInfo.max;
-    } else {
-      totalMn = dmg1Min * hitsInfo.min;
-      totalMx = dmg1Max * hitsInfo.max;
-    }
-    pmn=Math.round(totalMn/hp*100); pmx=Math.round(totalMx/hp*100);
-  }
+  const isAlwaysCrit=String(alwaysCrit).toUpperCase()==='TRUE';
+  const critNotes=[];
+  const isMulti=hitsInfo.max>1;
   const hitPatterns=[];
   if(hitsInfo.min!==hitsInfo.max){
     if(hitsInfo.min===2&&hitsInfo.max===5){hitPatterns.push(2,3,4,5);}
     else{for(let h=hitsInfo.min;h<=hitsInfo.max;h++)hitPatterns.push(h);}
   } else {hitPatterns.push(hitsInfo.min);}
+  if(atkRankValRaw<0) critNotes.push('急所時: 攻撃下降ランク無視');
+  if(defRankValRaw>0) critNotes.push('急所時: 防御上昇ランク無視');
+  if(defWall==='wall_0.5_hikari'&&moveCategory==='特殊') critNotes.push('急所時: ひかりのかべ無視');
+  if(defWall==='wall_0.5_reflect'&&moveCategory==='物理') critNotes.push('急所時: リフレクター無視');
+  if(atkAbName==='スナイパー') critNotes.push('急所時: スナイパー反映');
+
+  function buildScenario(isCrit){
+    const scenarioAtkRankVal = isCrit ? Math.max(0, atkRankValRaw) : atkRankValRaw;
+    const scenarioDefRankVal = isCrit ? Math.min(0, defRankValRaw) : defRankValRaw;
+    let scenarioDmgMult=dmgMult;
+    if(!isCrit){
+      if(defWall==='wall_0.5_hikari'&&moveCategory==='特殊') scenarioDmgMult*=0.5;
+      if(defWall==='wall_0.5_reflect'&&moveCategory==='物理') scenarioDmgMult*=0.5;
+    } else {
+      scenarioDmgMult*=1.5;
+      if(atkAbName==='スナイパー') scenarioDmgMult*=1.5;
+    }
+    const effAtkScenario=Math.floor(atkStat*atkStatMult*RANK[scenarioAtkRankVal+6]);
+    const effDefScenario=Math.floor(defStat*defStatMult*RANK[scenarioDefRankVal+6]);
+
+    let mn, mx, totalMn, totalMx, pmn, pmx, rolls, dmg1Min, dmg1Max;
+    let parentalSecondMn=0, parentalSecondMx=0, parentalSecondRolls=[];
+    let triDetails=[];
+
+    if(isTripleEscalating) {
+      let triTotalMin = 0, triTotalMax = 0;
+      triDetails = [];
+      tripleHits.forEach((hitPow, idx) => {
+        const ep = Math.floor(hitPow * powerMult * skinMult);
+        const hitRes = calcBaseDamageRolls(lv, ep, effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult);
+        const hMin = hitRes.mn, hMax = hitRes.mx;
+        triTotalMin += hMin;
+        triTotalMax += hMax;
+        triDetails.push({pow:hitPow, min:hMin, max:hMax, cumMin:triTotalMin, cumMax:triTotalMax});
+      });
+      mn = triDetails[0].min;
+      mx = triDetails[0].max;
+      totalMn = triTotalMin;
+      totalMx = triTotalMax;
+      pmn = Math.round(totalMn/hp*100);
+      pmx = Math.round(totalMx/hp*100);
+      dmg1Min = mn;
+      dmg1Max = mx;
+      rolls = calcBaseDamageRolls(lv, Math.floor(tripleHits[0]*powerMult*skinMult), effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult).rolls;
+    } else {
+      const firstHit = calcBaseDamageRolls(lv, effPow, effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult);
+      rolls = firstHit.rolls;
+      mn = firstHit.mn; mx = firstHit.mx;
+      dmg1Min = mn; dmg1Max = mx;
+
+      if(parentalBondActive){
+        const secondPower = Math.max(1, Math.floor(effPow * 0.25));
+        const secondHit = calcBaseDamageRolls(lv, secondPower, effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult);
+        parentalSecondRolls = secondHit.rolls;
+        parentalSecondMn = secondHit.mn;
+        parentalSecondMx = secondHit.mx;
+        totalMn = (dmg1Min + parentalSecondMn) * hitsInfo.min;
+        totalMx = (dmg1Max + parentalSecondMx) * hitsInfo.max;
+      } else {
+        totalMn = dmg1Min * hitsInfo.min;
+        totalMx = dmg1Max * hitsInfo.max;
+      }
+      pmn=Math.round(totalMn/hp*100); pmx=Math.round(totalMx/hp*100);
+    }
+    const totalRolls=parentalBondActive?rolls.map((d,i)=>d+(parentalSecondRolls[i]||0)):rolls.slice();
+    const judgeMn=Math.round(totalMn/hazardJudgeHp*100), judgeMx=Math.round(totalMx/hazardJudgeHp*100);
+    return {
+      isCrit,
+      label:isCrit?'急所時':'通常時',
+      mn,mx,totalMn,totalMx,pmn,pmx,rolls,dmg1Min,dmg1Max,
+      parentalSecondMn,parentalSecondMx,parentalSecondRolls,totalRolls,
+      triDetails,judgeMn,judgeMx
+    };
+  }
+
+  function getKoMeta(scenario){
+    const judgePrefix=hazardInfo.total>0?'場ダメ込みで':'';
+    if(remainingHp<=0) return {cls:'ko1',label:'場ダメでKO',desc:'ステルスロック・まきびしだけで倒れます'};
+    if(scenario.judgeMn>=100) return {cls:'ko1',label:'確定1発',desc:judgePrefix+'確実に倒せます'};
+    if(scenario.judgeMx>=100) return {cls:'ko2',label:'乱数1発',desc:judgePrefix+'乱数次第で1発で倒せます'};
+    if(scenario.judgeMn*2>=100) return {cls:'ko1',label:'確定2発',desc:judgePrefix+'2回で確実に倒せます'};
+    if(scenario.judgeMx*2>=100) return {cls:'ko2',label:'乱数2発',desc:judgePrefix+'乱数次第で2発で倒せます'};
+    if(scenario.judgeMn*3>=100) return {cls:'ko3',label:'確定3発',desc:judgePrefix+'3回で確実に倒せます'};
+    if(scenario.judgeMx*3>=100) return {cls:'ko3',label:'乱数3発',desc:judgePrefix+'乱数次第で3発で倒せます'};
+    return {cls:'ko3',label:'4発以上',desc:judgePrefix+'4回以上必要です'};
+  }
+
+  function buildScenarioSection(scenario){
+    if(!scenario) return '';
+    const headColor = scenario.isCrit ? 'var(--accent2)' : 'var(--accent3)';
+    let bodyHtml='';
+    if(parentalBondActive){
+      bodyHtml = `<div style="margin-bottom:4px;"><span style="font-size:10px;color:${headColor};font-family:'Bebas Neue',monospace;">1hit目: </span><span style="font-size:11px;">${scenario.mn}〜${scenario.mx}ダメージ</span></div>`+
+        `<div style="margin-bottom:8px;"><span style="font-size:10px;color:${headColor};font-family:'Bebas Neue',monospace;">2hit目: </span><span style="font-size:11px;">${scenario.parentalSecondMn}〜${scenario.parentalSecondMx}ダメージ（威力0.25倍）</span></div>`+
+        scenario.totalRolls.map((d,i)=>{
+          const pct=Math.round(d/hp*100);
+          const hi=d>=hazardJudgeHp;
+          return `<span style="font-size:10px;padding:2px 5px;background:${i===0||i===15?'var(--border2)':'var(--bg)'};border:1px solid ${headColor};color:${hi?'var(--accent2)':headColor};">${d}(${pct}%)</span>`;
+        }).join(' ');
+    } else if(isTripleEscalating){
+      bodyHtml=scenario.triDetails.map((detail, idx)=>{
+        const pMin=Math.round(detail.cumMin/hp*100), pMax=Math.round(detail.cumMax/hp*100);
+        const koMark=detail.cumMax>=hazardJudgeHp?'<span style="color:var(--accent2);font-weight:700;"> KO圏</span>':'';
+        return `<div style="margin-bottom:4px;"><span style="font-size:10px;color:${headColor};font-family:'Bebas Neue',monospace;">${idx+1}hit(威力${detail.pow}): </span><span style="font-size:11px;">${detail.min}〜${detail.max}ダメージ / 累計${detail.cumMin}〜${detail.cumMax}（${pMin}〜${pMax}%）${koMark}</span></div>`;
+      }).join('');
+    } else if(isMulti){
+      bodyHtml=hitPatterns.map(h=>{
+        const tMin=scenario.dmg1Min*h,tMax=scenario.dmg1Max*h;
+        const pMin=Math.round(tMin/hp*100),pMax=Math.round(tMax/hp*100);
+        const koMark=tMax>=hazardJudgeHp?'<span style="color:var(--accent2);font-weight:700;"> KO圏</span>':'';
+        return `<div style="margin-bottom:4px;"><span style="font-size:10px;color:${headColor};font-family:'Bebas Neue',monospace;">${h}hit: </span><span style="font-size:11px;">${tMin}〜${tMax}ダメージ（${pMin}〜${pMax}%）${koMark}</span></div>`;
+      }).join('');
+    } else {
+      bodyHtml=scenario.rolls.map((d,i)=>{
+        const pct=Math.round(d/hp*100);
+        const hi=d>=hazardJudgeHp;
+        return `<span style="font-size:10px;padding:2px 5px;background:${i===0||i===15?'var(--border2)':'var(--bg)'};border:1px solid ${headColor};color:${hi?'var(--accent2)':headColor};">${d}(${pct}%)</span>`;
+      }).join(' ');
+    }
+    return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);"><div style="font-size:10px;color:${headColor};margin-bottom:4px;">⚡ ${scenario.label}</div>${bodyHtml}</div>`;
+  }
+
+  const normalScenario = isAlwaysCrit ? null : buildScenario(false);
+  const critScenario = buildScenario(true);
+  const primaryScenario = isAlwaysCrit ? critScenario : normalScenario;
+  const primaryKo = getKoMeta(primaryScenario);
+  const normalKo = normalScenario ? getKoMeta(normalScenario) : null;
+  const critKo = getKoMeta(critScenario);
 
   el('result-box').classList.add('show');
   updateMobileResultSummary();
-  el('dmg-num').textContent=isTripleEscalating
-    ? `${totalMn} 〜 ${totalMx}（${tripleHits.join('+')}）`
-    : parentalBondActive
-      ? `${totalMn} 〜 ${totalMx}`
-      : hitsInfo.min!==hitsInfo.max
-        ? `${dmg1Min*hitsInfo.min} 〜 ${dmg1Max*hitsInfo.max}`
-        : `${mn} 〜 ${mx}`;
+  if(isAlwaysCrit){
+    el('dmg-num').textContent=`${critScenario.totalMn} 〜 ${critScenario.totalMx}`;
+    el('dmg-pct').textContent=`${critScenario.pmn}〜${critScenario.pmx}%`;
+  } else {
+    el('dmg-num').textContent=`通常 ${normalScenario.totalMn}〜${normalScenario.totalMx} / 急所 ${critScenario.totalMn}〜${critScenario.totalMx}`;
+    el('dmg-pct').textContent=`通常 ${normalScenario.pmn}〜${normalScenario.pmx}% / 急所 ${critScenario.pmn}〜${critScenario.pmx}%`;
+  }
   const extraInfo = [weightInfo, skinInfo, weatherInfo, specialMoveInfo].concat(abilityExtraInfo).concat(parentalBondInfo?[parentalBondInfo]:[]).filter(Boolean).map(s=>' ('+s+')').join('');
-  el('dmg-range').textContent=parentalBondActive
-    ? `乱数幅 ${mn}〜${mx}（1hit目） / ${parentalSecondMn}〜${parentalSecondMx}（2hit目）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`
-    : `乱数幅 ${mn}〜${mx}（1hit）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}`;
-  el('dmg-bar').style.width=Math.min(pmx,100)+'%';
-  el('dmg-pct').textContent=`${pmn}〜${pmx}%`;
+  const critInfoText = critNotes.length ? ' ('+critNotes.join(' / ')+')' : '';
+  if(isAlwaysCrit){
+    el('dmg-range').textContent=parentalBondActive
+      ? `急所時 乱数幅 ${critScenario.mn}〜${critScenario.mx}（1hit目） / ${critScenario.parentalSecondMn}〜${critScenario.parentalSecondMx}（2hit目）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`
+      : `急所時 乱数幅 ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
+  } else {
+    el('dmg-range').textContent=parentalBondActive
+      ? `通常 ${normalScenario.mn}〜${normalScenario.mx}（1hit目） / ${normalScenario.parentalSecondMn}〜${normalScenario.parentalSecondMx}（2hit目） ｜ 急所 ${critScenario.mn}〜${critScenario.mx}（1hit目） / ${critScenario.parentalSecondMn}〜${critScenario.parentalSecondMx}（2hit目）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`
+      : `通常 ${normalScenario.mn}〜${normalScenario.mx}${isMulti?'（1hit）':''} ｜ 急所 ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
+  }
+  el('dmg-bar').style.width=Math.min(primaryScenario.pmx,100)+'%';
   updateDefHazardInfo();
   const hazardSummaryEl=el('hazard-summary');
   if(hazardSummaryEl){
@@ -3840,81 +3918,18 @@ function calcDamage(options={}) {
       : (hazardInfo.notes.length ? `場ダメ込み判定: ${hazardInfo.notes.join(' / ')}` : '場ダメ込み判定: なし');
   }
 
-  const totalRolls=parentalBondActive?rolls.map((d,i)=>d+(parentalSecondRolls[i]||0)):rolls.slice();
-  const critRolls=parentalBondActive
-    ? rolls.map((d,i)=>Math.floor(d*1.5)+Math.floor((parentalSecondRolls[i]||0)*1.5))
-    : rolls.map(d=>Math.floor(d*1.5));
-  const dm=parentalBondActive?totalRolls[0]:mn,dM=parentalBondActive?totalRolls[15]:mx;
-  const dmC=critRolls[0],dMC=critRolls[15];
+  el('dmg-rolls').innerHTML=isAlwaysCrit
+    ? buildScenarioSection(critScenario)
+    : buildScenarioSection(normalScenario)+buildScenarioSection(critScenario);
 
-  // 乱数表示
-  const isMulti=hitsInfo.max>1;
-  let rollsHtml='';
-  if(parentalBondActive){
-    rollsHtml = `<div style="font-size:10px;color:var(--accent3);margin-bottom:6px;">⚡ おやこあい内訳</div>`+
-      `<div style="margin-bottom:4px;"><span style="font-size:10px;color:var(--accent3);font-family:'Bebas Neue',monospace;">1hit目: </span><span style="font-size:11px;">${mn}〜${mx}ダメージ</span></div>`+
-      `<div style="margin-bottom:8px;"><span style="font-size:10px;color:var(--accent3);font-family:'Bebas Neue',monospace;">2hit目: </span><span style="font-size:11px;">${parentalSecondMn}〜${parentalSecondMx}ダメージ（威力0.25倍）</span></div>`+
-      totalRolls.map((d,i)=>{
-        const pct=Math.round(d/hp*100);
-        const hi=d>=hazardJudgeHp;
-        return `<span style="font-size:10px;padding:2px 5px;background:${i===0||i===15?'var(--border2)':'var(--bg)'};border:1px solid var(--border);color:${hi?'var(--accent2)':'var(--text)'};">${d}(${pct}%)</span>`;
-      }).join(' ');
-    if(String(alwaysCrit).toUpperCase()==='TRUE'){
-      rollsHtml+=`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);"><div style="font-size:10px;color:var(--accent3);margin-bottom:4px;">⚡ 急所時（合計）</div>`;
-      rollsHtml+=critRolls.map((d,i)=>{
-        const pct=Math.round(d/hp*100);
-        return `<span style="font-size:10px;padding:2px 5px;background:${i===0||i===15?'var(--border2)':'var(--bg)'};border:1px solid var(--accent3);color:${d>=hazardJudgeHp?'var(--accent2)':'var(--accent3)'};">${d}(${pct}%)</span>`;
-      }).join(' ')+'</div>';
-    }
-  } else if(isTripleEscalating){
-    // トリプルアクセル/キック: 各ヒットの威力別ダメージを表示
-    let cumMin=0, cumMax=0;
-    rollsHtml=tripleHits.map((hitPow, idx)=>{
-      const ep=Math.floor(hitPow*powerMult*skinMult);
-      const b=Math.floor(Math.floor(Math.floor(lv*2/5+2)*ep*effAtk/effDef)/50+2);
-      const bm=Math.floor(b*stab)*eff*itemMult*dmgMult*weatherDmgMult;
-      const hMin=Math.floor(bm*85/100), hMax=Math.floor(bm);
-      cumMin+=hMin; cumMax+=hMax;
-      const pMin=Math.round(cumMin/hp*100), pMax=Math.round(cumMax/hp*100);
-      const koMark=cumMax>=hazardJudgeHp?'<span style="color:var(--accent2);font-weight:700;"> KO圏</span>':'';
-      return `<div style="margin-bottom:4px;"><span style="font-size:10px;color:var(--accent3);font-family:'Bebas Neue',monospace;">${idx+1}hit(威力${hitPow}): </span><span style="font-size:11px;">${hMin}〜${hMax}ダメージ / 累計${cumMin}〜${cumMax}（${pMin}〜${pMax}%）${koMark}</span></div>`;
-    }).join('');
-  } else if(isMulti){
-    rollsHtml=hitPatterns.map(h=>{
-      const tMin=dmg1Min*h,tMax=dmg1Max*h;
-      const pMin=Math.round(tMin/hp*100),pMax=Math.round(tMax/hp*100);
-      const koMark=tMax>=hazardJudgeHp?'<span style="color:var(--accent2);font-weight:700;"> KO圏</span>':'';
-      return `<div style="margin-bottom:4px;"><span style="font-size:10px;color:var(--accent3);font-family:'Bebas Neue',monospace;">${h}hit: </span><span style="font-size:11px;">${tMin}〜${tMax}ダメージ（${pMin}〜${pMax}%）${koMark}</span></div>`;
-    }).join('');
-  } else {
-    rollsHtml=rolls.map((d,i)=>{
-      const pct=Math.round(d/hp*100);
-      const hi=d>=hazardJudgeHp,at=pct>=100;
-      return `<span style="font-size:10px;padding:2px 5px;background:${i===0||i===15?'var(--border2)':'var(--bg)'};border:1px solid var(--border);color:${hi?'var(--accent2)':'var(--text)'};">${d}(${pct}%)</span>`;
-    }).join(' ');
-    if(String(alwaysCrit).toUpperCase()==='TRUE'){
-      rollsHtml+=`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);"><div style="font-size:10px;color:var(--accent3);margin-bottom:4px;">⚡ 急所時（×1.5）</div>`;
-      rollsHtml+=critRolls.map((d,i)=>{
-        const pct=Math.round(d/hp*100);
-        return `<span style="font-size:10px;padding:2px 5px;background:${i===0||i===15?'var(--border2)':'var(--bg)'};border:1px solid var(--accent3);color:${d>=hazardJudgeHp?'var(--accent2)':'var(--accent3)'};">${d}(${pct}%)</span>`;
-      }).join(' ')+'</div>';
-    }
-  }
-  el('dmg-rolls').innerHTML=rollsHtml;
-
-  const judgeMn=Math.round(totalMn/hazardJudgeHp*100), judgeMx=Math.round(totalMx/hazardJudgeHp*100);
-  const judgePrefix=hazardInfo.total>0?'場ダメ込みで':'';
   const kt=el('ko-tag');
-  if(remainingHp<=0){
-    kt.innerHTML='<span class="ko-tag ko1">場ダメでKO</span>';
-    el('dmg-desc').textContent='ステルスロック・まきびしだけで倒れます';
-  } else if(judgeMn>=100)        {kt.innerHTML='<span class="ko-tag ko1">確定1発</span>';el('dmg-desc').textContent=judgePrefix+'確実に倒せます';}
-  else if(judgeMx>=100)   {kt.innerHTML='<span class="ko-tag ko2">乱数1発</span>';el('dmg-desc').textContent=judgePrefix+'乱数次第で1発で倒せます';}
-  else if(judgeMn*2>=100) {kt.innerHTML='<span class="ko-tag ko1">確定2発</span>';el('dmg-desc').textContent=judgePrefix+'2回で確実に倒せます';}
-  else if(judgeMx*2>=100) {kt.innerHTML='<span class="ko-tag ko2">乱数2発</span>';el('dmg-desc').textContent=judgePrefix+'乱数次第で2発で倒せます';}
-  else if(judgeMn*3>=100) {kt.innerHTML='<span class="ko-tag ko3">確定3発</span>';el('dmg-desc').textContent=judgePrefix+'3回で確実に倒せます';}
-  else if(judgeMx*3>=100) {kt.innerHTML='<span class="ko-tag ko3">乱数3発</span>';el('dmg-desc').textContent=judgePrefix+'乱数次第で3発で倒せます';}
-  else                {kt.innerHTML='<span class="ko-tag ko3">4発以上</span>';el('dmg-desc').textContent=judgePrefix+'4回以上必要です';}
+  if(isAlwaysCrit){
+    kt.innerHTML=`<span class="ko-tag ${critKo.cls}">急所: ${critKo.label}</span>`;
+    el('dmg-desc').textContent=critKo.desc;
+  } else {
+    kt.innerHTML=`<span class="ko-tag ${normalKo.cls}">通常: ${normalKo.label}</span><span class="ko-tag ${critKo.cls}">急所: ${critKo.label}</span>`;
+    el('dmg-desc').textContent=`通常: ${normalKo.desc} / 急所: ${critKo.desc}`;
+  }
   return true;
 }
 function showResult0(abName){
@@ -4421,8 +4436,6 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   if(defAlly==='def_0.75_waza2') defStatMult*=(1/0.75);
   if(defItem==='def_0.5_handi') dmgMult*=0.5;
   if(defAlly==='def_0.75_fureka') dmgMult*=0.75;
-  if(defWall==='wall_0.5_hikari'&&moveCategory==='特殊') dmgMult*=0.5;
-  if(defWall==='wall_0.5_reflect'&&moveCategory==='物理') dmgMult*=0.5;
   const defRank=Math.max(-6, Math.min(6, parseInt(el('def-rank')?.value)||0));
   const RANK=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
   const effAtk=Math.floor(atkStat*atkStatMult);
