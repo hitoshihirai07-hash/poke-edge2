@@ -3739,6 +3739,7 @@ function calcDamage(options={}) {
   const dmgMultCritBase = wallMult!==1 ? (dmgMultBase / wallMult) : dmgMultBase;
   const effPow=Math.floor(power*powerMult*skinMult);
   const alwaysCritActive=String(alwaysCrit).toUpperCase()==='TRUE';
+  const isMulti=hitsInfo.max>1;
 
   function buildDamageScenario(isCrit){
     let atkStage=atkRankStageBase;
