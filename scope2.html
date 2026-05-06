@@ -224,6 +224,20 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .switch-safe{color:var(--green);}
 .switch-warn{color:var(--accent3);}
 .switch-danger{color:var(--accent2);}
+.best-action-panel{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
+.best-action-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.best-action-title{font-size:14px;font-weight:700;color:var(--accent);}
+.best-action-main{font-size:12px;font-weight:700;color:var(--text);}
+.best-action-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.best-action-card{border:1px solid var(--border);background:var(--bg2);padding:10px;display:grid;gap:5px;min-height:92px;}
+.best-action-card.recommended{border-color:var(--accent);background:rgba(0,200,240,.08);}
+.best-action-card.warn{border-color:rgba(255,200,0,.45);}
+.best-action-card.danger{border-color:rgba(255,48,96,.45);}
+.best-action-label{font-size:9px;color:var(--text2);letter-spacing:1.4px;font-weight:700;}
+.best-action-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.45;}
+.best-action-detail{font-size:10px;color:var(--text2);line-height:1.55;}
+@media(max-width:900px){.best-action-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.best-action-grid{grid-template-columns:1fr;}}
 
 /* 技選択・対面ダメージ */
 .damage-summary{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
@@ -857,6 +871,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     </div>
 
     <div id="scope-field-board"></div>
+
+    <div id="scope-best-action-panel" class="best-action-panel">
+      <div class="best-action-head">
+        <div class="best-action-title">最善手パネル</div>
+        <div class="best-action-main">選出とHPを入れると表示されます</div>
+      </div>
+    </div>
 
     <!-- 行動判断パネル -->
     <div class="action-panel">
@@ -3433,6 +3454,85 @@ function setHP(side, val){
   calcBattleActions();
 }
 
+function formatScopeBestOutcome(result, hpPct, hazardPct){
+  const outcome = getScopeBattleDamageOutcome(result, hpPct, hazardPct || 0);
+  const range = result ? result.min+'〜'+result.max+'%' : '技ダメなし';
+  return range + (outcome.text ? ' / '+outcome.text : '');
+}
+function renderScopeBestActionPanel(data){
+  const el = document.getElementById('scope-best-action-panel');
+  if(!el) return;
+  if(!data || !data.oppSlot){
+    el.innerHTML = '<div class="best-action-head"><div class="best-action-title">最善手パネル</div><div class="best-action-main">相手の選出が未入力です</div></div>';
+    return;
+  }
+  const card = (key,label,name,detail,cls)=>{
+    return '<div class="best-action-card '+(cls||'')+'">'+
+      '<div class="best-action-label">'+escapeHtml(label)+'</div>'+
+      '<div class="best-action-name">'+escapeHtml(name || '候補なし')+'</div>'+
+      '<div class="best-action-detail">'+escapeHtml(detail || '')+'</div>'+
+      '</div>';
+  };
+  const rec = data.recommend || {};
+  el.innerHTML = '<div class="best-action-head">'+
+    '<div class="best-action-title">最善手パネル</div>'+
+    '<div class="best-action-main">'+escapeHtml(rec.title || '攻めを優先')+'</div>'+
+    '</div>'+
+    '<div class="best-action-grid">'+
+      card('attack','今押す技',data.attack && data.attack.name,data.attack && data.attack.detail,rec.type==='attack'?'recommended':'')+
+      card('danger','相手の最大打点',data.danger && data.danger.name,data.danger && data.danger.detail,(data.danger && data.danger.danger)?'danger':'')+
+      card('switch','引き先候補',data.safeSwitch && data.safeSwitch.name,data.safeSwitch && data.safeSwitch.detail,rec.type==='switch'?'recommended':'')+
+      card('read','相手交換読み',data.oppSwitch && data.oppSwitch.name,data.oppSwitch && data.oppSwitch.detail,rec.type==='read'?'recommended':'')+
+    '</div>';
+}
+function buildScopeBestActionData(ctx){
+  const data = {oppSlot:ctx.oppSlot};
+  const bestAttack = (ctx.myResults || [])[0] || null;
+  const bestDanger = (ctx.oppResults || [])[0] || null;
+  const bestSwitch = (ctx.mySwitchOptions || []).slice().sort((a,b)=>a.totalThreat-b.totalThreat)[0] || null;
+  const bestRead = (ctx.oppSwitchOptions || []).slice().sort((a,b)=>b.totalBest-a.totalBest)[0] || null;
+  if(bestAttack){
+    data.attack = {
+      name: bestAttack.move.name,
+      detail: formatScopeBestOutcome(bestAttack.result, ctx.oppHp, 0)
+    };
+  }
+  if(bestDanger){
+    const dangerOutcome = getScopeBattleDamageOutcome(bestDanger.result, ctx.myHp, 0);
+    data.danger = {
+      name: bestDanger.move.name,
+      detail: formatScopeBestOutcome(bestDanger.result, ctx.myHp, 0),
+      danger: dangerOutcome.cls === 'ko' || dangerOutcome.cls === 'roll'
+    };
+  }
+  if(bestSwitch){
+    data.safeSwitch = {
+      name: bestSwitch.name,
+      detail: '場+被ダメ '+bestSwitch.totalThreat+'% / '+bestSwitch.outcomeText+' / '+bestSwitch.moveName
+    };
+  }
+  if(bestRead){
+    data.oppSwitch = {
+      name: bestRead.name,
+      detail: '場+最大 '+bestRead.totalBest+'% / '+bestRead.outcomeText+' / '+bestRead.moveName
+    };
+  }
+  const attackOutcome = bestAttack ? getScopeBattleDamageOutcome(bestAttack.result, ctx.oppHp, 0) : null;
+  const dangerOutcome = bestDanger ? getScopeBattleDamageOutcome(bestDanger.result, ctx.myHp, 0) : null;
+  if(attackOutcome && attackOutcome.cls === 'ko'){
+    data.recommend = {type:'attack', title:'今は '+bestAttack.move.name+' で倒せます'};
+  }else if(dangerOutcome && (dangerOutcome.cls === 'ko' || dangerOutcome.cls === 'roll') && bestSwitch && bestSwitch.totalThreat + 10 < (bestDanger.result ? bestDanger.result.max : 100)){
+    data.recommend = {type:'switch', title:'被弾が危険です。'+bestSwitch.name+' へ引く候補'};
+  }else if(bestRead && bestAttack && bestRead.totalBest >= bestAttack.result.max + 12){
+    data.recommend = {type:'read', title:'相手交換読みなら '+bestRead.moveName+' が強いです'};
+  }else if(bestAttack){
+    data.recommend = {type:'attack', title:'基本は '+bestAttack.move.name+' を優先'};
+  }else{
+    data.recommend = {type:'attack', title:'攻撃技候補がありません'};
+  }
+  return data;
+}
+
 // ===== バトル行動計算 =====
 function calcBattleActions(){
   const mySel = mySelect, oppSel = oppSelect;
@@ -3445,17 +3545,21 @@ function calcBattleActions(){
   if(!mySlot) return;
   const myMoves = oppSlot ? getScopeBattleMovesForSlot('my', mySlot) : [];
   const oppMoves = oppSlot ? getScopeBattleMovesForSlot('opp', oppSlot) : [];
+  let myResults = [];
+  let oppResults = [];
+  const mySwitchOptions = [];
+  const oppSwitchOptions = [];
 
   // --- 自分の技 → 相手 ---
   const myDmgEl = document.getElementById('my-dmg-list');
   if(oppSlot){
-    const results = myMoves.map(m=>{
+    myResults = myMoves.map(m=>{
       const r = calcMoveDmg(mySlot, m, oppSlot, oppHP[oppActiveIdx], {atkSide:'my', defSide:'opp'});
       return {move:m, result:r};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
 
-    if(results.length){
-      myDmgEl.innerHTML = results.map((d,i)=>{
+    if(myResults.length){
+      myDmgEl.innerHTML = myResults.map((d,i)=>{
         const best = i===0?'<span class="best-tag">BEST</span>':'';
         const outcome = getScopeBattleDamageOutcome(d.result, oppHP[oppActiveIdx], 0).html;
         const detail = d.result.detailNotes && d.result.detailNotes.length ? '<span style="font-size:9px;color:var(--text2);">'+d.result.detailNotes.map(escapeHtml).join(' / ')+'</span>' : '';
@@ -3473,7 +3577,7 @@ function calcBattleActions(){
   // --- 相手の推定技 → 自分 ---
   const oppDmgEl = document.getElementById('opp-dmg-list');
   if(oppSlot){
-    const oppResults = oppMoves.map(m=>{
+    oppResults = oppMoves.map(m=>{
       const r = calcMoveDmg(oppSlot, m, mySlot, myHP[myActiveIdx], {atkSide:'opp', defSide:'my'});
       return {move:m, result:r, rate:m.rate||0};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
@@ -3511,8 +3615,10 @@ function calcBattleActions(){
       const totalThreat = Math.round((hazard.pct + worstDmg)*10)/10;
       const safety = totalThreat<25?'switch-safe':totalThreat<50?'switch-warn':'switch-danger';
       const safeLabel = totalThreat<25?'✓安全':totalThreat<50?'△注意':'×危険';
-      const outcome = getScopeBattleDamageOutcome(worstResult, myHP[i], hazard.pct).html;
+      const outcomeInfo = getScopeBattleDamageOutcome(worstResult, myHP[i], hazard.pct);
+      const outcome = outcomeInfo.html;
       const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">'+hazard.notes.map(escapeHtml).join(' + ')+' / 場ダメ後HP '+benchHpAfterField+'%</span>' : '';
+      mySwitchOptions.push({name:benchSlot.poke.name,totalThreat,moveName:worstMove||'場ダメのみ',outcomeText:outcomeInfo.text || ('場後HP '+benchHpAfterField+'%')});
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">→ '+benchSlot.poke.name+'</span>'+
         '<span class="dmg-pct">場+被ダメ最大 '+totalThreat+'%</span>'+
         '<span class="'+safety+'">'+safeLabel+'</span>'+
@@ -3541,8 +3647,10 @@ function calcBattleActions(){
       });
       const totalBest = Math.round((hazard.pct + myBest)*10)/10;
       const tag = totalBest>=50?'mu-win':totalBest>=25?'mu-even':'mu-lose';
-      const outcome = getScopeBattleDamageOutcome(myBestResult, oppHP[i], hazard.pct).html;
+      const outcomeInfo = getScopeBattleDamageOutcome(myBestResult, oppHP[i], hazard.pct);
+      const outcome = outcomeInfo.html;
       const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">'+hazard.notes.map(escapeHtml).join(' + ')+' / 場ダメ後HP '+oppHpAfterField+'%</span>' : '';
+      oppSwitchOptions.push({name:benchOpp.poke.name,totalBest,moveName:myBestMove||'場ダメのみ',outcomeText:outcomeInfo.text || ('場後HP '+oppHpAfterField+'%')});
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">相手→ '+benchOpp.poke.name+'</span>'+
         '<span class="dmg-pct">場+自分ベスト '+totalBest+'%</span>'+
         '<span class="'+tag+'">'+(totalBest>=50?'◎有利':totalBest>=25?'△互角':'×不利')+'</span>'+
@@ -3552,6 +3660,16 @@ function calcBattleActions(){
   } else {
     oppSwitchEl.innerHTML='<div class="note">相手の控えがいません</div>';
   }
+
+  renderScopeBestActionPanel(buildScopeBestActionData({
+    oppSlot,
+    myResults,
+    oppResults,
+    mySwitchOptions,
+    oppSwitchOptions,
+    myHp: myHP[myActiveIdx],
+    oppHp: oppHP[oppActiveIdx]
+  }));
 
   // --- 形勢メーター ---
   calcGauge();
