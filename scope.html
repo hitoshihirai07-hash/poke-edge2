@@ -212,6 +212,9 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .dmg-row .move-name{font-weight:700;min-width:90px;}
 .dmg-row .dmg-pct{font-family:'JetBrains Mono',monospace;min-width:70px;}
 .dmg-row .ko-tag{font-size:9px;padding:1px 6px;border-radius:2px;font-weight:700;white-space:nowrap;}
+.scope-dmg-outcome{font-size:9px;color:var(--text2);white-space:nowrap;}
+.scope-dmg-outcome.ko{color:var(--accent2);font-weight:700;}
+.scope-dmg-outcome.roll{color:var(--accent3);font-weight:700;}
 .ko1{background:rgba(0,230,118,0.15);color:var(--green);}
 .ko2{background:rgba(255,200,0,0.15);color:var(--accent3);}
 .ko3{background:rgba(255,48,96,0.12);color:var(--accent2);}
@@ -221,6 +224,20 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .switch-safe{color:var(--green);}
 .switch-warn{color:var(--accent3);}
 .switch-danger{color:var(--accent2);}
+.best-action-panel{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
+.best-action-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.best-action-title{font-size:14px;font-weight:700;color:var(--accent);}
+.best-action-main{font-size:12px;font-weight:700;color:var(--text);}
+.best-action-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.best-action-card{border:1px solid var(--border);background:var(--bg2);padding:10px;display:grid;gap:5px;min-height:92px;}
+.best-action-card.recommended{border-color:var(--accent);background:rgba(0,200,240,.08);}
+.best-action-card.warn{border-color:rgba(255,200,0,.45);}
+.best-action-card.danger{border-color:rgba(255,48,96,.45);}
+.best-action-label{font-size:9px;color:var(--text2);letter-spacing:1.4px;font-weight:700;}
+.best-action-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.45;}
+.best-action-detail{font-size:10px;color:var(--text2);line-height:1.55;}
+@media(max-width:900px){.best-action-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.best-action-grid{grid-template-columns:1fr;}}
 
 /* 技選択・対面ダメージ */
 .damage-summary{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
@@ -316,6 +333,18 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-num{font-family:'JetBrains Mono',monospace;text-align:right;}
 .scope-bar-wrap{display:inline-block;width:60px;height:4px;background:var(--bg);overflow:hidden;vertical-align:middle;margin-right:4px;}
 .scope-bar-fill{height:100%;transition:width 0.4s;}
+.scope-advanced-stats{display:grid;gap:14px;margin-top:14px;}
+.scope-analysis-block{border:1px solid var(--border);background:var(--bg2);padding:12px;}
+.scope-analysis-title{font-size:11px;letter-spacing:2px;color:var(--accent3);font-weight:700;margin-bottom:4px;}
+.scope-analysis-note{font-size:10px;color:var(--text2);line-height:1.7;margin-bottom:8px;}
+.scope-mini-table{width:100%;border-collapse:collapse;font-size:11px;}
+.scope-mini-table th{text-align:left;padding:5px 7px;color:var(--text2);font-size:9px;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:400;}
+.scope-mini-table td{padding:7px;border-bottom:1px solid var(--border);vertical-align:top;}
+.scope-combo-text{font-weight:700;line-height:1.6;}
+.scope-sub-text{font-size:10px;color:var(--text2);line-height:1.6;margin-top:2px;}
+.scope-rate-good{color:var(--green);font-weight:700;}
+.scope-rate-bad{color:var(--accent2);font-weight:700;}
+.scope-rate-mid{color:var(--accent3);font-weight:700;}
 .scope-history-item{background:var(--bg2);border:1px solid var(--border);padding:10px 12px;margin-top:8px;}
 .scope-history-item.win{border-left:3px solid var(--green);}
 .scope-history-item.lose{border-left:3px solid var(--accent2);}
@@ -344,6 +373,43 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-calc-ko{font-size:12px;font-weight:700;color:var(--accent2);}
 .scope-calc-note{font-size:10px;color:var(--text2);line-height:1.7;}
 @media(max-width:760px){.scope-stats-grid{grid-template-columns:1fr;}.scope-history-body{grid-template-columns:1fr;}.scope-calc-grid,.scope-calc-result{grid-template-columns:1fr;}}
+.scope-field-board{margin:16px 0;}
+.scope-field-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.scope-field-title{font-size:16px;font-weight:700;color:var(--accent);}
+.scope-field-sub{font-size:10px;color:var(--text2);line-height:1.7;margin-top:3px;}
+.scope-field-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.scope-field-btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:10px;padding:8px 11px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;}
+.scope-field-btn.primary{background:var(--accent);border-color:var(--accent);color:#001018;}
+.scope-field-btn.danger{border-color:rgba(255,48,96,.45);color:var(--accent2);}
+.scope-field-btn:hover{filter:brightness(1.12);}
+.scope-field-body{display:grid;gap:12px;}
+.scope-field-board.collapsed .scope-field-body{display:none;}
+.scope-field-summary{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;}
+.scope-field-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:999px;padding:4px 8px;font-size:10px;}
+.scope-field-chip.on{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,.08);}
+.scope-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.scope-field-global{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+.scope-field-box{border:1px solid var(--border);background:var(--bg2);border-radius:14px;padding:12px;}
+.scope-field-box-title{font-size:11px;color:var(--accent3);letter-spacing:1.4px;font-weight:700;margin-bottom:10px;}
+.scope-field-form{display:grid;gap:9px;}
+.scope-field-row{display:grid;grid-template-columns:100px 1fr;gap:8px;align-items:center;}
+.scope-field-row label{font-size:10px;color:var(--text2);}
+.scope-field-select,.scope-field-input,.scope-field-note{width:100%;border:1px solid var(--border2);background:var(--panel);color:var(--text);border-radius:10px;padding:7px 9px;font:inherit;font-size:11px;outline:none;}
+.scope-field-note{min-height:70px;resize:vertical;line-height:1.6;}
+.scope-field-turns{display:flex;gap:5px;flex-wrap:wrap;}
+.scope-field-turn{min-width:34px;height:30px;border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:9px;font-size:11px;cursor:pointer;}
+.scope-field-turn.on{border-color:var(--accent);background:rgba(0,200,240,.12);color:var(--accent);font-weight:700;}
+.scope-field-hazards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.scope-field-check{display:flex;align-items:center;gap:7px;border:1px solid var(--border);background:var(--panel);border-radius:10px;padding:8px 9px;font-size:11px;color:var(--text);}
+.scope-field-check input{accent-color:var(--accent);}
+.scope-field-ranks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.scope-field-rank{border:1px solid var(--border);background:var(--panel);border-radius:10px;padding:8px;display:grid;gap:6px;}
+.scope-field-rank label{font-size:10px;color:var(--text2);}
+.scope-field-rank-controls{display:grid;grid-template-columns:28px 1fr 28px;gap:6px;align-items:center;}
+.scope-field-rank-btn{height:28px;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:8px;font-size:13px;cursor:pointer;}
+.scope-field-rank-val{text-align:center;font-weight:700;font-size:12px;color:var(--accent);}
+@media(max-width:900px){.scope-field-grid,.scope-field-global{grid-template-columns:1fr;}.scope-field-head{display:grid;}.scope-field-actions{justify-content:flex-start;}}
+@media(max-width:560px){.scope-field-row{grid-template-columns:1fr;}.scope-field-hazards{grid-template-columns:1fr;}}
 .scope-track-wrap{display:grid;gap:12px;margin-top:10px;}
 .scope-track-battle-memo{display:grid;gap:6px;}
 .scope-track-label{font-size:11px;color:var(--text2);font-weight:700;letter-spacing:.8px;}
@@ -813,6 +879,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
           <div class="hp-val" id="opp-hp-val">100%</div>
         </div>
         <div class="bench-row" id="opp-bench"></div>
+      </div>
+    </div>
+
+    <div id="scope-field-board"></div>
+
+    <div id="scope-best-action-panel" class="best-action-panel">
+      <div class="best-action-head">
+        <div class="best-action-title">最善手パネル</div>
+        <div class="best-action-main">選出とHPを入れると表示されます</div>
       </div>
     </div>
 
@@ -1618,10 +1693,11 @@ function isScopeContactMove(move){
 }
 function getScopeDamageOptionNotes(atkSlot, move, usedType, usedPower){
   const notes = [];
-  if(SCOPE_DAMAGE_OPTIONS.weather) notes.push('天候:'+getWeatherLabelForScope(SCOPE_DAMAGE_OPTIONS.weather));
+  const activeWeather = typeof getScopeFieldWeather === 'function' ? getScopeFieldWeather() : SCOPE_DAMAGE_OPTIONS.weather;
+  if(activeWeather) notes.push('天候:'+getWeatherLabelForScope(activeWeather));
   if(move && move.name==='おはかまいり') notes.push('おはかまいり威力'+usedPower);
   if(atkSlot && atkSlot.ability==='そうだいしょう') notes.push('そうだいしょう+'+(SCOPE_DAMAGE_OPTIONS.supreme*10)+'%');
-  if(move && move.name==='ウェザーボール' && SCOPE_DAMAGE_OPTIONS.weather) notes.push('ウェザーボール:'+usedType+' 威力'+usedPower);
+  if(move && move.name==='ウェザーボール' && activeWeather) notes.push('ウェザーボール:'+usedType+' 威力'+usedPower);
   return notes;
 }
 function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct, extraMod, hitsInfo){
@@ -1647,6 +1723,40 @@ function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct, extraMod
   else if(totalMin*3>=curHP){label='確定3発';cls='ko3';}
   else           {label=pMax+'%';cls='ko3';}
   return {min:pMin,max:pMax,label,cls,hits,singleMin,singleMax,totalMin,totalMax};
+}
+
+function getScopeBattleDamageOutcome(result, currentHpPct, hazardPct){
+  const hp = Math.max(0, Math.min(100, Number(currentHpPct) || 0));
+  const hazard = Math.max(0, Number(hazardPct) || 0);
+  const hpAfterField = Math.max(0, Math.round((hp - hazard) * 10) / 10);
+  if(hpAfterField <= 0){
+    return {html:'<span class="scope-dmg-outcome ko">場ダメで倒れる</span>', text:'場ダメで倒れる', cls:'ko', hpAfterField};
+  }
+  if(!result) return {html:hazard ? '<span class="scope-dmg-outcome">場後HP '+hpAfterField+'%</span>' : '', text:'', cls:'', hpAfterField};
+  const remainLow = Math.max(0, Math.round((hpAfterField - result.max) * 10) / 10);
+  const remainHigh = Math.max(0, Math.round((hpAfterField - result.min) * 10) / 10);
+  let text = '';
+  let cls = '';
+  if(result.min >= hpAfterField){
+    text = 'KO確定';
+    cls = 'ko';
+  }else if(result.max >= hpAfterField){
+    text = 'KO圏内';
+    cls = 'roll';
+  }else if(remainLow === remainHigh){
+    text = '残HP ' + remainLow + '%';
+  }else{
+    text = '残HP ' + remainLow + '〜' + remainHigh + '%';
+  }
+  const fieldText = hazard ? ' / 場後HP ' + hpAfterField + '%' : '';
+  return {
+    html:'<span class="scope-dmg-outcome '+cls+'">'+text+fieldText+'</span>',
+    text,
+    cls,
+    hpAfterField,
+    remainLow,
+    remainHigh
+  };
 }
 
 function getAbilityDamageAdjustments(atkSlot, move, defSlot, baseEff, defHpPct){
@@ -1698,7 +1808,148 @@ function getAbilityDamageAdjustments(atkSlot, move, defSlot, baseEff, defHpPct){
   return {eff, mod, nullifyReason};
 }
 
-function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
+const SCOPE_FIELD_JP = {
+  physical:'\u7269\u7406',
+  special:'\u7279\u6b8a',
+  rock:'\u3044\u308f',
+  flying:'\u3072\u3053\u3046',
+  electric:'\u3067\u3093\u304d',
+  grass:'\u304f\u3055',
+  psychic:'\u30a8\u30b9\u30d1\u30fc',
+  dragon:'\u30c9\u30e9\u30b4\u30f3',
+  fire:'\u307b\u306e\u304a',
+  water:'\u307f\u305a',
+  ice:'\u3053\u304a\u308a',
+  ground:'\u3058\u3081\u3093',
+  levitate:'\u3075\u3086\u3046',
+  magicGuard:'\u30de\u30b8\u30c3\u30af\u30ac\u30fc\u30c9',
+  guts:'\u3053\u3093\u3058\u3087\u3046',
+  facade:'\u304b\u3089\u3052\u3093\u304d',
+  bodyPress:'\u30dc\u30c7\u30a3\u30d7\u30ec\u30b9',
+  psyshock:'\u30b5\u30a4\u30b3\u30b7\u30e7\u30c3\u30af',
+  earthquake:'\u3058\u3057\u3093',
+  bulldoze:'\u3058\u306a\u3089\u3057',
+  magnitude:'\u30de\u30b0\u30cb\u30c1\u30e5\u30fc\u30c9'
+};
+
+function getScopeFieldStateForCalc(){
+  return (typeof window !== 'undefined' && typeof window.scopeFieldGetState === 'function') ? window.scopeFieldGetState() : null;
+}
+function getScopeFieldWeather(){
+  const state = getScopeFieldStateForCalc();
+  return (state && state.weather && state.weather.type) || SCOPE_DAMAGE_OPTIONS.weather || '';
+}
+function getScopeFieldSide(side){
+  const state = getScopeFieldStateForCalc();
+  return (state && state[side]) || {};
+}
+function getScopeFieldRank(side, key){
+  const sideState = getScopeFieldSide(side);
+  const ranks = sideState && sideState.ranks || {};
+  const n = parseInt(ranks[key],10) || 0;
+  return Math.max(-6, Math.min(6, n));
+}
+function getScopeFieldRankMultiplier(stage){
+  const n = Math.max(-6, Math.min(6, parseInt(stage,10) || 0));
+  return n >= 0 ? (2 + n) / 2 : 2 / (2 - n);
+}
+function applyScopeFieldRankStat(value, side, key){
+  const stage = getScopeFieldRank(side, key);
+  if(!stage) return {value, note:''};
+  const label = {atk:'A',def:'B',spa:'C',spd:'D'}[key] || key.toUpperCase();
+  return {
+    value: Math.max(1, Math.floor(value * getScopeFieldRankMultiplier(stage))),
+    note: label + (stage > 0 ? '+' : '') + stage
+  };
+}
+function isScopeFieldGrounded(slot){
+  const poke = slot && slot.poke;
+  const types = poke ? [poke.type1,poke.type2].filter(Boolean) : [];
+  if(types.includes(SCOPE_FIELD_JP.flying)) return false;
+  if(slot && slot.ability === SCOPE_FIELD_JP.levitate) return false;
+  return true;
+}
+function getScopeFieldHazardDamagePct(slot, targetSide){
+  const side = getScopeFieldSide(targetSide);
+  if(!slot || !slot.poke || !side) return {pct:0, notes:[]};
+  if(slot.ability === SCOPE_FIELD_JP.magicGuard) return {pct:0, notes:['マジックガードで場ダメ無効']};
+  const types = [slot.poke.type1,slot.poke.type2].filter(Boolean);
+  let pct = 0;
+  const notes = [];
+  if(side.stealthRock){
+    const rockPct = 12.5 * typeEff(SCOPE_FIELD_JP.rock, types);
+    pct += rockPct;
+    notes.push('ステロ '+formatScopePct(rockPct));
+  }
+  if(side.spikes && isScopeFieldGrounded(slot)){
+    const spikesPct = [0,12.5,16.7,25][Math.max(0, Math.min(3, parseInt(side.spikes,10)||0))] || 0;
+    pct += spikesPct;
+    if(spikesPct) notes.push('まきびし '+formatScopePct(spikesPct));
+  }
+  return {pct:Math.round(pct*10)/10, notes};
+}
+function formatScopePct(value){
+  return (Math.round(value*10)/10).toString().replace(/\.0$/,'') + '%';
+}
+function getScopeFieldEffectiveHpPct(slot, hpPct, context){
+  const base = Math.max(1, Math.min(100, Number(hpPct) || 100));
+  if(!context || !context.switchIn || !context.defSide) return {hpPct:base, notes:[]};
+  const hazard = getScopeFieldHazardDamagePct(slot, context.defSide);
+  if(!hazard.pct) return {hpPct:base, notes:hazard.notes};
+  return {hpPct:Math.max(1, Math.round((base - hazard.pct)*10)/10), notes:['交換時 '+hazard.notes.join(' + ')]};
+}
+function getScopeFieldDamageAdjustments(context, atkSlot, move, defSlot, usedType){
+  const state = getScopeFieldStateForCalc();
+  if(!state) return {mod:1, notes:[]};
+  const atkSide = context && context.atkSide;
+  const defSide = context && context.defSide;
+  const atkField = getScopeFieldSide(atkSide);
+  const defField = getScopeFieldSide(defSide);
+  const notes = [];
+  let mod = 1;
+
+  if(atkField.status === 'burn' && move.category === SCOPE_FIELD_JP.physical && move.name !== SCOPE_FIELD_JP.facade && atkSlot.ability !== SCOPE_FIELD_JP.guts){
+    mod *= 0.5;
+    notes.push('やけど物理0.5');
+  }
+
+  if(defField.auroraVeil > 0){
+    mod *= 0.5;
+    notes.push('オーロラベール0.5');
+  }else if(move.category === SCOPE_FIELD_JP.physical && defField.reflect > 0){
+    mod *= 0.5;
+    notes.push('リフレクター0.5');
+  }else if(move.category === SCOPE_FIELD_JP.special && defField.lightScreen > 0){
+    mod *= 0.5;
+    notes.push('ひかりのかべ0.5');
+  }
+
+  const terrain = state.terrain && state.terrain.type;
+  if(terrain === 'electric' && usedType === SCOPE_FIELD_JP.electric){
+    mod *= 1.3;
+    notes.push('EF でんき1.3');
+  }else if(terrain === 'grassy'){
+    if(usedType === SCOPE_FIELD_JP.grass){
+      mod *= 1.3;
+      notes.push('GF くさ1.3');
+    }
+    if([SCOPE_FIELD_JP.earthquake,SCOPE_FIELD_JP.bulldoze,SCOPE_FIELD_JP.magnitude].includes(move.name)){
+      mod *= 0.5;
+      notes.push('GF 地面技0.5');
+    }
+  }else if(terrain === 'psychic' && usedType === SCOPE_FIELD_JP.psychic){
+    mod *= 1.3;
+    notes.push('PF エスパー1.3');
+  }else if(terrain === 'misty' && usedType === SCOPE_FIELD_JP.dragon){
+    mod *= 0.5;
+    notes.push('MF ドラゴン0.5');
+  }
+
+  return {mod, notes};
+}
+
+function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
+  context = context || {};
   const atkPoke = atkSlot.poke, atkStats = atkSlot.stats;
   const defPoke = defSlot.poke, defStats = defSlot.stats;
   const defTypes = [defPoke.type1,defPoke.type2].filter(Boolean);
@@ -1706,7 +1957,9 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
   let mtype = move.type || '';
   let power = parseInt(move.power,10) || 0;
   const moveName = move.name || '';
-  const weather = SCOPE_DAMAGE_OPTIONS.weather || '';
+  const weather = getScopeFieldWeather();
+  const hpInfo = getScopeFieldEffectiveHpPct(defSlot, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100, context);
+  const effectiveDefHpPct = hpInfo.hpPct;
   if(moveName==='おはかまいり') power = 50 + (SCOPE_DAMAGE_OPTIONS.lastRespects || 0) * 50;
   if(moveName==='ウェザーボール' && weather){
     const WB_MAP = {sunny:'ほのお', rain:'みず', sand:'いわ', snow:'こおり'};
@@ -1714,15 +1967,25 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
   }
   const baseEff = typeEff(mtype, defTypes);
   const adjustedMove = Object.assign({}, move, {type:mtype, power});
-  const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100);
+  const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, effectiveDefHpPct);
+  const fieldAdjust = getScopeFieldDamageAdjustments(context, atkSlot, adjustedMove, defSlot, mtype);
+  let detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power).concat(fieldAdjust.notes, hpInfo.notes);
   if(adjust.eff===0){
-    return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null', detailNotes:getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power)};
+    return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null', detailNotes};
   }
   let stab = atkTypes.includes(mtype) ? ((atkSlot.ability==='てきおうりょく') ? 2 : 1.5) : 1;
   let aSt = adjustedMove.category==='物理' ? atkStats.atk : atkStats.spa;
   let dSt = adjustedMove.category==='物理' ? defStats.def : defStats.spd;
-  if(moveName==='ボディプレス') aSt = atkStats.def;
-  if(moveName==='サイコショック') dSt = defStats.def;
+  let atkRankKey = adjustedMove.category==='物理' ? 'atk' : 'spa';
+  let defRankKey = adjustedMove.category==='物理' ? 'def' : 'spd';
+  if(moveName===SCOPE_FIELD_JP.bodyPress){ aSt = atkStats.def; atkRankKey = 'def'; }
+  if(moveName===SCOPE_FIELD_JP.psyshock){ dSt = defStats.def; defRankKey = 'def'; }
+  const atkRanked = applyScopeFieldRankStat(aSt, context.atkSide, atkRankKey);
+  const defRanked = applyScopeFieldRankStat(dSt, context.defSide, defRankKey);
+  aSt = atkRanked.value;
+  dSt = defRanked.value;
+  if(atkRanked.note) detailNotes.push('攻撃側ランク '+atkRanked.note);
+  if(defRanked.note) detailNotes.push('防御側ランク '+defRanked.note);
   if(weather==='snow' && defTypes.includes('こおり') && adjustedMove.category==='物理') dSt = Math.floor(dSt * 1.5);
   if(weather==='sand' && defTypes.includes('いわ') && adjustedMove.category==='特殊') dSt = Math.floor(dSt * 1.5);
   let weatherDmgMod = 1;
@@ -1734,8 +1997,8 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
     else if(mtype==='ほのお') weatherDmgMod = 0.5;
   }
   const hitsInfo = parseHits(adjustedMove.hits || '1');
-  const result = calcDmgRange(aSt, dSt, power, atkStats.lv, adjust.eff, stab, defStats.hp, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100, adjust.mod * weatherDmgMod, hitsInfo);
-  if(result) result.detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power);
+  const result = calcDmgRange(aSt, dSt, power, atkStats.lv, adjust.eff, stab, defStats.hp, effectiveDefHpPct, adjust.mod * weatherDmgMod * fieldAdjust.mod, hitsInfo);
+  if(result) result.detailNotes = detailNotes;
   return result;
 }
 
@@ -1743,11 +2006,11 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
 function evaluateMatchup(mySlot, oppSlot){
   let myBest = 0, oppBest = 0;
   (mySlot.moves||[]).forEach(m=>{
-    const r = calcMoveDmg(mySlot, m, oppSlot, 100);
+    const r = calcMoveDmg(mySlot, m, oppSlot, 100, {atkSide:'my', defSide:'opp'});
     if(r) myBest = Math.max(myBest, r.max);
   });
   (oppSlot.moves||[]).forEach(m=>{
-    const r = calcMoveDmg(oppSlot, m, mySlot, 100);
+    const r = calcMoveDmg(oppSlot, m, mySlot, 100, {atkSide:'opp', defSide:'my'});
     if(r) oppBest = Math.max(oppBest, r.max);
   });
   const diff = myBest - oppBest;
@@ -1769,6 +2032,7 @@ let myLeadSlot=null, oppLeadSlot=null;
 let myActiveIdx=0, oppActiveIdx=0;
 let myHP=[100,100,100], oppHP=[100,100,100];
 let scopeMobileEdit = {my:0, opp:0};
+let scopeCurrentPartySource = null;
 const LS_SCOPE_TRACKER_KEY = 'pokeedge_scope_tracker_v1';
 let scopeBattleTracker = loadScopeBattleTrackerState();
 
@@ -2078,7 +2342,10 @@ function showPhase(n){
   });
   renderScopeMobileState(n);
   if(n===1 && !document.body.classList.contains('scope-mobile-analysis-rec') && !document.body.classList.contains('scope-mobile-analysis-threat') && !document.body.classList.contains('scope-mobile-analysis-matrix') && !document.body.classList.contains('scope-mobile-analysis-pro')) showScopeMobileAnalysis('rec');
-  if(n===2) renderBattlePhase();
+  if(n===2){
+    renderBattlePhase();
+    if(typeof renderScopeFieldBoard === 'function') renderScopeFieldBoard();
+  }
   if(n===3){
     if(!document.body.classList.contains('scope-mobile-damage-detail') && !document.body.classList.contains('scope-mobile-damage-my') && !document.body.classList.contains('scope-mobile-damage-opp') && !document.body.classList.contains('scope-mobile-damage-rank')) showScopeMobileDamage('my');
     renderDamagePhase();
@@ -2255,6 +2522,7 @@ async function loadFromParty(id){
     const moves = normalizeScopeStoredMoves(m.moves||[]);
     myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves, moveSource:'saved', item:m.item||'', ability:m.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'saved'}));
   });
+  scopeCurrentPartySource = {id:s.id || '', name:s.name || d.name || '保存構築', signature:scopePartySignatureFromSlots(myParty)};
   renderParty('my');
   autoAnalyze();
 }
@@ -3005,9 +3273,9 @@ function expandDamageSelectedSlots(entries){
   });
   return expanded;
 }
-function getDamageMoveResults(attacker, move, defenders){
+function getDamageMoveResults(attacker, move, defenders, atkSide, defSide){
   return defenders.map(def=>{
-    const result = calcMoveDmg(attacker.slot, move, def.slot, SCOPE_DAMAGE_OPTIONS.defHpPct || 100);
+    const result = calcMoveDmg(attacker.slot, move, def.slot, SCOPE_DAMAGE_OPTIONS.defHpPct || 100, {atkSide, defSide});
     return {defender:def, result};
   });
 }
@@ -3041,7 +3309,7 @@ function getDamageTable(side){
       return;
     }
     moves.forEach((move, moveIdx)=>{
-      const results = getDamageMoveResults(attacker, move, defenders);
+      const results = getDamageMoveResults(attacker, move, defenders, side, side==='my'?'opp':'my');
       rows += '<tr>'+ 
         (moveIdx===0 ? '<td class="damage-attacker-cell" rowspan="'+moves.length+'">'+escapeHtml(getScopeDamageEntryName(attacker))+'<div class="damage-move-meta">'+typeHTML(attacker.slot.poke)+' S '+attacker.slot.stats.spe+'</div></td>' : '')+
         '<td class="damage-move-cell"><div class="damage-move-name">'+escapeHtml(move.name)+'</div>'+formatDamageMoveMeta(move)+'</td>'+ 
@@ -3052,8 +3320,8 @@ function getDamageTable(side){
   });
   return '<div class="damage-table-wrap"><table class="damage-matrix"><thead><tr><th>攻撃側</th><th>技</th>'+defenderHeads+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="damage-mobile-cards">'+mobileCards+'</div>';
 }
-function scoreDamageAction(attacker, move, defenders){
-  const results = getDamageMoveResults(attacker, move, defenders).filter(x=>x.result);
+function scoreDamageAction(attacker, move, defenders, side){
+  const results = getDamageMoveResults(attacker, move, defenders, side, side==='my'?'opp':'my').filter(x=>x.result);
   if(!results.length) return null;
   const maxVals = results.map(x=>x.result.max);
   const minVals = results.map(x=>x.result.min);
@@ -3078,7 +3346,7 @@ function getDamageRanking(side){
   const list = [];
   attackers.forEach(attacker=>{
     (attacker.slot.moves || []).filter(m=>m && m.power>0).slice(0,4).forEach(move=>{
-      const scored = scoreDamageAction(attacker, move, defenders);
+      const scored = scoreDamageAction(attacker, move, defenders, side);
       if(scored) list.push(scored);
     });
   });
@@ -3200,6 +3468,128 @@ function setHP(side, val){
   calcBattleActions();
 }
 
+function formatScopeBestOutcome(result, hpPct, hazardPct){
+  const outcome = getScopeBattleDamageOutcome(result, hpPct, hazardPct || 0);
+  const range = result ? result.min+'〜'+result.max+'%' : '技ダメなし';
+  return range + (outcome.text ? ' / '+outcome.text : '');
+}
+function getScopeMoveAccuracyScore(move){
+  const raw = move && move.accuracy;
+  if(raw === '-' || raw === '' || raw === undefined || raw === null) return 100;
+  const n = parseInt(raw,10);
+  return Number.isFinite(n) ? n : 100;
+}
+function isScopePivotMove(move){
+  return !!(move && ['とんぼがえり','ボルトチェンジ','クイックターン','すてゼリフ'].includes(move.name));
+}
+function getScopeBestAttackResult(results, targetHp){
+  const list = (results || []).filter(x=>x && x.result);
+  const withOutcome = list.map(x=>Object.assign({}, x, {outcome:getScopeBattleDamageOutcome(x.result, targetHp, 0), acc:getScopeMoveAccuracyScore(x.move)}));
+  const confirmed = withOutcome.filter(x=>x.outcome.cls === 'ko');
+  if(confirmed.length){
+    return confirmed.sort((a,b)=>(b.acc-a.acc) || (a.result.max-b.result.max) || (b.result.min-a.result.min))[0];
+  }
+  const rolls = withOutcome.filter(x=>x.outcome.cls === 'roll');
+  if(rolls.length){
+    return rolls.sort((a,b)=>(b.acc-a.acc) || (b.result.max-a.result.max))[0];
+  }
+  return withOutcome.sort((a,b)=>(b.result.max-a.result.max) || (b.acc-a.acc))[0] || null;
+}
+function getScopePivotResult(results, mySlot, oppSlot){
+  const pivots = (results || []).filter(x=>x && x.move && isScopePivotMove(x.move));
+  if(!pivots.length) return null;
+  const faster = !!(mySlot && oppSlot && mySlot.stats && oppSlot.stats && mySlot.stats.spe >= oppSlot.stats.spe);
+  const best = pivots.slice().sort((a,b)=>(b.result.max-a.result.max) || (getScopeMoveAccuracyScore(b.move)-getScopeMoveAccuracyScore(a.move)))[0];
+  return best ? Object.assign({}, best, {faster}) : null;
+}
+function renderScopeBestActionPanel(data){
+  const el = document.getElementById('scope-best-action-panel');
+  if(!el) return;
+  if(!data || !data.oppSlot){
+    el.innerHTML = '<div class="best-action-head"><div class="best-action-title">最善手パネル</div><div class="best-action-main">相手の選出が未入力です</div></div>';
+    return;
+  }
+  const card = (key,label,name,detail,cls)=>{
+    return '<div class="best-action-card '+(cls||'')+'">'+
+      '<div class="best-action-label">'+escapeHtml(label)+'</div>'+
+      '<div class="best-action-name">'+escapeHtml(name || '候補なし')+'</div>'+
+      '<div class="best-action-detail">'+escapeHtml(detail || '')+'</div>'+
+      '</div>';
+  };
+  const rec = data.recommend || {};
+  el.innerHTML = '<div class="best-action-head">'+
+    '<div class="best-action-title">最善手パネル</div>'+
+    '<div class="best-action-main">'+escapeHtml(rec.title || '攻めを優先')+'</div>'+
+    '</div>'+
+    '<div class="best-action-grid">'+
+      card('attack','今押す技',data.attack && data.attack.name,data.attack && data.attack.detail,rec.type==='attack'?'recommended':'')+
+      card('danger','相手の最大打点',data.danger && data.danger.name,data.danger && data.danger.detail,(data.danger && data.danger.danger)?'danger':'')+
+      card('switch','引き先候補',data.safeSwitch && data.safeSwitch.name,data.safeSwitch && data.safeSwitch.detail,rec.type==='switch'?'recommended':'')+
+      card('read','相手交換読み',data.oppSwitch && data.oppSwitch.name,data.oppSwitch && data.oppSwitch.detail,rec.type==='read'?'recommended':'')+
+    '</div>';
+}
+function buildScopeBestActionData(ctx){
+  const data = {oppSlot:ctx.oppSlot};
+  const bestAttack = getScopeBestAttackResult(ctx.myResults, ctx.oppHp);
+  const bestDanger = (ctx.oppResults || [])[0] || null;
+  const bestSwitch = (ctx.mySwitchOptions || []).slice().sort((a,b)=>a.totalThreat-b.totalThreat)[0] || null;
+  const bestRead = (ctx.oppSwitchOptions || []).slice().sort((a,b)=>b.totalBest-a.totalBest)[0] || null;
+  const pivot = getScopePivotResult(ctx.myResults, ctx.mySlot, ctx.oppSlot);
+  if(bestAttack){
+    data.attack = {
+      name: bestAttack.move.name,
+      detail: formatScopeBestOutcome(bestAttack.result, ctx.oppHp, 0)
+    };
+  }
+  if(bestDanger){
+    const dangerOutcome = getScopeBattleDamageOutcome(bestDanger.result, ctx.myHp, 0);
+    data.danger = {
+      name: bestDanger.move.name,
+      detail: formatScopeBestOutcome(bestDanger.result, ctx.myHp, 0),
+      danger: dangerOutcome.cls === 'ko' || dangerOutcome.cls === 'roll'
+    };
+  }
+  if(bestSwitch){
+    const pivotText = pivot ? ' / 交換技: '+pivot.move.name+(pivot.faster?'':' ※後攻注意') : '';
+    data.safeSwitch = {
+      name: pivot && pivot.faster ? pivot.move.name+' → '+bestSwitch.name : bestSwitch.name,
+      detail: '場+被ダメ '+bestSwitch.totalThreat+'% / '+bestSwitch.outcomeText+' / '+bestSwitch.moveName+pivotText
+    };
+  }else if(pivot){
+    data.safeSwitch = {
+      name: pivot.move.name,
+      detail: formatScopeBestOutcome(pivot.result, ctx.oppHp, 0)+(pivot.faster?' / 交換技で離脱':' / 交換技だが後攻注意')
+    };
+  }
+  if(bestRead){
+    data.oppSwitch = {
+      name: bestRead.name,
+      detail: '余裕がある時だけ / 場+最大 '+bestRead.totalBest+'% / '+bestRead.outcomeText+' / '+bestRead.moveName
+    };
+  }
+  const attackOutcome = bestAttack ? getScopeBattleDamageOutcome(bestAttack.result, ctx.oppHp, 0) : null;
+  const dangerOutcome = bestDanger ? getScopeBattleDamageOutcome(bestDanger.result, ctx.myHp, 0) : null;
+  const canBeKoed = dangerOutcome && (dangerOutcome.cls === 'ko' || dangerOutcome.cls === 'roll');
+  const canKoNow = attackOutcome && (attackOutcome.cls === 'ko' || attackOutcome.cls === 'roll');
+  const clearlyBad = bestDanger && bestDanger.result && bestDanger.result.max >= Math.max(45, ctx.myHp * 0.65);
+  if(attackOutcome && attackOutcome.cls === 'ko'){
+    data.recommend = {type:'attack', title:'今は '+bestAttack.move.name+' で倒せます'};
+  }else if(canBeKoed && pivot && pivot.faster){
+    data.recommend = {type:'switch', title:'被弾が危険です。'+pivot.move.name+' で離脱候補'};
+  }else if(canBeKoed && bestSwitch && bestSwitch.totalThreat + 10 < (bestDanger.result ? bestDanger.result.max : 100)){
+    data.recommend = {type:'switch', title:'被弾が危険です。'+bestSwitch.name+' へ引く候補'};
+  }else if(attackOutcome && attackOutcome.cls === 'roll'){
+    data.recommend = {type:'attack', title:'今は '+bestAttack.move.name+' のKO圏内です'};
+  }else if(bestRead && bestAttack && !canBeKoed && !canKoNow && !clearlyBad && bestRead.totalBest >= bestAttack.result.max + 12){
+    data.recommend = {type:'read', title:'相手交換読みなら '+bestRead.moveName+' が強いです'};
+  }else if(bestAttack){
+    data.recommend = {type:'attack', title:'基本は '+bestAttack.move.name+' を優先'};
+  }else{
+    data.recommend = {type:'attack', title:'攻撃技候補がありません'};
+  }
+  return data;
+}
+
 // ===== バトル行動計算 =====
 function calcBattleActions(){
   const mySel = mySelect, oppSel = oppSelect;
@@ -3210,22 +3600,29 @@ function calcBattleActions(){
   const mySlot = getScopeBattleResolvedSlot(myBaseSlot);
   const oppSlot = oppBaseSlot ? getScopeBattleResolvedSlot(oppBaseSlot) : null;
   if(!mySlot) return;
+  const myMoves = oppSlot ? getScopeBattleMovesForSlot('my', mySlot) : [];
+  const oppMoves = oppSlot ? getScopeBattleMovesForSlot('opp', oppSlot) : [];
+  let myResults = [];
+  let oppResults = [];
+  const mySwitchOptions = [];
+  const oppSwitchOptions = [];
 
   // --- 自分の技 → 相手 ---
   const myDmgEl = document.getElementById('my-dmg-list');
   if(oppSlot){
-    const myMoves = getScopeBattleMovesForSlot('my', mySlot);
-    const results = myMoves.map(m=>{
-      const r = calcMoveDmg(mySlot, m, oppSlot, oppHP[oppActiveIdx]);
+    myResults = myMoves.map(m=>{
+      const r = calcMoveDmg(mySlot, m, oppSlot, oppHP[oppActiveIdx], {atkSide:'my', defSide:'opp'});
       return {move:m, result:r};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
 
-    if(results.length){
-      myDmgEl.innerHTML = results.map((d,i)=>{
+    if(myResults.length){
+      myDmgEl.innerHTML = myResults.map((d,i)=>{
         const best = i===0?'<span class="best-tag">BEST</span>':'';
+        const outcome = getScopeBattleDamageOutcome(d.result, oppHP[oppActiveIdx], 0).html;
+        const detail = d.result.detailNotes && d.result.detailNotes.length ? '<span style="font-size:9px;color:var(--text2);">'+d.result.detailNotes.map(escapeHtml).join(' / ')+'</span>' : '';
         return '<div class="dmg-row"><span class="move-name">'+d.move.name+' <span class="tp tp-'+d.move.type+'">'+d.move.type+'</span></span>'+
           '<span class="dmg-pct">'+d.result.min+'〜'+d.result.max+'%</span>'+
-          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+best+'</div>';
+          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+best+outcome+detail+'</div>';
       }).join('');
     } else {
       myDmgEl.innerHTML='<div class="note">攻撃技データがありません</div>';
@@ -3237,18 +3634,19 @@ function calcBattleActions(){
   // --- 相手の推定技 → 自分 ---
   const oppDmgEl = document.getElementById('opp-dmg-list');
   if(oppSlot){
-    const oppMoves = getScopeBattleMovesForSlot('opp', oppSlot);
-    const oppResults = oppMoves.map(m=>{
-      const r = calcMoveDmg(oppSlot, m, mySlot, myHP[myActiveIdx]);
+    oppResults = oppMoves.map(m=>{
+      const r = calcMoveDmg(oppSlot, m, mySlot, myHP[myActiveIdx], {atkSide:'opp', defSide:'my'});
       return {move:m, result:r, rate:m.rate||0};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
 
     if(oppResults.length){
       oppDmgEl.innerHTML = oppResults.map(d=>{
         const rateStr = d.rate?'<span style="color:var(--text2);font-size:9px;">(採用率'+d.rate+'%)</span>':'';
+        const outcome = getScopeBattleDamageOutcome(d.result, myHP[myActiveIdx], 0).html;
+        const detail = d.result.detailNotes && d.result.detailNotes.length ? '<span style="font-size:9px;color:var(--text2);">'+d.result.detailNotes.map(escapeHtml).join(' / ')+'</span>' : '';
         return '<div class="dmg-row"><span class="move-name">'+d.move.name+' '+rateStr+'</span>'+
           '<span class="dmg-pct">'+d.result.min+'〜'+d.result.max+'%</span>'+
-          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span></div>';
+          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+outcome+detail+'</div>';
       }).join('');
     } else {
       oppDmgEl.innerHTML='<div class="note">相手の推定技データがありません</div>';
@@ -3263,18 +3661,25 @@ function calcBattleActions(){
       const benchSlotRaw = myParty[pi];
       if(!benchSlotRaw || myHP[i]<=0) return '';
       const benchSlot = getScopeBattleResolvedSlot(benchSlotRaw);
+      const hazard = getScopeFieldHazardDamagePct(benchSlot, 'my');
+      const benchHpAfterField = Math.max(0, Math.round((myHP[i] - hazard.pct)*10)/10);
       // 相手の最大ダメ技で被ダメ計算
-      let worstDmg = 0, worstMove = '';
+      let worstDmg = 0, worstMove = '', worstResult = null;
       oppMoves.forEach(m=>{
-        const r = calcMoveDmg(oppSlot, m, benchSlot, 100);
-        if(r && r.max > worstDmg){worstDmg=r.max; worstMove=m.name;}
+        const r = calcMoveDmg(oppSlot, m, benchSlot, myHP[i], {atkSide:'opp', defSide:'my', switchIn:true});
+        if(r && r.max > worstDmg){worstDmg=r.max; worstMove=m.name; worstResult=r;}
       });
-      const safety = worstDmg<25?'switch-safe':worstDmg<50?'switch-warn':'switch-danger';
-      const safeLabel = worstDmg<25?'✓安全':worstDmg<50?'△注意':'×危険';
+      const totalThreat = Math.round((hazard.pct + worstDmg)*10)/10;
+      const safety = totalThreat<25?'switch-safe':totalThreat<50?'switch-warn':'switch-danger';
+      const safeLabel = totalThreat<25?'✓安全':totalThreat<50?'△注意':'×危険';
+      const outcomeInfo = getScopeBattleDamageOutcome(worstResult, myHP[i], hazard.pct);
+      const outcome = outcomeInfo.html;
+      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">'+hazard.notes.map(escapeHtml).join(' + ')+' / 場ダメ後HP '+benchHpAfterField+'%</span>' : '';
+      mySwitchOptions.push({name:benchSlot.poke.name,totalThreat,moveName:worstMove||'場ダメのみ',outcomeText:outcomeInfo.text || ('場後HP '+benchHpAfterField+'%')});
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">→ '+benchSlot.poke.name+'</span>'+
-        '<span class="dmg-pct">被ダメ最大 '+worstDmg+'%</span>'+
+        '<span class="dmg-pct">場+被ダメ最大 '+totalThreat+'%</span>'+
         '<span class="'+safety+'">'+safeLabel+'</span>'+
-        '<span style="font-size:9px;color:var(--text2);">('+worstMove+')</span></div>';
+        '<span style="font-size:9px;color:var(--text2);">('+worstMove+')</span>'+outcome+hazardText+'</div>';
     }).filter(Boolean);
     switchEl.innerHTML = rows.length ? rows.join('') : '<div class="note">控えがいません</div>';
   } else {
@@ -3289,22 +3694,40 @@ function calcBattleActions(){
       const benchOppRaw = oppParty[pi];
       if(!benchOppRaw || oppHP[i]<=0) return '';
       const benchOpp = getScopeBattleResolvedSlot(benchOppRaw);
+      const hazard = getScopeFieldHazardDamagePct(benchOpp, 'opp');
+      const oppHpAfterField = Math.max(0, Math.round((oppHP[i] - hazard.pct)*10)/10);
       // 自分の最大ダメ技
-      let myBest=0, myBestMove='';
+      let myBest=0, myBestMove='', myBestResult = null;
       myMoves.forEach(m=>{
-        const r = calcMoveDmg(mySlot, m, benchOpp, 100);
-        if(r && r.max > myBest){myBest=r.max; myBestMove=m.name;}
+        const r = calcMoveDmg(mySlot, m, benchOpp, oppHP[i], {atkSide:'my', defSide:'opp', switchIn:true});
+        if(r && r.max > myBest){myBest=r.max; myBestMove=m.name; myBestResult=r;}
       });
-      const tag = myBest>=50?'mu-win':myBest>=25?'mu-even':'mu-lose';
+      const totalBest = Math.round((hazard.pct + myBest)*10)/10;
+      const tag = totalBest>=50?'mu-win':totalBest>=25?'mu-even':'mu-lose';
+      const outcomeInfo = getScopeBattleDamageOutcome(myBestResult, oppHP[i], hazard.pct);
+      const outcome = outcomeInfo.html;
+      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">'+hazard.notes.map(escapeHtml).join(' + ')+' / 場ダメ後HP '+oppHpAfterField+'%</span>' : '';
+      oppSwitchOptions.push({name:benchOpp.poke.name,totalBest,moveName:myBestMove||'場ダメのみ',outcomeText:outcomeInfo.text || ('場後HP '+oppHpAfterField+'%')});
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">相手→ '+benchOpp.poke.name+'</span>'+
-        '<span class="dmg-pct">自分のベスト '+myBest+'%</span>'+
-        '<span class="'+tag+'">'+(myBest>=50?'◎有利':myBest>=25?'△互角':'×不利')+'</span>'+
-        '<span style="font-size:9px;color:var(--text2);">('+myBestMove+')</span></div>';
+        '<span class="dmg-pct">場+自分ベスト '+totalBest+'%</span>'+
+        '<span class="'+tag+'">'+(totalBest>=50?'◎有利':totalBest>=25?'△互角':'×不利')+'</span>'+
+        '<span style="font-size:9px;color:var(--text2);">('+myBestMove+')</span>'+outcome+hazardText+'</div>';
     }).filter(Boolean);
     oppSwitchEl.innerHTML = rows.length ? rows.join('') : '<div class="note">相手の控えがいません</div>';
   } else {
     oppSwitchEl.innerHTML='<div class="note">相手の控えがいません</div>';
   }
+
+  renderScopeBestActionPanel(buildScopeBestActionData({
+    oppSlot,
+    mySlot,
+    myResults,
+    oppResults,
+    mySwitchOptions,
+    oppSwitchOptions,
+    myHp: myHP[myActiveIdx],
+    oppHp: oppHP[oppActiveIdx]
+  }));
 
   // --- 形勢メーター ---
   calcGauge();
@@ -3351,6 +3774,62 @@ function escapeHtml(str){
 function escapeJs(str){
   return String(str ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 }
+function scopeSimpleHash(text){
+  let h = 2166136261;
+  const s = String(text || '');
+  for(let i=0;i<s.length;i++){
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+function scopeMoveNameList(moves){
+  return (moves || []).map(m=>m && (m.name || m)).filter(Boolean).map(String);
+}
+function scopePartySignatureFromSlots(slots){
+  return (slots || []).filter(Boolean).map(slot=>{
+    const ev = slot.baseSpread || slot.spread || {};
+    return [
+      normalizeScopeRecordName(slot.poke && slot.poke.name || ''),
+      slot.natureName || '',
+      slot.ability || '',
+      slot.item || '',
+      ev.hp || 0, ev.atk || 0, ev.def || 0, ev.spa || 0, ev.spd || 0, ev.spe || 0,
+      scopeMoveNameList(slot.moves).join('/')
+    ].join('|');
+  }).join('||');
+}
+function scopePartySignatureFromRecordMons(mons){
+  return (mons || []).filter(m=>m && m.name).map(m=>normalizeScopeRecordName(m.name)).join('|');
+}
+function scopeComboNames(mons){
+  return (mons || []).filter(m=>m && m.name).map(m=>normalizeScopeRecordName(m.name)).sort((a,b)=>a.localeCompare(b,'ja'));
+}
+function scopeComboKey(mons){
+  return scopeComboNames(mons).join('|');
+}
+function scopeTopMapEntry(map){
+  const rows = Object.entries(map || {}).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],'ja'));
+  return rows.length ? {key:rows[0][0], count:rows[0][1]} : null;
+}
+function scopePct(num, den){
+  return den ? Math.round(num / den * 100) : 0;
+}
+function scopeRateClass(pct){
+  return pct >= 60 ? 'scope-rate-good' : (pct <= 40 ? 'scope-rate-bad' : 'scope-rate-mid');
+}
+function scopeRecordPartySource(){
+  const sig = scopePartySignatureFromSlots(myParty);
+  const fallbackNames = myParty.filter(Boolean).map(s=>getScopeSlotDisplayName(s)).join(' / ') || '手入力';
+  const src = scopeCurrentPartySource;
+  if(src && src.signature === sig){
+    return {id:src.id || '', name:src.name || '保存構築', signature:sig};
+  }
+  if(src && src.name){
+    return {id:src.id || '', name:src.name + '（編集）', signature:sig};
+  }
+  return {id:'manual_'+scopeSimpleHash(sig || fallbackNames), name:fallbackNames, signature:sig};
+}
 function recordLeadFromSelection(side){
   const party = side==='my' ? myParty : oppParty;
   const sel = side==='my' ? mySelect : oppSelect;
@@ -3369,7 +3848,7 @@ async function recordScopeBattle(result){
   if(!oppSel.length){ alert('相手の選出を選んでください'); return; }
   initScopeTrackerForCurrentBattle(false);
   const battle = {id:Date.now(),date:new Date().toLocaleDateString('ja-JP'),result,battleMemo:String(scopeBattleTracker && scopeBattleTracker.battleMemo || ''),
-    my:{party6:myParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),select3:mySel.map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),lead:recordLeadFromSelection('my')},
+    my:{partySource:scopeRecordPartySource(),party6:myParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),select3:mySel.map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),lead:recordLeadFromSelection('my')},
     opp:{party6:oppParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,true)).filter(Boolean),select3:oppSel.map(s=>{
       const payload = scopeRecordPokemonPayload(s,true) || {};
       const tracked = getScopeTrackedOppData(s);
@@ -3398,12 +3877,17 @@ async function renderScopeStats(){
   totalEl.textContent=String(total);
   if(!total){ rateEl.textContent='—'; countEl.textContent='—'; area.innerHTML='<div class="note">まだ記録がありません</div>'; return; }
   rateEl.textContent=Math.round(wins/total*100)+'%'; countEl.textContent=wins+'勝 / '+loses+'敗 / '+draws+'分';
-  const myMap={}, oppMap={};
+  const myMap={}, oppMap={}, comboMap={}, oppTroubleMap={}, partyBuildMap={};
   function touchMap(map, mon){
     if(!mon || !mon.name) return null;
     const key = normalizeScopeRecordName(mon.name);
     if(!map[key]) map[key]={party:0,sel:0,lead:0,win:0,type1:mon.type1||''};
     if(!map[key].type1 && mon.type1) map[key].type1=mon.type1;
+    return map[key];
+  }
+  function touchAgg(map, key, seed){
+    if(!key) return null;
+    if(!map[key]) map[key]=Object.assign({count:0,win:0,lose:0,draw:0}, seed || {});
     return map[key];
   }
   battles.forEach(b=>{
@@ -3432,6 +3916,37 @@ async function renderScopeStats(){
     if(b.opp?.lead){
       const d=touchMap(oppMap,b.opp.lead); if(d) d.lead++;
     }
+
+    const resultKey = b.result==='win' ? 'win' : (b.result==='draw' ? 'draw' : 'lose');
+    const mySelected = b.my?.select3 || [];
+    const oppSelected = b.opp?.select3 || [];
+    const myComboKey = scopeComboKey(mySelected);
+    const myComboNames = scopeComboNames(mySelected);
+    const oppComboNames = scopeComboNames(oppSelected);
+    const leadName = b.my?.lead?.name ? normalizeScopeRecordName(b.my.lead.name) : '';
+    const combo = touchAgg(comboMap, myComboKey, {names:myComboNames, leadMap:{}, lossOppMap:{}});
+    if(combo){
+      combo.count++; combo[resultKey]++;
+      if(leadName) combo.leadMap[leadName]=(combo.leadMap[leadName]||0)+1;
+      if(resultKey==='lose') oppComboNames.forEach(n=>{ combo.lossOppMap[n]=(combo.lossOppMap[n]||0)+1; });
+    }
+    oppSelected.forEach(mon=>{
+      const name = normalizeScopeRecordName(mon.name);
+      const row = touchAgg(oppTroubleMap, name, {name, type1:mon.type1||'', myLossCombos:{}});
+      if(!row) return;
+      row.count++; row[resultKey]++;
+      if(!row.type1 && mon.type1) row.type1=mon.type1;
+      if(resultKey==='lose' && myComboKey) row.myLossCombos[myComboKey]=(row.myLossCombos[myComboKey]||0)+1;
+    });
+    const source = b.my?.partySource || {};
+    const buildKey = source.signature || ('legacy_' + scopePartySignatureFromRecordMons(myPartyList || mySelected));
+    const buildName = source.name || (myPartyList || mySelected).map(m=>normalizeScopeRecordName(m.name)).join(' / ') || '未記録構築';
+    const build = touchAgg(partyBuildMap, buildKey, {name:buildName, selectMap:{}, oppLossMap:{}});
+    if(build){
+      build.count++; build[resultKey]++;
+      if(myComboKey) build.selectMap[myComboKey]=(build.selectMap[myComboKey]||0)+1;
+      if(resultKey==='lose') oppComboNames.forEach(n=>{ build.oppLossMap[n]=(build.oppLossMap[n]||0)+1; });
+    }
   });
   const myRows=Object.entries(myMap).sort((a,b)=>b[1].party-a[1].party || b[1].sel-a[1].sel || b[1].lead-a[1].lead || a[0].localeCompare(b[0],'ja'));
   const oppRows=Object.entries(oppMap).sort((a,b)=>b[1].party-a[1].party || b[1].sel-a[1].sel || b[1].lead-a[1].lead || a[0].localeCompare(b[0],'ja'));
@@ -3445,7 +3960,47 @@ async function renderScopeStats(){
     const partyPct=Math.round((d.party||0)/total*100), selPct=Math.round((d.sel||0)/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0;
     return '<tr><td data-label="ポケモン"><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td data-label="6体内" class="scope-num">'+(d.party||0)+'/'+total+'</td><td data-label="6体内率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td data-label="選出" class="scope-num">'+(d.sel||0)+'</td><td data-label="選出率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td data-label="初手" class="scope-num">'+(d.lead||0)+'</td><td data-label="初手率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td></tr>';
   }
-  area.innerHTML='<div class="note">自分側・相手側とも、入力した6体と実際に選出した3体を分けて集計します。</div><div class="scope-stats-grid"><div><div class="scope-stats-head">自分の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtmlMy(n,d)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtmlOpp(n,d)).join('')+'</tbody></table></div></div>';
+  function comboLabelFromKey(key){
+    return String(key || '').split('|').filter(Boolean).join(' / ') || '—';
+  }
+  function comboStatsHtml(){
+    const rows = Object.values(comboMap).sort((a,b)=>b.count-a.count || scopePct(b.win,b.count)-scopePct(a.win,a.count)).slice(0,10);
+    if(!rows.length) return '<div class="scope-analysis-note">選出3体の記録がまだありません。</div>';
+    return '<table class="scope-mini-table"><thead><tr><th>選出3体</th><th>回数</th><th>選出率</th><th>勝率</th><th>最多初手</th><th>負けた相手</th></tr></thead><tbody>'+rows.map(r=>{
+      const winPct = scopePct(r.win, r.count);
+      const lead = scopeTopMapEntry(r.leadMap);
+      const bad = scopeTopMapEntry(r.lossOppMap);
+      return '<tr><td><div class="scope-combo-text">'+escapeHtml((r.names||[]).join(' / ') || '—')+'</div><div class="scope-sub-text">'+r.win+'勝 / '+r.lose+'敗 / '+r.draw+'分</div></td><td class="scope-num">'+r.count+'</td><td class="scope-num">'+scopePct(r.count,total)+'%</td><td class="scope-num '+scopeRateClass(winPct)+'">'+winPct+'%</td><td>'+escapeHtml(lead ? lead.key+' '+lead.count+'回' : '—')+'</td><td>'+escapeHtml(bad ? bad.key+' '+bad.count+'敗' : '—')+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  function troubleStatsHtml(){
+    const rows = Object.values(oppTroubleMap).sort((a,b)=>{
+      const aw = scopePct(a.win,a.count), bw = scopePct(b.win,b.count);
+      return aw-bw || b.lose-a.lose || b.count-a.count || a.name.localeCompare(b.name,'ja');
+    }).slice(0,12);
+    if(!rows.length) return '<div class="scope-analysis-note">相手選出からの苦手分析はまだ出せません。</div>';
+    return '<table class="scope-mini-table"><thead><tr><th>相手</th><th>出現</th><th>こちら勝率</th><th>負け数</th><th>負け時の自分選出</th></tr></thead><tbody>'+rows.map(r=>{
+      const winPct = scopePct(r.win, r.count);
+      const lossCombo = scopeTopMapEntry(r.myLossCombos);
+      return '<tr><td><span style="font-weight:700;">'+escapeHtml(r.name)+'</span>'+typeBadge(r.type1)+'</td><td class="scope-num">'+r.count+'</td><td class="scope-num '+scopeRateClass(winPct)+'">'+winPct+'%</td><td class="scope-num">'+r.lose+'</td><td><div class="scope-combo-text">'+escapeHtml(lossCombo ? comboLabelFromKey(lossCombo.key) : '—')+'</div>'+(lossCombo?'<div class="scope-sub-text">'+lossCombo.count+'敗</div>':'')+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  function buildStatsHtml(){
+    const rows = Object.values(partyBuildMap).sort((a,b)=>b.count-a.count || scopePct(b.win,b.count)-scopePct(a.win,a.count)).slice(0,10);
+    if(!rows.length) return '<div class="scope-analysis-note">構築別の記録はまだありません。</div>';
+    return '<table class="scope-mini-table"><thead><tr><th>構築</th><th>対戦</th><th>勝率</th><th>最多選出</th><th>負けが多い相手</th></tr></thead><tbody>'+rows.map(r=>{
+      const winPct = scopePct(r.win, r.count);
+      const topSelect = scopeTopMapEntry(r.selectMap);
+      const bad = scopeTopMapEntry(r.oppLossMap);
+      return '<tr><td><div class="scope-combo-text">'+escapeHtml(r.name || '未記録構築')+'</div><div class="scope-sub-text">'+r.win+'勝 / '+r.lose+'敗 / '+r.draw+'分</div></td><td class="scope-num">'+r.count+'</td><td class="scope-num '+scopeRateClass(winPct)+'">'+winPct+'%</td><td><div class="scope-combo-text">'+escapeHtml(topSelect ? comboLabelFromKey(topSelect.key) : '—')+'</div>'+(topSelect?'<div class="scope-sub-text">'+topSelect.count+'回</div>':'')+'</td><td>'+escapeHtml(bad ? bad.key+' '+bad.count+'敗' : '—')+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  const advancedHtml = '<div class="scope-advanced-stats">'
+    + '<div class="scope-analysis-block"><div class="scope-analysis-title">選出3体の組み合わせ</div><div class="scope-analysis-note">単体の選出率ではなく、実際に出した3体の並び・勝率・初手を集計します。</div>'+comboStatsHtml()+'</div>'
+    + '<div class="scope-analysis-block"><div class="scope-analysis-title">苦手相手分析</div><div class="scope-analysis-note">相手に選出されたポケモン別に、こちらの勝率と負けた時の自分選出を出します。</div>'+troubleStatsHtml()+'</div>'
+    + '<div class="scope-analysis-block"><div class="scope-analysis-title">構築バージョン別</div><div class="scope-analysis-note">保存構築から読み込んだ対戦は構築名で、手入力や古い記録は6体の並びでまとめます。</div>'+buildStatsHtml()+'</div>'
+    + '</div>';
+  area.innerHTML='<div class="note">自分側・相手側とも、入力した6体と実際に選出した3体を分けて集計します。</div><div class="scope-stats-grid"><div><div class="scope-stats-head">自分の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtmlMy(n,d)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtmlOpp(n,d)).join('')+'</tbody></table></div></div>'+advancedHtml;
 }
 async function renderScopeHistory(){
   const battles = await loadBattleRecords();
@@ -3571,6 +4126,211 @@ async function clearAllCalcRecords(){
   }
   await renderCalcHistory();
 }
+
+// ===== 対戦中フィールド管理ボード =====
+(function(){
+  const KEY = 'pokeedge_scope_field_board_v1';
+  const weatherOptions = [['','なし'],['sunny','にほんばれ'],['rain','あめ'],['sand','すなあらし'],['snow','ゆき']];
+  const terrainOptions = [['','なし'],['electric','エレキフィールド'],['grassy','グラスフィールド'],['misty','ミストフィールド'],['psychic','サイコフィールド']];
+  const statusOptions = [['','なし'],['sleep','ねむり'],['para','まひ'],['burn','やけど'],['poison','どく'],['toxic','もうどく'],['freeze','こおり'],['confuse','こんらん'],['yawn','あくび']];
+  const fieldEffects = [
+    ['reflect','リフレクター'],['lightScreen','ひかりのかべ'],['auroraVeil','オーロラベール']
+  ];
+  const rankFields = [['atk','A'],['def','B'],['spa','C'],['spd','D']];
+  const hazardFields = [
+    ['stealthRock','ステルスロック','check'],['spikes','まきびし','level3'],['toxicSpikes','どくびし','level2'],['stickyWeb','ねばねばネット','check']
+  ];
+  const globalLabels = {
+    weather: Object.fromEntries(weatherOptions),
+    terrain: Object.fromEntries(terrainOptions),
+    status: Object.fromEntries(statusOptions)
+  };
+  function sideState(){
+    return {reflect:false,lightScreen:false,auroraVeil:false,stealthRock:false,spikes:0,toxicSpikes:0,stickyWeb:false,status:'',ranks:{atk:0,def:0,spa:0,spd:0},memo:''};
+  }
+  function defaultState(){
+    return {collapsed:false,weather:{type:''},terrain:{type:''},my:sideState(),opp:sideState(),battleNote:''};
+  }
+  function clampTurn(v,max=8){
+    const n = Math.floor(Number(v)||0);
+    return Math.max(0, Math.min(max, n));
+  }
+  function load(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(KEY)||'null');
+      const base = defaultState();
+      if(!raw || typeof raw !== 'object') return base;
+      return {
+        ...base,
+        ...raw,
+        weather:{...base.weather,...(raw.weather||{})},
+        terrain:{...base.terrain,...(raw.terrain||{})},
+        my:{...base.my,...(raw.my||{}),ranks:{...base.my.ranks,...((raw.my||{}).ranks||{})}},
+        opp:{...base.opp,...(raw.opp||{}),ranks:{...base.opp.ranks,...((raw.opp||{}).ranks||{})}}
+      };
+    }catch(_){ return defaultState(); }
+  }
+  let state = load();
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(_){} }
+  function esc(v){ return String(v ?? '').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function optionHtml(options, selected){
+    return options.map(([value,label])=>`<option value="${esc(value)}"${String(selected)===String(value)?' selected':''}>${esc(label)}</option>`).join('');
+  }
+  function turnButtons(side,key,max=8){
+    const val = side === 'root' ? clampTurn(state[key], max) : clampTurn(state[side][key], max);
+    return '<div class="scope-field-turns">' + Array.from({length:max+1},(_,n)=>`<button type="button" class="scope-field-turn${val===n?' on':''}" onclick="scopeFieldSetSideTurn('${side}','${key}',${n})">${n}</button>`).join('') + '</div>';
+  }
+  function effectControl(side,key,label){
+    const val = !!state[side][key];
+    return `<label class="scope-field-check"><input type="checkbox" ${val?'checked':''} onchange="scopeFieldSetEffect('${side}','${key}',this.checked)"> ${esc(label)}</label>`;
+  }
+  function clampRank(v){
+    const n = parseInt(v,10) || 0;
+    return Math.max(-6, Math.min(6, n));
+  }
+  function rankControl(side,key,label){
+    const val = clampRank(state[side].ranks && state[side].ranks[key]);
+    return `<div class="scope-field-rank"><label>${esc(label)}</label><div class="scope-field-rank-controls">
+      <button type="button" class="scope-field-rank-btn" onclick="scopeFieldAdjustRank('${side}','${key}',-1)">-</button>
+      <div class="scope-field-rank-val">${val>0?'+':''}${val}</div>
+      <button type="button" class="scope-field-rank-btn" onclick="scopeFieldAdjustRank('${side}','${key}',1)">+</button>
+    </div></div>`;
+  }
+  function hazardControl(side,key,type){
+    const val = state[side][key];
+    if(type === 'check'){
+      return `<label class="scope-field-check"><input type="checkbox" ${val?'checked':''} onchange="scopeFieldSetHazard('${side}','${key}',this.checked)"> ${esc(hazardFields.find(h=>h[0]===key)?.[1]||key)}</label>`;
+    }
+    const max = type === 'level3' ? 3 : 2;
+    return `<div class="scope-field-row"><label>${esc(hazardFields.find(h=>h[0]===key)?.[1]||key)}</label>${turnButtons(side,key,max)}</div>`;
+  }
+  function activeChips(){
+    const chips = [];
+    if(state.weather.type) chips.push(`<span class="scope-field-chip on">${esc(globalLabels.weather[state.weather.type])}</span>`);
+    if(state.terrain.type) chips.push(`<span class="scope-field-chip on">${esc(globalLabels.terrain[state.terrain.type])}</span>`);
+    ['my','opp'].forEach(side=>{
+      const sideLabel = side === 'my' ? '自分' : '相手';
+      fieldEffects.forEach(([key,label])=>{ if(state[side][key]) chips.push(`<span class="scope-field-chip on">${sideLabel} ${label}</span>`); });
+      rankFields.forEach(([key,label])=>{
+        const val = clampRank(state[side].ranks && state[side].ranks[key]);
+        if(val) chips.push(`<span class="scope-field-chip on">${sideLabel} ${label}${val>0?'+':''}${val}</span>`);
+      });
+      hazardFields.forEach(([key,label,type])=>{
+        const val = state[side][key];
+        if(type === 'check' && val) chips.push(`<span class="scope-field-chip on">${sideLabel}側 ${label}</span>`);
+        if(type !== 'check' && val) chips.push(`<span class="scope-field-chip on">${sideLabel}側 ${label} ${val}</span>`);
+      });
+      if(state[side].status) chips.push(`<span class="scope-field-chip on">${sideLabel} ${esc(globalLabels.status[state[side].status]||state[side].status)}</span>`);
+    });
+    return chips.length ? chips.join('') : '<span class="scope-field-chip">反映中の場情報なし</span>';
+  }
+  function sidePanel(side,label){
+    return `<div class="scope-field-box">
+      <div class="scope-field-box-title">${esc(label)}</div>
+      <div class="scope-field-form">
+        <div class="scope-field-hazards">${fieldEffects.map(([key,name])=>effectControl(side,key,name)).join('')}</div>
+        <div class="scope-field-box-title">ランク補正</div>
+        <div class="scope-field-ranks">${rankFields.map(([key,name])=>rankControl(side,key,name)).join('')}</div>
+        <div class="scope-field-hazards">${hazardFields.filter(h=>h[2]==='check').map(h=>hazardControl(side,h[0],h[2])).join('')}</div>
+        ${hazardFields.filter(h=>h[2]!=='check').map(h=>hazardControl(side,h[0],h[2])).join('')}
+        <div class="scope-field-row"><label>状態</label><select class="scope-field-select" onchange="scopeFieldSetStatus('${side}',this.value)">${optionHtml(statusOptions,state[side].status)}</select></div>
+        <div class="scope-field-row"><label>メモ</label><textarea class="scope-field-note" oninput="scopeFieldSetSideMemo('${side}',this.value)" placeholder="相手の拘り、アンコール、あくびなど">${esc(state[side].memo)}</textarea></div>
+      </div>
+    </div>`;
+  }
+  function render(){
+    const root = document.getElementById('scope-field-board');
+    if(!root) return;
+    root.innerHTML = `<div class="card scope-field-board${state.collapsed?' collapsed':''}">
+      <div class="scope-field-head">
+        <div>
+          <div class="scope-field-title">ダメージ反映フィールド</div>
+          <div class="scope-field-sub">今場に出ている天候・壁・状態・設置技を、下のダメージ範囲と交換候補へ即時反映します。</div>
+        </div>
+        <div class="scope-field-actions">
+          <button type="button" class="scope-field-btn primary" onclick="scopeFieldToggleCollapsed()">${state.collapsed?'表示':'隠す'}</button>
+          <button type="button" class="scope-field-btn danger" onclick="scopeFieldReset()">リセット</button>
+        </div>
+      </div>
+      <div class="scope-field-summary">${activeChips()}</div>
+      <div class="scope-field-body">
+      <div class="scope-field-global">
+        <div class="scope-field-box"><div class="scope-field-box-title">天候</div><div class="scope-field-form">
+          <select class="scope-field-select" onchange="scopeFieldSetGlobal('weather','type',this.value)">${optionHtml(weatherOptions,state.weather.type)}</select>
+        </div></div>
+        <div class="scope-field-box"><div class="scope-field-box-title">フィールド</div><div class="scope-field-form">
+          <select class="scope-field-select" onchange="scopeFieldSetGlobal('terrain','type',this.value)">${optionHtml(terrainOptions,state.terrain.type)}</select>
+        </div></div>
+        <div class="scope-field-box"><div class="scope-field-box-title">全体メモ</div><textarea class="scope-field-note" oninput="scopeFieldSetBattleNote(this.value)" placeholder="拘り、見えている持ち物、次に押したい技など">${esc(state.battleNote)}</textarea></div>
+      </div>
+      <div class="scope-field-grid">${sidePanel('my','自分側')}${sidePanel('opp','相手側')}</div>
+      </div>
+    </div>`;
+  }
+  function refreshDamage(){
+    SCOPE_DAMAGE_OPTIONS.weather = state.weather.type || '';
+    const weatherSelect = document.getElementById('scope-dmg-weather');
+    if(weatherSelect) weatherSelect.value = SCOPE_DAMAGE_OPTIONS.weather;
+    if(document.getElementById('phase-2')?.classList.contains('active') && typeof calcBattleActions === 'function') calcBattleActions();
+    if(document.getElementById('phase-3')?.classList.contains('active') && typeof renderDamagePhase === 'function') renderDamagePhase();
+  }
+  function commit(){
+    save();
+    render();
+    refreshDamage();
+  }
+  window.scopeFieldReset = ()=>{
+    if(!confirm('フィールド管理ボードをリセットしますか？')) return;
+    state = defaultState(); commit();
+  };
+  window.scopeFieldSetGlobal = (group,key,value)=>{
+    if(!state[group]) return;
+    state[group][key] = String(value||'');
+    commit();
+  };
+  window.scopeFieldSetEffect = (side,key,value)=>{
+    if(!state[side]) return;
+    state[side][key] = !!value;
+    commit();
+  };
+  window.scopeFieldAdjustRank = (side,key,delta)=>{
+    if(!state[side]) return;
+    if(!state[side].ranks) state[side].ranks = {atk:0,def:0,spa:0,spd:0};
+    state[side].ranks[key] = clampRank((parseInt(state[side].ranks[key],10)||0) + delta);
+    commit();
+  };
+  window.scopeFieldToggleCollapsed = ()=>{
+    state.collapsed = !state.collapsed;
+    commit();
+  };
+  window.scopeFieldSetSideTurn = (side,key,value)=>{
+    if(state[side]) state[side][key] = clampTurn(value, key === 'spikes' ? 3 : 2);
+    commit();
+  };
+  window.scopeFieldSetHazard = (side,key,value)=>{
+    if(!state[side]) return;
+    state[side][key] = !!value;
+    commit();
+  };
+  window.scopeFieldSetStatus = (side,value)=>{
+    if(!state[side]) return;
+    state[side].status = String(value||'');
+    commit();
+  };
+  window.scopeFieldSetSideMemo = (side,value)=>{
+    if(!state[side]) return;
+    state[side].memo = String(value||'');
+    save();
+  };
+  window.scopeFieldSetBattleNote = value=>{
+    state.battleNote = String(value||'');
+    save();
+  };
+  window.scopeFieldGetState = ()=>state;
+  window.renderScopeFieldBoard = render;
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ()=>{ render(); refreshDamage(); });
+  else { render(); refreshDamage(); }
+})();
 
 var THEMES={
   dark:{'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#4a6080','--text3':'#7a90b0'},
