@@ -239,6 +239,39 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 @media(max-width:900px){.best-action-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:560px){.best-action-grid{grid-template-columns:1fr;}}
 
+/* 勝ち筋探索 */
+.winplan-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.winplan-title{font-size:16px;font-weight:700;color:var(--accent);}
+.winplan-sub{font-size:10px;color:var(--text2);line-height:1.7;margin-top:3px;}
+.winplan-refresh{border:1px solid var(--accent);background:rgba(0,200,240,.1);color:var(--accent);border-radius:10px;padding:8px 12px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;}
+.winplan-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+.winplan-card{border:1px solid var(--border);background:var(--bg2);border-radius:14px;padding:11px 12px;min-width:0;}
+.winplan-card.good{border-color:rgba(0,255,150,.35);background:rgba(0,255,150,.06);}
+.winplan-card.warn{border-color:rgba(255,200,0,.35);background:rgba(255,200,0,.06);}
+.winplan-card.bad{border-color:rgba(255,48,96,.38);background:rgba(255,48,96,.06);}
+.winplan-label{font-size:9px;color:var(--text2);letter-spacing:1.4px;font-weight:700;margin-bottom:5px;}
+.winplan-main{font-size:13px;font-weight:800;color:var(--text);line-height:1.45;}
+.winplan-detail{font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;white-space:pre-wrap;}
+.winplan-branch-list{display:grid;gap:9px;}
+.winplan-branch{border:1px solid var(--border);background:var(--bg2);border-radius:14px;padding:11px 12px;display:grid;gap:8px;}
+.winplan-branch.best{border-color:var(--accent);background:rgba(0,200,240,.07);}
+.winplan-branch.danger{border-color:rgba(255,48,96,.4);}
+.winplan-branch-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.winplan-action{font-size:13px;font-weight:800;color:var(--text);}
+.winplan-score{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);}
+.winplan-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.winplan-tag{border:1px solid var(--border2);background:var(--panel);border-radius:999px;padding:3px 8px;font-size:9px;color:var(--text2);}
+.winplan-tag.good{border-color:rgba(0,255,150,.35);color:var(--green);}
+.winplan-tag.warn{border-color:rgba(255,200,0,.35);color:var(--accent3);}
+.winplan-tag.bad{border-color:rgba(255,48,96,.4);color:var(--accent2);}
+.winplan-lines{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.winplan-line{border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:8px 9px;}
+.winplan-line b{display:block;font-size:10px;color:var(--accent3);margin-bottom:4px;}
+.winplan-line span{font-size:10px;color:var(--text2);line-height:1.55;}
+.winplan-empty{border:1px dashed var(--border);background:var(--bg2);border-radius:14px;padding:14px;font-size:11px;color:var(--text2);line-height:1.8;}
+@media(max-width:980px){.winplan-grid,.winplan-lines{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.winplan-grid,.winplan-lines{grid-template-columns:1fr;}}
+
 /* 技選択・対面ダメージ */
 .damage-summary{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
 .damage-summary-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:700;margin-bottom:6px;}
@@ -736,6 +769,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   <div class="phase-tabs">
     <button class="phase-tab active" id="ptab-1" onclick="showPhase(1)"><span class="tab-icon">♟</span>選出フェーズ</button>
     <button class="phase-tab" id="ptab-2" onclick="showPhase(2)"><span class="tab-icon">⚔</span>バトルフェーズ</button>
+    <button class="phase-tab" id="ptab-6" onclick="showPhase(6)"><span class="tab-icon">♜</span>勝ち筋探索</button>
     <button class="phase-tab" id="ptab-3" onclick="showPhase(3)"><span class="tab-icon">🎯</span>技選択・対面ダメージ</button>
     <button class="phase-tab" id="ptab-4" onclick="showPhase(4)"><span class="tab-icon">📊</span>選出率記録</button>
     <button class="phase-tab" id="ptab-5" onclick="showPhase(5)"><span class="tab-icon">🧮</span>計算履歴</button>
@@ -745,6 +779,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   <div class="scope-mobile-phase-tabs" aria-label="スマホ用アナライザー切り替え">
     <button class="scope-mobile-phase-btn active" id="mptab-1" onclick="showPhase(1)">選出</button>
     <button class="scope-mobile-phase-btn" id="mptab-2" onclick="showPhase(2)">バトル</button>
+    <button class="scope-mobile-phase-btn" id="mptab-6" onclick="showPhase(6)">勝ち筋</button>
     <button class="scope-mobile-phase-btn" id="mptab-3" onclick="showPhase(3)">技・ダメージ</button>
     <button class="scope-mobile-phase-btn" id="mptab-4" onclick="showPhase(4)">記録</button>
     <button class="scope-mobile-phase-btn" id="mptab-5" onclick="showPhase(5)">履歴</button>
@@ -955,6 +990,23 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
     </div>
 
     <button class="act-btn secondary" onclick="showPhase(1)">← 選出フェーズに戻る</button>
+  </div>
+
+  <!-- ============ PHASE 6: 勝ち筋探索 ============ -->
+  <div class="phase-panel" id="phase-6">
+    <div class="card">
+      <div class="winplan-head">
+        <div>
+          <div class="winplan-title">勝ち筋探索</div>
+          <div class="winplan-sub">現在HP・場・ランク・状態異常・相手の確認済み技を使って、2手先までの負け筋と詰め筋を確認します。</div>
+        </div>
+        <button type="button" class="winplan-refresh" onclick="renderScopeWinPlan()">再計算</button>
+      </div>
+      <div id="scope-winplan-result">
+        <div class="winplan-empty">選出を決定すると、現在盤面から勝ち筋候補を表示します。</div>
+      </div>
+    </div>
+    <button class="act-btn secondary" onclick="showPhase(2)">← バトルフェーズでHP・場を調整</button>
   </div>
 
   <!-- ============ PHASE 3: 技選択・対面ダメージ ============ -->
@@ -1531,6 +1583,7 @@ function cycleScopeBattleMegaForm(side){
     renderBattleField(side);
     calcBattleActions();
     if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+    if(document.getElementById('phase-6') && document.getElementById('phase-6').classList.contains('active')) renderScopeWinPlan();
   } else {
     renderBattleField(side);
   }
@@ -1546,6 +1599,7 @@ function toggleScopeBattleMega(side){
   renderBattleField(side);
   calcBattleActions();
   if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+  if(document.getElementById('phase-6') && document.getElementById('phase-6').classList.contains('active')) renderScopeWinPlan();
 }
 
 function clampScopeEvValue(value){
@@ -2172,6 +2226,7 @@ function syncScopeTrackedBattleViews(){
   saveScopeBattleTrackerState();
   if(document.getElementById('phase-2') && document.getElementById('phase-2').classList.contains('active')) calcBattleActions();
   if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+  if(document.getElementById('phase-6') && document.getElementById('phase-6').classList.contains('active')) renderScopeWinPlan();
 }
 function setScopeBattleMemo(value){
   initScopeTrackerForCurrentBattle(false);
@@ -2329,10 +2384,10 @@ function focusScopeMobileEdit(side, idx){
 function getCalcPhaseFromHash(){
   const m = String(location.hash||'').match(/^#phase-(\d)$/);
   const n = m ? parseInt(m[1],10) : 1;
-  return [1,2,3,4,5].includes(n) ? n : 1;
+  return [1,2,3,4,5,6].includes(n) ? n : 1;
 }
 function showPhase(n){
-  [1,2,3,4,5].forEach(i=>{
+  [1,2,3,4,5,6].forEach(i=>{
     const panel = document.getElementById('phase-'+i);
     const tab = document.getElementById('ptab-'+i);
     if(panel) panel.classList.toggle('active',i===n);
@@ -2352,6 +2407,7 @@ function showPhase(n){
   }
   if(n===4){ renderScopeStats(); renderScopeHistory(); }
   if(n===5) renderCalcHistory();
+  if(n===6) renderScopeWinPlan();
   if(history && history.replaceState) history.replaceState(null,'','#phase-'+n);
 }
 function getCurrentScopePhase(){
@@ -2382,7 +2438,7 @@ function renderScopeMobileState(phase){
   normalizeLead('my');
   normalizeLead('opp');
   const phaseNo = phase || getCurrentScopePhase();
-  const phaseLabel = ({1:'選出中',2:'対戦中',3:'技確認',4:'記録確認',5:'履歴確認'})[phaseNo] || '確認中';
+  const phaseLabel = ({1:'選出中',2:'対戦中',3:'技確認',4:'記録確認',5:'履歴確認',6:'勝ち筋確認'})[phaseNo] || '確認中';
   el.innerHTML = '<div class="scope-mobile-chip"><b>自分 '+mySelect.length+'/3</b><span>'+escapeHtml(getScopeMobileNames(myParty,mySelect))+'｜初手: '+escapeHtml(getScopeMobileLeadName(myParty,myLeadSlot))+'</span></div>'+ 
     '<div class="scope-mobile-chip"><b>相手 '+oppSelect.length+'/3</b><span>'+escapeHtml(getScopeMobileNames(oppParty,oppSelect))+'｜初手: '+escapeHtml(getScopeMobileLeadName(oppParty,oppLeadSlot))+'</span></div>'+ 
     '<div class="scope-mobile-chip"><b>メガ候補</b><span>'+escapeHtml(getScopeMegaMobileLabel())+'</span></div>'+ 
@@ -2597,6 +2653,7 @@ function toggleSelect(side,i){
   normalizeLead(side);
   renderParty(side);
   if(document.getElementById('phase-3') && document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+  if(document.getElementById('phase-6') && document.getElementById('phase-6').classList.contains('active')) renderScopeWinPlan();
 }
 
 // ===== パーティ描画 =====
@@ -2652,6 +2709,7 @@ function refreshAfterSlotChange(side){
   autoAnalyze();
   if(document.getElementById('phase-2').classList.contains('active')) renderBattlePhase();
   if(document.getElementById('phase-3').classList.contains('active')) renderDamagePhase();
+  if(document.getElementById('phase-6') && document.getElementById('phase-6').classList.contains('active')) renderScopeWinPlan();
 }
 
 function setSlotAbility(side, idx, ability){
@@ -3454,6 +3512,7 @@ function switchActive(side, idx){
   if(side==='my'){myActiveIdx=idx;} else {oppActiveIdx=idx;}
   renderBattleField(side);
   calcBattleActions();
+  if(document.getElementById('phase-6') && document.getElementById('phase-6').classList.contains('active')) renderScopeWinPlan();
 }
 
 function setHP(side, val){
@@ -3466,6 +3525,7 @@ function setHP(side, val){
   document.getElementById(side+'-hp-val').textContent=v+'%';
   document.getElementById(side+'-hp-range').value=v;
   calcBattleActions();
+  if(document.getElementById('phase-6') && document.getElementById('phase-6').classList.contains('active')) renderScopeWinPlan();
 }
 
 function formatScopeBestOutcome(result, hpPct, hazardPct){
@@ -3731,6 +3791,308 @@ function calcBattleActions(){
 
   // --- 形勢メーター ---
   calcGauge();
+}
+
+// ===== 勝ち筋探索 =====
+const SCOPE_PRIORITY_MOVES = new Set(['しんそく','でんこうせっか','アクアジェット','バレットパンチ','マッハパンチ','こおりのつぶて','かげうち','ふいうち','アクセルロック','ジェットパンチ','フェイント','ねこだまし','ふみつけ','つぶらなひとみ']);
+const SCOPE_SETUP_MOVES = new Set(['つるぎのまい','わるだくみ','りゅうのまい','めいそう','ビルドアップ','てっぺき','ドわすれ','からをやぶる','ちょうのまい','こうそくいどう','ロックカット','のろい','とぐろをまく','ギアチェンジ','ほたるび','コットンガード','ふるいたてる','つめとぎ','しょうりのまい']);
+const SCOPE_RECOVERY_MOVES = new Set(['じこさいせい','はねやすめ','なまける','つきのひかり','あさのひざし','こうごうせい','ミルクのみ','タマゴうみ','すなあつめ','ちからをすいとる','ねむる']);
+const SCOPE_PROTECT_MOVES = new Set(['まもる','みきり','トーチカ','ニードルガード','キングシールド','ブロッキング']);
+
+function getScopeMovePriority(move){
+  if(!move || !move.name) return 0;
+  if(SCOPE_PRIORITY_MOVES.has(move.name)) return 1;
+  if(move.name === 'ふいうち') return 1;
+  if(move.name === 'しんそく') return 2;
+  return 0;
+}
+function getScopeWinPlanTurnOrder(mySlot, myMove, oppSlot, oppMove){
+  const myPri = getScopeMovePriority(myMove);
+  const oppPri = getScopeMovePriority(oppMove);
+  if(myPri !== oppPri) return myPri > oppPri ? 'my' : 'opp';
+  const mySpe = Number(mySlot && mySlot.stats && mySlot.stats.spe || 0);
+  const oppSpe = Number(oppSlot && oppSlot.stats && oppSlot.stats.spe || 0);
+  return mySpe >= oppSpe ? 'my' : 'opp';
+}
+function isScopeWinPlanSetupMove(move){ return !!(move && SCOPE_SETUP_MOVES.has(move.name)); }
+function isScopeWinPlanRecoveryMove(move){ return !!(move && SCOPE_RECOVERY_MOVES.has(move.name)); }
+function isScopeWinPlanProtectMove(move){ return !!(move && SCOPE_PROTECT_MOVES.has(move.name)); }
+function getScopeWinPlanStatusClass(branch){
+  if(!branch) return 'warn';
+  if(branch.tags.some(t=>t.cls==='bad')) return 'bad';
+  if(branch.tags.some(t=>t.cls==='warn')) return 'warn';
+  return 'good';
+}
+function getScopeWinPlanTagHtml(tags){
+  return '<div class="winplan-tags">'+(tags||[]).map(t=>'<span class="winplan-tag '+escapeHtml(t.cls||'')+'">'+escapeHtml(t.text||'')+'</span>').join('')+'</div>';
+}
+function getScopeWinPlanBestDamage(atkSlot, moves, defSlot, defHpPct, context){
+  return (moves || []).map(move=>({move,result:calcMoveDmg(atkSlot, move, defSlot, defHpPct, context)}))
+    .filter(x=>x.result)
+    .sort((a,b)=>b.result.max-a.result.max || b.result.min-a.result.min)[0] || null;
+}
+function getScopeWinPlanDamageRows(atkSlot, moves, defSlot, defHpPct, context){
+  return (moves || []).map(move=>({move,result:calcMoveDmg(atkSlot, move, defSlot, defHpPct, context)}))
+    .filter(x=>x.result)
+    .sort((a,b)=>b.result.max-a.result.max || b.result.min-a.result.min);
+}
+function getScopeWinPlanOpponentMax(oppSlot, mySlot, myHp){
+  const oppMoves = getScopeBattleMovesForSlot('opp', oppSlot);
+  const best = getScopeWinPlanBestDamage(oppSlot, oppMoves, mySlot, myHp, {atkSide:'opp', defSide:'my'});
+  if(!best) return {move:null,result:null,outcome:{text:'相手攻撃技なし',cls:''}, canKo:false};
+  const outcome = getScopeBattleDamageOutcome(best.result, myHp, 0);
+  return {move:best.move,result:best.result,outcome,canKo:outcome.cls==='ko'||outcome.cls==='roll'};
+}
+function getScopeWinPlanSwitchCare(mySlot, move){
+  const rows = oppSelect.map((pi,i)=>{
+    if(i===oppActiveIdx || oppHP[i] <= 0) return null;
+    const raw = oppParty[pi];
+    if(!raw) return null;
+    const target = getScopeBattleResolvedSlot(raw);
+    const hazard = getScopeFieldHazardDamagePct(target, 'opp');
+    const result = calcMoveDmg(mySlot, move, target, oppHP[i], {atkSide:'my', defSide:'opp', switchIn:true});
+    const outcome = getScopeBattleDamageOutcome(result, oppHP[i], hazard.pct);
+    return {slot:target,hazard,result,outcome,total:(hazard.pct || 0) + (result ? result.max : 0)};
+  }).filter(Boolean);
+  if(!rows.length) return {text:'相手控えなし', badCount:0, coveredCount:0, worst:null};
+  const bad = rows.filter(r=>r.outcome.cls !== 'ko' && r.outcome.cls !== 'roll');
+  const covered = rows.length - bad.length;
+  const worst = rows.slice().sort((a,b)=>a.total-b.total)[0];
+  return {
+    text: covered + '/' + rows.length + '体をKO圏内',
+    badCount: bad.length,
+    coveredCount: covered,
+    worst
+  };
+}
+function buildScopeWinPlanAttackBranch(mySlot, oppSlot, move, myHp, oppHp){
+  const result = calcMoveDmg(mySlot, move, oppSlot, oppHp, {atkSide:'my', defSide:'opp'});
+  if(!result) return null;
+  const myMoves = getScopeBattleMovesForSlot('my', mySlot);
+  const oppThreat = getScopeWinPlanOpponentMax(oppSlot, mySlot, myHp);
+  const order = getScopeWinPlanTurnOrder(mySlot, move, oppSlot, oppThreat.move);
+  const outcome = getScopeBattleDamageOutcome(result, oppHp, 0);
+  const accuracy = getScopeMoveAccuracyScore(move);
+  const tags = [];
+  let score = 50;
+  let nextText = '';
+  let riskText = '';
+  if(accuracy < 100){
+    tags.push({text:'命中'+accuracy+'%', cls:'warn'});
+    score -= Math.min(25, (100-accuracy) * 0.45);
+  }
+  if(outcome.cls === 'ko'){
+    if(order === 'my' || !oppThreat.canKo){
+      tags.push({text:'KO確定', cls:'good'});
+      score += 45;
+      nextText = 'この技で倒し切り。次は残り相手の死に出し確認。';
+    }else{
+      tags.push({text:'後攻前に落ちる可能性', cls:'bad'});
+      score -= 30;
+      nextText = 'こちらが動く前に最大打点を受けるため不安定。';
+    }
+  }else if(outcome.cls === 'roll'){
+    tags.push({text:'KO圏内', cls:'warn'});
+    score += order === 'my' ? 25 : 8;
+    nextText = '倒せない乱数では次ターンの詰めが必要。';
+  }else{
+    const remainForNext = outcome.remainHigh || Math.max(0, oppHp - result.min);
+    const nextBest = getScopeWinPlanBestDamage(mySlot, myMoves, oppSlot, remainForNext, {atkSide:'my', defSide:'opp'});
+    const nextOutcome = nextBest ? getScopeBattleDamageOutcome(nextBest.result, remainForNext, 0) : null;
+    if(nextOutcome && nextOutcome.cls === 'ko'){
+      tags.push({text:'次で詰め候補', cls:'good'});
+      score += 14;
+      nextText = '次ターン '+nextBest.move.name+' でKO確定想定。';
+    }else if(nextOutcome && nextOutcome.cls === 'roll'){
+      tags.push({text:'次も乱数', cls:'warn'});
+      score += 4;
+      nextText = '次ターン '+nextBest.move.name+' がKO圏内。乱数が残ります。';
+    }else{
+      tags.push({text:'詰め切り不足', cls:'warn'});
+      score -= 8;
+      nextText = nextBest ? '次の最大打点でも残る想定。' : '次の攻撃候補がありません。';
+    }
+  }
+  if(oppThreat.canKo && !(outcome.cls === 'ko' && order === 'my')){
+    tags.push({text:'相手最大打点で落ちる', cls:'bad'});
+    score -= 28;
+    riskText = (oppThreat.move ? oppThreat.move.name : '相手最大打点')+' '+oppThreat.outcome.text;
+  }else if(oppThreat.result){
+    const remain = Math.max(0, Math.round((myHp - oppThreat.result.max)*10)/10);
+    tags.push({text:'反撃後も残る', cls:'good'});
+    score += 8;
+    riskText = (oppThreat.move ? oppThreat.move.name : '相手最大打点')+' 最大'+oppThreat.result.max+'% / 残HP目安 '+remain+'%';
+  }else{
+    tags.push({text:'相手攻撃技なし', cls:'good'});
+    score += 10;
+    riskText = '確認済みの相手攻撃技がありません。';
+  }
+  const switchCare = getScopeWinPlanSwitchCare(mySlot, move);
+  if(switchCare.badCount > 0){
+    tags.push({text:'交換先が残る', cls:'warn'});
+    score -= Math.min(18, switchCare.badCount * 6);
+  }else if(switchCare.coveredCount > 0){
+    tags.push({text:'交換ケア', cls:'good'});
+    score += 8;
+  }
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return {
+    kind:'attack',
+    action:move.name,
+    score,
+    tags,
+    className:score >= 76 ? 'best' : (score <= 38 ? 'danger' : ''),
+    line1:'自分: '+move.name+' / '+result.min+'〜'+result.max+'% / '+outcome.text,
+    line2:'相手: '+riskText,
+    line3:'次: '+nextText,
+    switchText:switchCare.worst ? switchCare.text+' / 一番残る相手: '+getScopeBattleDisplayName(switchCare.worst.slot)+'（'+switchCare.worst.outcome.text+'）' : switchCare.text
+  };
+}
+function buildScopeWinPlanSwitchBranches(mySlot, oppSlot, myHp, oppHp){
+  const oppMoves = getScopeBattleMovesForSlot('opp', oppSlot);
+  return mySelect.map((pi,i)=>{
+    if(i===myActiveIdx || myHP[i] <= 0) return null;
+    const raw = myParty[pi];
+    if(!raw) return null;
+    const bench = getScopeBattleResolvedSlot(raw);
+    const hazard = getScopeFieldHazardDamagePct(bench, 'my');
+    const afterField = Math.max(0, Math.round((myHP[i] - hazard.pct)*10)/10);
+    let worst = null;
+    oppMoves.forEach(move=>{
+      const result = calcMoveDmg(oppSlot, move, bench, myHP[i], {atkSide:'opp', defSide:'my', switchIn:true});
+      if(result && (!worst || result.max > worst.result.max)) worst = {move,result};
+    });
+    const outcome = getScopeBattleDamageOutcome(worst && worst.result, myHP[i], hazard.pct);
+    const myMoves = getScopeBattleMovesForSlot('my', bench);
+    const nextBest = getScopeWinPlanBestDamage(bench, myMoves, oppSlot, oppHp, {atkSide:'my', defSide:'opp'});
+    const nextOutcome = nextBest ? getScopeBattleDamageOutcome(nextBest.result, oppHp, 0) : null;
+    const tags = [];
+    let score = 44;
+    if(hazard.pct) tags.push({text:'場ダメ'+hazard.pct+'%', cls:'warn'});
+    if(outcome.cls === 'ko' || outcome.cls === 'roll'){
+      tags.push({text:'受け出し危険', cls:'bad'});
+      score -= 28;
+    }else{
+      tags.push({text:'受け出し可', cls:'good'});
+      score += 18;
+    }
+    if(nextOutcome && nextOutcome.cls === 'ko'){
+      tags.push({text:'次でKO確定', cls:'good'});
+      score += 24;
+    }else if(nextOutcome && nextOutcome.cls === 'roll'){
+      tags.push({text:'次でKO圏内', cls:'warn'});
+      score += 12;
+    }else if(nextBest){
+      tags.push({text:'返しは弱め', cls:'warn'});
+      score -= 4;
+    }
+    score = Math.max(0, Math.min(100, Math.round(score)));
+    return {
+      kind:'switch',
+      action:'交代 → '+getScopeBattleDisplayName(bench),
+      score,
+      tags,
+      className:score >= 76 ? 'best' : (score <= 38 ? 'danger' : ''),
+      line1:'自分: 交代 / 場ダメ後HP '+afterField+'%',
+      line2:'相手: '+(worst ? worst.move.name+' '+worst.result.min+'〜'+worst.result.max+'% / '+outcome.text : '攻撃技なし'),
+      line3:'次: '+(nextBest ? nextBest.move.name+' '+nextBest.result.min+'〜'+nextBest.result.max+'% / '+(nextOutcome ? nextOutcome.text : '') : '攻撃技候補なし'),
+      switchText:'現在対面を受け直す選択肢'
+    };
+  }).filter(Boolean);
+}
+function buildScopeWinPlanUtilityBranches(mySlot, oppSlot, myHp){
+  const moves = getScopeBattleMovesForSlot('my', mySlot).filter(m=>m && m.category === '変化' && (isScopeWinPlanSetupMove(m) || isScopeWinPlanRecoveryMove(m) || isScopeWinPlanProtectMove(m)));
+  const oppThreat = getScopeWinPlanOpponentMax(oppSlot, mySlot, myHp);
+  return moves.map(move=>{
+    const tags = [];
+    let score = 42;
+    let plan = '';
+    if(isScopeWinPlanSetupMove(move)){
+      tags.push({text:'積み技', cls:'warn'});
+      plan = '積めた場合は次ターンの火力上昇を狙う。';
+      score += 10;
+    }
+    if(isScopeWinPlanRecoveryMove(move)){
+      tags.push({text:'回復技', cls:'good'});
+      plan = 'HPを戻して相手最大打点の圏外へ逃がす。';
+      score += 14;
+    }
+    if(isScopeWinPlanProtectMove(move)){
+      tags.push({text:'守る系', cls:'warn'});
+      plan = '相手技確認・場ダメ稼ぎ用。';
+      score += 4;
+    }
+    if(oppThreat.canKo){
+      tags.push({text:'押す前に落ちる恐れ', cls:'bad'});
+      score -= 25;
+    }else{
+      tags.push({text:'一撃は耐える', cls:'good'});
+      score += 12;
+    }
+    score = Math.max(0, Math.min(100, Math.round(score)));
+    return {
+      kind:'utility',
+      action:move.name,
+      score,
+      tags,
+      className:score >= 76 ? 'best' : (score <= 38 ? 'danger' : ''),
+      line1:'自分: '+move.name+' / '+plan,
+      line2:'相手: '+(oppThreat.move ? oppThreat.move.name+' '+oppThreat.result.min+'〜'+oppThreat.result.max+'% / '+oppThreat.outcome.text : '攻撃技なし'),
+      line3:'次: ランク変化は表示評価。細かいダメージはバトルフェーズのランクに反映して再計算。',
+      switchText:'交換読みではなく盤面維持の選択肢'
+    };
+  });
+}
+function renderScopeWinPlan(){
+  const el = document.getElementById('scope-winplan-result');
+  if(!el) return;
+  if(!mySelect.length || !oppSelect.length){
+    el.innerHTML = '<div class="winplan-empty">自分と相手の選出を決定すると、勝ち筋探索を表示します。</div>';
+    return;
+  }
+  const myRaw = myParty[mySelect[myActiveIdx]];
+  const oppRaw = oppParty[oppSelect[oppActiveIdx]];
+  if(!myRaw || !oppRaw){
+    el.innerHTML = '<div class="winplan-empty">現在対面が作れていません。バトルフェーズで自分と相手の場を確認してください。</div>';
+    return;
+  }
+  const mySlot = getScopeBattleResolvedSlot(myRaw);
+  const oppSlot = getScopeBattleResolvedSlot(oppRaw);
+  const myHp = myHP[myActiveIdx] || 0;
+  const oppHp = oppHP[oppActiveIdx] || 0;
+  const myMoves = getScopeBattleMovesForSlot('my', mySlot);
+  const attackBranches = getScopeWinPlanDamageRows(mySlot, myMoves, oppSlot, oppHp, {atkSide:'my', defSide:'opp'}).map(row=>buildScopeWinPlanAttackBranch(mySlot, oppSlot, row.move, myHp, oppHp)).filter(Boolean);
+  const switchBranches = buildScopeWinPlanSwitchBranches(mySlot, oppSlot, myHp, oppHp);
+  const utilityBranches = buildScopeWinPlanUtilityBranches(mySlot, oppSlot, myHp);
+  const branches = attackBranches.concat(switchBranches, utilityBranches).sort((a,b)=>b.score-a.score || a.action.localeCompare(b.action,'ja')).slice(0,10);
+  if(!branches.length){
+    el.innerHTML = '<div class="winplan-empty">攻撃技・交代・変化技の候補が見つかりませんでした。</div>';
+    return;
+  }
+  const best = branches[0];
+  const losing = branches.filter(b=>b.tags.some(t=>t.cls==='bad')).length;
+  const stable = branches.filter(b=>b.score >= 76 && !b.tags.some(t=>t.cls==='bad')).length;
+  const switchCare = attackBranches.find(b=>/交換ケア/.test((b.tags||[]).map(t=>t.text).join(' '))) || attackBranches[0] || null;
+  const card = (label, main, detail, cls)=>'<div class="winplan-card '+(cls||'')+'"><div class="winplan-label">'+escapeHtml(label)+'</div><div class="winplan-main">'+escapeHtml(main||'—')+'</div><div class="winplan-detail">'+escapeHtml(detail||'')+'</div></div>';
+  const branchHtml = branches.map((b,i)=>'<div class="winplan-branch '+(i===0?'best ':'')+(b.className||'')+'">'+
+    '<div class="winplan-branch-head"><div class="winplan-action">'+escapeHtml(b.action)+'</div><div class="winplan-score">安定度 '+b.score+'</div></div>'+
+    getScopeWinPlanTagHtml(b.tags)+
+    '<div class="winplan-lines">'+
+      '<div class="winplan-line"><b>1手目</b><span>'+escapeHtml(b.line1)+'</span></div>'+
+      '<div class="winplan-line"><b>相手の返し</b><span>'+escapeHtml(b.line2)+'</span></div>'+
+      '<div class="winplan-line"><b>次の予定</b><span>'+escapeHtml(b.line3)+'</span></div>'+
+    '</div>'+
+    '<div class="winplan-detail">交換確認: '+escapeHtml(b.switchText||'—')+'</div>'+
+  '</div>').join('');
+  el.innerHTML =
+    '<div class="winplan-grid">'+
+      card('推奨行動', best.action, best.line3, getScopeWinPlanStatusClass(best))+
+      card('現在対面', getScopeBattleDisplayName(mySlot)+' vs '+getScopeBattleDisplayName(oppSlot), 'HP '+myHp+'% / '+oppHp+'%', '')+
+      card('安定候補', stable+'件', '安定度76以上かつ明確な即負け筋なし', stable ? 'good' : 'warn')+
+      card('負け筋あり', losing+'件', '相手最大打点・命中・交換先で崩れる候補', losing ? 'bad' : 'good')+
+    '</div>'+
+    '<div class="winplan-card '+(switchCare && switchCare.switchText && switchCare.switchText.includes('KO圏内') ? 'good' : 'warn')+'"><div class="winplan-label">相手交換ケア</div><div class="winplan-main">'+escapeHtml(switchCare ? switchCare.action : '候補なし')+'</div><div class="winplan-detail">'+escapeHtml(switchCare ? switchCare.switchText : '相手控えへの確認対象がありません。')+'</div></div>'+
+    '<div class="winplan-branch-list">'+branchHtml+'</div>';
 }
 
 function calcGauge(){
@@ -4273,6 +4635,7 @@ async function clearAllCalcRecords(){
     if(weatherSelect) weatherSelect.value = SCOPE_DAMAGE_OPTIONS.weather;
     if(document.getElementById('phase-2')?.classList.contains('active') && typeof calcBattleActions === 'function') calcBattleActions();
     if(document.getElementById('phase-3')?.classList.contains('active') && typeof renderDamagePhase === 'function') renderDamagePhase();
+    if(document.getElementById('phase-6')?.classList.contains('active') && typeof renderScopeWinPlan === 'function') renderScopeWinPlan();
   }
   function commit(){
     save();
