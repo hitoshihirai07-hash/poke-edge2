@@ -3988,28 +3988,60 @@ function calcDamage(options={}) {
   const knockOffRemovedCritScenario = (moveName==='はたきおとす' && knockOffItemState.hasItem && knockOffItemState.removable)
     ? buildScenario(true, {effPow:effPowBase, defStatMult:defStatMultBeforeItem, dmgMult:dmgMultBeforeItem})
     : null;
+  const isKnockOffCompare = moveName==='はたきおとす';
+  const knockOffCompareMode = !isKnockOffCompare
+    ? ''
+    : (knockOffItemState.hasItem && knockOffItemState.removable
+        ? 'actual_removable'
+        : (knockOffItemState.hasItem ? 'held_unremovable' : 'no_item'));
+  const knockOffBoostNormalScenario = isKnockOffCompare
+    ? (knockOffCompareMode==='actual_removable'
+        ? normalScenario
+        : (isAlwaysCrit ? null : buildScenario(false, {effPow:Math.max(1, Math.floor(effPowBase * 1.5)), defStatMult:defStatMultBeforeItem, dmgMult:dmgMultBeforeItem})))
+    : null;
+  const knockOffBoostCritScenario = isKnockOffCompare
+    ? (knockOffCompareMode==='actual_removable'
+        ? critScenario
+        : buildScenario(true, {effPow:Math.max(1, Math.floor(effPowBase * 1.5)), defStatMult:defStatMultBeforeItem, dmgMult:dmgMultBeforeItem}))
+    : null;
+  const knockOffBaseNormalScenario = isKnockOffCompare
+    ? (knockOffRemovedScenario || (isAlwaysCrit ? null : buildScenario(false, {effPow:effPowBase, defStatMult:defStatMultBeforeItem, dmgMult:dmgMultBeforeItem})))
+    : null;
+  const knockOffBaseCritScenario = isKnockOffCompare
+    ? (knockOffRemovedCritScenario || buildScenario(true, {effPow:effPowBase, defStatMult:defStatMultBeforeItem, dmgMult:dmgMultBeforeItem}))
+    : null;
+  const knockOffBoostLabel = knockOffCompareMode==='actual_removable' ? '持ち物あり' : '持ち物あり想定';
+  const knockOffBaseLabel = knockOffCompareMode==='actual_removable'
+    ? '落とした後'
+    : (knockOffCompareMode==='held_unremovable' ? '落とせない持ち物/通常威力' : '持ち物なし/通常威力');
+  const knockOffBoostPanelLabel = knockOffCompareMode==='actual_removable' ? '持ち物あり時（威力1.5倍）' : '持ち物あり想定（威力1.5倍）';
+  const knockOffBasePanelLabel = knockOffCompareMode==='actual_removable'
+    ? '道具を落とした後（通常威力）'
+    : (knockOffCompareMode==='held_unremovable' ? '落とせない持ち物・通常威力' : '持ち物なし・通常威力');
   const primaryScenario = isAlwaysCrit ? critScenario : normalScenario;
   const primaryKo = getKoMeta(primaryScenario);
   const normalKo = normalScenario ? getKoMeta(normalScenario) : null;
   const critKo = getKoMeta(critScenario);
-  const knockOffRemovedKo = knockOffRemovedScenario ? getKoMeta(knockOffRemovedScenario) : null;
-  const knockOffRemovedCritKo = knockOffRemovedCritScenario ? getKoMeta(knockOffRemovedCritScenario) : null;
+  const knockOffBoostKo = knockOffBoostNormalScenario ? getKoMeta(knockOffBoostNormalScenario) : null;
+  const knockOffBoostCritKo = knockOffBoostCritScenario ? getKoMeta(knockOffBoostCritScenario) : null;
+  const knockOffBaseKo = knockOffBaseNormalScenario ? getKoMeta(knockOffBaseNormalScenario) : null;
+  const knockOffBaseCritKo = knockOffBaseCritScenario ? getKoMeta(knockOffBaseCritScenario) : null;
 
   el('result-box').classList.add('show');
   updateMobileResultSummary();
   const extraInfo = [weightInfo, skinInfo, weatherInfo, specialMoveInfo].concat(abilityExtraInfo).concat(parentalBondInfo?[parentalBondInfo]:[]).filter(Boolean).map(s=>' ('+s+')').join('');
   const critInfoText = critNotes.length ? ' ('+critNotes.join(' / ')+')' : '';
-  const hasKnockOffAlt = !!(knockOffRemovedScenario || knockOffRemovedCritScenario);
+  const hasKnockOffAlt = isKnockOffCompare;
 
   if(hasKnockOffAlt){
     if(isAlwaysCrit){
-      el('dmg-num').textContent=`持ち物あり ${critScenario.totalMn}〜${critScenario.totalMx} / 落とした後 ${knockOffRemovedCritScenario.totalMn}〜${knockOffRemovedCritScenario.totalMx}`;
-      el('dmg-pct').textContent=`持ち物あり ${critScenario.pmn}〜${critScenario.pmx}% / 落とした後 ${knockOffRemovedCritScenario.pmn}〜${knockOffRemovedCritScenario.pmx}%`;
-      el('dmg-range').textContent=`はたきおとす 急所時 / 持ち物あり ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''} ｜ 落とした後 ${knockOffRemovedCritScenario.mn}〜${knockOffRemovedCritScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
+      el('dmg-num').textContent=`${knockOffBoostLabel} ${knockOffBoostCritScenario.totalMn}〜${knockOffBoostCritScenario.totalMx} / ${knockOffBaseLabel} ${knockOffBaseCritScenario.totalMn}〜${knockOffBaseCritScenario.totalMx}`;
+      el('dmg-pct').textContent=`${knockOffBoostLabel} ${knockOffBoostCritScenario.pmn}〜${knockOffBoostCritScenario.pmx}% / ${knockOffBaseLabel} ${knockOffBaseCritScenario.pmn}〜${knockOffBaseCritScenario.pmx}%`;
+      el('dmg-range').textContent=`はたきおとす 急所時 / ${knockOffBoostLabel} ${knockOffBoostCritScenario.mn}〜${knockOffBoostCritScenario.mx}${isMulti?'（1hit）':''} ｜ ${knockOffBaseLabel} ${knockOffBaseCritScenario.mn}〜${knockOffBaseCritScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
     } else {
-      el('dmg-num').textContent=`持ち物あり 通常 ${normalScenario.totalMn}〜${normalScenario.totalMx} / 落とした後 通常 ${knockOffRemovedScenario.totalMn}〜${knockOffRemovedScenario.totalMx}`;
-      el('dmg-pct').textContent=`持ち物あり 通常 ${normalScenario.pmn}〜${normalScenario.pmx}% / 落とした後 通常 ${knockOffRemovedScenario.pmn}〜${knockOffRemovedScenario.pmx}%`;
-      el('dmg-range').textContent=`はたきおとす / 持ち物あり 通常 ${normalScenario.mn}〜${normalScenario.mx}${isMulti?'（1hit）':''}・急所 ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''} ｜ 落とした後 通常 ${knockOffRemovedScenario.mn}〜${knockOffRemovedScenario.mx}${isMulti?'（1hit）':''}・急所 ${knockOffRemovedCritScenario.mn}〜${knockOffRemovedCritScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
+      el('dmg-num').textContent=`${knockOffBoostLabel} 通常 ${knockOffBoostNormalScenario.totalMn}〜${knockOffBoostNormalScenario.totalMx} / ${knockOffBaseLabel} 通常 ${knockOffBaseNormalScenario.totalMn}〜${knockOffBaseNormalScenario.totalMx}`;
+      el('dmg-pct').textContent=`${knockOffBoostLabel} 通常 ${knockOffBoostNormalScenario.pmn}〜${knockOffBoostNormalScenario.pmx}% / ${knockOffBaseLabel} 通常 ${knockOffBaseNormalScenario.pmn}〜${knockOffBaseNormalScenario.pmx}%`;
+      el('dmg-range').textContent=`はたきおとす / ${knockOffBoostLabel} 通常 ${knockOffBoostNormalScenario.mn}〜${knockOffBoostNormalScenario.mx}${isMulti?'（1hit）':''}・急所 ${knockOffBoostCritScenario.mn}〜${knockOffBoostCritScenario.mx}${isMulti?'（1hit）':''} ｜ ${knockOffBaseLabel} 通常 ${knockOffBaseNormalScenario.mn}〜${knockOffBaseNormalScenario.mx}${isMulti?'（1hit）':''}・急所 ${knockOffBaseCritScenario.mn}〜${knockOffBaseCritScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
     }
   } else if(isAlwaysCrit){
     el('dmg-num').textContent=`${critScenario.totalMn} 〜 ${critScenario.totalMx}`;
@@ -4034,22 +4066,22 @@ function calcDamage(options={}) {
   }
 
   el('dmg-rolls').innerHTML=hasKnockOffAlt
-    ? '<div style="margin-top:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;"><div style="font-size:10px;color:var(--accent3);margin-bottom:6px;">持ち物あり時（1.5倍）</div>'+
-        (isAlwaysCrit ? buildScenarioSection(critScenario) : buildScenarioSection(normalScenario)+buildScenarioSection(critScenario))+
+    ? '<div style="margin-top:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;"><div style="font-size:10px;color:var(--accent3);margin-bottom:6px;">'+knockOffBoostPanelLabel+'</div>'+
+        (isAlwaysCrit ? buildScenarioSection(knockOffBoostCritScenario) : buildScenarioSection(knockOffBoostNormalScenario)+buildScenarioSection(knockOffBoostCritScenario))+
       '</div>'+
-      '<div style="margin-top:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;"><div style="font-size:10px;color:var(--accent2);margin-bottom:6px;">道具を落とした後（通常威力）</div>'+
-        (isAlwaysCrit ? buildScenarioSection(knockOffRemovedCritScenario) : buildScenarioSection(knockOffRemovedScenario)+buildScenarioSection(knockOffRemovedCritScenario))+
+      '<div style="margin-top:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;"><div style="font-size:10px;color:var(--accent2);margin-bottom:6px;">'+knockOffBasePanelLabel+'</div>'+
+        (isAlwaysCrit ? buildScenarioSection(knockOffBaseCritScenario) : buildScenarioSection(knockOffBaseNormalScenario)+buildScenarioSection(knockOffBaseCritScenario))+
       '</div>'
     : (isAlwaysCrit ? buildScenarioSection(critScenario) : buildScenarioSection(normalScenario)+buildScenarioSection(critScenario));
 
   const kt=el('ko-tag');
   if(hasKnockOffAlt){
     if(isAlwaysCrit){
-      kt.innerHTML=`<span class="ko-tag ${critKo.cls}">持ち物あり: ${critKo.label}</span><span class="ko-tag ${knockOffRemovedCritKo.cls}">落とした後: ${knockOffRemovedCritKo.label}</span>`;
-      el('dmg-desc').textContent=`持ち物あり: ${critKo.desc} / 落とした後: ${knockOffRemovedCritKo.desc}`;
+      kt.innerHTML=`<span class="ko-tag ${knockOffBoostCritKo.cls}">${knockOffBoostLabel}: ${knockOffBoostCritKo.label}</span><span class="ko-tag ${knockOffBaseCritKo.cls}">${knockOffBaseLabel}: ${knockOffBaseCritKo.label}</span>`;
+      el('dmg-desc').textContent=`${knockOffBoostLabel}: ${knockOffBoostCritKo.desc} / ${knockOffBaseLabel}: ${knockOffBaseCritKo.desc}`;
     } else {
-      kt.innerHTML=`<span class="ko-tag ${normalKo.cls}">持ち物あり通常: ${normalKo.label}</span><span class="ko-tag ${critKo.cls}">持ち物あり急所: ${critKo.label}</span><span class="ko-tag ${knockOffRemovedKo.cls}">落とした後通常: ${knockOffRemovedKo.label}</span><span class="ko-tag ${knockOffRemovedCritKo.cls}">落とした後急所: ${knockOffRemovedCritKo.label}</span>`;
-      el('dmg-desc').textContent=`持ち物あり 通常: ${normalKo.desc} / 急所: ${critKo.desc} ｜ 落とした後 通常: ${knockOffRemovedKo.desc} / 急所: ${knockOffRemovedCritKo.desc}`;
+      kt.innerHTML=`<span class="ko-tag ${knockOffBoostKo.cls}">${knockOffBoostLabel}通常: ${knockOffBoostKo.label}</span><span class="ko-tag ${knockOffBoostCritKo.cls}">${knockOffBoostLabel}急所: ${knockOffBoostCritKo.label}</span><span class="ko-tag ${knockOffBaseKo.cls}">${knockOffBaseLabel}通常: ${knockOffBaseKo.label}</span><span class="ko-tag ${knockOffBaseCritKo.cls}">${knockOffBaseLabel}急所: ${knockOffBaseCritKo.label}</span>`;
+      el('dmg-desc').textContent=`${knockOffBoostLabel} 通常: ${knockOffBoostKo.desc} / 急所: ${knockOffBoostCritKo.desc} ｜ ${knockOffBaseLabel} 通常: ${knockOffBaseKo.desc} / 急所: ${knockOffBaseCritKo.desc}`;
     }
   } else if(isAlwaysCrit){
     kt.innerHTML=`<span class="ko-tag ${critKo.cls}">急所: ${critKo.label}</span>`;
