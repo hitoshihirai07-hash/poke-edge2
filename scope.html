@@ -2584,9 +2584,10 @@ function renderThreatAnalysis(){
 const SCOPE_PRO_TRIAL_DAYS = 7;
 const SCOPE_PRO_GATE_KEY = 'pokeedge_scope_pro_gate_v1';
 const SCOPE_PRO_DEVICE_KEY = 'pokeedge_scope_pro_device_v1';
+const SCOPE_PRO_MEMBERSHIP_URL = 'https://ofuse.me/memberships/4525';
 const SCOPE_PRO_CONTACT_URL = 'https://x.com/sorasitekanri';
 const SCOPE_PRO_REMOTE_TABLE = 'pro_memberships';
-const SCOPE_PRO_PRICE_LABEL = '月額200円予定';
+const SCOPE_PRO_PRICE_LABEL = '月額200円';
 const SCOPE_PRO_AUTH_URL = 'auth.html?redirect=scope.html';
 let scopeProPromptedInSession = {};
 let scopeProRemoteMembership = {loaded:false, active:false, expiresAt:'', status:'', note:'', source:'none'};
@@ -2646,13 +2647,15 @@ function formatScopeProDate(value){
 }
 function getScopeProFlowText(status){
   if(status.unlocked) return 'ログイン中のアカウントにPROを反映しています。';
-  if(!status.loggedIn) return '継続利用はログイン後のアカウント単位で案内します。';
-  return '現在はログイン後に問い合わせ → 支払い確認 → 運営側でPRO解放の流れです。';
+  if(!status.loggedIn) return '継続利用はログイン後のアカウント単位で反映します。先に無料登録 / ログイン後、OFUSE加入と連絡で進める形です。';
+  return '現在は OFUSE加入 → Xで連絡 → 支払い確認 → 運営側でPRO解放 の流れです。';
 }
 function getScopeProSupportActionsHtml(status){
   const loginAction = status.loggedIn ? '' : '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_AUTH_URL + '">無料登録 / ログイン</a>';
-  const contactAction = '<a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">問い合わせ</a>';
-  return loginAction + contactAction;
+  const membershipAction = '<a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_MEMBERSHIP_URL + '" target="_blank" rel="noopener noreferrer">OFUSEで継続する</a>';
+  const contactAction = '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">加入後に連絡する</a>';
+  if(status && status.unlocked) return contactAction;
+  return loginAction + membershipAction + contactAction;
 }
 function loadScopeProGateStore(){
   try{
@@ -2722,12 +2725,12 @@ function getScopeProMetaHtml(status){
     return {badge:'PRO利用中', html: untilText + '<span class="scope-pro-chip"><b>内容</b>想定選出 / 初手 / 危険な並び</span><span class="scope-pro-chip"><b>反映先</b>ログイン中アカウント</span>'};
   }
   if(status.trialPending){
-    return {badge:SCOPE_PRO_TRIAL_DAYS + '日無料体験', html:'<span class="scope-pro-chip"><b>無料体験</b>初回利用から ' + SCOPE_PRO_TRIAL_DAYS + '日</span><span class="scope-pro-chip"><b>開始</b>このカードから</span><span class="scope-pro-chip"><b>継続予定</b>' + SCOPE_PRO_PRICE_LABEL + '</span>'};
+    return {badge:SCOPE_PRO_TRIAL_DAYS + '日無料体験', html:'<span class="scope-pro-chip"><b>無料体験</b>初回利用から ' + SCOPE_PRO_TRIAL_DAYS + '日</span><span class="scope-pro-chip"><b>開始</b>このカードから</span><span class="scope-pro-chip"><b>継続</b>OFUSE ' + SCOPE_PRO_PRICE_LABEL + '</span>'};
   }
   if(status.trialActive){
-    return {badge:'無料体験中', html:'<span class="scope-pro-chip"><b>残り</b>' + Math.max(1, status.remainingDays) + '日</span><span class="scope-pro-chip"><b>内容</b>選出判断をまとめて表示</span><span class="scope-pro-chip"><b>継続予定</b>' + SCOPE_PRO_PRICE_LABEL + '</span>'};
+    return {badge:'無料体験中', html:'<span class="scope-pro-chip"><b>残り</b>' + Math.max(1, status.remainingDays) + '日</span><span class="scope-pro-chip"><b>内容</b>選出判断をまとめて表示</span><span class="scope-pro-chip"><b>継続</b>OFUSE ' + SCOPE_PRO_PRICE_LABEL + '</span>'};
   }
-  return {badge:'無料期間終了', html:'<span class="scope-pro-chip"><b>状態</b>無料期間終了</span><span class="scope-pro-chip"><b>継続予定</b>' + SCOPE_PRO_PRICE_LABEL + '</span><span class="scope-pro-chip"><b>対応</b>個別案内</span>'};
+  return {badge:'無料期間終了', html:'<span class="scope-pro-chip"><b>状態</b>無料期間終了</span><span class="scope-pro-chip"><b>継続</b>OFUSE ' + SCOPE_PRO_PRICE_LABEL + '</span><span class="scope-pro-chip"><b>反映</b>X連絡後に個別対応</span>'};
 }
 function renderScopeProMeta(status){
   const meta = getScopeProMetaHtml(status);
@@ -2753,16 +2756,16 @@ function renderScopeProEntry(status){
   }
   if(status.trialPending){
     actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(&quot;trial&quot;)">無料体験を開始</button><button type="button" class="scope-pro-mini-btn" onclick="showScopeMobileAnalysis(&quot;pro&quot;)">内容を見る</button>' + getScopeProSupportActionsHtml(status);
-    inlineEl.textContent = '最初から目に入る位置で案内しています。開始すると初回利用日から無料期間が進みます。' + ' ' + status.flowText;
+    inlineEl.textContent = '最初から目に入る位置で案内しています。開始すると初回利用日から無料期間が進みます。無料期間後は OFUSE → X連絡で反映します。' + ' ' + status.flowText;
     return;
   }
   if(status.trialActive){
     actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="showScopeMobileAnalysis(&quot;pro&quot;)">PROを見る</button>' + getScopeProSupportActionsHtml(status);
-    inlineEl.textContent = '無料体験中です。相手と自分を3体以上入れると想定選出と初手候補まで表示します。' + ' ' + status.flowText;
+    inlineEl.textContent = '無料体験中です。相手と自分を3体以上入れると想定選出と初手候補まで表示します。継続時は OFUSE加入後にXで連絡してください。' + ' ' + status.flowText;
     return;
   }
   actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(&quot;expired&quot;)">課金案内を見る</button>' + getScopeProSupportActionsHtml(status);
-  inlineEl.textContent = '無料期間終了後も、最初にこの位置で課金案内が見える状態にしています。' + ' ' + status.flowText;
+  inlineEl.textContent = '無料期間終了後も、最初にこの位置で OFUSE継続案内が見える状態にしています。加入後はXで連絡してください。' + ' ' + status.flowText;
 }
 function formatScopeComboNames(teamIndices, party){
   return (teamIndices || []).map(i=>party[i]).filter(Boolean).map(slot=>escapeHtml(getScopeSlotDisplayName(slot))).join('<span class="pro-sep">/</span>');
@@ -2879,7 +2882,7 @@ function renderScopeProLocked(status){
   let actions = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(&quot;trial&quot;)">無料で試す</button>' + getScopeProSupportActionsHtml(status);
   if(status.expired){
     title = '無料期間が終了しました';
-    text = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。以降は ' + SCOPE_PRO_PRICE_LABEL + ' の追加機能として案内する想定です。';
+    text = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。以降は OFUSE のメンバーシップ（' + SCOPE_PRO_PRICE_LABEL + '）で継続できます。';
     actions = '<button type="button" class="scope-pro-mini-btn" onclick="openScopeProModal(&quot;expired&quot;)">課金案内を見る</button>' + getScopeProSupportActionsHtml(status);
   }
   el.innerHTML = '<div class="scope-pro-lock"><div class="scope-pro-lock-title">' + title + '</div><div class="scope-pro-lock-text">' + text + '<br>' + escapeHtml(status.flowText || getScopeProFlowText(status)) + '</div><div class="scope-pro-lock-actions">' + actions + '</div></div>';
@@ -2943,12 +2946,12 @@ function openScopeProModal(mode){
   if(!modal || !textEl || !noteEl || !actionsEl) return;
   const status = getScopeProStatus();
   if(mode==='expired'){
-    textEl.innerHTML = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。これ以降は ' + SCOPE_PRO_PRICE_LABEL + ' で継続する想定ですが、どうでしょうか。';
-    noteEl.textContent = status.loggedIn ? '現在は、ログイン後に問い合わせ → 支払い確認 → 運営側でPRO解放の流れです。' : '継続案内はログイン中アカウントにひも付ける想定です。先に無料登録 / ログインしておくと案内しやすくなります。';
-    actionsEl.innerHTML = (status.loggedIn ? '' : '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_AUTH_URL + '">無料登録 / ログイン</a>') + '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">閉じる</button><a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">課金案内を見る</a>';
+    textEl.innerHTML = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。これ以降は OFUSE のメンバーシップ（' + SCOPE_PRO_PRICE_LABEL + '）から継続できます。';
+    noteEl.textContent = status.loggedIn ? '加入後は X で連絡 → 支払い確認 → 運営側でPRO解放の流れです。' : '先に無料登録 / ログインしておくと、加入後に同じアカウントへPROを反映しやすくなります。';
+    actionsEl.innerHTML = (status.loggedIn ? '' : '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_AUTH_URL + '">無料登録 / ログイン</a>') + '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">閉じる</button><a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_MEMBERSHIP_URL + '" target="_blank" rel="noopener noreferrer">OFUSEで継続する</a><a class="scope-pro-link-btn" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">加入後に連絡する</a>';
   } else {
     textEl.innerHTML = '初回利用から ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料です。相手の想定選出・初手候補・危険な並びまでまとめて表示します。';
-    noteEl.textContent = '無料期間終了後は ' + SCOPE_PRO_PRICE_LABEL + ' の追加機能として、ログイン中アカウントにPROを反映する流れにできます。';
+    noteEl.textContent = '無料期間終了後は OFUSE のメンバーシップ（' + SCOPE_PRO_PRICE_LABEL + '）から継続し、ログイン中アカウントへPROを反映する流れです。';
     actionsEl.innerHTML = (status.loggedIn ? '' : '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_AUTH_URL + '">無料登録 / ログイン</a>') + '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">あとで</button><button type="button" class="scope-pro-mini-btn primary" onclick="activateScopeProFromModal()">無料で使う</button>';
   }
   modal.classList.add('show');
