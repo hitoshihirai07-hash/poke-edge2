@@ -353,6 +353,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-field-btn.primary{background:var(--accent);border-color:var(--accent);color:#001018;}
 .scope-field-btn.danger{border-color:rgba(255,48,96,.45);color:var(--accent2);}
 .scope-field-btn:hover{filter:brightness(1.12);}
+.scope-field-body{display:grid;gap:12px;}
+.scope-field-board.collapsed .scope-field-body{display:none;}
 .scope-field-summary{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;}
 .scope-field-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:999px;padding:4px 8px;font-size:10px;}
 .scope-field-chip.on{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,.08);}
@@ -371,6 +373,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-field-hazards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
 .scope-field-check{display:flex;align-items:center;gap:7px;border:1px solid var(--border);background:var(--panel);border-radius:10px;padding:8px 9px;font-size:11px;color:var(--text);}
 .scope-field-check input{accent-color:var(--accent);}
+.scope-field-ranks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.scope-field-rank{border:1px solid var(--border);background:var(--panel);border-radius:10px;padding:8px;display:grid;gap:6px;}
+.scope-field-rank label{font-size:10px;color:var(--text2);}
+.scope-field-rank-controls{display:grid;grid-template-columns:28px 1fr 28px;gap:6px;align-items:center;}
+.scope-field-rank-btn{height:28px;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:8px;font-size:13px;cursor:pointer;}
+.scope-field-rank-val{text-align:center;font-weight:700;font-size:12px;color:var(--accent);}
 @media(max-width:900px){.scope-field-grid,.scope-field-global{grid-template-columns:1fr;}.scope-field-head{display:grid;}.scope-field-actions{justify-content:flex-start;}}
 @media(max-width:560px){.scope-field-row{grid-template-columns:1fr;}.scope-field-hazards{grid-template-columns:1fr;}}
 .scope-track-wrap{display:grid;gap:12px;margin-top:10px;}
@@ -1747,6 +1755,8 @@ const SCOPE_FIELD_JP = {
   magicGuard:'\u30de\u30b8\u30c3\u30af\u30ac\u30fc\u30c9',
   guts:'\u3053\u3093\u3058\u3087\u3046',
   facade:'\u304b\u3089\u3052\u3093\u304d',
+  bodyPress:'\u30dc\u30c7\u30a3\u30d7\u30ec\u30b9',
+  psyshock:'\u30b5\u30a4\u30b3\u30b7\u30e7\u30c3\u30af',
   earthquake:'\u3058\u3057\u3093',
   bulldoze:'\u3058\u306a\u3089\u3057',
   magnitude:'\u30de\u30b0\u30cb\u30c1\u30e5\u30fc\u30c9'
@@ -1762,6 +1772,25 @@ function getScopeFieldWeather(){
 function getScopeFieldSide(side){
   const state = getScopeFieldStateForCalc();
   return (state && state[side]) || {};
+}
+function getScopeFieldRank(side, key){
+  const sideState = getScopeFieldSide(side);
+  const ranks = sideState && sideState.ranks || {};
+  const n = parseInt(ranks[key],10) || 0;
+  return Math.max(-6, Math.min(6, n));
+}
+function getScopeFieldRankMultiplier(stage){
+  const n = Math.max(-6, Math.min(6, parseInt(stage,10) || 0));
+  return n >= 0 ? (2 + n) / 2 : 2 / (2 - n);
+}
+function applyScopeFieldRankStat(value, side, key){
+  const stage = getScopeFieldRank(side, key);
+  if(!stage) return {value, note:''};
+  const label = {atk:'A',def:'B',spa:'C',spd:'D'}[key] || key.toUpperCase();
+  return {
+    value: Math.max(1, Math.floor(value * getScopeFieldRankMultiplier(stage))),
+    note: label + (stage > 0 ? '+' : '') + stage
+  };
 }
 function isScopeFieldGrounded(slot){
   const poke = slot && slot.poke;
@@ -1870,15 +1899,23 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
   const adjustedMove = Object.assign({}, move, {type:mtype, power});
   const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, effectiveDefHpPct);
   const fieldAdjust = getScopeFieldDamageAdjustments(context, atkSlot, adjustedMove, defSlot, mtype);
-  const detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power).concat(fieldAdjust.notes, hpInfo.notes);
+  let detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power).concat(fieldAdjust.notes, hpInfo.notes);
   if(adjust.eff===0){
     return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null', detailNotes};
   }
   let stab = atkTypes.includes(mtype) ? ((atkSlot.ability==='てきおうりょく') ? 2 : 1.5) : 1;
   let aSt = adjustedMove.category==='物理' ? atkStats.atk : atkStats.spa;
   let dSt = adjustedMove.category==='物理' ? defStats.def : defStats.spd;
-  if(moveName==='ボディプレス') aSt = atkStats.def;
-  if(moveName==='サイコショック') dSt = defStats.def;
+  let atkRankKey = adjustedMove.category==='物理' ? 'atk' : 'spa';
+  let defRankKey = adjustedMove.category==='物理' ? 'def' : 'spd';
+  if(moveName===SCOPE_FIELD_JP.bodyPress){ aSt = atkStats.def; atkRankKey = 'def'; }
+  if(moveName===SCOPE_FIELD_JP.psyshock){ dSt = defStats.def; defRankKey = 'def'; }
+  const atkRanked = applyScopeFieldRankStat(aSt, context.atkSide, atkRankKey);
+  const defRanked = applyScopeFieldRankStat(dSt, context.defSide, defRankKey);
+  aSt = atkRanked.value;
+  dSt = defRanked.value;
+  if(atkRanked.note) detailNotes.push('攻撃側ランク '+atkRanked.note);
+  if(defRanked.note) detailNotes.push('防御側ランク '+defRanked.note);
   if(weather==='snow' && defTypes.includes('こおり') && adjustedMove.category==='物理') dSt = Math.floor(dSt * 1.5);
   if(weather==='sand' && defTypes.includes('いわ') && adjustedMove.category==='特殊') dSt = Math.floor(dSt * 1.5);
   let weatherDmgMod = 1;
@@ -3750,6 +3787,7 @@ async function clearAllCalcRecords(){
   const fieldEffects = [
     ['reflect','リフレクター'],['lightScreen','ひかりのかべ'],['auroraVeil','オーロラベール']
   ];
+  const rankFields = [['atk','A'],['def','B'],['spa','C'],['spd','D']];
   const hazardFields = [
     ['stealthRock','ステルスロック','check'],['spikes','まきびし','level3'],['toxicSpikes','どくびし','level2'],['stickyWeb','ねばねばネット','check']
   ];
@@ -3759,10 +3797,10 @@ async function clearAllCalcRecords(){
     status: Object.fromEntries(statusOptions)
   };
   function sideState(){
-    return {reflect:false,lightScreen:false,auroraVeil:false,stealthRock:false,spikes:0,toxicSpikes:0,stickyWeb:false,status:'',memo:''};
+    return {reflect:false,lightScreen:false,auroraVeil:false,stealthRock:false,spikes:0,toxicSpikes:0,stickyWeb:false,status:'',ranks:{atk:0,def:0,spa:0,spd:0},memo:''};
   }
   function defaultState(){
-    return {weather:{type:''},terrain:{type:''},my:sideState(),opp:sideState(),battleNote:''};
+    return {collapsed:false,weather:{type:''},terrain:{type:''},my:sideState(),opp:sideState(),battleNote:''};
   }
   function clampTurn(v,max=8){
     const n = Math.floor(Number(v)||0);
@@ -3778,8 +3816,8 @@ async function clearAllCalcRecords(){
         ...raw,
         weather:{...base.weather,...(raw.weather||{})},
         terrain:{...base.terrain,...(raw.terrain||{})},
-        my:{...base.my,...(raw.my||{})},
-        opp:{...base.opp,...(raw.opp||{})}
+        my:{...base.my,...(raw.my||{}),ranks:{...base.my.ranks,...((raw.my||{}).ranks||{})}},
+        opp:{...base.opp,...(raw.opp||{}),ranks:{...base.opp.ranks,...((raw.opp||{}).ranks||{})}}
       };
     }catch(_){ return defaultState(); }
   }
@@ -3797,6 +3835,18 @@ async function clearAllCalcRecords(){
     const val = !!state[side][key];
     return `<label class="scope-field-check"><input type="checkbox" ${val?'checked':''} onchange="scopeFieldSetEffect('${side}','${key}',this.checked)"> ${esc(label)}</label>`;
   }
+  function clampRank(v){
+    const n = parseInt(v,10) || 0;
+    return Math.max(-6, Math.min(6, n));
+  }
+  function rankControl(side,key,label){
+    const val = clampRank(state[side].ranks && state[side].ranks[key]);
+    return `<div class="scope-field-rank"><label>${esc(label)}</label><div class="scope-field-rank-controls">
+      <button type="button" class="scope-field-rank-btn" onclick="scopeFieldAdjustRank('${side}','${key}',-1)">-</button>
+      <div class="scope-field-rank-val">${val>0?'+':''}${val}</div>
+      <button type="button" class="scope-field-rank-btn" onclick="scopeFieldAdjustRank('${side}','${key}',1)">+</button>
+    </div></div>`;
+  }
   function hazardControl(side,key,type){
     const val = state[side][key];
     if(type === 'check'){
@@ -3812,6 +3862,10 @@ async function clearAllCalcRecords(){
     ['my','opp'].forEach(side=>{
       const sideLabel = side === 'my' ? '自分' : '相手';
       fieldEffects.forEach(([key,label])=>{ if(state[side][key]) chips.push(`<span class="scope-field-chip on">${sideLabel} ${label}</span>`); });
+      rankFields.forEach(([key,label])=>{
+        const val = clampRank(state[side].ranks && state[side].ranks[key]);
+        if(val) chips.push(`<span class="scope-field-chip on">${sideLabel} ${label}${val>0?'+':''}${val}</span>`);
+      });
       hazardFields.forEach(([key,label,type])=>{
         const val = state[side][key];
         if(type === 'check' && val) chips.push(`<span class="scope-field-chip on">${sideLabel}側 ${label}</span>`);
@@ -3826,6 +3880,8 @@ async function clearAllCalcRecords(){
       <div class="scope-field-box-title">${esc(label)}</div>
       <div class="scope-field-form">
         <div class="scope-field-hazards">${fieldEffects.map(([key,name])=>effectControl(side,key,name)).join('')}</div>
+        <div class="scope-field-box-title">ランク補正</div>
+        <div class="scope-field-ranks">${rankFields.map(([key,name])=>rankControl(side,key,name)).join('')}</div>
         <div class="scope-field-hazards">${hazardFields.filter(h=>h[2]==='check').map(h=>hazardControl(side,h[0],h[2])).join('')}</div>
         ${hazardFields.filter(h=>h[2]!=='check').map(h=>hazardControl(side,h[0],h[2])).join('')}
         <div class="scope-field-row"><label>状態</label><select class="scope-field-select" onchange="scopeFieldSetStatus('${side}',this.value)">${optionHtml(statusOptions,state[side].status)}</select></div>
@@ -3836,17 +3892,19 @@ async function clearAllCalcRecords(){
   function render(){
     const root = document.getElementById('scope-field-board');
     if(!root) return;
-    root.innerHTML = `<div class="card scope-field-board">
+    root.innerHTML = `<div class="card scope-field-board${state.collapsed?' collapsed':''}">
       <div class="scope-field-head">
         <div>
           <div class="scope-field-title">ダメージ反映フィールド</div>
           <div class="scope-field-sub">今場に出ている天候・壁・状態・設置技を、下のダメージ範囲と交換候補へ即時反映します。</div>
         </div>
         <div class="scope-field-actions">
+          <button type="button" class="scope-field-btn primary" onclick="scopeFieldToggleCollapsed()">${state.collapsed?'表示':'隠す'}</button>
           <button type="button" class="scope-field-btn danger" onclick="scopeFieldReset()">リセット</button>
         </div>
       </div>
       <div class="scope-field-summary">${activeChips()}</div>
+      <div class="scope-field-body">
       <div class="scope-field-global">
         <div class="scope-field-box"><div class="scope-field-box-title">天候</div><div class="scope-field-form">
           <select class="scope-field-select" onchange="scopeFieldSetGlobal('weather','type',this.value)">${optionHtml(weatherOptions,state.weather.type)}</select>
@@ -3857,6 +3915,7 @@ async function clearAllCalcRecords(){
         <div class="scope-field-box"><div class="scope-field-box-title">全体メモ</div><textarea class="scope-field-note" oninput="scopeFieldSetBattleNote(this.value)" placeholder="拘り、見えている持ち物、次に押したい技など">${esc(state.battleNote)}</textarea></div>
       </div>
       <div class="scope-field-grid">${sidePanel('my','自分側')}${sidePanel('opp','相手側')}</div>
+      </div>
     </div>`;
   }
   function refreshDamage(){
@@ -3883,6 +3942,16 @@ async function clearAllCalcRecords(){
   window.scopeFieldSetEffect = (side,key,value)=>{
     if(!state[side]) return;
     state[side][key] = !!value;
+    commit();
+  };
+  window.scopeFieldAdjustRank = (side,key,delta)=>{
+    if(!state[side]) return;
+    if(!state[side].ranks) state[side].ranks = {atk:0,def:0,spa:0,spd:0};
+    state[side].ranks[key] = clampRank((parseInt(state[side].ranks[key],10)||0) + delta);
+    commit();
+  };
+  window.scopeFieldToggleCollapsed = ()=>{
+    state.collapsed = !state.collapsed;
     commit();
   };
   window.scopeFieldSetSideTurn = (side,key,value)=>{
