@@ -3612,6 +3612,7 @@ function calcDamage(options={}) {
     specialMoveInfo=[specialMoveInfo,'シェルアームズ: 相手により物理/特殊を自動選択'].filter(Boolean).join(' / ');
   }
   if(!power){ if(!silent) alert('この技はダメージ技ではありません（変化技）'); return false; }
+  const knockOffItemState = moveName==='はたきおとす' ? getKnockOffItemStateFromText(getSelectedLabel('def-item')) : {hasItem:false, removable:false, label:'なし', reason:''};
   if(moveName==='はたきおとす'){
     if(knockOffItemState.hasItem && knockOffItemState.removable) specialMoveInfo = [specialMoveInfo, 'はたきおとす: 持ち物あり時は威力1.5倍 / 落とした後も表示'].filter(Boolean).join(' / ');
     else if(knockOffItemState.hasItem) specialMoveInfo = [specialMoveInfo, 'はたきおとす: 落とせない持ち物のため通常威力'].filter(Boolean).join(' / ');
@@ -3666,7 +3667,6 @@ function calcDamage(options={}) {
   const remainingHp=hazardInfo.remaining;
   const hazardJudgeHp=Math.max(1,remainingHp);
   const defTypes=window._defBase?[window._defBase.type1,window._defBase.type2].filter(Boolean):[];
-  const knockOffItemState = moveName==='はたきおとす' ? getKnockOffItemStateFromText(getSelectedLabel('def-item')) : {hasItem:false, removable:false, label:'なし', reason:''};
 
   // 天候による防御側ステータス補正
   let weatherDefLabel='';
