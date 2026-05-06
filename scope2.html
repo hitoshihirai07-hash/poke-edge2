@@ -3459,6 +3459,35 @@ function formatScopeBestOutcome(result, hpPct, hazardPct){
   const range = result ? result.min+'〜'+result.max+'%' : '技ダメなし';
   return range + (outcome.text ? ' / '+outcome.text : '');
 }
+function getScopeMoveAccuracyScore(move){
+  const raw = move && move.accuracy;
+  if(raw === '-' || raw === '' || raw === undefined || raw === null) return 100;
+  const n = parseInt(raw,10);
+  return Number.isFinite(n) ? n : 100;
+}
+function isScopePivotMove(move){
+  return !!(move && ['とんぼがえり','ボルトチェンジ','クイックターン','すてゼリフ'].includes(move.name));
+}
+function getScopeBestAttackResult(results, targetHp){
+  const list = (results || []).filter(x=>x && x.result);
+  const withOutcome = list.map(x=>Object.assign({}, x, {outcome:getScopeBattleDamageOutcome(x.result, targetHp, 0), acc:getScopeMoveAccuracyScore(x.move)}));
+  const confirmed = withOutcome.filter(x=>x.outcome.cls === 'ko');
+  if(confirmed.length){
+    return confirmed.sort((a,b)=>(b.acc-a.acc) || (a.result.max-b.result.max) || (b.result.min-a.result.min))[0];
+  }
+  const rolls = withOutcome.filter(x=>x.outcome.cls === 'roll');
+  if(rolls.length){
+    return rolls.sort((a,b)=>(b.acc-a.acc) || (b.result.max-a.result.max))[0];
+  }
+  return withOutcome.sort((a,b)=>(b.result.max-a.result.max) || (b.acc-a.acc))[0] || null;
+}
+function getScopePivotResult(results, mySlot, oppSlot){
+  const pivots = (results || []).filter(x=>x && x.move && isScopePivotMove(x.move));
+  if(!pivots.length) return null;
+  const faster = !!(mySlot && oppSlot && mySlot.stats && oppSlot.stats && mySlot.stats.spe >= oppSlot.stats.spe);
+  const best = pivots.slice().sort((a,b)=>(b.result.max-a.result.max) || (getScopeMoveAccuracyScore(b.move)-getScopeMoveAccuracyScore(a.move)))[0];
+  return best ? Object.assign({}, best, {faster}) : null;
+}
 function renderScopeBestActionPanel(data){
   const el = document.getElementById('scope-best-action-panel');
   if(!el) return;
@@ -3487,10 +3516,11 @@ function renderScopeBestActionPanel(data){
 }
 function buildScopeBestActionData(ctx){
   const data = {oppSlot:ctx.oppSlot};
-  const bestAttack = (ctx.myResults || [])[0] || null;
+  const bestAttack = getScopeBestAttackResult(ctx.myResults, ctx.oppHp);
   const bestDanger = (ctx.oppResults || [])[0] || null;
   const bestSwitch = (ctx.mySwitchOptions || []).slice().sort((a,b)=>a.totalThreat-b.totalThreat)[0] || null;
   const bestRead = (ctx.oppSwitchOptions || []).slice().sort((a,b)=>b.totalBest-a.totalBest)[0] || null;
+  const pivot = getScopePivotResult(ctx.myResults, ctx.mySlot, ctx.oppSlot);
   if(bestAttack){
     data.attack = {
       name: bestAttack.move.name,
@@ -3506,24 +3536,37 @@ function buildScopeBestActionData(ctx){
     };
   }
   if(bestSwitch){
+    const pivotText = pivot ? ' / 交換技: '+pivot.move.name+(pivot.faster?'':' ※後攻注意') : '';
     data.safeSwitch = {
-      name: bestSwitch.name,
-      detail: '場+被ダメ '+bestSwitch.totalThreat+'% / '+bestSwitch.outcomeText+' / '+bestSwitch.moveName
+      name: pivot && pivot.faster ? pivot.move.name+' → '+bestSwitch.name : bestSwitch.name,
+      detail: '場+被ダメ '+bestSwitch.totalThreat+'% / '+bestSwitch.outcomeText+' / '+bestSwitch.moveName+pivotText
+    };
+  }else if(pivot){
+    data.safeSwitch = {
+      name: pivot.move.name,
+      detail: formatScopeBestOutcome(pivot.result, ctx.oppHp, 0)+(pivot.faster?' / 交換技で離脱':' / 交換技だが後攻注意')
     };
   }
   if(bestRead){
     data.oppSwitch = {
       name: bestRead.name,
-      detail: '場+最大 '+bestRead.totalBest+'% / '+bestRead.outcomeText+' / '+bestRead.moveName
+      detail: '余裕がある時だけ / 場+最大 '+bestRead.totalBest+'% / '+bestRead.outcomeText+' / '+bestRead.moveName
     };
   }
   const attackOutcome = bestAttack ? getScopeBattleDamageOutcome(bestAttack.result, ctx.oppHp, 0) : null;
   const dangerOutcome = bestDanger ? getScopeBattleDamageOutcome(bestDanger.result, ctx.myHp, 0) : null;
+  const canBeKoed = dangerOutcome && (dangerOutcome.cls === 'ko' || dangerOutcome.cls === 'roll');
+  const canKoNow = attackOutcome && (attackOutcome.cls === 'ko' || attackOutcome.cls === 'roll');
+  const clearlyBad = bestDanger && bestDanger.result && bestDanger.result.max >= Math.max(45, ctx.myHp * 0.65);
   if(attackOutcome && attackOutcome.cls === 'ko'){
     data.recommend = {type:'attack', title:'今は '+bestAttack.move.name+' で倒せます'};
-  }else if(dangerOutcome && (dangerOutcome.cls === 'ko' || dangerOutcome.cls === 'roll') && bestSwitch && bestSwitch.totalThreat + 10 < (bestDanger.result ? bestDanger.result.max : 100)){
+  }else if(canBeKoed && pivot && pivot.faster){
+    data.recommend = {type:'switch', title:'被弾が危険です。'+pivot.move.name+' で離脱候補'};
+  }else if(canBeKoed && bestSwitch && bestSwitch.totalThreat + 10 < (bestDanger.result ? bestDanger.result.max : 100)){
     data.recommend = {type:'switch', title:'被弾が危険です。'+bestSwitch.name+' へ引く候補'};
-  }else if(bestRead && bestAttack && bestRead.totalBest >= bestAttack.result.max + 12){
+  }else if(attackOutcome && attackOutcome.cls === 'roll'){
+    data.recommend = {type:'attack', title:'今は '+bestAttack.move.name+' のKO圏内です'};
+  }else if(bestRead && bestAttack && !canBeKoed && !canKoNow && !clearlyBad && bestRead.totalBest >= bestAttack.result.max + 12){
     data.recommend = {type:'read', title:'相手交換読みなら '+bestRead.moveName+' が強いです'};
   }else if(bestAttack){
     data.recommend = {type:'attack', title:'基本は '+bestAttack.move.name+' を優先'};
@@ -3663,6 +3706,7 @@ function calcBattleActions(){
 
   renderScopeBestActionPanel(buildScopeBestActionData({
     oppSlot,
+    mySlot,
     myResults,
     oppResults,
     mySwitchOptions,
