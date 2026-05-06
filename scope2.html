@@ -1649,10 +1649,11 @@ function isScopeContactMove(move){
 }
 function getScopeDamageOptionNotes(atkSlot, move, usedType, usedPower){
   const notes = [];
-  if(SCOPE_DAMAGE_OPTIONS.weather) notes.push('天候:'+getWeatherLabelForScope(SCOPE_DAMAGE_OPTIONS.weather));
+  const activeWeather = typeof getScopeFieldWeather === 'function' ? getScopeFieldWeather() : SCOPE_DAMAGE_OPTIONS.weather;
+  if(activeWeather) notes.push('天候:'+getWeatherLabelForScope(activeWeather));
   if(move && move.name==='おはかまいり') notes.push('おはかまいり威力'+usedPower);
   if(atkSlot && atkSlot.ability==='そうだいしょう') notes.push('そうだいしょう+'+(SCOPE_DAMAGE_OPTIONS.supreme*10)+'%');
-  if(move && move.name==='ウェザーボール' && SCOPE_DAMAGE_OPTIONS.weather) notes.push('ウェザーボール:'+usedType+' 威力'+usedPower);
+  if(move && move.name==='ウェザーボール' && activeWeather) notes.push('ウェザーボール:'+usedType+' 威力'+usedPower);
   return notes;
 }
 function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct, extraMod, hitsInfo){
@@ -1729,7 +1730,127 @@ function getAbilityDamageAdjustments(atkSlot, move, defSlot, baseEff, defHpPct){
   return {eff, mod, nullifyReason};
 }
 
-function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
+const SCOPE_FIELD_JP = {
+  physical:'\u7269\u7406',
+  special:'\u7279\u6b8a',
+  rock:'\u3044\u308f',
+  flying:'\u3072\u3053\u3046',
+  electric:'\u3067\u3093\u304d',
+  grass:'\u304f\u3055',
+  psychic:'\u30a8\u30b9\u30d1\u30fc',
+  dragon:'\u30c9\u30e9\u30b4\u30f3',
+  fire:'\u307b\u306e\u304a',
+  water:'\u307f\u305a',
+  ice:'\u3053\u304a\u308a',
+  ground:'\u3058\u3081\u3093',
+  levitate:'\u3075\u3086\u3046',
+  magicGuard:'\u30de\u30b8\u30c3\u30af\u30ac\u30fc\u30c9',
+  guts:'\u3053\u3093\u3058\u3087\u3046',
+  facade:'\u304b\u3089\u3052\u3093\u304d',
+  earthquake:'\u3058\u3057\u3093',
+  bulldoze:'\u3058\u306a\u3089\u3057',
+  magnitude:'\u30de\u30b0\u30cb\u30c1\u30e5\u30fc\u30c9'
+};
+
+function getScopeFieldStateForCalc(){
+  return (typeof window !== 'undefined' && typeof window.scopeFieldGetState === 'function') ? window.scopeFieldGetState() : null;
+}
+function getScopeFieldWeather(){
+  const state = getScopeFieldStateForCalc();
+  return (state && state.weather && state.weather.type) || SCOPE_DAMAGE_OPTIONS.weather || '';
+}
+function getScopeFieldSide(side){
+  const state = getScopeFieldStateForCalc();
+  return (state && state[side]) || {};
+}
+function isScopeFieldGrounded(slot){
+  const poke = slot && slot.poke;
+  const types = poke ? [poke.type1,poke.type2].filter(Boolean) : [];
+  if(types.includes(SCOPE_FIELD_JP.flying)) return false;
+  if(slot && slot.ability === SCOPE_FIELD_JP.levitate) return false;
+  return true;
+}
+function getScopeFieldHazardDamagePct(slot, targetSide){
+  const side = getScopeFieldSide(targetSide);
+  if(!slot || !slot.poke || !side) return {pct:0, notes:[]};
+  if(slot.ability === SCOPE_FIELD_JP.magicGuard) return {pct:0, notes:['マジックガードで場ダメ無効']};
+  const types = [slot.poke.type1,slot.poke.type2].filter(Boolean);
+  let pct = 0;
+  const notes = [];
+  if(side.stealthRock){
+    const rockPct = 12.5 * typeEff(SCOPE_FIELD_JP.rock, types);
+    pct += rockPct;
+    notes.push('ステロ '+formatScopePct(rockPct));
+  }
+  if(side.spikes && isScopeFieldGrounded(slot)){
+    const spikesPct = [0,12.5,16.7,25][Math.max(0, Math.min(3, parseInt(side.spikes,10)||0))] || 0;
+    pct += spikesPct;
+    if(spikesPct) notes.push('まきびし '+formatScopePct(spikesPct));
+  }
+  return {pct:Math.round(pct*10)/10, notes};
+}
+function formatScopePct(value){
+  return (Math.round(value*10)/10).toString().replace(/\.0$/,'') + '%';
+}
+function getScopeFieldEffectiveHpPct(slot, hpPct, context){
+  const base = Math.max(1, Math.min(100, Number(hpPct) || 100));
+  if(!context || !context.switchIn || !context.defSide) return {hpPct:base, notes:[]};
+  const hazard = getScopeFieldHazardDamagePct(slot, context.defSide);
+  if(!hazard.pct) return {hpPct:base, notes:hazard.notes};
+  return {hpPct:Math.max(1, Math.round((base - hazard.pct)*10)/10), notes:['交換時 '+hazard.notes.join(' + ')]};
+}
+function getScopeFieldDamageAdjustments(context, atkSlot, move, defSlot, usedType){
+  const state = getScopeFieldStateForCalc();
+  if(!state) return {mod:1, notes:[]};
+  const atkSide = context && context.atkSide;
+  const defSide = context && context.defSide;
+  const atkField = getScopeFieldSide(atkSide);
+  const defField = getScopeFieldSide(defSide);
+  const notes = [];
+  let mod = 1;
+
+  if(atkField.status === 'burn' && move.category === SCOPE_FIELD_JP.physical && move.name !== SCOPE_FIELD_JP.facade && atkSlot.ability !== SCOPE_FIELD_JP.guts){
+    mod *= 0.5;
+    notes.push('やけど物理0.5');
+  }
+
+  if(defField.auroraVeil > 0){
+    mod *= 0.5;
+    notes.push('オーロラベール0.5');
+  }else if(move.category === SCOPE_FIELD_JP.physical && defField.reflect > 0){
+    mod *= 0.5;
+    notes.push('リフレクター0.5');
+  }else if(move.category === SCOPE_FIELD_JP.special && defField.lightScreen > 0){
+    mod *= 0.5;
+    notes.push('ひかりのかべ0.5');
+  }
+
+  const terrain = state.terrain && state.terrain.type;
+  if(terrain === 'electric' && usedType === SCOPE_FIELD_JP.electric){
+    mod *= 1.3;
+    notes.push('EF でんき1.3');
+  }else if(terrain === 'grassy'){
+    if(usedType === SCOPE_FIELD_JP.grass){
+      mod *= 1.3;
+      notes.push('GF くさ1.3');
+    }
+    if([SCOPE_FIELD_JP.earthquake,SCOPE_FIELD_JP.bulldoze,SCOPE_FIELD_JP.magnitude].includes(move.name)){
+      mod *= 0.5;
+      notes.push('GF 地面技0.5');
+    }
+  }else if(terrain === 'psychic' && usedType === SCOPE_FIELD_JP.psychic){
+    mod *= 1.3;
+    notes.push('PF エスパー1.3');
+  }else if(terrain === 'misty' && usedType === SCOPE_FIELD_JP.dragon){
+    mod *= 0.5;
+    notes.push('MF ドラゴン0.5');
+  }
+
+  return {mod, notes};
+}
+
+function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
+  context = context || {};
   const atkPoke = atkSlot.poke, atkStats = atkSlot.stats;
   const defPoke = defSlot.poke, defStats = defSlot.stats;
   const defTypes = [defPoke.type1,defPoke.type2].filter(Boolean);
@@ -1737,7 +1858,9 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
   let mtype = move.type || '';
   let power = parseInt(move.power,10) || 0;
   const moveName = move.name || '';
-  const weather = SCOPE_DAMAGE_OPTIONS.weather || '';
+  const weather = getScopeFieldWeather();
+  const hpInfo = getScopeFieldEffectiveHpPct(defSlot, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100, context);
+  const effectiveDefHpPct = hpInfo.hpPct;
   if(moveName==='おはかまいり') power = 50 + (SCOPE_DAMAGE_OPTIONS.lastRespects || 0) * 50;
   if(moveName==='ウェザーボール' && weather){
     const WB_MAP = {sunny:'ほのお', rain:'みず', sand:'いわ', snow:'こおり'};
@@ -1745,9 +1868,11 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
   }
   const baseEff = typeEff(mtype, defTypes);
   const adjustedMove = Object.assign({}, move, {type:mtype, power});
-  const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100);
+  const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, effectiveDefHpPct);
+  const fieldAdjust = getScopeFieldDamageAdjustments(context, atkSlot, adjustedMove, defSlot, mtype);
+  const detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power).concat(fieldAdjust.notes, hpInfo.notes);
   if(adjust.eff===0){
-    return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null', detailNotes:getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power)};
+    return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null', detailNotes};
   }
   let stab = atkTypes.includes(mtype) ? ((atkSlot.ability==='てきおうりょく') ? 2 : 1.5) : 1;
   let aSt = adjustedMove.category==='物理' ? atkStats.atk : atkStats.spa;
@@ -1765,8 +1890,8 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
     else if(mtype==='ほのお') weatherDmgMod = 0.5;
   }
   const hitsInfo = parseHits(adjustedMove.hits || '1');
-  const result = calcDmgRange(aSt, dSt, power, atkStats.lv, adjust.eff, stab, defStats.hp, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100, adjust.mod * weatherDmgMod, hitsInfo);
-  if(result) result.detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power);
+  const result = calcDmgRange(aSt, dSt, power, atkStats.lv, adjust.eff, stab, defStats.hp, effectiveDefHpPct, adjust.mod * weatherDmgMod * fieldAdjust.mod, hitsInfo);
+  if(result) result.detailNotes = detailNotes;
   return result;
 }
 
@@ -1774,11 +1899,11 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct){
 function evaluateMatchup(mySlot, oppSlot){
   let myBest = 0, oppBest = 0;
   (mySlot.moves||[]).forEach(m=>{
-    const r = calcMoveDmg(mySlot, m, oppSlot, 100);
+    const r = calcMoveDmg(mySlot, m, oppSlot, 100, {atkSide:'my', defSide:'opp'});
     if(r) myBest = Math.max(myBest, r.max);
   });
   (oppSlot.moves||[]).forEach(m=>{
-    const r = calcMoveDmg(oppSlot, m, mySlot, 100);
+    const r = calcMoveDmg(oppSlot, m, mySlot, 100, {atkSide:'opp', defSide:'my'});
     if(r) oppBest = Math.max(oppBest, r.max);
   });
   const diff = myBest - oppBest;
@@ -3039,9 +3164,9 @@ function expandDamageSelectedSlots(entries){
   });
   return expanded;
 }
-function getDamageMoveResults(attacker, move, defenders){
+function getDamageMoveResults(attacker, move, defenders, atkSide, defSide){
   return defenders.map(def=>{
-    const result = calcMoveDmg(attacker.slot, move, def.slot, SCOPE_DAMAGE_OPTIONS.defHpPct || 100);
+    const result = calcMoveDmg(attacker.slot, move, def.slot, SCOPE_DAMAGE_OPTIONS.defHpPct || 100, {atkSide, defSide});
     return {defender:def, result};
   });
 }
@@ -3075,7 +3200,7 @@ function getDamageTable(side){
       return;
     }
     moves.forEach((move, moveIdx)=>{
-      const results = getDamageMoveResults(attacker, move, defenders);
+      const results = getDamageMoveResults(attacker, move, defenders, side, side==='my'?'opp':'my');
       rows += '<tr>'+ 
         (moveIdx===0 ? '<td class="damage-attacker-cell" rowspan="'+moves.length+'">'+escapeHtml(getScopeDamageEntryName(attacker))+'<div class="damage-move-meta">'+typeHTML(attacker.slot.poke)+' S '+attacker.slot.stats.spe+'</div></td>' : '')+
         '<td class="damage-move-cell"><div class="damage-move-name">'+escapeHtml(move.name)+'</div>'+formatDamageMoveMeta(move)+'</td>'+ 
@@ -3086,8 +3211,8 @@ function getDamageTable(side){
   });
   return '<div class="damage-table-wrap"><table class="damage-matrix"><thead><tr><th>攻撃側</th><th>技</th>'+defenderHeads+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="damage-mobile-cards">'+mobileCards+'</div>';
 }
-function scoreDamageAction(attacker, move, defenders){
-  const results = getDamageMoveResults(attacker, move, defenders).filter(x=>x.result);
+function scoreDamageAction(attacker, move, defenders, side){
+  const results = getDamageMoveResults(attacker, move, defenders, side, side==='my'?'opp':'my').filter(x=>x.result);
   if(!results.length) return null;
   const maxVals = results.map(x=>x.result.max);
   const minVals = results.map(x=>x.result.min);
@@ -3112,7 +3237,7 @@ function getDamageRanking(side){
   const list = [];
   attackers.forEach(attacker=>{
     (attacker.slot.moves || []).filter(m=>m && m.power>0).slice(0,4).forEach(move=>{
-      const scored = scoreDamageAction(attacker, move, defenders);
+      const scored = scoreDamageAction(attacker, move, defenders, side);
       if(scored) list.push(scored);
     });
   });
@@ -3244,22 +3369,24 @@ function calcBattleActions(){
   const mySlot = getScopeBattleResolvedSlot(myBaseSlot);
   const oppSlot = oppBaseSlot ? getScopeBattleResolvedSlot(oppBaseSlot) : null;
   if(!mySlot) return;
+  const myMoves = oppSlot ? getScopeBattleMovesForSlot('my', mySlot) : [];
+  const oppMoves = oppSlot ? getScopeBattleMovesForSlot('opp', oppSlot) : [];
 
   // --- 自分の技 → 相手 ---
   const myDmgEl = document.getElementById('my-dmg-list');
   if(oppSlot){
-    const myMoves = getScopeBattleMovesForSlot('my', mySlot);
     const results = myMoves.map(m=>{
-      const r = calcMoveDmg(mySlot, m, oppSlot, oppHP[oppActiveIdx]);
+      const r = calcMoveDmg(mySlot, m, oppSlot, oppHP[oppActiveIdx], {atkSide:'my', defSide:'opp'});
       return {move:m, result:r};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
 
     if(results.length){
       myDmgEl.innerHTML = results.map((d,i)=>{
         const best = i===0?'<span class="best-tag">BEST</span>':'';
+        const detail = d.result.detailNotes && d.result.detailNotes.length ? '<span style="font-size:9px;color:var(--text2);">'+d.result.detailNotes.map(escapeHtml).join(' / ')+'</span>' : '';
         return '<div class="dmg-row"><span class="move-name">'+d.move.name+' <span class="tp tp-'+d.move.type+'">'+d.move.type+'</span></span>'+
           '<span class="dmg-pct">'+d.result.min+'〜'+d.result.max+'%</span>'+
-          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+best+'</div>';
+          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+best+detail+'</div>';
       }).join('');
     } else {
       myDmgEl.innerHTML='<div class="note">攻撃技データがありません</div>';
@@ -3271,18 +3398,18 @@ function calcBattleActions(){
   // --- 相手の推定技 → 自分 ---
   const oppDmgEl = document.getElementById('opp-dmg-list');
   if(oppSlot){
-    const oppMoves = getScopeBattleMovesForSlot('opp', oppSlot);
     const oppResults = oppMoves.map(m=>{
-      const r = calcMoveDmg(oppSlot, m, mySlot, myHP[myActiveIdx]);
+      const r = calcMoveDmg(oppSlot, m, mySlot, myHP[myActiveIdx], {atkSide:'opp', defSide:'my'});
       return {move:m, result:r, rate:m.rate||0};
     }).filter(x=>x.result).sort((a,b)=>b.result.max-a.result.max);
 
     if(oppResults.length){
       oppDmgEl.innerHTML = oppResults.map(d=>{
         const rateStr = d.rate?'<span style="color:var(--text2);font-size:9px;">(採用率'+d.rate+'%)</span>':'';
+        const detail = d.result.detailNotes && d.result.detailNotes.length ? '<span style="font-size:9px;color:var(--text2);">'+d.result.detailNotes.map(escapeHtml).join(' / ')+'</span>' : '';
         return '<div class="dmg-row"><span class="move-name">'+d.move.name+' '+rateStr+'</span>'+
           '<span class="dmg-pct">'+d.result.min+'〜'+d.result.max+'%</span>'+
-          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span></div>';
+          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+detail+'</div>';
       }).join('');
     } else {
       oppDmgEl.innerHTML='<div class="note">相手の推定技データがありません</div>';
@@ -3297,18 +3424,22 @@ function calcBattleActions(){
       const benchSlotRaw = myParty[pi];
       if(!benchSlotRaw || myHP[i]<=0) return '';
       const benchSlot = getScopeBattleResolvedSlot(benchSlotRaw);
+      const hazard = getScopeFieldHazardDamagePct(benchSlot, 'my');
+      const benchHpAfterField = Math.max(1, Math.round((myHP[i] - hazard.pct)*10)/10);
       // 相手の最大ダメ技で被ダメ計算
       let worstDmg = 0, worstMove = '';
       oppMoves.forEach(m=>{
-        const r = calcMoveDmg(oppSlot, m, benchSlot, 100);
+        const r = calcMoveDmg(oppSlot, m, benchSlot, myHP[i], {atkSide:'opp', defSide:'my', switchIn:true});
         if(r && r.max > worstDmg){worstDmg=r.max; worstMove=m.name;}
       });
-      const safety = worstDmg<25?'switch-safe':worstDmg<50?'switch-warn':'switch-danger';
-      const safeLabel = worstDmg<25?'✓安全':worstDmg<50?'△注意':'×危険';
+      const totalThreat = Math.round((hazard.pct + worstDmg)*10)/10;
+      const safety = totalThreat<25?'switch-safe':totalThreat<50?'switch-warn':'switch-danger';
+      const safeLabel = totalThreat<25?'✓安全':totalThreat<50?'△注意':'×危険';
+      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">場ダメ後HP '+benchHpAfterField+'%</span>' : '';
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">→ '+benchSlot.poke.name+'</span>'+
-        '<span class="dmg-pct">被ダメ最大 '+worstDmg+'%</span>'+
+        '<span class="dmg-pct">場+被ダメ最大 '+totalThreat+'%</span>'+
         '<span class="'+safety+'">'+safeLabel+'</span>'+
-        '<span style="font-size:9px;color:var(--text2);">('+worstMove+')</span></div>';
+        '<span style="font-size:9px;color:var(--text2);">('+worstMove+')</span>'+hazardText+'</div>';
     }).filter(Boolean);
     switchEl.innerHTML = rows.length ? rows.join('') : '<div class="note">控えがいません</div>';
   } else {
@@ -3323,17 +3454,21 @@ function calcBattleActions(){
       const benchOppRaw = oppParty[pi];
       if(!benchOppRaw || oppHP[i]<=0) return '';
       const benchOpp = getScopeBattleResolvedSlot(benchOppRaw);
+      const hazard = getScopeFieldHazardDamagePct(benchOpp, 'opp');
+      const oppHpAfterField = Math.max(1, Math.round((oppHP[i] - hazard.pct)*10)/10);
       // 自分の最大ダメ技
       let myBest=0, myBestMove='';
       myMoves.forEach(m=>{
-        const r = calcMoveDmg(mySlot, m, benchOpp, 100);
+        const r = calcMoveDmg(mySlot, m, benchOpp, oppHP[i], {atkSide:'my', defSide:'opp', switchIn:true});
         if(r && r.max > myBest){myBest=r.max; myBestMove=m.name;}
       });
-      const tag = myBest>=50?'mu-win':myBest>=25?'mu-even':'mu-lose';
+      const totalBest = Math.round((hazard.pct + myBest)*10)/10;
+      const tag = totalBest>=50?'mu-win':totalBest>=25?'mu-even':'mu-lose';
+      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">場ダメ後HP '+oppHpAfterField+'%</span>' : '';
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">相手→ '+benchOpp.poke.name+'</span>'+
-        '<span class="dmg-pct">自分のベスト '+myBest+'%</span>'+
-        '<span class="'+tag+'">'+(myBest>=50?'◎有利':myBest>=25?'△互角':'×不利')+'</span>'+
-        '<span style="font-size:9px;color:var(--text2);">('+myBestMove+')</span></div>';
+        '<span class="dmg-pct">場+自分ベスト '+totalBest+'%</span>'+
+        '<span class="'+tag+'">'+(totalBest>=50?'◎有利':totalBest>=25?'△互角':'×不利')+'</span>'+
+        '<span style="font-size:9px;color:var(--text2);">('+myBestMove+')</span>'+hazardText+'</div>';
     }).filter(Boolean);
     oppSwitchEl.innerHTML = rows.length ? rows.join('') : '<div class="note">相手の控えがいません</div>';
   } else {
@@ -3612,9 +3747,8 @@ async function clearAllCalcRecords(){
   const weatherOptions = [['','なし'],['sunny','にほんばれ'],['rain','あめ'],['sand','すなあらし'],['snow','ゆき']];
   const terrainOptions = [['','なし'],['electric','エレキフィールド'],['grassy','グラスフィールド'],['misty','ミストフィールド'],['psychic','サイコフィールド']];
   const statusOptions = [['','なし'],['sleep','ねむり'],['para','まひ'],['burn','やけど'],['poison','どく'],['toxic','もうどく'],['freeze','こおり'],['confuse','こんらん'],['yawn','あくび']];
-  const turnFields = [
-    ['reflect','リフレクター'],['lightScreen','ひかりのかべ'],['auroraVeil','オーロラベール'],['tailwind','おいかぜ'],
-    ['safeguard','しんぴのまもり'],['mist','しろいきり']
+  const fieldEffects = [
+    ['reflect','リフレクター'],['lightScreen','ひかりのかべ'],['auroraVeil','オーロラベール']
   ];
   const hazardFields = [
     ['stealthRock','ステルスロック','check'],['spikes','まきびし','level3'],['toxicSpikes','どくびし','level2'],['stickyWeb','ねばねばネット','check']
@@ -3625,10 +3759,10 @@ async function clearAllCalcRecords(){
     status: Object.fromEntries(statusOptions)
   };
   function sideState(){
-    return {reflect:0,lightScreen:0,auroraVeil:0,tailwind:0,safeguard:0,mist:0,stealthRock:false,spikes:0,toxicSpikes:0,stickyWeb:false,status:'',memo:''};
+    return {reflect:false,lightScreen:false,auroraVeil:false,stealthRock:false,spikes:0,toxicSpikes:0,stickyWeb:false,status:'',memo:''};
   }
   function defaultState(){
-    return {turn:1,weather:{type:'',remain:0},terrain:{type:'',remain:0},trickRoom:0,my:sideState(),opp:sideState(),battleNote:''};
+    return {weather:{type:''},terrain:{type:''},my:sideState(),opp:sideState(),battleNote:''};
   }
   function clampTurn(v,max=8){
     const n = Math.floor(Number(v)||0);
@@ -3659,6 +3793,10 @@ async function clearAllCalcRecords(){
     const val = side === 'root' ? clampTurn(state[key], max) : clampTurn(state[side][key], max);
     return '<div class="scope-field-turns">' + Array.from({length:max+1},(_,n)=>`<button type="button" class="scope-field-turn${val===n?' on':''}" onclick="scopeFieldSetSideTurn('${side}','${key}',${n})">${n}</button>`).join('') + '</div>';
   }
+  function effectControl(side,key,label){
+    const val = !!state[side][key];
+    return `<label class="scope-field-check"><input type="checkbox" ${val?'checked':''} onchange="scopeFieldSetEffect('${side}','${key}',this.checked)"> ${esc(label)}</label>`;
+  }
   function hazardControl(side,key,type){
     const val = state[side][key];
     if(type === 'check'){
@@ -3668,13 +3806,12 @@ async function clearAllCalcRecords(){
     return `<div class="scope-field-row"><label>${esc(hazardFields.find(h=>h[0]===key)?.[1]||key)}</label>${turnButtons(side,key,max)}</div>`;
   }
   function activeChips(){
-    const chips = [`<span class="scope-field-chip on">Turn ${state.turn}</span>`];
-    if(state.weather.type) chips.push(`<span class="scope-field-chip on">${esc(globalLabels.weather[state.weather.type])} ${state.weather.remain}</span>`);
-    if(state.terrain.type) chips.push(`<span class="scope-field-chip on">${esc(globalLabels.terrain[state.terrain.type])} ${state.terrain.remain}</span>`);
-    if(state.trickRoom) chips.push(`<span class="scope-field-chip on">トリックルーム ${state.trickRoom}</span>`);
+    const chips = [];
+    if(state.weather.type) chips.push(`<span class="scope-field-chip on">${esc(globalLabels.weather[state.weather.type])}</span>`);
+    if(state.terrain.type) chips.push(`<span class="scope-field-chip on">${esc(globalLabels.terrain[state.terrain.type])}</span>`);
     ['my','opp'].forEach(side=>{
       const sideLabel = side === 'my' ? '自分' : '相手';
-      turnFields.forEach(([key,label])=>{ if(state[side][key]) chips.push(`<span class="scope-field-chip on">${sideLabel} ${label} ${state[side][key]}</span>`); });
+      fieldEffects.forEach(([key,label])=>{ if(state[side][key]) chips.push(`<span class="scope-field-chip on">${sideLabel} ${label}</span>`); });
       hazardFields.forEach(([key,label,type])=>{
         const val = state[side][key];
         if(type === 'check' && val) chips.push(`<span class="scope-field-chip on">${sideLabel}側 ${label}</span>`);
@@ -3682,13 +3819,13 @@ async function clearAllCalcRecords(){
       });
       if(state[side].status) chips.push(`<span class="scope-field-chip on">${sideLabel} ${esc(globalLabels.status[state[side].status]||state[side].status)}</span>`);
     });
-    return chips.join('');
+    return chips.length ? chips.join('') : '<span class="scope-field-chip">反映中の場情報なし</span>';
   }
   function sidePanel(side,label){
     return `<div class="scope-field-box">
       <div class="scope-field-box-title">${esc(label)}</div>
       <div class="scope-field-form">
-        ${turnFields.map(([key,name])=>`<div class="scope-field-row"><label>${esc(name)}</label>${turnButtons(side,key,8)}</div>`).join('')}
+        <div class="scope-field-hazards">${fieldEffects.map(([key,name])=>effectControl(side,key,name)).join('')}</div>
         <div class="scope-field-hazards">${hazardFields.filter(h=>h[2]==='check').map(h=>hazardControl(side,h[0],h[2])).join('')}</div>
         ${hazardFields.filter(h=>h[2]!=='check').map(h=>hazardControl(side,h[0],h[2])).join('')}
         <div class="scope-field-row"><label>状態</label><select class="scope-field-select" onchange="scopeFieldSetStatus('${side}',this.value)">${optionHtml(statusOptions,state[side].status)}</select></div>
@@ -3702,12 +3839,10 @@ async function clearAllCalcRecords(){
     root.innerHTML = `<div class="card scope-field-board">
       <div class="scope-field-head">
         <div>
-          <div class="scope-field-title">フィールド管理ボード</div>
-          <div class="scope-field-sub">ターンを進めると天候・フィールド・壁・追い風・トリックルームの残りターンを自動で減らします。</div>
+          <div class="scope-field-title">ダメージ反映フィールド</div>
+          <div class="scope-field-sub">今場に出ている天候・壁・状態・設置技を、下のダメージ範囲と交換候補へ即時反映します。</div>
         </div>
         <div class="scope-field-actions">
-          <button type="button" class="scope-field-btn primary" onclick="scopeFieldAdvanceTurn()">ターン +1</button>
-          <button type="button" class="scope-field-btn" onclick="scopeFieldBackTurn()">ターン -1</button>
           <button type="button" class="scope-field-btn danger" onclick="scopeFieldReset()">リセット</button>
         </div>
       </div>
@@ -3715,56 +3850,54 @@ async function clearAllCalcRecords(){
       <div class="scope-field-global">
         <div class="scope-field-box"><div class="scope-field-box-title">天候</div><div class="scope-field-form">
           <select class="scope-field-select" onchange="scopeFieldSetGlobal('weather','type',this.value)">${optionHtml(weatherOptions,state.weather.type)}</select>
-          <input class="scope-field-input" type="number" min="0" max="8" value="${state.weather.remain}" onchange="scopeFieldSetGlobal('weather','remain',this.value)">
         </div></div>
         <div class="scope-field-box"><div class="scope-field-box-title">フィールド</div><div class="scope-field-form">
           <select class="scope-field-select" onchange="scopeFieldSetGlobal('terrain','type',this.value)">${optionHtml(terrainOptions,state.terrain.type)}</select>
-          <input class="scope-field-input" type="number" min="0" max="8" value="${state.terrain.remain}" onchange="scopeFieldSetGlobal('terrain','remain',this.value)">
         </div></div>
-        <div class="scope-field-box"><div class="scope-field-box-title">トリックルーム</div>${turnButtons('root','trickRoom',8)}</div>
-        <div class="scope-field-box"><div class="scope-field-box-title">全体メモ</div><textarea class="scope-field-note" oninput="scopeFieldSetBattleNote(this.value)" placeholder="TOD、残り時間、見えている持ち物など">${esc(state.battleNote)}</textarea></div>
+        <div class="scope-field-box"><div class="scope-field-box-title">全体メモ</div><textarea class="scope-field-note" oninput="scopeFieldSetBattleNote(this.value)" placeholder="拘り、見えている持ち物、次に押したい技など">${esc(state.battleNote)}</textarea></div>
       </div>
       <div class="scope-field-grid">${sidePanel('my','自分側')}${sidePanel('opp','相手側')}</div>
     </div>`;
   }
-  function tick(delta){
-    if(delta > 0){
-      state.turn += 1;
-      state.weather.remain = clampTurn(state.weather.remain - 1);
-      state.terrain.remain = clampTurn(state.terrain.remain - 1);
-      state.trickRoom = clampTurn(state.trickRoom - 1);
-      ['my','opp'].forEach(side=>turnFields.forEach(([key])=>{ state[side][key] = clampTurn(state[side][key] - 1); }));
-    }else{
-      state.turn = Math.max(1, state.turn - 1);
-    }
-    save(); render();
+  function refreshDamage(){
+    SCOPE_DAMAGE_OPTIONS.weather = state.weather.type || '';
+    const weatherSelect = document.getElementById('scope-dmg-weather');
+    if(weatherSelect) weatherSelect.value = SCOPE_DAMAGE_OPTIONS.weather;
+    if(document.getElementById('phase-2')?.classList.contains('active') && typeof calcBattleActions === 'function') calcBattleActions();
+    if(document.getElementById('phase-3')?.classList.contains('active') && typeof renderDamagePhase === 'function') renderDamagePhase();
   }
-  window.scopeFieldAdvanceTurn = ()=>tick(1);
-  window.scopeFieldBackTurn = ()=>tick(-1);
+  function commit(){
+    save();
+    render();
+    refreshDamage();
+  }
   window.scopeFieldReset = ()=>{
     if(!confirm('フィールド管理ボードをリセットしますか？')) return;
-    state = defaultState(); save(); render();
+    state = defaultState(); commit();
   };
   window.scopeFieldSetGlobal = (group,key,value)=>{
     if(!state[group]) return;
-    state[group][key] = key === 'remain' ? clampTurn(value) : String(value||'');
-    if(key === 'type' && !value) state[group].remain = 0;
-    save(); render();
+    state[group][key] = String(value||'');
+    commit();
+  };
+  window.scopeFieldSetEffect = (side,key,value)=>{
+    if(!state[side]) return;
+    state[side][key] = !!value;
+    commit();
   };
   window.scopeFieldSetSideTurn = (side,key,value)=>{
-    if(side === 'root') state[key] = clampTurn(value);
-    else if(state[side]) state[side][key] = clampTurn(value, key === 'spikes' ? 3 : 8);
-    save(); render();
+    if(state[side]) state[side][key] = clampTurn(value, key === 'spikes' ? 3 : 2);
+    commit();
   };
   window.scopeFieldSetHazard = (side,key,value)=>{
     if(!state[side]) return;
     state[side][key] = !!value;
-    save(); render();
+    commit();
   };
   window.scopeFieldSetStatus = (side,value)=>{
     if(!state[side]) return;
     state[side].status = String(value||'');
-    save(); render();
+    commit();
   };
   window.scopeFieldSetSideMemo = (side,value)=>{
     if(!state[side]) return;
@@ -3775,9 +3908,10 @@ async function clearAllCalcRecords(){
     state.battleNote = String(value||'');
     save();
   };
+  window.scopeFieldGetState = ()=>state;
   window.renderScopeFieldBoard = render;
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
-  else render();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ()=>{ render(); refreshDamage(); });
+  else { render(); refreshDamage(); }
 })();
 
 var THEMES={
