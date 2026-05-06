@@ -333,6 +333,18 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 .scope-num{font-family:'JetBrains Mono',monospace;text-align:right;}
 .scope-bar-wrap{display:inline-block;width:60px;height:4px;background:var(--bg);overflow:hidden;vertical-align:middle;margin-right:4px;}
 .scope-bar-fill{height:100%;transition:width 0.4s;}
+.scope-advanced-stats{display:grid;gap:14px;margin-top:14px;}
+.scope-analysis-block{border:1px solid var(--border);background:var(--bg2);padding:12px;}
+.scope-analysis-title{font-size:11px;letter-spacing:2px;color:var(--accent3);font-weight:700;margin-bottom:4px;}
+.scope-analysis-note{font-size:10px;color:var(--text2);line-height:1.7;margin-bottom:8px;}
+.scope-mini-table{width:100%;border-collapse:collapse;font-size:11px;}
+.scope-mini-table th{text-align:left;padding:5px 7px;color:var(--text2);font-size:9px;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:400;}
+.scope-mini-table td{padding:7px;border-bottom:1px solid var(--border);vertical-align:top;}
+.scope-combo-text{font-weight:700;line-height:1.6;}
+.scope-sub-text{font-size:10px;color:var(--text2);line-height:1.6;margin-top:2px;}
+.scope-rate-good{color:var(--green);font-weight:700;}
+.scope-rate-bad{color:var(--accent2);font-weight:700;}
+.scope-rate-mid{color:var(--accent3);font-weight:700;}
 .scope-history-item{background:var(--bg2);border:1px solid var(--border);padding:10px 12px;margin-top:8px;}
 .scope-history-item.win{border-left:3px solid var(--green);}
 .scope-history-item.lose{border-left:3px solid var(--accent2);}
@@ -2020,6 +2032,7 @@ let myLeadSlot=null, oppLeadSlot=null;
 let myActiveIdx=0, oppActiveIdx=0;
 let myHP=[100,100,100], oppHP=[100,100,100];
 let scopeMobileEdit = {my:0, opp:0};
+let scopeCurrentPartySource = null;
 const LS_SCOPE_TRACKER_KEY = 'pokeedge_scope_tracker_v1';
 let scopeBattleTracker = loadScopeBattleTrackerState();
 
@@ -2509,6 +2522,7 @@ async function loadFromParty(id){
     const moves = normalizeScopeStoredMoves(m.moves||[]);
     myParty.push(buildSlot(poke, {natureName:m.nature||null, spread:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, lv:m.lv||50, moves, moveSource:'saved', item:m.item||'', ability:m.ability||getDefaultAbilityForPokemon(poke), presetKey:'custom', profileSource:'saved'}));
   });
+  scopeCurrentPartySource = {id:s.id || '', name:s.name || d.name || '保存構築', signature:scopePartySignatureFromSlots(myParty)};
   renderParty('my');
   autoAnalyze();
 }
@@ -3760,6 +3774,62 @@ function escapeHtml(str){
 function escapeJs(str){
   return String(str ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 }
+function scopeSimpleHash(text){
+  let h = 2166136261;
+  const s = String(text || '');
+  for(let i=0;i<s.length;i++){
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+function scopeMoveNameList(moves){
+  return (moves || []).map(m=>m && (m.name || m)).filter(Boolean).map(String);
+}
+function scopePartySignatureFromSlots(slots){
+  return (slots || []).filter(Boolean).map(slot=>{
+    const ev = slot.baseSpread || slot.spread || {};
+    return [
+      normalizeScopeRecordName(slot.poke && slot.poke.name || ''),
+      slot.natureName || '',
+      slot.ability || '',
+      slot.item || '',
+      ev.hp || 0, ev.atk || 0, ev.def || 0, ev.spa || 0, ev.spd || 0, ev.spe || 0,
+      scopeMoveNameList(slot.moves).join('/')
+    ].join('|');
+  }).join('||');
+}
+function scopePartySignatureFromRecordMons(mons){
+  return (mons || []).filter(m=>m && m.name).map(m=>normalizeScopeRecordName(m.name)).join('|');
+}
+function scopeComboNames(mons){
+  return (mons || []).filter(m=>m && m.name).map(m=>normalizeScopeRecordName(m.name)).sort((a,b)=>a.localeCompare(b,'ja'));
+}
+function scopeComboKey(mons){
+  return scopeComboNames(mons).join('|');
+}
+function scopeTopMapEntry(map){
+  const rows = Object.entries(map || {}).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],'ja'));
+  return rows.length ? {key:rows[0][0], count:rows[0][1]} : null;
+}
+function scopePct(num, den){
+  return den ? Math.round(num / den * 100) : 0;
+}
+function scopeRateClass(pct){
+  return pct >= 60 ? 'scope-rate-good' : (pct <= 40 ? 'scope-rate-bad' : 'scope-rate-mid');
+}
+function scopeRecordPartySource(){
+  const sig = scopePartySignatureFromSlots(myParty);
+  const fallbackNames = myParty.filter(Boolean).map(s=>getScopeSlotDisplayName(s)).join(' / ') || '手入力';
+  const src = scopeCurrentPartySource;
+  if(src && src.signature === sig){
+    return {id:src.id || '', name:src.name || '保存構築', signature:sig};
+  }
+  if(src && src.name){
+    return {id:src.id || '', name:src.name + '（編集）', signature:sig};
+  }
+  return {id:'manual_'+scopeSimpleHash(sig || fallbackNames), name:fallbackNames, signature:sig};
+}
 function recordLeadFromSelection(side){
   const party = side==='my' ? myParty : oppParty;
   const sel = side==='my' ? mySelect : oppSelect;
@@ -3778,7 +3848,7 @@ async function recordScopeBattle(result){
   if(!oppSel.length){ alert('相手の選出を選んでください'); return; }
   initScopeTrackerForCurrentBattle(false);
   const battle = {id:Date.now(),date:new Date().toLocaleDateString('ja-JP'),result,battleMemo:String(scopeBattleTracker && scopeBattleTracker.battleMemo || ''),
-    my:{party6:myParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),select3:mySel.map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),lead:recordLeadFromSelection('my')},
+    my:{partySource:scopeRecordPartySource(),party6:myParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),select3:mySel.map(s=>scopeRecordPokemonPayload(s,false)).filter(Boolean),lead:recordLeadFromSelection('my')},
     opp:{party6:oppParty.filter(Boolean).map(s=>scopeRecordPokemonPayload(s,true)).filter(Boolean),select3:oppSel.map(s=>{
       const payload = scopeRecordPokemonPayload(s,true) || {};
       const tracked = getScopeTrackedOppData(s);
@@ -3807,12 +3877,17 @@ async function renderScopeStats(){
   totalEl.textContent=String(total);
   if(!total){ rateEl.textContent='—'; countEl.textContent='—'; area.innerHTML='<div class="note">まだ記録がありません</div>'; return; }
   rateEl.textContent=Math.round(wins/total*100)+'%'; countEl.textContent=wins+'勝 / '+loses+'敗 / '+draws+'分';
-  const myMap={}, oppMap={};
+  const myMap={}, oppMap={}, comboMap={}, oppTroubleMap={}, partyBuildMap={};
   function touchMap(map, mon){
     if(!mon || !mon.name) return null;
     const key = normalizeScopeRecordName(mon.name);
     if(!map[key]) map[key]={party:0,sel:0,lead:0,win:0,type1:mon.type1||''};
     if(!map[key].type1 && mon.type1) map[key].type1=mon.type1;
+    return map[key];
+  }
+  function touchAgg(map, key, seed){
+    if(!key) return null;
+    if(!map[key]) map[key]=Object.assign({count:0,win:0,lose:0,draw:0}, seed || {});
     return map[key];
   }
   battles.forEach(b=>{
@@ -3841,6 +3916,37 @@ async function renderScopeStats(){
     if(b.opp?.lead){
       const d=touchMap(oppMap,b.opp.lead); if(d) d.lead++;
     }
+
+    const resultKey = b.result==='win' ? 'win' : (b.result==='draw' ? 'draw' : 'lose');
+    const mySelected = b.my?.select3 || [];
+    const oppSelected = b.opp?.select3 || [];
+    const myComboKey = scopeComboKey(mySelected);
+    const myComboNames = scopeComboNames(mySelected);
+    const oppComboNames = scopeComboNames(oppSelected);
+    const leadName = b.my?.lead?.name ? normalizeScopeRecordName(b.my.lead.name) : '';
+    const combo = touchAgg(comboMap, myComboKey, {names:myComboNames, leadMap:{}, lossOppMap:{}});
+    if(combo){
+      combo.count++; combo[resultKey]++;
+      if(leadName) combo.leadMap[leadName]=(combo.leadMap[leadName]||0)+1;
+      if(resultKey==='lose') oppComboNames.forEach(n=>{ combo.lossOppMap[n]=(combo.lossOppMap[n]||0)+1; });
+    }
+    oppSelected.forEach(mon=>{
+      const name = normalizeScopeRecordName(mon.name);
+      const row = touchAgg(oppTroubleMap, name, {name, type1:mon.type1||'', myLossCombos:{}});
+      if(!row) return;
+      row.count++; row[resultKey]++;
+      if(!row.type1 && mon.type1) row.type1=mon.type1;
+      if(resultKey==='lose' && myComboKey) row.myLossCombos[myComboKey]=(row.myLossCombos[myComboKey]||0)+1;
+    });
+    const source = b.my?.partySource || {};
+    const buildKey = source.signature || ('legacy_' + scopePartySignatureFromRecordMons(myPartyList || mySelected));
+    const buildName = source.name || (myPartyList || mySelected).map(m=>normalizeScopeRecordName(m.name)).join(' / ') || '未記録構築';
+    const build = touchAgg(partyBuildMap, buildKey, {name:buildName, selectMap:{}, oppLossMap:{}});
+    if(build){
+      build.count++; build[resultKey]++;
+      if(myComboKey) build.selectMap[myComboKey]=(build.selectMap[myComboKey]||0)+1;
+      if(resultKey==='lose') oppComboNames.forEach(n=>{ build.oppLossMap[n]=(build.oppLossMap[n]||0)+1; });
+    }
   });
   const myRows=Object.entries(myMap).sort((a,b)=>b[1].party-a[1].party || b[1].sel-a[1].sel || b[1].lead-a[1].lead || a[0].localeCompare(b[0],'ja'));
   const oppRows=Object.entries(oppMap).sort((a,b)=>b[1].party-a[1].party || b[1].sel-a[1].sel || b[1].lead-a[1].lead || a[0].localeCompare(b[0],'ja'));
@@ -3854,7 +3960,47 @@ async function renderScopeStats(){
     const partyPct=Math.round((d.party||0)/total*100), selPct=Math.round((d.sel||0)/total*100), leadPct=d.lead?Math.round(d.lead/total*100):0;
     return '<tr><td data-label="ポケモン"><span style="font-weight:700;">'+escapeHtml(name)+'</span>'+typeBadge(d.type1)+'</td><td data-label="6体内" class="scope-num">'+(d.party||0)+'/'+total+'</td><td data-label="6体内率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+partyPct+'%;background:var(--accent2);display:block;"></span></span><span class="scope-num">'+partyPct+'%</span></td><td data-label="選出" class="scope-num">'+(d.sel||0)+'</td><td data-label="選出率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+selPct+'%;background:var(--accent);display:block;"></span></span><span class="scope-num">'+selPct+'%</span></td><td data-label="初手" class="scope-num">'+(d.lead||0)+'</td><td data-label="初手率"><span class="scope-bar-wrap"><span class="scope-bar-fill" style="width:'+leadPct+'%;background:var(--accent3);display:block;"></span></span><span class="scope-num">'+leadPct+'%</span></td></tr>';
   }
-  area.innerHTML='<div class="note">自分側・相手側とも、入力した6体と実際に選出した3体を分けて集計します。</div><div class="scope-stats-grid"><div><div class="scope-stats-head">自分の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtmlMy(n,d)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtmlOpp(n,d)).join('')+'</tbody></table></div></div>';
+  function comboLabelFromKey(key){
+    return String(key || '').split('|').filter(Boolean).join(' / ') || '—';
+  }
+  function comboStatsHtml(){
+    const rows = Object.values(comboMap).sort((a,b)=>b.count-a.count || scopePct(b.win,b.count)-scopePct(a.win,a.count)).slice(0,10);
+    if(!rows.length) return '<div class="scope-analysis-note">選出3体の記録がまだありません。</div>';
+    return '<table class="scope-mini-table"><thead><tr><th>選出3体</th><th>回数</th><th>選出率</th><th>勝率</th><th>最多初手</th><th>負けた相手</th></tr></thead><tbody>'+rows.map(r=>{
+      const winPct = scopePct(r.win, r.count);
+      const lead = scopeTopMapEntry(r.leadMap);
+      const bad = scopeTopMapEntry(r.lossOppMap);
+      return '<tr><td><div class="scope-combo-text">'+escapeHtml((r.names||[]).join(' / ') || '—')+'</div><div class="scope-sub-text">'+r.win+'勝 / '+r.lose+'敗 / '+r.draw+'分</div></td><td class="scope-num">'+r.count+'</td><td class="scope-num">'+scopePct(r.count,total)+'%</td><td class="scope-num '+scopeRateClass(winPct)+'">'+winPct+'%</td><td>'+escapeHtml(lead ? lead.key+' '+lead.count+'回' : '—')+'</td><td>'+escapeHtml(bad ? bad.key+' '+bad.count+'敗' : '—')+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  function troubleStatsHtml(){
+    const rows = Object.values(oppTroubleMap).sort((a,b)=>{
+      const aw = scopePct(a.win,a.count), bw = scopePct(b.win,b.count);
+      return aw-bw || b.lose-a.lose || b.count-a.count || a.name.localeCompare(b.name,'ja');
+    }).slice(0,12);
+    if(!rows.length) return '<div class="scope-analysis-note">相手選出からの苦手分析はまだ出せません。</div>';
+    return '<table class="scope-mini-table"><thead><tr><th>相手</th><th>出現</th><th>こちら勝率</th><th>負け数</th><th>負け時の自分選出</th></tr></thead><tbody>'+rows.map(r=>{
+      const winPct = scopePct(r.win, r.count);
+      const lossCombo = scopeTopMapEntry(r.myLossCombos);
+      return '<tr><td><span style="font-weight:700;">'+escapeHtml(r.name)+'</span>'+typeBadge(r.type1)+'</td><td class="scope-num">'+r.count+'</td><td class="scope-num '+scopeRateClass(winPct)+'">'+winPct+'%</td><td class="scope-num">'+r.lose+'</td><td><div class="scope-combo-text">'+escapeHtml(lossCombo ? comboLabelFromKey(lossCombo.key) : '—')+'</div>'+(lossCombo?'<div class="scope-sub-text">'+lossCombo.count+'敗</div>':'')+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  function buildStatsHtml(){
+    const rows = Object.values(partyBuildMap).sort((a,b)=>b.count-a.count || scopePct(b.win,b.count)-scopePct(a.win,a.count)).slice(0,10);
+    if(!rows.length) return '<div class="scope-analysis-note">構築別の記録はまだありません。</div>';
+    return '<table class="scope-mini-table"><thead><tr><th>構築</th><th>対戦</th><th>勝率</th><th>最多選出</th><th>負けが多い相手</th></tr></thead><tbody>'+rows.map(r=>{
+      const winPct = scopePct(r.win, r.count);
+      const topSelect = scopeTopMapEntry(r.selectMap);
+      const bad = scopeTopMapEntry(r.oppLossMap);
+      return '<tr><td><div class="scope-combo-text">'+escapeHtml(r.name || '未記録構築')+'</div><div class="scope-sub-text">'+r.win+'勝 / '+r.lose+'敗 / '+r.draw+'分</div></td><td class="scope-num">'+r.count+'</td><td class="scope-num '+scopeRateClass(winPct)+'">'+winPct+'%</td><td><div class="scope-combo-text">'+escapeHtml(topSelect ? comboLabelFromKey(topSelect.key) : '—')+'</div>'+(topSelect?'<div class="scope-sub-text">'+topSelect.count+'回</div>':'')+'</td><td>'+escapeHtml(bad ? bad.key+' '+bad.count+'敗' : '—')+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  const advancedHtml = '<div class="scope-advanced-stats">'
+    + '<div class="scope-analysis-block"><div class="scope-analysis-title">選出3体の組み合わせ</div><div class="scope-analysis-note">単体の選出率ではなく、実際に出した3体の並び・勝率・初手を集計します。</div>'+comboStatsHtml()+'</div>'
+    + '<div class="scope-analysis-block"><div class="scope-analysis-title">苦手相手分析</div><div class="scope-analysis-note">相手に選出されたポケモン別に、こちらの勝率と負けた時の自分選出を出します。</div>'+troubleStatsHtml()+'</div>'
+    + '<div class="scope-analysis-block"><div class="scope-analysis-title">構築バージョン別</div><div class="scope-analysis-note">保存構築から読み込んだ対戦は構築名で、手入力や古い記録は6体の並びでまとめます。</div>'+buildStatsHtml()+'</div>'
+    + '</div>';
+  area.innerHTML='<div class="note">自分側・相手側とも、入力した6体と実際に選出した3体を分けて集計します。</div><div class="scope-stats-grid"><div><div class="scope-stats-head">自分の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th><th>勝率</th></tr></thead><tbody>'+myRows.map(([n,d])=>rowHtmlMy(n,d)).join('')+'</tbody></table></div><div><div class="scope-stats-head">相手の6体・選出記録</div><table class="scope-stats-table"><thead><tr><th>ポケモン</th><th>6体内</th><th>6体内率</th><th>選出</th><th>選出率</th><th>初手</th><th>初手率</th></tr></thead><tbody>'+oppRows.map(([n,d])=>rowHtmlOpp(n,d)).join('')+'</tbody></table></div></div>'+advancedHtml;
 }
 async function renderScopeHistory(){
   const battles = await loadBattleRecords();
