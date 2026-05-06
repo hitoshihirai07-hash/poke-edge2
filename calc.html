@@ -768,6 +768,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div id="atk-abilities" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
           <div id="atk-mega-toggle" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
         </div>
+        <div class="corr-section" id="atk-ranking-panel" style="margin-top:8px;">
+          <div class="corr-section-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span>ランキング確認</span>
+            <button type="button" class="quick-action-btn" id="atk-ranking-toggle" onclick="toggleCalcRankingPanel('atk')">開く</button>
+          </div>
+          <div id="atk-ranking-status" class="quick-note">ポケモンを選ぶと、上位の性格・努力値をここで確認できます。</div>
+          <div id="atk-ranking-body" style="display:none;margin-top:8px;"></div>
+        </div>
 
         <label id="atk-label-lv">レベル</label>
         <input type="number" id="atk-lv" value="50" min="1" max="100">
@@ -1053,6 +1061,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div id="def-basestats"></div>
           <div id="def-abilities" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
           <div id="def-mega-toggle" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="corr-section" id="def-ranking-panel" style="margin-top:8px;">
+          <div class="corr-section-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span>ランキング確認</span>
+            <button type="button" class="quick-action-btn" id="def-ranking-toggle" onclick="toggleCalcRankingPanel('def')">開く</button>
+          </div>
+          <div id="def-ranking-status" class="quick-note">ポケモンを選ぶと、上位の性格・努力値をここで確認できます。</div>
+          <div id="def-ranking-body" style="display:none;margin-top:8px;"></div>
         </div>
 
         <label id="def-label-lv">レベル</label>
@@ -2537,6 +2553,7 @@ function clearDamageSetupSelection(){
   renderQuickMoveChips('');
   updateDamageSetupSummary();
   updateContextSections();
+  renderCalcRankingPanel('atk');
 }
 
 function clearAbilitySide(side){
@@ -2596,6 +2613,76 @@ function parseRateEntryForCalc(s){
 }
 function getCalcSeasonRankingRow(pokeName){
   return (SEASON_RANKING?.rows||[]).find(r=>r.name===pokeName || r.siteName===pokeName) || null;
+}
+
+function parseCalcRankingSpreadEntry(entry){
+  const parsed = parseRateEntryForCalc(entry);
+  const spread = parseSpreadForInner(parsed.name || entry);
+  if(!spread) return {label:String(parsed.name || entry || '').trim(), rate:parsed.rate || 0};
+  return {
+    label:`H${spread.hp} A${spread.atk} B${spread.def} C${spread.spa} D${spread.spd} S${spread.spe}`,
+    rate:parsed.rate || 0
+  };
+}
+function buildCalcRankingChipList(items, formatter){
+  const arr = (Array.isArray(items) ? items : []).slice(0,3).map(entry=>formatter ? formatter(entry) : parseRateEntryForCalc(entry)).filter(v=>v && v.label);
+  if(!arr.length) return '<div class="quick-note">ランキング情報がありません。</div>';
+  return '<div class="quick-chip-wrap">'+arr.map(entry=>{
+    const rate = entry.rate ? ' <span style="color:var(--accent3);">'+entry.rate.toFixed(1)+'%</span>' : '';
+    return '<span class="quick-chip" style="cursor:default;">'+escapeHtml(entry.label)+rate+'</span>';
+  }).join('')+'</div>';
+}
+function renderCalcRankingPanel(side){
+  const status = el(side+'-ranking-status');
+  const body = el(side+'-ranking-body');
+  const base = side==='atk' ? window._atkBase : window._defBase;
+  if(!status || !body){ return; }
+  if(!base){
+    status.textContent = 'ポケモンを選ぶと、上位の性格・努力値をここで確認できます。';
+    body.innerHTML = '';
+    return;
+  }
+  const rows = getCalcSeasonRankingRowsForInner(base.name);
+  const row = rows.find(r=>r.rankingSource==='self') || rows[0] || null;
+  if(!row){
+    status.textContent = 'このポケモンのランキング参照データは見つかりませんでした。';
+    body.innerHTML = '';
+    return;
+  }
+  const sourceName = row.rankingSource==='base' ? (row.siteName || row.name || base.name) : base.name;
+  const sourceNote = row.rankingSource==='base' ? '（別名義・元ポケモン参照）' : '';
+  const updated = row.updatedAt ? ' / 更新 '+row.updatedAt : '';
+  status.innerHTML = '順位 <strong style="color:var(--accent3);">'+escapeHtml(String(row.rank ?? '—'))+'位</strong> / 参照 '+escapeHtml(sourceName)+sourceNote+updated;
+  body.innerHTML =
+    '<div style="display:grid;gap:8px;">'+
+      '<div style="padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;">'+
+        '<div style="font-size:10px;color:var(--text2);margin-bottom:6px;">性格 上位</div>'+
+        buildCalcRankingChipList(row.natures, entry=>{ const p=parseRateEntryForCalc(entry); return {label:p.name, rate:p.rate}; })+
+      '</div>'+
+      '<div style="padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;">'+
+        '<div style="font-size:10px;color:var(--text2);margin-bottom:6px;">努力値 上位</div>'+
+        buildCalcRankingChipList(row.spreads, parseCalcRankingSpreadEntry)+
+      '</div>'+
+    '</div>';
+}
+function toggleCalcRankingPanel(side){
+  const body = el(side+'-ranking-body');
+  const btn = el(side+'-ranking-toggle');
+  if(!body || !btn) return;
+  const nextOpen = body.style.display === 'none' || !body.style.display;
+  body.style.display = nextOpen ? 'block' : 'none';
+  btn.textContent = nextOpen ? '閉じる' : '開く';
+  if(nextOpen) renderCalcRankingPanel(side);
+}
+const CALC_KNOCK_OFF_UNREMOVABLE_KEYWORDS = ['ナイト','メモリ','ドライブ','プレート','おめん'];
+const CALC_KNOCK_OFF_UNREMOVABLE_NAMES = new Set(['くちたけん','くちたたて','だいしらたま','こんごうだま','はっきんだま','こころのしずく']);
+function getKnockOffItemStateFromText(itemText){
+  const raw = String(itemText || '').trim();
+  if(!raw || raw.startsWith('なし')) return {label:'なし', hasItem:false, removable:false, reason:'持ち物なし'};
+  const label = raw.replace(/\s*×.*$/,'').trim();
+  const compact = label.replace(/\s+/g,'');
+  const removable = !(CALC_KNOCK_OFF_UNREMOVABLE_KEYWORDS.some(key=>compact.includes(key)) || CALC_KNOCK_OFF_UNREMOVABLE_NAMES.has(compact));
+  return {label, hasItem:true, removable, reason:removable ? '持ち物あり' : '落とせない持ち物'};
 }
 
 const INNER_ALIAS_TO_SITE_NAME = {
@@ -3197,6 +3284,7 @@ function initDefPoke(p) {
   renderMegaToggle('def',p);
   updateDamageSetupSummary();
   updateContextSections();
+  renderCalcRankingPanel('def');
 }
 
 // ===== 実数値再計算 =====
@@ -3524,6 +3612,11 @@ function calcDamage(options={}) {
     specialMoveInfo=[specialMoveInfo,'シェルアームズ: 相手により物理/特殊を自動選択'].filter(Boolean).join(' / ');
   }
   if(!power){ if(!silent) alert('この技はダメージ技ではありません（変化技）'); return false; }
+  if(moveName==='はたきおとす'){
+    if(knockOffItemState.hasItem && knockOffItemState.removable) specialMoveInfo = [specialMoveInfo, 'はたきおとす: 持ち物あり時は威力1.5倍 / 落とした後も表示'].filter(Boolean).join(' / ');
+    else if(knockOffItemState.hasItem) specialMoveInfo = [specialMoveInfo, 'はたきおとす: 落とせない持ち物のため通常威力'].filter(Boolean).join(' / ');
+    else specialMoveInfo = [specialMoveInfo, 'はたきおとす: 相手の持ち物なしで通常威力'].filter(Boolean).join(' / ');
+  }
 
   // スキン特性（ノーマル技のタイプ変更＋威力1.2倍）
   const atkAbNamePre=el('atk-ability').value||'';
@@ -3573,6 +3666,7 @@ function calcDamage(options={}) {
   const remainingHp=hazardInfo.remaining;
   const hazardJudgeHp=Math.max(1,remainingHp);
   const defTypes=window._defBase?[window._defBase.type1,window._defBase.type2].filter(Boolean):[];
+  const knockOffItemState = moveName==='はたきおとす' ? getKnockOffItemStateFromText(getSelectedLabel('def-item')) : {hasItem:false, removable:false, label:'なし', reason:''};
 
   // 天候による防御側ステータス補正
   let weatherDefLabel='';
@@ -3741,6 +3835,8 @@ function calcDamage(options={}) {
     dmgMult*=0.5;
     abilityExtraInfo.push('相手パンクロック: 音技半減');
   }
+  const defStatMultBeforeItem = defStatMult;
+  const dmgMultBeforeItem = dmgMult;
   if(defItem==='def_1.5_kiseki') defStatMult*=1.5;
   if(defItem==='def_2_metaba'&&defenseCategory==='物理') defStatMult*=2;
   if(defAlly==='def_0.75_waza2') defStatMult*=(1/0.75);
@@ -3751,7 +3847,8 @@ function calcDamage(options={}) {
   const RANK=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
   const atkRankValRaw = isBodyPress ? getStageValue('atk-extra-rank-def') : (isFoulPlay ? getStageValue('def-atk-rank') : getStageValue('atk-rank'));
   const defRankValRaw = parseInt(el('def-rank').value)||0;
-  const effPow=Math.floor(power*powerMult*skinMult);
+  const effPowBase=Math.floor(power*powerMult*skinMult);
+  const effPow=Math.floor(effPowBase * (moveName==='はたきおとす' && knockOffItemState.hasItem && knockOffItemState.removable ? 1.5 : 1));
   const isAlwaysCrit=String(alwaysCrit).toUpperCase()==='TRUE';
   const critNotes=[];
   const isMulti=hitsInfo.max>1;
@@ -3766,10 +3863,10 @@ function calcDamage(options={}) {
   if(defWall==='wall_0.5_reflect'&&moveCategory==='物理') critNotes.push('急所時: リフレクター無視');
   if(atkAbName==='スナイパー') critNotes.push('急所時: スナイパー反映');
 
-  function buildScenario(isCrit){
+  function buildScenario(isCrit, scenarioOptions={}){
     const scenarioAtkRankVal = isCrit ? Math.max(0, atkRankValRaw) : atkRankValRaw;
     const scenarioDefRankVal = isCrit ? Math.min(0, defRankValRaw) : defRankValRaw;
-    let scenarioDmgMult=dmgMult;
+    let scenarioDmgMult=(scenarioOptions.dmgMult ?? dmgMult);
     if(!isCrit){
       if(defWall==='wall_0.5_hikari'&&moveCategory==='特殊') scenarioDmgMult*=0.5;
       if(defWall==='wall_0.5_reflect'&&moveCategory==='物理') scenarioDmgMult*=0.5;
@@ -3778,7 +3875,8 @@ function calcDamage(options={}) {
       if(atkAbName==='スナイパー') scenarioDmgMult*=1.5;
     }
     const effAtkScenario=Math.floor(atkStat*atkStatMult*RANK[scenarioAtkRankVal+6]);
-    const effDefScenario=Math.floor(defStat*defStatMult*RANK[scenarioDefRankVal+6]);
+    const effDefScenario=Math.floor(defStat*(scenarioOptions.defStatMult ?? defStatMult)*RANK[scenarioDefRankVal+6]);
+    const scenarioEffPow = scenarioOptions.effPow ?? effPow;
 
     let mn, mx, totalMn, totalMx, pmn, pmx, rolls, dmg1Min, dmg1Max;
     let parentalSecondMn=0, parentalSecondMx=0, parentalSecondRolls=[];
@@ -3805,13 +3903,13 @@ function calcDamage(options={}) {
       dmg1Max = mx;
       rolls = calcBaseDamageRolls(lv, Math.floor(tripleHits[0]*powerMult*skinMult), effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult).rolls;
     } else {
-      const firstHit = calcBaseDamageRolls(lv, effPow, effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult);
+      const firstHit = calcBaseDamageRolls(lv, scenarioEffPow, effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult);
       rolls = firstHit.rolls;
       mn = firstHit.mn; mx = firstHit.mx;
       dmg1Min = mn; dmg1Max = mx;
 
       if(parentalBondActive){
-        const secondPower = Math.max(1, Math.floor(effPow * 0.25));
+        const secondPower = Math.max(1, Math.floor(scenarioEffPow * 0.25));
         const secondHit = calcBaseDamageRolls(lv, secondPower, effAtkScenario, effDefScenario, stab, eff, itemMult, scenarioDmgMult, weatherDmgMult);
         parentalSecondRolls = secondHit.rolls;
         parentalSecondMn = secondHit.mn;
@@ -3884,27 +3982,44 @@ function calcDamage(options={}) {
 
   const normalScenario = isAlwaysCrit ? null : buildScenario(false);
   const critScenario = buildScenario(true);
+  const knockOffRemovedScenario = (moveName==='はたきおとす' && knockOffItemState.hasItem && knockOffItemState.removable)
+    ? (isAlwaysCrit ? null : buildScenario(false, {effPow:effPowBase, defStatMult:defStatMultBeforeItem, dmgMult:dmgMultBeforeItem}))
+    : null;
+  const knockOffRemovedCritScenario = (moveName==='はたきおとす' && knockOffItemState.hasItem && knockOffItemState.removable)
+    ? buildScenario(true, {effPow:effPowBase, defStatMult:defStatMultBeforeItem, dmgMult:dmgMultBeforeItem})
+    : null;
   const primaryScenario = isAlwaysCrit ? critScenario : normalScenario;
   const primaryKo = getKoMeta(primaryScenario);
   const normalKo = normalScenario ? getKoMeta(normalScenario) : null;
   const critKo = getKoMeta(critScenario);
+  const knockOffRemovedKo = knockOffRemovedScenario ? getKoMeta(knockOffRemovedScenario) : null;
+  const knockOffRemovedCritKo = knockOffRemovedCritScenario ? getKoMeta(knockOffRemovedCritScenario) : null;
 
   el('result-box').classList.add('show');
   updateMobileResultSummary();
-  if(isAlwaysCrit){
-    el('dmg-num').textContent=`${critScenario.totalMn} 〜 ${critScenario.totalMx}`;
-    el('dmg-pct').textContent=`${critScenario.pmn}〜${critScenario.pmx}%`;
-  } else {
-    el('dmg-num').textContent=`通常 ${normalScenario.totalMn}〜${normalScenario.totalMx} / 急所 ${critScenario.totalMn}〜${critScenario.totalMx}`;
-    el('dmg-pct').textContent=`通常 ${normalScenario.pmn}〜${normalScenario.pmx}% / 急所 ${critScenario.pmn}〜${critScenario.pmx}%`;
-  }
   const extraInfo = [weightInfo, skinInfo, weatherInfo, specialMoveInfo].concat(abilityExtraInfo).concat(parentalBondInfo?[parentalBondInfo]:[]).filter(Boolean).map(s=>' ('+s+')').join('');
   const critInfoText = critNotes.length ? ' ('+critNotes.join(' / ')+')' : '';
-  if(isAlwaysCrit){
+  const hasKnockOffAlt = !!(knockOffRemovedScenario || knockOffRemovedCritScenario);
+
+  if(hasKnockOffAlt){
+    if(isAlwaysCrit){
+      el('dmg-num').textContent=`持ち物あり ${critScenario.totalMn}〜${critScenario.totalMx} / 落とした後 ${knockOffRemovedCritScenario.totalMn}〜${knockOffRemovedCritScenario.totalMx}`;
+      el('dmg-pct').textContent=`持ち物あり ${critScenario.pmn}〜${critScenario.pmx}% / 落とした後 ${knockOffRemovedCritScenario.pmn}〜${knockOffRemovedCritScenario.pmx}%`;
+      el('dmg-range').textContent=`はたきおとす 急所時 / 持ち物あり ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''} ｜ 落とした後 ${knockOffRemovedCritScenario.mn}〜${knockOffRemovedCritScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
+    } else {
+      el('dmg-num').textContent=`持ち物あり 通常 ${normalScenario.totalMn}〜${normalScenario.totalMx} / 落とした後 通常 ${knockOffRemovedScenario.totalMn}〜${knockOffRemovedScenario.totalMx}`;
+      el('dmg-pct').textContent=`持ち物あり 通常 ${normalScenario.pmn}〜${normalScenario.pmx}% / 落とした後 通常 ${knockOffRemovedScenario.pmn}〜${knockOffRemovedScenario.pmx}%`;
+      el('dmg-range').textContent=`はたきおとす / 持ち物あり 通常 ${normalScenario.mn}〜${normalScenario.mx}${isMulti?'（1hit）':''}・急所 ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''} ｜ 落とした後 通常 ${knockOffRemovedScenario.mn}〜${knockOffRemovedScenario.mx}${isMulti?'（1hit）':''}・急所 ${knockOffRemovedCritScenario.mn}〜${knockOffRemovedCritScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
+    }
+  } else if(isAlwaysCrit){
+    el('dmg-num').textContent=`${critScenario.totalMn} 〜 ${critScenario.totalMx}`;
+    el('dmg-pct').textContent=`${critScenario.pmn}〜${critScenario.pmx}%`;
     el('dmg-range').textContent=parentalBondActive
       ? `急所時 乱数幅 ${critScenario.mn}〜${critScenario.mx}（1hit目） / ${critScenario.parentalSecondMn}〜${critScenario.parentalSecondMx}（2hit目）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`
       : `急所時 乱数幅 ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
   } else {
+    el('dmg-num').textContent=`通常 ${normalScenario.totalMn}〜${normalScenario.totalMx} / 急所 ${critScenario.totalMn}〜${critScenario.totalMx}`;
+    el('dmg-pct').textContent=`通常 ${normalScenario.pmn}〜${normalScenario.pmx}% / 急所 ${critScenario.pmn}〜${critScenario.pmx}%`;
     el('dmg-range').textContent=parentalBondActive
       ? `通常 ${normalScenario.mn}〜${normalScenario.mx}（1hit目） / ${normalScenario.parentalSecondMn}〜${normalScenario.parentalSecondMx}（2hit目） ｜ 急所 ${critScenario.mn}〜${critScenario.mx}（1hit目） / ${critScenario.parentalSecondMn}〜${critScenario.parentalSecondMx}（2hit目）  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`
       : `通常 ${normalScenario.mn}〜${normalScenario.mx}${isMulti?'（1hit）':''} ｜ 急所 ${critScenario.mn}〜${critScenario.mx}${isMulti?'（1hit）':''}  相性:×${eff}${stabLabel}${extraInfo}${weatherDefLabel}${critInfoText}`;
@@ -3918,12 +4033,25 @@ function calcDamage(options={}) {
       : (hazardInfo.notes.length ? `場ダメ込み判定: ${hazardInfo.notes.join(' / ')}` : '場ダメ込み判定: なし');
   }
 
-  el('dmg-rolls').innerHTML=isAlwaysCrit
-    ? buildScenarioSection(critScenario)
-    : buildScenarioSection(normalScenario)+buildScenarioSection(critScenario);
+  el('dmg-rolls').innerHTML=hasKnockOffAlt
+    ? '<div style="margin-top:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;"><div style="font-size:10px;color:var(--accent3);margin-bottom:6px;">持ち物あり時（1.5倍）</div>'+
+        (isAlwaysCrit ? buildScenarioSection(critScenario) : buildScenarioSection(normalScenario)+buildScenarioSection(critScenario))+
+      '</div>'+
+      '<div style="margin-top:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;"><div style="font-size:10px;color:var(--accent2);margin-bottom:6px;">道具を落とした後（通常威力）</div>'+
+        (isAlwaysCrit ? buildScenarioSection(knockOffRemovedCritScenario) : buildScenarioSection(knockOffRemovedScenario)+buildScenarioSection(knockOffRemovedCritScenario))+
+      '</div>'
+    : (isAlwaysCrit ? buildScenarioSection(critScenario) : buildScenarioSection(normalScenario)+buildScenarioSection(critScenario));
 
   const kt=el('ko-tag');
-  if(isAlwaysCrit){
+  if(hasKnockOffAlt){
+    if(isAlwaysCrit){
+      kt.innerHTML=`<span class="ko-tag ${critKo.cls}">持ち物あり: ${critKo.label}</span><span class="ko-tag ${knockOffRemovedCritKo.cls}">落とした後: ${knockOffRemovedCritKo.label}</span>`;
+      el('dmg-desc').textContent=`持ち物あり: ${critKo.desc} / 落とした後: ${knockOffRemovedCritKo.desc}`;
+    } else {
+      kt.innerHTML=`<span class="ko-tag ${normalKo.cls}">持ち物あり通常: ${normalKo.label}</span><span class="ko-tag ${critKo.cls}">持ち物あり急所: ${critKo.label}</span><span class="ko-tag ${knockOffRemovedKo.cls}">落とした後通常: ${knockOffRemovedKo.label}</span><span class="ko-tag ${knockOffRemovedCritKo.cls}">落とした後急所: ${knockOffRemovedCritKo.label}</span>`;
+      el('dmg-desc').textContent=`持ち物あり 通常: ${normalKo.desc} / 急所: ${critKo.desc} ｜ 落とした後 通常: ${knockOffRemovedKo.desc} / 急所: ${knockOffRemovedCritKo.desc}`;
+    }
+  } else if(isAlwaysCrit){
     kt.innerHTML=`<span class="ko-tag ${critKo.cls}">急所: ${critKo.label}</span>`;
     el('dmg-desc').textContent=critKo.desc;
   } else {
@@ -4070,6 +4198,10 @@ function calcOneDamage(atkSt,atkBase,defSt,defBase,lv,mtype,mcat,hits,power,item
   const repAtkMods=applyRepresentativeAttackAbilityMods(abilityName, moveName, mtype, moveCategory, null);
   const fieldMods=applyFieldModifiers(fieldName, moveName, mtype, null);
   let hitsPower=Math.max(1, Math.floor((power||0) * aura.mult * repAtkMods.powerMult * fieldMods.powerMult));
+  if(moveName==='はたきおとす'){
+    const knockOffItemState = getKnockOffItemStateFromText(getSelectedLabel('def-item'));
+    if(knockOffItemState.hasItem && knockOffItemState.removable) hitsPower = Math.max(1, Math.floor(hitsPower * 1.5));
+  }
   let itemMult=1;
   if(itemKey==='hachimaki'&&moveCategory==='物理'&&!isBodyPress) itemMult=1.5;
   else if(itemKey==='megane'&&moveCategory==='特殊') itemMult=1.5;
