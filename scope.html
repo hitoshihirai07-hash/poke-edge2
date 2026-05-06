@@ -702,7 +702,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="rec" onclick="showScopeMobileAnalysis('rec')">推奨</button>
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="threat" onclick="showScopeMobileAnalysis('threat')">脅威</button>
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="matrix" onclick="showScopeMobileAnalysis('matrix')">対面</button>
-      <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="pro" onclick="showScopeMobileAnalysis('pro')">PRO</button>
+      <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="pro" onclick="showScopeMobileAnalysis(&quot;pro&quot;)">PRO</button>
     </div>
 
     <div class="card scope-pro-entry-card" id="scope-pro-entry-card">
@@ -2585,7 +2585,11 @@ const SCOPE_PRO_TRIAL_DAYS = 7;
 const SCOPE_PRO_GATE_KEY = 'pokeedge_scope_pro_gate_v1';
 const SCOPE_PRO_DEVICE_KEY = 'pokeedge_scope_pro_device_v1';
 const SCOPE_PRO_CONTACT_URL = 'https://x.com/sorasitekanri';
+const SCOPE_PRO_REMOTE_TABLE = 'pro_memberships';
+const SCOPE_PRO_PRICE_LABEL = '月額200円予定';
+const SCOPE_PRO_AUTH_URL = 'auth.html?redirect=scope.html';
 let scopeProPromptedInSession = {};
+let scopeProRemoteMembership = {loaded:false, active:false, expiresAt:'', status:'', note:'', source:'none'};
 
 function getScopeProDeviceKey(){
   try{
@@ -2603,6 +2607,52 @@ function getScopeProActorKey(){
   const user = (typeof getCurrentUser==='function') ? getCurrentUser() : null;
   if(user && user.id) return 'user:' + user.id;
   return 'guest:' + getScopeProDeviceKey();
+}
+function isScopeProLoggedIn(){
+  const user = (typeof getCurrentUser==='function') ? getCurrentUser() : null;
+  return !!(user && user.id);
+}
+async function loadScopeProRemoteMembership(){
+  const user = (typeof getCurrentUser==='function') ? getCurrentUser() : null;
+  scopeProRemoteMembership = {loaded:true, active:false, expiresAt:'', status:'', note:'', source:'none'};
+  if(!user || !user.id || typeof getSB !== 'function') return scopeProRemoteMembership;
+  try{
+    const {data, error} = await getSB().from(SCOPE_PRO_REMOTE_TABLE).select('status, scope_pro_until, note').eq('user_id', user.id).maybeSingle();
+    if(error) throw error;
+    const expiresAt = data && data.scope_pro_until ? data.scope_pro_until : '';
+    const expiresMs = expiresAt ? new Date(expiresAt).getTime() : 0;
+    const active = !!data && ((String(data.status || '').toLowerCase()==='active' && !expiresAt) || (expiresMs && expiresMs > Date.now()));
+    scopeProRemoteMembership = {
+      loaded:true,
+      active,
+      expiresAt,
+      status:(data && data.status) ? data.status : '',
+      note:(data && data.note) ? data.note : '',
+      source:data ? 'supabase' : 'none'
+    };
+  }catch(e){
+    scopeProRemoteMembership = {loaded:true, active:false, expiresAt:'', status:'', note:'', source:'error'};
+  }
+  return scopeProRemoteMembership;
+}
+function formatScopeProDate(value){
+  if(!value) return '';
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return y + '/' + m + '/' + day;
+}
+function getScopeProFlowText(status){
+  if(status.unlocked) return 'ログイン中のアカウントにPROを反映しています。';
+  if(!status.loggedIn) return '継続利用はログイン後のアカウント単位で案内します。';
+  return '現在はログイン後に問い合わせ → 支払い確認 → 運営側でPRO解放の流れです。';
+}
+function getScopeProSupportActionsHtml(status){
+  const loginAction = status.loggedIn ? '' : '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_AUTH_URL + '">無料登録 / ログイン</a>';
+  const contactAction = '<a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">問い合わせ</a>';
+  return loginAction + contactAction;
 }
 function loadScopeProGateStore(){
   try{
@@ -2645,29 +2695,39 @@ function getScopeProStatus(){
   const elapsedDays = startedAt ? Math.floor((now.getTime() - startedAt.getTime()) / 86400000) : 0;
   const remaining = startedAt ? Math.max(0, SCOPE_PRO_TRIAL_DAYS - elapsedDays) : SCOPE_PRO_TRIAL_DAYS;
   const activeTrial = !!startedAt && elapsedDays < SCOPE_PRO_TRIAL_DAYS;
-  const expired = !!startedAt && !entry.unlocked && !activeTrial;
+  const remoteActive = !!(scopeProRemoteMembership && scopeProRemoteMembership.active);
+  const unlocked = !!entry.unlocked || remoteActive;
+  const expired = !!startedAt && !unlocked && !activeTrial;
   return {
-    unlocked: !!entry.unlocked,
+    unlocked,
+    remoteManaged: remoteActive,
+    remoteExpiresAt: scopeProRemoteMembership && scopeProRemoteMembership.expiresAt ? scopeProRemoteMembership.expiresAt : '',
+    remoteNote: scopeProRemoteMembership && scopeProRemoteMembership.note ? scopeProRemoteMembership.note : '',
+    remoteLoaded: !!(scopeProRemoteMembership && scopeProRemoteMembership.loaded),
     trialStartedAt: entry.trialStartedAt || '',
     trialPending: !entry.trialStartedAt,
     trialActive: activeTrial,
     expired,
     remainingDays: remaining,
-    canUse: !!entry.unlocked || activeTrial,
-    actorKey: getScopeProActorKey()
+    canUse: unlocked || activeTrial,
+    actorKey: getScopeProActorKey(),
+    loggedIn: isScopeProLoggedIn(),
+    flowText: ''
   };
 }
 function getScopeProMetaHtml(status){
+  status.flowText = getScopeProFlowText(status);
   if(status.unlocked){
-    return {badge:'PRO利用中', html:'<span class="scope-pro-chip"><b>状態</b>利用中</span><span class="scope-pro-chip"><b>内容</b>想定選出 / 初手 / 危険な並び</span>'};
+    const untilText = status.remoteExpiresAt ? '<span class="scope-pro-chip"><b>有効期限</b>' + formatScopeProDate(status.remoteExpiresAt) + '</span>' : '<span class="scope-pro-chip"><b>状態</b>利用中</span>';
+    return {badge:'PRO利用中', html: untilText + '<span class="scope-pro-chip"><b>内容</b>想定選出 / 初手 / 危険な並び</span><span class="scope-pro-chip"><b>反映先</b>ログイン中アカウント</span>'};
   }
   if(status.trialPending){
-    return {badge:SCOPE_PRO_TRIAL_DAYS + '日無料体験', html:'<span class="scope-pro-chip"><b>無料体験</b>初回利用から ' + SCOPE_PRO_TRIAL_DAYS + '日</span><span class="scope-pro-chip"><b>開始</b>このカードから</span>'};
+    return {badge:SCOPE_PRO_TRIAL_DAYS + '日無料体験', html:'<span class="scope-pro-chip"><b>無料体験</b>初回利用から ' + SCOPE_PRO_TRIAL_DAYS + '日</span><span class="scope-pro-chip"><b>開始</b>このカードから</span><span class="scope-pro-chip"><b>継続予定</b>' + SCOPE_PRO_PRICE_LABEL + '</span>'};
   }
   if(status.trialActive){
-    return {badge:'無料体験中', html:'<span class="scope-pro-chip"><b>残り</b>' + Math.max(1, status.remainingDays) + '日</span><span class="scope-pro-chip"><b>内容</b>選出判断をまとめて表示</span>'};
+    return {badge:'無料体験中', html:'<span class="scope-pro-chip"><b>残り</b>' + Math.max(1, status.remainingDays) + '日</span><span class="scope-pro-chip"><b>内容</b>選出判断をまとめて表示</span><span class="scope-pro-chip"><b>継続予定</b>' + SCOPE_PRO_PRICE_LABEL + '</span>'};
   }
-  return {badge:'無料期間終了', html:'<span class="scope-pro-chip"><b>状態</b>無料期間終了</span><span class="scope-pro-chip"><b>案内</b>今後は課金機能として表示</span>'};
+  return {badge:'無料期間終了', html:'<span class="scope-pro-chip"><b>状態</b>無料期間終了</span><span class="scope-pro-chip"><b>継続予定</b>' + SCOPE_PRO_PRICE_LABEL + '</span><span class="scope-pro-chip"><b>対応</b>個別案内</span>'};
 }
 function renderScopeProMeta(status){
   const meta = getScopeProMetaHtml(status);
@@ -2687,22 +2747,22 @@ function renderScopeProEntry(status){
   metaEl.innerHTML = meta.html;
   badgeEl.textContent = meta.badge;
   if(status.unlocked){
-    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="showScopeMobileAnalysis(\'pro\')">PROを見る</button>';
-    inlineEl.textContent = '無料期間や課金案内ではなく、そのままPRO結果を見られる状態です。';
+    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="showScopeMobileAnalysis(&quot;pro&quot;)">PROを見る</button>' + getScopeProSupportActionsHtml(status);
+    inlineEl.textContent = status.flowText;
     return;
   }
   if(status.trialPending){
-    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(\'trial\')">無料体験を開始</button><button type="button" class="scope-pro-mini-btn" onclick="showScopeMobileAnalysis(\'pro\')">内容を見る</button>';
-    inlineEl.textContent = '最初から目に入る位置で案内しています。開始すると初回利用日から無料期間が進みます。';
+    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(&quot;trial&quot;)">無料体験を開始</button><button type="button" class="scope-pro-mini-btn" onclick="showScopeMobileAnalysis(&quot;pro&quot;)">内容を見る</button>' + getScopeProSupportActionsHtml(status);
+    inlineEl.textContent = '最初から目に入る位置で案内しています。開始すると初回利用日から無料期間が進みます。' + ' ' + status.flowText;
     return;
   }
   if(status.trialActive){
-    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="showScopeMobileAnalysis(\'pro\')">PROを見る</button>';
-    inlineEl.textContent = '無料体験中です。相手と自分を3体以上入れると想定選出と初手候補まで表示します。';
+    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="showScopeMobileAnalysis(&quot;pro&quot;)">PROを見る</button>' + getScopeProSupportActionsHtml(status);
+    inlineEl.textContent = '無料体験中です。相手と自分を3体以上入れると想定選出と初手候補まで表示します。' + ' ' + status.flowText;
     return;
   }
-  actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(\'expired\')">課金案内を見る</button><a class="scope-pro-link-btn" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">問い合わせ</a>';
-  inlineEl.textContent = '無料期間終了後も、最初にこの位置で課金案内が見える状態にしています。';
+  actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(&quot;expired&quot;)">課金案内を見る</button>' + getScopeProSupportActionsHtml(status);
+  inlineEl.textContent = '無料期間終了後も、最初にこの位置で課金案内が見える状態にしています。' + ' ' + status.flowText;
 }
 function formatScopeComboNames(teamIndices, party){
   return (teamIndices || []).map(i=>party[i]).filter(Boolean).map(slot=>escapeHtml(getScopeSlotDisplayName(slot))).join('<span class="pro-sep">/</span>');
@@ -2816,13 +2876,13 @@ function renderScopeProLocked(status){
   if(!el) return;
   let title = '選出予測PROを開く';
   let text = '相手の想定選出3体、初手候補、危険な並び、こちらの推奨選出までまとめて表示します。';
-  let actions = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(\'trial\')">無料で試す</button>';
+  let actions = '<button type="button" class="scope-pro-mini-btn primary" onclick="openScopeProModal(&quot;trial&quot;)">無料で試す</button>' + getScopeProSupportActionsHtml(status);
   if(status.expired){
     title = '無料期間が終了しました';
-    text = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。以降は課金機能として案内する想定です。';
-    actions = '<button type="button" class="scope-pro-mini-btn" onclick="openScopeProModal(\'expired\')">課金案内を見る</button><a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">問い合わせ</a>';
+    text = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。以降は ' + SCOPE_PRO_PRICE_LABEL + ' の追加機能として案内する想定です。';
+    actions = '<button type="button" class="scope-pro-mini-btn" onclick="openScopeProModal(&quot;expired&quot;)">課金案内を見る</button>' + getScopeProSupportActionsHtml(status);
   }
-  el.innerHTML = '<div class="scope-pro-lock"><div class="scope-pro-lock-title">' + title + '</div><div class="scope-pro-lock-text">' + text + '</div><div class="scope-pro-lock-actions">' + actions + '</div></div>';
+  el.innerHTML = '<div class="scope-pro-lock"><div class="scope-pro-lock-title">' + title + '</div><div class="scope-pro-lock-text">' + text + '<br>' + escapeHtml(status.flowText || getScopeProFlowText(status)) + '</div><div class="scope-pro-lock-actions">' + actions + '</div></div>';
 }
 function renderScopeProResult(forecast){
   const lockEl = document.getElementById('scope-pro-lock');
@@ -2881,14 +2941,15 @@ function openScopeProModal(mode){
   const noteEl = document.getElementById('scope-pro-modal-note');
   const actionsEl = document.getElementById('scope-pro-modal-actions');
   if(!modal || !textEl || !noteEl || !actionsEl) return;
+  const status = getScopeProStatus();
   if(mode==='expired'){
-    textEl.innerHTML = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。これ以降は課金となりますが、どうでしょうか。';
-    noteEl.textContent = '課金導線を入れる前の段階でも、まずは案内ポップアップとして運用できます。';
-    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">閉じる</button><a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">課金案内を見る</a>';
+    textEl.innerHTML = '最初の ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料機能として使えます。これ以降は ' + SCOPE_PRO_PRICE_LABEL + ' で継続する想定ですが、どうでしょうか。';
+    noteEl.textContent = status.loggedIn ? '現在は、ログイン後に問い合わせ → 支払い確認 → 運営側でPRO解放の流れです。' : '継続案内はログイン中アカウントにひも付ける想定です。先に無料登録 / ログインしておくと案内しやすくなります。';
+    actionsEl.innerHTML = (status.loggedIn ? '' : '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_AUTH_URL + '">無料登録 / ログイン</a>') + '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">閉じる</button><a class="scope-pro-link-btn primary" href="' + SCOPE_PRO_CONTACT_URL + '" target="_blank" rel="noopener noreferrer">課金案内を見る</a>';
   } else {
     textEl.innerHTML = '初回利用から ' + SCOPE_PRO_TRIAL_DAYS + ' 日間は無料です。相手の想定選出・初手候補・危険な並びまでまとめて表示します。';
-    noteEl.textContent = '無料期間終了後は課金機能として案内する流れにできます。';
-    actionsEl.innerHTML = '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">あとで</button><button type="button" class="scope-pro-mini-btn primary" onclick="activateScopeProFromModal()">無料で使う</button>';
+    noteEl.textContent = '無料期間終了後は ' + SCOPE_PRO_PRICE_LABEL + ' の追加機能として、ログイン中アカウントにPROを反映する流れにできます。';
+    actionsEl.innerHTML = (status.loggedIn ? '' : '<a class="scope-pro-link-btn" href="' + SCOPE_PRO_AUTH_URL + '">無料登録 / ログイン</a>') + '<button type="button" class="scope-pro-mini-btn" onclick="closeScopeProModal()">あとで</button><button type="button" class="scope-pro-mini-btn primary" onclick="activateScopeProFromModal()">無料で使う</button>';
   }
   modal.classList.add('show');
 }
@@ -3526,6 +3587,7 @@ function closeNav(){var nav=document.querySelector('.header-nav');var hb=documen
 // ===== 初期化 =====
 window.onload=async()=>{
   await initAuth();
+  await loadScopeProRemoteMembership();
   const runtimePromise = loadScopeRuntimeData();
   await loadSeasonData();
   initScopeSeasonFilter();
