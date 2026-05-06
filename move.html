@@ -807,6 +807,15 @@ function getFilledSelfSlots(){ return selfSlots.filter(slot=>slot.poke); }
 function getFilledOppSlots(){ return oppSlots.filter(slot=>slot.poke); }
 function getValidMoves(slot){ return (slot.moves || []).map(name=>String(name || '').trim()).filter(name=>moveByName.has(name)); }
 function normalizeItemText(item){ return String(item || '').replace(/\s+/g,'').trim(); }
+const MOVE_KNOCK_OFF_UNREMOVABLE_KEYWORDS = ['ナイト','メモリ','ドライブ','プレート','おめん'];
+const MOVE_KNOCK_OFF_UNREMOVABLE_NAMES = new Set(['くちたけん','くちたたて','だいしらたま','こんごうだま','はっきんだま','こころのしずく']);
+function getMoveKnockOffState(item){
+  const raw = String(item || '').trim();
+  if(!raw) return {hasItem:false, removable:false, label:'なし'};
+  const compact = normalizeItemText(raw);
+  const removable = !(MOVE_KNOCK_OFF_UNREMOVABLE_KEYWORDS.some(key=>compact.includes(key)) || MOVE_KNOCK_OFF_UNREMOVABLE_NAMES.has(compact));
+  return {hasItem:true, removable, label:raw};
+}
 function parseHits(raw){
   const s = String(raw || '1').trim();
   const nums = s.match(/\d+/g);
@@ -893,8 +902,9 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const offenseCategory = isBodyPress ? 'ぼうぎょ' : (isFoulPlay ? 'こうげき' : (SPECIAL_DEFENSE_MOVES.has(move.name) ? '特殊' : rawCategory));
   const defenseCategory = SPECIAL_DEFENSE_MOVES.has(move.name) || isBodyPress || rawCategory==='物理' ? '物理' : '特殊';
   const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability, move.name || '');
+  const baseNotes = [...(resolvedType.notes||[]), ...(powerInfo.notes||[])];
   if(eff === 0){
-    return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'無効', score:0, eff:0, moveType:resolvedType.type, category:rawCategory, attackStatName:offenseCategory, defenseStatName:defenseCategory, notes:[...(resolvedType.notes||[]), ...(powerInfo.notes||[])]};
+    return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'無効', score:0, eff:0, moveType:resolvedType.type, category:rawCategory, attackStatName:offenseCategory, defenseStatName:defenseCategory, notes:baseNotes};
   }
   const stab = [atkSlot.poke.type1, atkSlot.poke.type2].filter(Boolean).includes(resolvedType.type) ? (atkSlot.ability==='てきおうりょく' ? 2 : 1.5) : 1;
   let attackStat = rawCategory==='物理' ? atkStats.atk : atkStats.spa;
@@ -911,44 +921,61 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const itemMult = getAttackItemMultiplier(atkSlot.item, resolvedType.type, rawCategory, eff);
   const effectiveAttack = Math.max(1, Math.floor(attackStat * statMult));
   const effectiveDefense = Math.max(1, Math.floor(defenseStat));
-  const effectivePower = Math.max(1, Math.floor(power * powerMult));
-  const level = atkSlot.lv;
   const hits = parseHits(move.hits || '1');
-  const base = Math.floor(Math.floor(Math.floor(level*2/5+2) * effectivePower * effectiveAttack / effectiveDefense) / 50) + 2;
-  const rolls = [];
-  for(let i=85;i<=100;i++){
-    let dmg = Math.floor(base * stab);
-    dmg = Math.floor(dmg * eff);
-    dmg = Math.floor(dmg * itemMult);
-    dmg = Math.floor(dmg * defDmgMult);
-    dmg = Math.floor(dmg * weatherMoveMult);
-    dmg = Math.floor(dmg * i / 100);
-    rolls.push(dmg);
+  const level = atkSlot.lv;
+  const knockOffState = move.name==='はたきおとす' ? getMoveKnockOffState(defSlot.item) : {hasItem:false, removable:false};
+
+  function buildOutcome(usedPower, extraNotes=[]){
+    const effectivePower = Math.max(1, Math.floor(usedPower * powerMult));
+    const base = Math.floor(Math.floor(Math.floor(level*2/5+2) * effectivePower * effectiveAttack / effectiveDefense) / 50) + 2;
+    const rolls = [];
+    for(let i=85;i<=100;i++){
+      let dmg = Math.floor(base * stab);
+      dmg = Math.floor(dmg * eff);
+      dmg = Math.floor(dmg * itemMult);
+      dmg = Math.floor(dmg * defDmgMult);
+      dmg = Math.floor(dmg * weatherMoveMult);
+      dmg = Math.floor(dmg * i / 100);
+      rolls.push(dmg);
+    }
+    const singleMin = rolls[0];
+    const singleMax = rolls[rolls.length - 1];
+    const totalMin = singleMin * hits.min;
+    const totalMax = singleMax * hits.max;
+    const pctMin = Math.round(totalMin / defStats.hp * 1000) / 10;
+    const pctMax = Math.round(totalMax / defStats.hp * 1000) / 10;
+    const ko = getKOTag(totalMin, totalMax, defStats.hp);
+    const score = (pctMax + pctMin) * (eff > 0 ? eff : 1) + (ko.startsWith('確1') ? 50 : ko.startsWith('乱1') ? 32 : ko.startsWith('確2') ? 18 : ko.startsWith('乱2') ? 10 : 0);
+    return {
+      immune:false,
+      min:totalMin,
+      max:totalMax,
+      pctMin,
+      pctMax,
+      ko,
+      score,
+      eff,
+      moveType:resolvedType.type,
+      category:rawCategory,
+      attackStatName:offenseCategory,
+      defenseStatName:defenseCategory,
+      hits,
+      notes:[...baseNotes, ...extraNotes]
+    };
   }
-  const singleMin = rolls[0];
-  const singleMax = rolls[rolls.length - 1];
-  const totalMin = singleMin * hits.min;
-  const totalMax = singleMax * hits.max;
-  const pctMin = Math.round(totalMin / defStats.hp * 1000) / 10;
-  const pctMax = Math.round(totalMax / defStats.hp * 1000) / 10;
-  const ko = getKOTag(totalMin, totalMax, defStats.hp);
-  const score = (pctMax + pctMin) * (eff > 0 ? eff : 1) + (ko.startsWith('確1') ? 50 : ko.startsWith('乱1') ? 32 : ko.startsWith('確2') ? 18 : ko.startsWith('乱2') ? 10 : 0);
-  return {
-    immune:false,
-    min:totalMin,
-    max:totalMax,
-    pctMin,
-    pctMax,
-    ko,
-    score,
-    eff,
-    moveType:resolvedType.type,
-    category:rawCategory,
-    attackStatName:offenseCategory,
-    defenseStatName:defenseCategory,
-    hits,
-    notes:[...(resolvedType.notes||[]), ...(powerInfo.notes||[])]
-  };
+
+  let result;
+  if(move.name==='はたきおとす' && knockOffState.hasItem && knockOffState.removable){
+    result = buildOutcome(power * 1.5, ['はたきおとす: 持ち物あり時は威力1.5倍']);
+    result.afterItemless = buildOutcome(power, ['はたきおとす: 道具を落とした後は通常威力']);
+  } else if(move.name==='はたきおとす' && knockOffState.hasItem && !knockOffState.removable){
+    result = buildOutcome(power, ['はたきおとす: 落とせない持ち物のため通常威力']);
+  } else if(move.name==='はたきおとす'){
+    result = buildOutcome(power, ['はたきおとす: 相手の持ち物なしで通常威力']);
+  } else {
+    result = buildOutcome(power);
+  }
+  return result;
 }
 function getKOTag(minDmg, maxDmg, hp){ if(minDmg>=hp) return '確1'; if(maxDmg>=hp) return '乱1'; if(minDmg*2>=hp) return '確2'; if(maxDmg*2>=hp) return '乱2'; if(minDmg*3>=hp) return '確3'; if(maxDmg*3>=hp) return '乱3'; return '4発以上'; }
 function buildResultModel(){
@@ -1050,7 +1077,8 @@ function renderOverviewCell(best, defenderName){
   }
   const effClass = cell.eff > 1 ? 'eff-good' : cell.eff < 1 ? 'eff-bad' : '';
   const koClass = cell.ko.startsWith('確1') ? 'ko-1' : cell.ko.startsWith('乱1') ? 'ko-2' : cell.ko.startsWith('確2') ? 'ko-3' : cell.ko.startsWith('乱2') ? 'ko-3' : 'ko-4';
-  return `<td class="cell"><div class="overview-main">${escapeHtml(row.move.name)}</div><div class="overview-sub">${cell.min}〜${cell.max} / ${cell.pctMin}〜${cell.pctMax}% <span class="${effClass}">×${cell.eff}</span></div><span class="cell-ko ${koClass}">${cell.ko}</span></td>`;
+  const afterLine = cell.afterItemless ? `<div class="overview-sub">落とした後 ${cell.afterItemless.min}〜${cell.afterItemless.max} / ${cell.afterItemless.pctMin}〜${cell.afterItemless.pctMax}%</div>` : '';
+  return `<td class="cell"><div class="overview-main">${escapeHtml(row.move.name)}</div><div class="overview-sub">${cell.min}〜${cell.max} / ${cell.pctMin}〜${cell.pctMax}% <span class="${effClass}">×${cell.eff}</span></div>${afterLine}<span class="cell-ko ${koClass}">${cell.ko}</span></td>`;
 }
 function renderRow(attackerSlot, row, defenders){
   const move = row.move;
@@ -1064,8 +1092,12 @@ function renderCell(cell, atkSlot, defSlot, moveName){
   if(cell.immune) return `<td class="cell" title="${escapeAttr(atkSlot.poke.name)} の ${escapeAttr(moveName)} は ${escapeAttr(defSlot.ability || '特性')} で無効"><div class="cell-main eff-immune">無効</div><div class="cell-sub">${escapeHtml(defSlot.ability || 'タイプ無効')}</div><span class="cell-ko ko-0">無効</span></td>`;
   const effClass = cell.eff > 1 ? 'eff-good' : cell.eff < 1 ? 'eff-bad' : '';
   const koClass = cell.ko.startsWith('確1') ? 'ko-1' : cell.ko.startsWith('乱1') ? 'ko-2' : cell.ko.startsWith('確2') ? 'ko-3' : cell.ko.startsWith('乱2') ? 'ko-3' : 'ko-4';
-  const title = [`${atkSlot.poke.name} → ${defSlot.poke.name}`, `技タイプ: ${cell.moveType}`, `計算分類: ${cell.category}`, `攻撃参照: ${cell.attackStatName}`, `防御参照: ${cell.defenseStatName}`, `ダメージ: ${cell.min}〜${cell.max}`, `割合: ${cell.pctMin}〜${cell.pctMax}%`, `相性: ×${cell.eff}`].concat(cell.notes || []).join(' / ');
-  return `<td class="cell" title="${escapeAttr(title)}"><div class="cell-main">${cell.min}〜${cell.max}</div><div class="cell-sub">${cell.pctMin}〜${cell.pctMax}% <span class="${effClass}">×${cell.eff}</span></div><span class="cell-ko ${koClass}">${cell.ko}</span></td>`;
+  const title = [`${atkSlot.poke.name} → ${defSlot.poke.name}`, `技タイプ: ${cell.moveType}`, `計算分類: ${cell.category}`, `攻撃参照: ${cell.attackStatName}`, `防御参照: ${cell.defenseStatName}`, `ダメージ: ${cell.min}〜${cell.max}`, `割合: ${cell.pctMin}〜${cell.pctMax}%`, `相性: ×${cell.eff}`]
+    .concat(cell.afterItemless ? [`落とした後: ${cell.afterItemless.min}〜${cell.afterItemless.max}`, `落とした後割合: ${cell.afterItemless.pctMin}〜${cell.afterItemless.pctMax}%`] : [])
+    .concat(cell.notes || [])
+    .join(' / ');
+  const afterLine = cell.afterItemless ? `<div class="cell-sub">落とした後 ${cell.afterItemless.pctMin}〜${cell.afterItemless.pctMax}%</div>` : '';
+  return `<td class="cell" title="${escapeAttr(title)}"><div class="cell-main">${cell.min}〜${cell.max}</div><div class="cell-sub">${cell.pctMin}〜${cell.pctMax}% <span class="${effClass}">×${cell.eff}</span></div>${afterLine}<span class="cell-ko ${koClass}">${cell.ko}</span></td>`;
 }
 function safeLoadLocalParties(){ try{ return JSON.parse(localStorage.getItem('pokeedge_parties') || '[]'); } catch(e){ return []; } }
 async function loadSources(){
