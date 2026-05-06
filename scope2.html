@@ -1693,13 +1693,13 @@ function calcDmgRange(atkSt, defSt, power, lv, eff, stab, defHP, hpPct, extraMod
 }
 
 function getScopeBattleDamageOutcome(result, currentHpPct, hazardPct){
-  if(!result) return {html:'', text:'', cls:''};
   const hp = Math.max(0, Math.min(100, Number(currentHpPct) || 0));
   const hazard = Math.max(0, Number(hazardPct) || 0);
   const hpAfterField = Math.max(0, Math.round((hp - hazard) * 10) / 10);
   if(hpAfterField <= 0){
     return {html:'<span class="scope-dmg-outcome ko">場ダメで倒れる</span>', text:'場ダメで倒れる', cls:'ko', hpAfterField};
   }
+  if(!result) return {html:hazard ? '<span class="scope-dmg-outcome">場後HP '+hpAfterField+'%</span>' : '', text:'', cls:'', hpAfterField};
   const remainLow = Math.max(0, Math.round((hpAfterField - result.max) * 10) / 10);
   const remainHigh = Math.max(0, Math.round((hpAfterField - result.min) * 10) / 10);
   let text = '';
@@ -3501,7 +3501,7 @@ function calcBattleActions(){
       if(!benchSlotRaw || myHP[i]<=0) return '';
       const benchSlot = getScopeBattleResolvedSlot(benchSlotRaw);
       const hazard = getScopeFieldHazardDamagePct(benchSlot, 'my');
-      const benchHpAfterField = Math.max(1, Math.round((myHP[i] - hazard.pct)*10)/10);
+      const benchHpAfterField = Math.max(0, Math.round((myHP[i] - hazard.pct)*10)/10);
       // 相手の最大ダメ技で被ダメ計算
       let worstDmg = 0, worstMove = '', worstResult = null;
       oppMoves.forEach(m=>{
@@ -3512,7 +3512,7 @@ function calcBattleActions(){
       const safety = totalThreat<25?'switch-safe':totalThreat<50?'switch-warn':'switch-danger';
       const safeLabel = totalThreat<25?'✓安全':totalThreat<50?'△注意':'×危険';
       const outcome = getScopeBattleDamageOutcome(worstResult, myHP[i], hazard.pct).html;
-      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">場ダメ後HP '+benchHpAfterField+'%</span>' : '';
+      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">'+hazard.notes.map(escapeHtml).join(' + ')+' / 場ダメ後HP '+benchHpAfterField+'%</span>' : '';
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">→ '+benchSlot.poke.name+'</span>'+
         '<span class="dmg-pct">場+被ダメ最大 '+totalThreat+'%</span>'+
         '<span class="'+safety+'">'+safeLabel+'</span>'+
@@ -3532,7 +3532,7 @@ function calcBattleActions(){
       if(!benchOppRaw || oppHP[i]<=0) return '';
       const benchOpp = getScopeBattleResolvedSlot(benchOppRaw);
       const hazard = getScopeFieldHazardDamagePct(benchOpp, 'opp');
-      const oppHpAfterField = Math.max(1, Math.round((oppHP[i] - hazard.pct)*10)/10);
+      const oppHpAfterField = Math.max(0, Math.round((oppHP[i] - hazard.pct)*10)/10);
       // 自分の最大ダメ技
       let myBest=0, myBestMove='', myBestResult = null;
       myMoves.forEach(m=>{
@@ -3542,7 +3542,7 @@ function calcBattleActions(){
       const totalBest = Math.round((hazard.pct + myBest)*10)/10;
       const tag = totalBest>=50?'mu-win':totalBest>=25?'mu-even':'mu-lose';
       const outcome = getScopeBattleDamageOutcome(myBestResult, oppHP[i], hazard.pct).html;
-      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">場ダメ後HP '+oppHpAfterField+'%</span>' : '';
+      const hazardText = hazard.pct ? '<span style="font-size:9px;color:var(--accent2);">'+hazard.notes.map(escapeHtml).join(' + ')+' / 場ダメ後HP '+oppHpAfterField+'%</span>' : '';
       return '<div class="switch-row"><span style="min-width:80px;font-weight:700;">相手→ '+benchOpp.poke.name+'</span>'+
         '<span class="dmg-pct">場+自分ベスト '+totalBest+'%</span>'+
         '<span class="'+tag+'">'+(totalBest>=50?'◎有利':totalBest>=25?'△互角':'×不利')+'</span>'+
