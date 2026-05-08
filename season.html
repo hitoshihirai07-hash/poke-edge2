@@ -548,6 +548,39 @@ var POKE_MOVES_BY_NAME = {};
 var ABILITIES_BY_NAME = {};
 var ABILITY_EFFECTS_BY_NAME = {};
 var SEASON_DATA = {seasons:[]};
+var MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
+
+
+function normalizeMegaRelations(raw){
+  const rows = Array.isArray(raw?.rows) ? raw.rows : (Array.isArray(raw) ? raw : []);
+  const baseToForms = {};
+  const formToBase = {};
+  rows.forEach(row=>{
+    const name = String(row?.name || row?.pokemonName || row?.['ポケモン名'] || '').trim();
+    const baseName = String(row?.baseName || row?.base || row?.['元ポケモン名'] || '').trim();
+    if(!name || !baseName) return;
+    (baseToForms[baseName] = baseToForms[baseName] || []).push(name);
+    formToBase[name] = baseName;
+  });
+  Object.keys(baseToForms).forEach(base=>{
+    baseToForms[base] = Array.from(new Set(baseToForms[base])).sort((a,b)=>String(a).localeCompare(String(b),'ja'));
+  });
+  return { rows, baseToForms, formToBase };
+}
+function getMegaBaseNameFromRelations(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  if(MEGA_DATA?.formToBase?.[raw]) return String(MEGA_DATA.formToBase[raw] || '').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const fallback = raw.replace(/^メガ/, '').replace(/[XYZ]$/, '');
+  return fallback && fallback !== raw ? fallback : '';
+}
+function getMegaFormsFromRelations(baseName){
+  const base = String(baseName || '').trim();
+  if(!base) return [];
+  return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
+}
+
 let currentSeason = '';
 let sortKey = 'no';
 let sortDir = 1;
@@ -947,11 +980,12 @@ async function ensureSeasonMovesLoaded(){
 window.onload = async () => {
   await initAuth();
   try {
-    const [pd, sd, ad, aed] = await Promise.all([
+    const [pd, sd, ad, aed, megaData] = await Promise.all([
       fetchDataJson('pokemon.json', []),
       fetchDataJson('season.json', {seasons:[]}),
       fetchDataJson('abilities.json', {}),
       fetchDataJson('abilities_data.json', []),
+      fetchDataJson('mega.json', {rows:[], baseToForms:{}, formToBase:{}}),
     ]);
     const rawPokemonData = Array.isArray(pd) ? pd : [];
     POKE_BY_NAME = {};
@@ -969,6 +1003,7 @@ window.onload = async () => {
     SEASON_DATA = sd || {seasons:[]};
     ABILITIES_BY_NAME = normalizeAbilitiesData(ad);
     ABILITY_EFFECTS_BY_NAME = normalizeAbilityEffectsData(aed);
+    MEGA_DATA = normalizeMegaRelations(megaData);
   } catch(e) {
     console.error('データ読み込みエラー:', e);
     alert('データの読み込みに失敗しました。');
@@ -1092,6 +1127,8 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   function inferBaseRankingNames(name) {
+    const baseFromCsv = getMegaBaseNameFromRelations(name);
+    if(baseFromCsv) return uniq([baseFromCsv]);
     if(!name || !String(name).startsWith('メガ')) return [];
     let base = String(name).replace(/^メガ/, '');
     base = base.replace(/[XY]$/, '');

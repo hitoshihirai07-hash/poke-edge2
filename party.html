@@ -980,6 +980,39 @@ let moveIndex    = [];
 let MOVE_LOOKUP  = {};
 let PARTY_RANKING_DATA = {single:{rows:[],updatedAt:''}, double:{rows:[],updatedAt:''}};
 let PARTY_RANKING_MODE = localStorage.getItem('pokeedge_party_ranking_mode') || 'single';
+let MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
+
+
+function normalizeMegaRelations(raw){
+  const rows = Array.isArray(raw?.rows) ? raw.rows : (Array.isArray(raw) ? raw : []);
+  const baseToForms = {};
+  const formToBase = {};
+  rows.forEach(row=>{
+    const name = String(row?.name || row?.pokemonName || row?.['ポケモン名'] || '').trim();
+    const baseName = String(row?.baseName || row?.base || row?.['元ポケモン名'] || '').trim();
+    if(!name || !baseName) return;
+    (baseToForms[baseName] = baseToForms[baseName] || []).push(name);
+    formToBase[name] = baseName;
+  });
+  Object.keys(baseToForms).forEach(base=>{
+    baseToForms[base] = Array.from(new Set(baseToForms[base])).sort((a,b)=>String(a).localeCompare(String(b),'ja'));
+  });
+  return { rows, baseToForms, formToBase };
+}
+function getMegaBaseNameFromRelations(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  if(MEGA_DATA?.formToBase?.[raw]) return String(MEGA_DATA.formToBase[raw] || '').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const fallback = raw.replace(/^メガ/, '').replace(/[XYZ]$/, '');
+  return fallback && fallback !== raw ? fallback : '';
+}
+function getMegaFormsFromRelations(baseName){
+  const base = String(baseName || '').trim();
+  if(!base) return [];
+  return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
+}
+
 let PARTY_MEGA_TARGET = Math.max(0, Math.min(6, parseInt(localStorage.getItem('pokeedge_party_mega_target') || '1', 10) || 1));
 const PARTY_DRAFT_KEY = 'pokeedge_party_draft_v1';
 let _partyCoverageTimer = null;
@@ -1154,14 +1187,14 @@ function getAbilityOptionsUnified(pokeName){
 }
 
 function getMegaBaseName(name){
-  const raw=String(name||'').trim();
-  if(!/^メガ/.test(raw)) return '';
-  const baseName=raw.replace(/^メガ/,'').replace(/[XYZ]$/,'');
-  if(!baseName || baseName===raw) return '';
-  return pokeIndex.some(p=>p && p.name===baseName) ? baseName : '';
+  const baseName = getMegaBaseNameFromRelations(name);
+  if(baseName && pokeIndex.some(p=>p && p.name===baseName)) return baseName;
+  return '';
 }
 function isMegaFormName(name){ return !!getMegaBaseName(name); }
 function getMegaFormsForBase(baseName){
+  const relationNames = getMegaFormsFromRelations(baseName);
+  if(relationNames.length) return relationNames.map(name=>pokeIndex.find(p=>p&&p.name===name)).filter(Boolean);
   const base=String(baseName||'').trim();
   if(!base) return [];
   return pokeIndex.filter(p=>p && getMegaBaseName(p.name)===base);
@@ -1219,7 +1252,7 @@ function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata, rankingSingle, rankingDouble] = await Promise.all([
+    const [pd, md, ad, sd, idata, rankingSingle, rankingDouble, megaData] = await Promise.all([
       fetchDataJson('pokemon.json', []),
       fetchDataJson('moves.json', []),
       fetchDataJson('abilities.json', {}),
@@ -1227,6 +1260,7 @@ async function loadGameData() {
       fetchDataJson('belongings.json', []),
       fetchDataJson('season_ranking_single.json', {rows:[], updatedAt:''}),
       fetchDataJson('season_ranking_double.json', {rows:[], updatedAt:''}),
+      fetchDataJson('mega.json', {rows:[], baseToForms:{}, formToBase:{}}),
     ]);
     POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
     MOVES_DATA   = md;
@@ -1236,6 +1270,7 @@ async function loadGameData() {
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     MOVE_LOOKUP  = Object.fromEntries(moveIndex.map(m=>[normalizeMoveLookupName(m.name), m]));
+    MEGA_DATA = normalizeMegaRelations(megaData);
     PARTY_RANKING_DATA = {
       single: normalizeRankingPayload(rankingSingle, 'single'),
       double: normalizeRankingPayload(rankingDouble, 'double')

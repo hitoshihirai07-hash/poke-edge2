@@ -10,6 +10,83 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-sync.js"></script>
 <script>
+const ABILITY_GENERIC_ATTACK_EXCLUDES = new Set(["てつのこぶし", "すてみ", "がんじょうあご", "きれあじ", "メガランチャー", "パンクロック", "いわはこび", "りゅうのあぎと", "はがねつかい", "トランジスタ", "もらいび", "もうか", "げきりゅう", "しんりょく", "むしのしらせ", "かたいツメ", "アナライズ", "どくぼうそう", "ちからずく", "いろめがね", "そうだいしょう", "ごりむちゅう", "はりきり", "こんじょう", "サンパワー", "ねつぼうそう", "すなのちから", "てきおうりょく"]);
+const ABILITY_GENERIC_DEFENSE_EXCLUDES = new Set(["あついしぼう", "たいねつ", "もふもふ", "こおりのりんぷん", "フィルター", "ハードロック", "パンクロック", "ファーコート", "マルチスケイル", "ファントムガード"]);
+function toAbilityFloat(value){
+  if(value==null || value==='') return null;
+  if(typeof value==='number') return value;
+  const s=String(value).trim();
+  if(!s) return null;
+  if(/^\d+\/\d+$/.test(s)){
+    const [a,b]=s.split('/').map(Number);
+    if(a && b) return a/b;
+  }
+  const n=Number(s);
+  return Number.isFinite(n)?n:null;
+}
+function extractAbilityTypes(effect){
+  return Array.from(String(effect||'').matchAll(/『([^』]+)』タイプ/g)).map(m=>String(m[1]||'').trim()).filter(Boolean);
+}
+function parseGenericAttackPowerUp(name,effect){
+  if(!effect || ABILITY_GENERIC_ATTACK_EXCLUDES.has(name)) return null;
+  const tech = String(effect).match(/威力が(\d+)以下の技の威力が([0-9./]+)倍/);
+  if(tech){
+    const mult = toAbilityFloat(tech[2]);
+    if(mult) return { mult, maxPower:Number(tech[1]), info:`${name}: 威力${Number(tech[1])}以下×${mult}` };
+  }
+  const m = String(effect).match(/(?:自分の)?(?:『([^』]+)』タイプの技|([ぁ-んァ-ヶー一-龯A-Za-z0-9]+)タイプの技)の威力が([0-9./]+)倍/);
+  if(m){
+    const t = String(m[1] || m[2] || '').trim();
+    const mult = toAbilityFloat(m[3]);
+    if(t && mult) return { type:t, mult, info:`${name}: ${t}技×${mult}` };
+  }
+  return null;
+}
+function parseGenericDefenseModifiers(name,effect){
+  if(!effect) return { immuneType:null, defDmgMult:null };
+  const out = { immuneType:null, defDmgMult:null };
+  const types = extractAbilityTypes(effect);
+  const txt = String(effect);
+  const immuneTypes = [];
+  if(/技を受けるとダメージや効果はなくなり|技を受けない|技を無効/.test(txt)){
+    types.forEach(t=>{ if(t && !immuneTypes.includes(t)) immuneTypes.push(t); });
+  }
+  if(immuneTypes.length) out.immuneType = immuneTypes.length===1 ? immuneTypes[0] : immuneTypes;
+  if(!ABILITY_GENERIC_DEFENSE_EXCLUDES.has(name)){
+    let mult = null;
+    if(/半減/.test(txt)) mult = 0.5;
+    else {
+      const mm = txt.match(/受けるダメージが([0-9./]+)になる/);
+      if(mm) mult = toAbilityFloat(mm[1]);
+    }
+    if(mult && (/受けるダメージ/.test(txt) || /ダメージが/.test(txt))){
+      const uniqueTypes = Array.from(new Set(types));
+      if(uniqueTypes.length) out.defDmgMult = { type: uniqueTypes.length===1 ? uniqueTypes[0] : uniqueTypes, mult };
+      else if(/特殊技/.test(txt)) out.defDmgMult = { category:'特殊', mult };
+      else if(/物理技/.test(txt)) out.defDmgMult = { category:'物理', mult };
+    }
+  }
+  return out;
+}
+function enrichAbilityRecord(raw){
+  if(!raw || typeof raw !== 'object') return raw;
+  const out = Object.assign({}, raw);
+  const name = String(out.name || '').trim();
+  const effect = String(out.effect || '').trim();
+  if(!out.atkPowerUp){
+    const atkPowerUp = parseGenericAttackPowerUp(name, effect);
+    if(atkPowerUp) out.atkPowerUp = atkPowerUp;
+  }
+  const defenseMods = parseGenericDefenseModifiers(name, effect);
+  if(!out.immuneType && defenseMods.immuneType) out.immuneType = defenseMods.immuneType;
+  if(!out.defDmgMult && defenseMods.defDmgMult) out.defDmgMult = defenseMods.defDmgMult;
+  return out;
+}
+function enrichAbilitiesData(list){
+  return (Array.isArray(list) ? list : []).map(enrichAbilityRecord);
+}
+
+
 (function(){
   var t=localStorage.getItem('pokeedge_theme')||'dark';
   document.documentElement.setAttribute('data-theme',t);
@@ -293,6 +370,7 @@ input[type=file]{display:none;}
         <option value="ab_data">特性データ更新（abilities_data.json）</option>
         <option value="season">使用可能ポケモン更新（season.json）</option>
         <option value="belongings">道具データ更新</option>
+        <option value="mega">メガ進化対応更新（mega.json）</option>
       </select>
       <button type="button" class="admin-quick-btn" onclick="goToSelectedUpdateSection()">選択先へ移動</button>
       <button type="button" class="admin-quick-btn primary" onclick="openSelectedUpdateFile()">選択してCSVを開く</button>
@@ -306,6 +384,44 @@ input[type=file]{display:none;}
       <button type="button" class="admin-quick-chip" onclick="window.scrollTo({top:0,behavior:'smooth'})">ページ上へ戻る</button>
     </div>
   </div>
+
+
+<!-- mega.csv → mega.json -->
+<div class="section" id="update-section-mega">
+  <div class="sec-title">メガ進化対応更新</div>
+  <div class="sec-file">mega.csv → mega.json</div>
+  <div class="sec-cols">
+    必須カラム：<span>図鑑No</span>・<span>ポケモン名</span>・<span>タイプ1</span>・<span>タイプ2</span>・<span>元ポケモン名</span>
+  </div>
+  <div class="steps">
+    <div class="step"><span class="step-n">1</span><span>mega.csv をドロップ or クリックして選択</span></div>
+    <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
+    <div class="step"><span class="step-n">3</span><span>ダウンロードした mega.json をCloudflare Pagesにアップロード（既存のファイルを上書き）</span></div>
+  </div>
+  <div class="drop-zone" id="dz-mega" onclick="document.getElementById('f-mega').click()"
+    ondragover="onDragOver(event,'dz-mega')" ondragleave="onDragLeave('dz-mega')" ondrop="onDrop(event,'mega')">
+    <div class="drop-icon">🧬</div>
+    <div class="drop-text">mega.csv をここにドロップ</div>
+    <div class="drop-sub">またはクリックしてファイルを選択</div>
+  </div>
+  <input type="file" id="f-mega" accept=".csv" onchange="loadFile(event,'mega')">
+  <div class="preview" id="prev-mega">
+    <div class="preview-head">
+      <div class="prev-stat"><div class="prev-val" id="prev-mega-n">0</div><div class="prev-lbl">件数</div></div>
+      <div class="prev-stat"><div class="prev-val" id="prev-mega-c">0</div><div class="prev-lbl">カラム数</div></div>
+      <div class="prev-stat" style="flex:1;text-align:left;padding-left:16px;">
+        <div class="prev-lbl" style="margin-bottom:4px;">カラム名</div>
+        <div id="prev-mega-cols" style="font-size:10px;color:var(--text3);"></div>
+      </div>
+    </div>
+    <table class="preview-table" id="prev-mega-table"><thead></thead><tbody></tbody></table>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-gen" id="btn-mega-gen" onclick="generateJSON('mega')" disabled>⚙️ JSON生成</button>
+    <button class="btn btn-dl" id="btn-mega-dl" onclick="downloadJSON('mega')" disabled>💾 mega.json ダウンロード</button>
+  </div>
+  <div class="log" id="log-mega">ファイル待機中…</div>
+</div>
 
   <!-- pokemon.csv → pokemon.json -->
   <div class="section" id="update-section-poke">
@@ -978,6 +1094,7 @@ const ADMIN_UPDATE_SHORTCUTS = {
   ab_data: { label:'特性データ更新（abilities_data.json）', file:'characteristic_table.csv', out:'abilities_data.json', sectionId:'update-section-ab_data', inputId:'f-ab_data' },
   season: { label:'使用可能ポケモン更新', file:'season.csv', out:'season.json', sectionId:'update-section-season', inputId:'f-season' },
   belongings: { label:'道具データ更新', file:'belongings.csv', out:'belongings.json', sectionId:'update-section-belongings', inputId:'f-belongings' },
+  mega: { label:'メガ進化対応更新', file:'mega.csv', out:'mega.json', sectionId:'update-section-mega', inputId:'f-mega' },
   rank_single: { label:'順位データ更新（シングル）', file:'single.csv', out:'season_ranking_single.json', sectionId:'update-section-rank_single', inputId:'f-rank_single' },
   rank_double: { label:'順位データ更新（ダブル）', file:'double.csv', out:'season_ranking_double.json', sectionId:'update-section-rank_double', inputId:'f-rank_double' },
   rank_history_single: { label:'順位推移データ更新（シングル）', file:'single_ranking_change.csv', out:'season_ranking_history_single.json', sectionId:'update-section-rank_history_single', inputId:'f-rank_history_single' },
@@ -1316,6 +1433,7 @@ const state = {
   season:  { csv: null, json: null },
   ab_data: { csv: null, json: null },
   belongings: { csv: null, json: null },
+  mega: { csv: null, json: null },
 };
 
 // ===== CSV パーサー =====
@@ -1568,13 +1686,33 @@ function generateJSON(type) {
       log.innerHTML = `<span class="ok">✅ ${json.length}件の道具データを生成しました（${cats.join('・')}）</span>`;
     }
     else if(type==='ab_data') {
-      const result = data.rows.map(r => ({
+      const result = enrichAbilitiesData(data.rows.map(r => ({
         name:     (r['特性']||'').trim(),
         effect:   (r['効果']||'').trim(),
         hasMult:  (r['倍判定']||'').trim().toUpperCase()==='TRUE',
-      }));
+      })));
       json = result;
       log.innerHTML = `<span class="ok">✅ abilities_data.jsonを生成しました（${result.length}件）</span>`;
+    }
+    else if(type==='mega') {
+      const rows = data.rows.filter(r => (r['ポケモン名']||'').trim() && (r['元ポケモン名']||'').trim()).map(r => ({
+        no: parseInt((r['図鑑No']||'').trim(), 10) || 0,
+        name: (r['ポケモン名']||'').trim(),
+        type1: (r['タイプ1']||'').trim(),
+        type2: (r['タイプ2']||'').trim(),
+        baseName: (r['元ポケモン名']||'').trim(),
+      }));
+      const baseToForms = {};
+      const formToBase = {};
+      rows.forEach(row => {
+        (baseToForms[row.baseName] = baseToForms[row.baseName] || []).push(row.name);
+        formToBase[row.name] = row.baseName;
+      });
+      Object.keys(baseToForms).forEach(base => {
+        baseToForms[base] = Array.from(new Set(baseToForms[base])).sort((a,b)=>String(a).localeCompare(String(b),'ja'));
+      });
+      json = { rows, baseToForms, formToBase };
+      log.innerHTML = `<span class="ok">✅ mega.jsonを生成しました（通常${Object.keys(baseToForms).length}種 / メガ${rows.length}件）</span>`;
     }
     else if(type==='ab') {
       // 特性CSV → abilities.json（{ポケモン名: [とくせい1, とくせい2, かくれとくせい]}）
@@ -1608,7 +1746,7 @@ function generateJSON(type) {
 function downloadJSON(type) {
   const json = state[type].json;
   if(!json) return;
-  const names = { poke:'pokemon', move:'moves', pmove:'pokemon_moves', ab:'abilities', season:'season', ab_data:'abilities_data', belongings:'belongings' };
+  const names = { poke:'pokemon', move:'moves', pmove:'pokemon_moves', ab:'abilities', season:'season', ab_data:'abilities_data', belongings:'belongings', mega:'mega' };
   const filename = names[type]+'.json';
   const blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);

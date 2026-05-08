@@ -1481,32 +1481,63 @@ async function updateAllResults(){
     setResultBox(`rank-result-${key}`, result);
   }
 }
+
+let MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
+
+function normalizeMegaRelations(raw){
+  const rows = Array.isArray(raw?.rows) ? raw.rows : (Array.isArray(raw) ? raw : []);
+  const baseToForms = {};
+  const formToBase = {};
+  rows.forEach(row=>{
+    const name = String(row?.name || row?.pokemonName || row?.['ポケモン名'] || '').trim();
+    const baseName = String(row?.baseName || row?.base || row?.['元ポケモン名'] || '').trim();
+    if(!name || !baseName) return;
+    (baseToForms[baseName] = baseToForms[baseName] || []).push(name);
+    formToBase[name] = baseName;
+  });
+  Object.keys(baseToForms).forEach(base=>{
+    baseToForms[base] = Array.from(new Set(baseToForms[base])).sort((a,b)=>String(a).localeCompare(String(b),'ja'));
+  });
+  return { rows, baseToForms, formToBase };
+}
+function getMegaBaseNameFromRelations(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  if(MEGA_DATA?.formToBase?.[raw]) return String(MEGA_DATA.formToBase[raw] || '').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const fallback = raw.replace(/^メガ/, '').replace(/[XYZ]$/, '');
+  return fallback && fallback !== raw ? fallback : '';
+}
+function getMegaFormsFromRelations(baseName){
+  const base = String(baseName || '').trim();
+  if(!base) return [];
+  return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
+}
+
 async function loadData(){
-  const [pokemon, moves, season, ranking, abilities, pokemonMoves] = await Promise.all([
+  const [pokemon, moves, season, ranking, abilities, pokemonMoves, megaData] = await Promise.all([
     fetch('pokemon.json').then(r=>r.json()),
     fetch('moves.json').then(r=>r.json()),
     fetch('season.json').then(r=>r.json()),
     fetch('season_ranking_single.json').then(r=>r.json()),
     fetch('abilities.json').then(r=>r.json()),
-    fetch('pokemon_moves.json').then(r=>r.json())
+    fetch('pokemon_moves.json').then(r=>r.json()),
+    fetch('mega.json').then(r=>r.json()).catch(()=>({rows:[], baseToForms:{}, formToBase:{}}))
   ]);
   const pokemonByName = Object.fromEntries((pokemon || []).map(p => [p.name, p]));
   const allPokemonNames = (pokemon || []).map(p => p.name);
   const innerNames = Array.isArray(season?.['内定']) ? season['内定'] : (Array.isArray(season?.seasons) ? season.seasons : []);
   const movesByName = Object.fromEntries((moves || []).map(m => [m.name, m]));
   const damagingMoveNames = (moves || []).filter(m => m.category !== '変化').map(m => m.name).sort((a,b)=>a.localeCompare(b,'ja'));
+  const megaRelations = normalizeMegaRelations(megaData);
+  MEGA_DATA = megaRelations;
   const megaMap = {};
-  const megaFormSet = new Set();
-  (pokemon || []).forEach(p => {
-    const name = String(p.name || '').trim();
-    if(!name.startsWith('メガ')) return;
-    const base = stripMegaPrefix(name);
+  Object.entries(megaRelations.baseToForms || {}).forEach(([base, forms])=>{
     if(!pokemonByName[base]) return;
-    megaMap[base] = megaMap[base] || [];
-    megaMap[base].push(name);
-    megaFormSet.add(name);
+    const names = (Array.isArray(forms)?forms:[]).filter(name=>pokemonByName[name]);
+    if(names.length) megaMap[base] = names.slice().sort((a,b)=>a.localeCompare(b,'ja'));
   });
-  Object.values(megaMap).forEach(arr => arr.sort((a,b)=>a.localeCompare(b,'ja')));
+  const megaFormSet = new Set(Object.keys(megaRelations.formToBase || {}).filter(name=>pokemonByName[name]));
   return {
     pokemonByName,
     allPokemonNames,

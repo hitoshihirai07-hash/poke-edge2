@@ -1590,6 +1590,7 @@ let SEASON_DATA  = {seasons:[]};
 let SEASON_RANKING = {rows:[]};
 let BELONGINGS_DATA = [];
 let ABILITIES_DATA = [];
+let MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
 let POKEMON_MOVES = {};
 let REGISTERED_CALC_POKES = [];
 let CURRENT_ATK_REGISTERED_RECORD = null;
@@ -1976,6 +1977,46 @@ async function loadGameData() {
 async function loadAbilitiesData() {
   try { ABILITIES_DATA = await fetchJsonFlexible('abilities_data.json', [], false); }
   catch(e) { console.warn('abilities data skipped'); }
+}
+
+async function loadMegaData(){
+  try {
+    MEGA_DATA = normalizeMegaRelations(await fetchJsonFlexible('mega.json', {rows:[], baseToForms:{}, formToBase:{}}, false));
+  } catch(e) {
+    console.warn('mega data skipped');
+    MEGA_DATA = normalizeMegaRelations([]);
+  }
+}
+
+
+function normalizeMegaRelations(raw){
+  const rows = Array.isArray(raw?.rows) ? raw.rows : (Array.isArray(raw) ? raw : []);
+  const baseToForms = {};
+  const formToBase = {};
+  rows.forEach(row=>{
+    const name = String(row?.name || row?.pokemonName || row?.['ポケモン名'] || '').trim();
+    const baseName = String(row?.baseName || row?.base || row?.['元ポケモン名'] || '').trim();
+    if(!name || !baseName) return;
+    (baseToForms[baseName] = baseToForms[baseName] || []).push(name);
+    formToBase[name] = baseName;
+  });
+  Object.keys(baseToForms).forEach(base=>{
+    baseToForms[base] = Array.from(new Set(baseToForms[base])).sort((a,b)=>String(a).localeCompare(String(b),'ja'));
+  });
+  return { rows, baseToForms, formToBase };
+}
+function getMegaBaseNameFromRelations(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  if(MEGA_DATA?.formToBase?.[raw]) return String(MEGA_DATA.formToBase[raw] || '').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const fallback = raw.replace(/^メガ/, '').replace(/[XYZ]$/, '');
+  return fallback && fallback !== raw ? fallback : '';
+}
+function getMegaFormsFromRelations(baseName){
+  const base = String(baseName || '').trim();
+  if(!base) return [];
+  return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
 }
 
 // ===== 性格 =====
@@ -3751,9 +3792,13 @@ function calcDamage(options={}) {
   }
   if(atkAbData&&atkAbData.atkPowerUp){
     const up=atkAbData.atkPowerUp;
-    const typeOk=!up.type||up.type===mtype;
-    const techOk=atkAbName!=='テクニシャン'||power<=60;
-    if(typeOk&&techOk) powerMult*=up.mult;
+    const types=up.type?(Array.isArray(up.type)?up.type:[up.type]):[];
+    const typeOk=!types.length||types.includes(mtype);
+    const powerOk=up.maxPower==null||power<=Number(up.maxPower);
+    if(typeOk&&powerOk){
+      powerMult*=up.mult;
+      if(up.info) abilityExtraInfo.push(up.info);
+    }
   }
   if(atkOther==='1.5_help') powerMult*=1.5;
   const fieldMods=applyFieldModifiers(fieldName, moveName, mtype, abilityExtraInfo);
@@ -3813,7 +3858,8 @@ function calcDamage(options={}) {
 
   // 無効化
   const repDefMods=getRepresentativeDefenseAbilityMods(defAbName, moveName, mtype, defenseCategory);
-  if((defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype) || repDefMods.immune){
+  const defImmuneTypes = defAbData&&defAbData.immuneType ? (Array.isArray(defAbData.immuneType)?defAbData.immuneType:[defAbData.immuneType]) : [];
+  if((defImmuneTypes.includes(mtype)) || repDefMods.immune){
     showResult0(defAbName); return true;
   }
 
@@ -3829,7 +3875,12 @@ function calcDamage(options={}) {
   if(defAbData&&defAbData.defDmgMult){
     const dm=defAbData.defDmgMult;
     const arr=Array.isArray(dm)?dm:[dm];
-    arr.forEach(d=>{if(!d.type||d.type===mtype) dmgMult*=d.mult;});
+    arr.forEach(d=>{
+      const types=d&&d.type?(Array.isArray(d.type)?d.type:[d.type]):[];
+      const typeOk=!types.length||types.includes(mtype);
+      const categoryOk=!d?.category||d.category===defenseCategory;
+      if(typeOk&&categoryOk) dmgMult*=d.mult;
+    });
   }
   if(defAbName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)){
     dmgMult*=0.5;
@@ -4550,9 +4601,10 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   const atkAbData=getAbilityByName(atkAbilityName);
   if(atkAbData&&atkAbData.atkPowerUp){
     const up=atkAbData.atkPowerUp;
-    const typeOk=!up.type||up.type===mtype;
-    const techOk=atkAbilityName!=='テクニシャン'||power<=60;
-    if(typeOk&&techOk) powerMult*=up.mult;
+    const types=up.type?(Array.isArray(up.type)?up.type:[up.type]):[];
+    const typeOk=!types.length||types.includes(mtype);
+    const powerOk=up.maxPower==null||power<=Number(up.maxPower);
+    if(typeOk&&powerOk) powerMult*=up.mult;
   }
   const aura=getAuraModifier(mtype, atkAbilityName, defAbilityNamePre);
   if(aura.mult!==1) powerMult*=aura.mult;
@@ -4581,7 +4633,8 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   const defItem=el('def-item')?.value||'1';
   const defWall=el('def-wall')?.value||'1';
   const defAlly=el('def-ally-ability')?.value||'1';
-  if((defAbData&&defAbData.immuneType&&defAbData.immuneType===mtype) || repDefMods.immune) return null;
+  const defImmuneTypes = defAbData&&defAbData.immuneType ? (Array.isArray(defAbData.immuneType)?defAbData.immuneType:[defAbData.immuneType]) : [];
+  if((defImmuneTypes.includes(mtype)) || repDefMods.immune) return null;
   let defStatMult=1;
   defStatMult*=repDefMods.defStatMult;
   dmgMult*=repDefMods.dmgMult;
@@ -4592,7 +4645,12 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   if(['クォークチャージ','こだいかっせい'].includes(defAbName)) defStatMult*=1.3;
   if(defAbData&&defAbData.defDmgMult){
     const dm=Array.isArray(defAbData.defDmgMult)?defAbData.defDmgMult:[defAbData.defDmgMult];
-    dm.forEach(d=>{ if(!d.type||d.type===mtype) dmgMult*=d.mult; });
+    dm.forEach(d=>{
+      const types=d&&d.type?(Array.isArray(d.type)?d.type:[d.type]):[];
+      const typeOk=!types.length||types.includes(mtype);
+      const categoryOk=!d?.category||d.category===defenseCategory;
+      if(typeOk&&categoryOk) dmgMult*=d.mult;
+    });
   }
   if(defAbName==='パンクロック'&&abilityHasListedMove('パンクロック',moveName)) dmgMult*=0.5;
   if(defItem==='def_1.5_kiseki') defStatMult*=1.5;
@@ -5074,6 +5132,7 @@ window.onload = async()=>{
   await loadGameData();
   await initAuth();
   await loadAbilitiesData();
+  await loadMegaData();
   setupSearch('atk-search','atk-drop');
   setupSearch('def-search','def-drop');
   el('atk-search')?.addEventListener('input',()=>renderRegisteredCalcButtons('atk'));
@@ -5130,7 +5189,8 @@ function setEV(numId, val){
 
 // ===== メガ進化切り替え =====
 function getMegaForms(baseName){
-  // 元ポケモン名からメガ進化形を探す
+  const relationNames = getMegaFormsFromRelations(baseName);
+  if(relationNames.length) return relationNames.map(name=>pokeIndex.find(p=>p.name===name)).filter(Boolean);
   const forms = [];
   const megaName = 'メガ'+baseName;
   pokeIndex.forEach(p=>{
@@ -5141,13 +5201,14 @@ function getMegaForms(baseName){
   return forms;
 }
 function getBasePokemon(megaName){
-  // メガポケモン名から元ポケモンを探す
-  if(!megaName.startsWith('メガ')) return null;
-  let base = megaName.replace(/^メガ/,'').replace(/[XY]$/,'');
+  const baseName = getMegaBaseNameFromRelations(megaName);
+  if(baseName) return pokeIndex.find(p=>p.name===baseName) || null;
+  if(!String(megaName||'').startsWith('メガ')) return null;
+  let base = String(megaName).replace(/^メガ/,'').replace(/[XY]$/,'');
   return pokeIndex.find(p=>p.name===base) || null;
 }
 function isMegaPokemon(name){
-  return name && name.startsWith('メガ');
+  return !!getMegaBaseNameFromRelations(name);
 }
 function renderMegaToggle(side, poke){
   const wrap = document.getElementById(side+'-mega-toggle');

@@ -1134,6 +1134,39 @@ const LS_REG = 'pokeedge_pokemon_v1';
 let SEASON_DATA = {seasons:[]};
 let POKEMON_MOVES_RAW = INLINE_POKEMON_MOVES_RAW || {};
 let SEASON_RANKING = INLINE_SEASON_RANKING || {battleType:'single', updatedAt:'', rows:[]};
+let MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
+
+
+function normalizeMegaRelations(raw){
+  const rows = Array.isArray(raw?.rows) ? raw.rows : (Array.isArray(raw) ? raw : []);
+  const baseToForms = {};
+  const formToBase = {};
+  rows.forEach(row=>{
+    const name = String(row?.name || row?.pokemonName || row?.['ポケモン名'] || '').trim();
+    const baseName = String(row?.baseName || row?.base || row?.['元ポケモン名'] || '').trim();
+    if(!name || !baseName) return;
+    (baseToForms[baseName] = baseToForms[baseName] || []).push(name);
+    formToBase[name] = baseName;
+  });
+  Object.keys(baseToForms).forEach(base=>{
+    baseToForms[base] = Array.from(new Set(baseToForms[base])).sort((a,b)=>String(a).localeCompare(String(b),'ja'));
+  });
+  return { rows, baseToForms, formToBase };
+}
+function getMegaBaseNameFromRelations(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  if(MEGA_DATA?.formToBase?.[raw]) return String(MEGA_DATA.formToBase[raw] || '').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const fallback = raw.replace(/^メガ/, '').replace(/[XYZ]$/, '');
+  return fallback && fallback !== raw ? fallback : '';
+}
+function getMegaFormsFromRelations(baseName){
+  const base = String(baseName || '').trim();
+  if(!base) return [];
+  return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
+}
+
 
 async function loadScopeRuntimeData(){
   try {
@@ -1154,6 +1187,10 @@ async function loadScopeRuntimeData(){
   try {
     const rank = await fetch('season_ranking_single.json', {cache:'no-cache'}).then(r=>r.ok ? r.json() : Promise.reject(new Error('season_ranking_single.json')));
     if(rank && Array.isArray(rank.rows)) SEASON_RANKING = rank;
+  } catch(e) {}
+  try {
+    const mega = await fetch('mega.json', {cache:'no-cache'}).then(r=>r.ok ? r.json() : Promise.reject(new Error('mega.json')));
+    MEGA_DATA = normalizeMegaRelations(mega);
   } catch(e) {}
 }
 
@@ -1358,12 +1395,13 @@ function ignoresDefenderAbility(ability){
 
 // ===== シーズンランキング活用 =====
 // ===== メガ進化 ↔ 元ポケモン ユーティリティ =====
-function isMegaPokemon(name){ return name && name.startsWith('メガ') && name!=='メガニウム' && name!=='メガヤンマ'; }
+function isMegaPokemon(name){ return !!getMegaBaseNameFromRelations(name); }
 function getBaseName(megaName){
-  if(!isMegaPokemon(megaName)) return null;
-  return megaName.replace(/^メガ/,'').replace(/[XYZ]$/,'');
+  return getMegaBaseNameFromRelations(megaName) || null;
 }
 function getMegaFormsOf(baseName){
+  const relationNames = getMegaFormsFromRelations(baseName);
+  if(relationNames.length) return relationNames.map(name=>pokeIndex.find(p=>p.name===name)).filter(Boolean);
   const prefix = 'メガ'+baseName;
   return pokeIndex.filter(p=>p.name===prefix||p.name===prefix+'X'||p.name===prefix+'Y'||p.name===prefix+'Z');
 }
@@ -1756,15 +1794,6 @@ function getWeatherLabelForScope(value){
 function isScopeContactMove(move){
   return !!(move && (move.contact === true || String(move.contact).toLowerCase() === 'true' || String(move.contact) === '○'));
 }
-const SCOPE_KNOCK_OFF_UNREMOVABLE_KEYWORDS = ['ナイト','メモリ','ドライブ','プレート','おめん'];
-const SCOPE_KNOCK_OFF_UNREMOVABLE_NAMES = new Set(['くちたけん','くちたたて','だいしらたま','こんごうだま','はっきんだま','こころのしずく']);
-function getScopeKnockOffItemState(item){
-  const raw = String(item || '').trim();
-  if(!raw) return {hasItem:false, removable:false, label:'なし'};
-  const compact = raw.replace(/\s+/g,'');
-  const removable = !(SCOPE_KNOCK_OFF_UNREMOVABLE_KEYWORDS.some(key=>compact.includes(key)) || SCOPE_KNOCK_OFF_UNREMOVABLE_NAMES.has(compact));
-  return {hasItem:true, removable, label:raw};
-}
 function getScopeDamageOptionNotes(atkSlot, move, usedType, usedPower){
   const notes = [];
   const activeWeather = typeof getScopeFieldWeather === 'function' ? getScopeFieldWeather() : SCOPE_DAMAGE_OPTIONS.weather;
@@ -2031,8 +2060,6 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
   let mtype = move.type || '';
   let power = parseInt(move.power,10) || 0;
   const moveName = move.name || '';
-  const basePower = power;
-  const knockOffState = moveName==='はたきおとす' ? getScopeKnockOffItemState(defSlot.item) : {hasItem:false, removable:false};
   const weather = getScopeFieldWeather();
   const hpInfo = getScopeFieldEffectiveHpPct(defSlot, defHpPct||SCOPE_DAMAGE_OPTIONS.defHpPct||100, context);
   const effectiveDefHpPct = hpInfo.hpPct;
@@ -2073,24 +2100,8 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
     else if(mtype==='ほのお') weatherDmgMod = 0.5;
   }
   const hitsInfo = parseHits(adjustedMove.hits || '1');
-  if(moveName==='はたきおとす'){
-    if(knockOffState.hasItem && knockOffState.removable){
-      detailNotes.push('はたきおとす: 持ち物あり時は威力1.5倍');
-      power = Math.floor(power * 1.5);
-    } else if(knockOffState.hasItem){
-      detailNotes.push('はたきおとす: 落とせない持ち物のため通常威力');
-    } else {
-      detailNotes.push('はたきおとす: 相手の持ち物なしで通常威力');
-    }
-  }
   const result = calcDmgRange(aSt, dSt, power, atkStats.lv, adjust.eff, stab, defStats.hp, effectiveDefHpPct, adjust.mod * weatherDmgMod * fieldAdjust.mod, hitsInfo);
-  if(result){
-    result.detailNotes = detailNotes;
-    if(moveName==='はたきおとす' && knockOffState.hasItem && knockOffState.removable){
-      result.afterItemless = calcDmgRange(aSt, dSt, basePower, atkStats.lv, adjust.eff, stab, defStats.hp, effectiveDefHpPct, adjust.mod * weatherDmgMod * fieldAdjust.mod, hitsInfo);
-      if(result.afterItemless) result.afterItemless.detailNotes = detailNotes.concat(['道具を落とした後は通常威力']);
-    }
-  }
+  if(result) result.detailNotes = detailNotes;
   return result;
 }
 
@@ -3378,9 +3389,8 @@ function getDamageMoveResults(attacker, move, defenders, atkSide, defSide){
 function formatDamageResult(result){
   if(!result) return '<span class="damage-result-main">—</span>';
   const details = result.detailNotes && result.detailNotes.length ? '<div class="damage-move-meta">'+result.detailNotes.map(escapeHtml).join(' / ')+'</div>' : '';
-  const after = result.afterItemless ? '<div class="damage-move-meta">落とした後 '+result.afterItemless.min+'〜'+result.afterItemless.max+'% / '+escapeHtml(result.afterItemless.label)+'</div>' : '';
   return '<div class="damage-result-main">'+result.min+'〜'+result.max+'%</div>'+
-    '<div class="damage-result-sub"><span class="ko-tag '+result.cls+'">'+escapeHtml(result.label)+'</span></div>'+after+details;
+    '<div class="damage-result-sub"><span class="ko-tag '+result.cls+'">'+escapeHtml(result.label)+'</span></div>'+details;
 }
 function formatDamageMoveMeta(move){
   const type = move.type ? '<span class="tp tp-'+move.type+'">'+move.type+'</span>' : '';
@@ -3719,10 +3729,9 @@ function calcBattleActions(){
         const best = i===0?'<span class="best-tag">BEST</span>':'';
         const outcome = getScopeBattleDamageOutcome(d.result, oppHP[oppActiveIdx], 0).html;
         const detail = d.result.detailNotes && d.result.detailNotes.length ? '<span style="font-size:9px;color:var(--text2);">'+d.result.detailNotes.map(escapeHtml).join(' / ')+'</span>' : '';
-        const after = d.result.afterItemless ? '<span style="font-size:9px;color:var(--text2);"> / 落とした後 '+d.result.afterItemless.min+'〜'+d.result.afterItemless.max+'% ('+escapeHtml(d.result.afterItemless.label)+')</span>' : '';
         return '<div class="dmg-row"><span class="move-name">'+d.move.name+' <span class="tp tp-'+d.move.type+'">'+d.move.type+'</span></span>'+
           '<span class="dmg-pct">'+d.result.min+'〜'+d.result.max+'%</span>'+
-          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+best+outcome+detail+after+'</div>';
+          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+best+outcome+detail+'</div>';
       }).join('');
     } else {
       myDmgEl.innerHTML='<div class="note">攻撃技データがありません</div>';
@@ -3744,10 +3753,9 @@ function calcBattleActions(){
         const rateStr = d.rate?'<span style="color:var(--text2);font-size:9px;">(採用率'+d.rate+'%)</span>':'';
         const outcome = getScopeBattleDamageOutcome(d.result, myHP[myActiveIdx], 0).html;
         const detail = d.result.detailNotes && d.result.detailNotes.length ? '<span style="font-size:9px;color:var(--text2);">'+d.result.detailNotes.map(escapeHtml).join(' / ')+'</span>' : '';
-        const after = d.result.afterItemless ? '<span style="font-size:9px;color:var(--text2);"> / 落とした後 '+d.result.afterItemless.min+'〜'+d.result.afterItemless.max+'% ('+escapeHtml(d.result.afterItemless.label)+')</span>' : '';
         return '<div class="dmg-row"><span class="move-name">'+d.move.name+' '+rateStr+'</span>'+
           '<span class="dmg-pct">'+d.result.min+'〜'+d.result.max+'%</span>'+
-          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+outcome+detail+after+'</div>';
+          '<span class="ko-tag '+d.result.cls+'">'+d.result.label+'</span>'+outcome+detail+'</div>';
       }).join('');
     } else {
       oppDmgEl.innerHTML='<div class="note">相手の推定技データがありません</div>';

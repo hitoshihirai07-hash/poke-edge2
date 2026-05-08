@@ -517,6 +517,39 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
 <script>
 let POKEMON_DATA=[], ABILITY_MAP={}, SEASON_DATA={seasons:[]}, ABILITY_DATA=[];
+let MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
+
+
+function normalizeMegaRelations(raw){
+  const rows = Array.isArray(raw?.rows) ? raw.rows : (Array.isArray(raw) ? raw : []);
+  const baseToForms = {};
+  const formToBase = {};
+  rows.forEach(row=>{
+    const name = String(row?.name || row?.pokemonName || row?.['ポケモン名'] || '').trim();
+    const baseName = String(row?.baseName || row?.base || row?.['元ポケモン名'] || '').trim();
+    if(!name || !baseName) return;
+    (baseToForms[baseName] = baseToForms[baseName] || []).push(name);
+    formToBase[name] = baseName;
+  });
+  Object.keys(baseToForms).forEach(base=>{
+    baseToForms[base] = Array.from(new Set(baseToForms[base])).sort((a,b)=>String(a).localeCompare(String(b),'ja'));
+  });
+  return { rows, baseToForms, formToBase };
+}
+function getMegaBaseNameFromRelations(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  if(MEGA_DATA?.formToBase?.[raw]) return String(MEGA_DATA.formToBase[raw] || '').trim();
+  if(!/^メガ/.test(raw)) return '';
+  const fallback = raw.replace(/^メガ/, '').replace(/[XYZ]$/, '');
+  return fallback && fallback !== raw ? fallback : '';
+}
+function getMegaFormsFromRelations(baseName){
+  const base = String(baseName || '').trim();
+  if(!base) return [];
+  return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
+}
+
 let MY_POKEMON_CANDIDATES=[];
 const SPEED_DOUBLE_ABILITIES = {
   'すいすい':'あめ','すなかき':'すなあらし','ようりょくそ':'にほんばれ',
@@ -539,13 +572,14 @@ const GAME_RULES = {
 };
 
 async function loadData(){
-  const [pd,ad,sd,abd]=await Promise.all([
+  const [pd,ad,sd,abd,megaData]=await Promise.all([
     fetch('pokemon.json', {cache:'no-cache'}).then(r=>r.json()),
     fetch('abilities.json', {cache:'no-cache'}).then(r=>r.json()).catch(()=>({})),
     fetch('season.json', {cache:'no-cache'}).then(r=>r.json()).catch(()=>({seasons:[]})),
     fetch('abilities_data.json', {cache:'no-cache'}).then(r=>r.json()).catch(()=>[]),
+    fetch('mega.json', {cache:'no-cache'}).then(r=>r.json()).catch(()=>({rows:[], baseToForms:{}, formToBase:{}})),
   ]);
-  POKEMON_DATA=pd; ABILITY_MAP=ad; SEASON_DATA=sd; ABILITY_DATA=abd;
+  POKEMON_DATA=pd; ABILITY_MAP=ad; SEASON_DATA=sd; ABILITY_DATA=abd; MEGA_DATA=normalizeMegaRelations(megaData);
   initSeasonFilter();
   initNatureOptions();
   initCompareControls();
@@ -772,7 +806,7 @@ function findPokemonByName(name){
 }
 
 function isMegaPokemonName(name){
-  return /^メガ/.test(name || '');
+  return !!getMegaBaseNameFromRelations(name);
 }
 
 function toggleTgl(el){
