@@ -1791,5 +1791,456 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<script id="party-reference-extension">
+(function(){
+  const PARTY_IMPORT_KEY = 'pokeedge_party_reference_transfer';
+  let PARTY_REFERENCE_DATA = {parties:[], partyCount:0, memberCount:0, seasons:[]};
+  let partyViewActive = false;
+  let currentPartyReferenceId = '';
+
+  function partyRefEsc(v){ return typeof escapeHtml === 'function' ? escapeHtml(v) : String(v == null ? '' : v); }
+  function normalizePartyReferenceData(raw){
+    const src = Array.isArray(raw?.parties) ? raw.parties : (Array.isArray(raw) ? raw : []);
+    const parties = src.map((party, idx) => {
+      const season = String(party?.season || party?.['シーズン'] || '').trim();
+      const no = String(party?.no || party?.No || party?.id || (idx + 1)).trim();
+      const members = (Array.isArray(party?.members) ? party.members : []).map((member, mIdx) => ({
+        slot: Number(member?.slot || member?.番号 || (mIdx + 1)) || (mIdx + 1),
+        pokemon: String(member?.pokemon || member?.['ポケモン'] || '').trim(),
+        nature: String(member?.nature || member?.['性格'] || '').trim(),
+        item: String(member?.item || member?.['持ち物'] || '').trim(),
+        ev: {
+          hp: Number(member?.ev?.hp ?? member?.HP ?? 0) || 0,
+          atk: Number(member?.ev?.atk ?? member?.攻撃 ?? 0) || 0,
+          def: Number(member?.ev?.def ?? member?.防御 ?? 0) || 0,
+          spa: Number(member?.ev?.spa ?? member?.特攻 ?? 0) || 0,
+          spd: Number(member?.ev?.spd ?? member?.特防 ?? 0) || 0,
+          spe: Number(member?.ev?.spe ?? member?.素早 ?? 0) || 0
+        },
+        moves: (Array.isArray(member?.moves) ? member.moves : [member?.技1, member?.技2, member?.技3, member?.技4]).filter(Boolean).map(v => String(v).trim()).filter(Boolean)
+      })).filter(member => member.pokemon).sort((a,b)=>(a.slot||999)-(b.slot||999));
+      return { id: String(party?.id || ((season || 'all') + '::' + no)), no, season, members, memberCount: members.length };
+    }).filter(party => party.memberCount > 0);
+    const seasons = Array.from(new Set(parties.map(party => party.season).filter(Boolean)));
+    return { parties, partyCount: parties.length, memberCount: parties.reduce((sum, party)=>sum + party.memberCount, 0), seasons };
+  }
+
+  function ensurePartyReferenceStyle(){
+    if(document.getElementById('party-reference-style')) return;
+    const style = document.createElement('style');
+    style.id = 'party-reference-style';
+    style.textContent = `
+      .party-ref-view{display:none;}
+      .party-ref-view.show{display:block;}
+      .party-ref-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+      .party-ref-card{background:var(--panel);border:1px solid var(--border);padding:14px;border-radius:16px;cursor:pointer;transition:all .18s;display:grid;gap:12px;}
+      .party-ref-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+      .party-ref-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+      .party-ref-title{font-size:14px;font-weight:700;color:var(--text);}
+      .party-ref-sub{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.7;}
+      .party-ref-season{display:inline-flex;align-items:center;border:1px solid var(--border2);padding:4px 10px;border-radius:999px;font-size:10px;color:var(--accent3);background:rgba(255,200,0,0.08);white-space:nowrap;}
+      .party-ref-members{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+      .party-ref-member{border:1px solid var(--border);background:var(--bg2);border-radius:14px;padding:10px;min-width:0;}
+      .party-ref-member-slot{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1;color:var(--accent);margin-bottom:6px;}
+      .party-ref-member-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.45;word-break:break-word;}
+      .party-ref-member-item{font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;word-break:break-word;}
+      .party-ref-note{font-size:11px;color:var(--text2);line-height:1.8;}
+      .party-ref-empty{border:1px dashed var(--border);border-radius:16px;padding:18px;text-align:center;color:var(--text2);background:var(--panel);font-size:12px;line-height:1.9;}
+      .party-ref-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:none;align-items:center;justify-content:center;z-index:170;padding:14px;}
+      .party-ref-overlay.show{display:flex;}
+      .party-ref-modal{width:min(1160px,100%);max-height:calc(100vh - 28px);background:var(--panel);border:1px solid var(--border2);box-shadow:0 24px 60px rgba(0,0,0,0.35);display:flex;flex-direction:column;overflow:hidden;border-radius:18px;}
+      .party-ref-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 18px;border-bottom:1px solid var(--border);background:rgba(255,200,0,0.06);}
+      .party-ref-modal-title{font-size:24px;font-weight:700;line-height:1.2;color:var(--text);}
+      .party-ref-modal-sub{margin-top:6px;color:var(--text2);font-size:12px;display:flex;gap:8px;flex-wrap:wrap;line-height:1.7;}
+      .party-ref-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+      .party-ref-btn{border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 12px;border-radius:999px;font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;white-space:nowrap;}
+      .party-ref-btn:hover{border-color:var(--accent);color:var(--accent);}
+      .party-ref-btn.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+      .party-ref-btn.primary:hover{background:rgba(0,200,240,0.16);}
+      .party-ref-btn.close{color:var(--text2);}
+      .party-ref-modal-body{padding:16px;overflow:auto;display:grid;gap:12px;}
+      .party-ref-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+      .party-ref-detail-card{border:1px solid var(--border);background:var(--bg2);border-radius:16px;padding:14px;display:grid;gap:10px;min-width:0;}
+      .party-ref-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+      .party-ref-detail-slot{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);line-height:1;}
+      .party-ref-detail-name{font-size:15px;font-weight:700;color:var(--text);line-height:1.45;word-break:break-word;}
+      .party-ref-detail-item{font-size:11px;color:var(--text2);line-height:1.8;word-break:break-word;}
+      .party-ref-detail-meta{font-size:11px;color:var(--text2);line-height:1.8;}
+      .party-ref-move-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
+      .party-ref-move{border:1px solid var(--border);background:var(--panel);border-radius:10px;padding:7px 9px;font-size:11px;color:var(--text);line-height:1.5;word-break:break-word;}
+      .party-ref-card-actions{display:flex;gap:8px;flex-wrap:wrap;}
+      .party-ref-mini-btn{border:1px solid var(--border2);background:transparent;color:var(--text2);padding:7px 10px;border-radius:999px;font-size:11px;cursor:pointer;transition:all .18s;}
+      .party-ref-mini-btn:hover{border-color:var(--accent);color:var(--accent);}
+      .party-ref-mini-btn.primary{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.08);}
+      .party-ref-mini-btn.primary:hover{background:rgba(255,200,0,0.16);}
+      .party-ref-inline-note{font-size:11px;color:var(--text2);line-height:1.8;}
+      @media(max-width:900px){.party-ref-grid,.party-ref-detail-grid{grid-template-columns:1fr;}.party-ref-actions{justify-content:flex-start;}.party-ref-modal{max-height:calc(100vh - 16px);}}
+      @media(max-width:640px){.party-ref-members,.party-ref-move-list{grid-template-columns:1fr;}.party-ref-overlay{padding:0;align-items:stretch;}.party-ref-modal{width:100%;max-height:100vh;border-radius:0;}.party-ref-modal-head{padding:14px;}.party-ref-modal-title{font-size:20px;}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureStatsLabels(){
+    const totalWrap = document.getElementById('stat-total')?.parentElement;
+    const ninteiWrap = document.getElementById('stat-nintei')?.parentElement;
+    if(totalWrap && !document.getElementById('stat-total-label')){
+      const totalVal = document.getElementById('stat-total').textContent || '0';
+      totalWrap.innerHTML = `<b id="stat-total">${partyRefEsc(totalVal)}</b><span id="stat-total-label">件表示</span>`;
+    }
+    if(ninteiWrap && !document.getElementById('stat-nintei-label')){
+      const ninteiVal = document.getElementById('stat-nintei').textContent || '0';
+      ninteiWrap.innerHTML = `<b id="stat-nintei">${partyRefEsc(ninteiVal)}</b><span id="stat-nintei-label">件使用可能</span>`;
+    }
+  }
+
+  function ensurePartyReferenceShell(){
+    ensureStatsLabels();
+    const tabs = document.getElementById('view-tabs');
+    if(tabs && !tabs.querySelector('[data-view="party"]')){
+      const btn = document.createElement('button');
+      btn.className = 'view-tab';
+      btn.type = 'button';
+      btn.dataset.view = 'party';
+      btn.textContent = 'パーティー一覧';
+      tabs.appendChild(btn);
+    }
+    if(!document.getElementById('season-party-view')){
+      const panel = document.createElement('div');
+      panel.id = 'season-party-view';
+      panel.className = 'party-ref-view rank-panel';
+      panel.innerHTML = '<div class="rank-meta" id="party-ref-meta">参考パーティーを読み込み中...</div><div id="party-ref-grid" class="party-ref-grid"></div>';
+      const insertAfter = document.getElementById('season-history-view') || document.getElementById('season-ranking-view') || document.getElementById('season-list-view');
+      if(insertAfter && insertAfter.parentNode) insertAfter.parentNode.insertBefore(panel, insertAfter.nextSibling);
+    }
+    if(!document.getElementById('party-ref-overlay')){
+      const overlay = document.createElement('div');
+      overlay.id = 'party-ref-overlay';
+      overlay.className = 'party-ref-overlay';
+      overlay.innerHTML = `
+        <div class="party-ref-modal" role="dialog" aria-modal="true" aria-labelledby="party-ref-modal-title">
+          <div class="party-ref-modal-head">
+            <div>
+              <div class="party-ref-modal-title" id="party-ref-modal-title">パーティー一覧</div>
+              <div class="party-ref-modal-sub" id="party-ref-modal-sub"></div>
+            </div>
+            <div class="party-ref-actions">
+              <button type="button" class="party-ref-btn primary" id="party-ref-import-btn">パーティー登録へ反映</button>
+              <button type="button" class="party-ref-btn close" id="party-ref-close-btn">閉じる</button>
+            </div>
+          </div>
+          <div class="party-ref-modal-body">
+            <div class="party-ref-inline-note">参考用の表示です。ポケモンごとの詳細確認や、そのままパーティー登録への反映に使えます。</div>
+            <div class="party-ref-detail-grid" id="party-ref-detail-grid"></div>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', function(e){ if(e.target === overlay) closePartyReferenceDetail(); });
+      overlay.querySelector('#party-ref-close-btn').addEventListener('click', closePartyReferenceDetail);
+      overlay.querySelector('#party-ref-import-btn').addEventListener('click', function(){ if(currentPartyReferenceId) goPartyReferenceToPartyRegistration(currentPartyReferenceId); });
+    }
+  }
+
+  function getPartyRefCardLabel(party){
+    return `No.${partyRefEsc(party.no || '—')}`;
+  }
+  function getPartyRefSeasonLabel(party){
+    return party.season ? partyRefEsc(party.season) : 'シーズン未設定';
+  }
+  function formatPartyRefEv(ev){
+    const obj = ev || {};
+    const map = [['hp','H'],['atk','A'],['def','B'],['spa','C'],['spd','D'],['spe','S']];
+    const parts = map.map(([k,label]) => [label, Number(obj[k] || 0) || 0]).filter(([,v]) => v > 0).map(([label,v]) => `${label}${v}`);
+    return parts.length ? parts.join(' / ') : '無振り';
+  }
+  function getPartyRefPokemonData(name){
+    if(!name) return null;
+    return POKE_BY_NAME[name] || POKE_BY_NAME[getMegaBaseNameFromRelations && typeof getMegaBaseNameFromRelations === 'function' ? getMegaBaseNameFromRelations(name) : ''] || null;
+  }
+  function partyRefMatchesTypeFilter(party, type){
+    if(!type) return true;
+    return (party.members || []).some(member => {
+      const p = getPartyRefPokemonData(member.pokemon);
+      return !!p && (p.type1 === type || p.type2 === type);
+    });
+  }
+  function partyRefFields(party){
+    const fields = [party.no, party.season];
+    (party.members || []).forEach(member => {
+      fields.push(member.pokemon, member.nature, member.item, formatPartyRefEv(member.ev));
+      (member.moves || []).forEach(move => fields.push(move));
+      const p = getPartyRefPokemonData(member.pokemon);
+      if(p) fields.push(p.type1, p.type2);
+    });
+    return fields;
+  }
+  function getFilteredPartyReferences(){
+    const q = (document.getElementById('name-search')?.value || '').trim();
+    const type = document.getElementById('type-filter')?.value || '';
+    return (PARTY_REFERENCE_DATA.parties || []).filter(party => {
+      if(currentSeason && party.season && party.season !== currentSeason) return false;
+      if(currentSeason && !party.season) return false;
+      if(type && !partyRefMatchesTypeFilter(party, type)) return false;
+      if(q && typeof matchesSeasonSearchFields === 'function' && !matchesSeasonSearchFields(partyRefFields(party), q)) return false;
+      return true;
+    }).sort((a,b) => {
+      const seasonCmp = String(a.season || '').localeCompare(String(b.season || ''), 'ja');
+      if(seasonCmp) return seasonCmp;
+      const an = parseInt(String(a.no || '').replace(/\D+/g,''), 10);
+      const bn = parseInt(String(b.no || '').replace(/\D+/g,''), 10);
+      if(Number.isFinite(an) && Number.isFinite(bn) && an !== bn) return an - bn;
+      return String(a.no || '').localeCompare(String(b.no || ''), 'ja');
+    });
+  }
+
+  function setPartyViewFilterState(active){
+    partyViewActive = !!active;
+    const searchMode = document.getElementById('search-mode');
+    const help = document.querySelector('.search-help');
+    const input = document.getElementById('name-search');
+    if(searchMode) searchMode.style.display = active ? 'none' : '';
+    if(help) help.textContent = active ? 'シーズン・タイプ・検索欄で参考パーティーを絞り込めます。検索はNo・ポケモン名・持ち物・技名までまとめて対応します。' : '技・特性は検索欄、タイプは選択欄で絞り込めます。タイプを選んだまま名前や技名で追加検索できます。';
+    if(input) input.placeholder = active ? 'No・ポケモン名・持ち物・技名で検索...' : '名前・技・特性で検索...';
+  }
+
+  function showPartyReferenceView(){
+    ensurePartyReferenceShell();
+    const listView = document.getElementById('season-list-view');
+    const rankView = document.getElementById('season-ranking-view');
+    const historyView = document.getElementById('season-history-view');
+    const partyView = document.getElementById('season-party-view');
+    if(listView) listView.style.display = 'none';
+    if(rankView) rankView.classList.remove('show');
+    if(historyView) historyView.classList.remove('show');
+    if(partyView) { partyView.classList.add('show'); partyView.style.display = ''; }
+    document.querySelectorAll('.view-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.view === 'party'));
+    setPartyViewFilterState(true);
+    renderPartyReferenceList();
+  }
+
+  function hidePartyReferenceView(){
+    const partyView = document.getElementById('season-party-view');
+    if(partyView){ partyView.classList.remove('show'); partyView.style.display = 'none'; }
+    setPartyViewFilterState(false);
+  }
+
+  function renderPartyReferenceList(){
+    if(!partyViewActive && !document.querySelector('.view-tab.active[data-view="party"]')) return;
+    const grid = document.getElementById('party-ref-grid');
+    const meta = document.getElementById('party-ref-meta');
+    if(!grid || !meta) return;
+    const rows = getFilteredPartyReferences();
+    const totalLabel = document.getElementById('stat-total-label');
+    const ninteiLabel = document.getElementById('stat-nintei-label');
+    if(document.getElementById('stat-total')) document.getElementById('stat-total').textContent = String(rows.length);
+    if(totalLabel) totalLabel.textContent = '件表示';
+    if(document.getElementById('stat-nintei')) document.getElementById('stat-nintei').textContent = String(PARTY_REFERENCE_DATA.partyCount || 0);
+    if(ninteiLabel) ninteiLabel.textContent = '件登録';
+    const hint = document.querySelector('.detail-hint');
+    if(hint) hint.textContent = 'カードを押すと詳細と連携を表示';
+    meta.textContent = `${rows.length}件表示 / 全${PARTY_REFERENCE_DATA.partyCount || 0}件 / ${PARTY_REFERENCE_DATA.memberCount || 0}匹分`;
+    if(!rows.length){
+      grid.innerHTML = '<div class="party-ref-empty">該当する参考パーティーがありません</div>';
+      return;
+    }
+    grid.innerHTML = rows.map(party => {
+      const members = (party.members || []).slice(0, 6);
+      return `<button type="button" class="party-ref-card" data-party-ref-id="${partyRefEsc(party.id)}">
+        <div class="party-ref-head">
+          <div>
+            <div class="party-ref-title">${getPartyRefCardLabel(party)}</div>
+            <div class="party-ref-sub">${party.memberCount}匹 / クリックで詳細・連携</div>
+          </div>
+          <span class="party-ref-season">${getPartyRefSeasonLabel(party)}</span>
+        </div>
+        <div class="party-ref-members">${members.map(member => `
+          <div class="party-ref-member">
+            <div class="party-ref-member-slot">${partyRefEsc(member.slot || '—')}</div>
+            <div class="party-ref-member-name">${partyRefEsc(member.pokemon || '—')}</div>
+            <div class="party-ref-member-item">${partyRefEsc(member.item || '持ち物なし')}</div>
+          </div>
+        `).join('')}</div>
+        <div class="party-ref-note">シーズン詳細・ポケモン登録・パーティー登録へそのままつなげられます。</div>
+      </button>`;
+    }).join('');
+  }
+
+  function getPartyReferenceById(id){
+    return (PARTY_REFERENCE_DATA.parties || []).find(party => party.id === id) || null;
+  }
+
+  function openPartyReferenceDetail(id){
+    ensurePartyReferenceShell();
+    const party = getPartyReferenceById(id);
+    if(!party) return;
+    currentPartyReferenceId = id;
+    const overlay = document.getElementById('party-ref-overlay');
+    const title = document.getElementById('party-ref-modal-title');
+    const sub = document.getElementById('party-ref-modal-sub');
+    const grid = document.getElementById('party-ref-detail-grid');
+    if(!overlay || !title || !sub || !grid) return;
+    title.textContent = `${getPartyRefCardLabel(party)} / ${party.season || 'シーズン未設定'}`;
+    sub.innerHTML = `<span>${party.memberCount}匹</span><span>参考パーティー</span>`;
+    grid.innerHTML = (party.members || []).map(member => `
+      <div class="party-ref-detail-card">
+        <div class="party-ref-detail-head">
+          <div>
+            <div class="party-ref-detail-slot">${partyRefEsc(member.slot || '—')}</div>
+            <div class="party-ref-detail-name">${partyRefEsc(member.pokemon || '—')}</div>
+            <div class="party-ref-detail-item">持ち物: ${partyRefEsc(member.item || '持ち物なし')}</div>
+          </div>
+          <button type="button" class="party-ref-mini-btn primary" data-party-member-season="${partyRefEsc(member.pokemon || '')}" data-party-member-season-tag="${partyRefEsc(party.season || '')}">このシーズンで見る</button>
+        </div>
+        <div class="party-ref-detail-meta">性格: ${partyRefEsc(member.nature || '—')}<br>努力値: ${partyRefEsc(formatPartyRefEv(member.ev))}</div>
+        <div class="party-ref-move-list">${(member.moves || []).length ? member.moves.slice(0,4).map(move => `<div class="party-ref-move">${partyRefEsc(move)}</div>`).join('') : '<div class="party-ref-move">技未設定</div>'}</div>
+        <div class="party-ref-card-actions">
+          <button type="button" class="party-ref-mini-btn" data-party-member-pokemon="${partyRefEsc(member.pokemon || '')}">ポケモン登録へ</button>
+        </div>
+      </div>
+    `).join('');
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePartyReferenceDetail(){
+    const overlay = document.getElementById('party-ref-overlay');
+    if(overlay) overlay.classList.remove('show');
+    if(document.getElementById('detail-overlay')?.classList.contains('show')) return;
+    document.body.style.overflow = '';
+  }
+
+  function applySeasonFilterFromParty(season){
+    if(!season) return;
+    const btn = document.querySelector(`.season-btn[data-season="${CSS.escape(season)}"]`);
+    if(btn && typeof setSeason === 'function') setSeason(btn, season);
+    else { currentSeason = season; if(typeof render === 'function') render(); }
+  }
+
+  function openSeasonPokemonFromParty(name, season){
+    if(!name || typeof openPokemonDetail !== 'function') return;
+    closePartyReferenceDetail();
+    hidePartyReferenceView();
+    const listBtn = document.querySelector('.view-tab[data-view="list"]');
+    if(listBtn) listBtn.click();
+    setTimeout(function(){
+      if(season) applySeasonFilterFromParty(season);
+      openPokemonDetail(name);
+    }, 0);
+  }
+
+  function goPartyMemberToPokemon(name){
+    if(!name) return;
+    try{
+      localStorage.setItem('pokeedge_season_transfer', JSON.stringify({source:'season', tool:'pokemon', name:name, target:'new', at:Date.now()}));
+    }catch(_){ }
+    location.href = `pokemon.html?from=season&pokemon=${encodeURIComponent(name)}&target=new`;
+  }
+
+  function goPartyReferenceToPartyRegistration(id){
+    const party = getPartyReferenceById(id);
+    if(!party) return;
+    try{
+      localStorage.setItem(PARTY_IMPORT_KEY, JSON.stringify({source:'season_party_reference', no:party.no, season:party.season, members:party.members, at:Date.now()}));
+    }catch(_){ }
+    location.href = `party.html?from=party_reference&season=${encodeURIComponent(party.season || '')}&party_no=${encodeURIComponent(party.no || '')}`;
+  }
+
+  function installPartyReferenceHandlers(){
+    const tabs = document.getElementById('view-tabs');
+    if(tabs && !tabs.dataset.partyHooked){
+      tabs.dataset.partyHooked = '1';
+      tabs.addEventListener('click', function(e){
+        const btn = e.target.closest('.view-tab');
+        if(!btn) return;
+        if(btn.dataset.view === 'party') return;
+        hidePartyReferenceView();
+        setTimeout(function(){
+          const totalLabel = document.getElementById('stat-total-label');
+          const ninteiLabel = document.getElementById('stat-nintei-label');
+          if(totalLabel) totalLabel.textContent = '件表示';
+          if(ninteiLabel) ninteiLabel.textContent = '件使用可能';
+        }, 0);
+      });
+      tabs.addEventListener('click', function(e){
+        const btn = e.target.closest('.view-tab[data-view="party"]');
+        if(!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+        showPartyReferenceView();
+      }, true);
+    }
+
+    const grid = document.getElementById('party-ref-grid');
+    if(grid && !grid.dataset.partyHooked){
+      grid.dataset.partyHooked = '1';
+      grid.addEventListener('click', function(e){
+        const card = e.target.closest('[data-party-ref-id]');
+        if(!card) return;
+        openPartyReferenceDetail(card.dataset.partyRefId || '');
+      });
+    }
+
+    const overlay = document.getElementById('party-ref-overlay');
+    if(overlay && !overlay.dataset.partyHooked){
+      overlay.dataset.partyHooked = '1';
+      overlay.addEventListener('click', function(e){
+        const seasonBtn = e.target.closest('[data-party-member-season]');
+        if(seasonBtn){
+          openSeasonPokemonFromParty(seasonBtn.dataset.partyMemberSeason || '', seasonBtn.dataset.partyMemberSeasonTag || '');
+          return;
+        }
+        const regBtn = e.target.closest('[data-party-member-pokemon]');
+        if(regBtn){
+          goPartyMemberToPokemon(regBtn.dataset.partyMemberPokemon || '');
+        }
+      });
+    }
+
+    const input = document.getElementById('name-search');
+    if(input && !input.dataset.partyHooked){
+      input.dataset.partyHooked = '1';
+      input.addEventListener('input', function(){ if(partyViewActive) renderPartyReferenceList(); });
+    }
+    const typeFilter = document.getElementById('type-filter');
+    if(typeFilter && !typeFilter.dataset.partyHooked){
+      typeFilter.dataset.partyHooked = '1';
+      typeFilter.addEventListener('change', function(){ if(partyViewActive) renderPartyReferenceList(); });
+    }
+    const clearBtn = document.querySelector('.search-clear-btn');
+    if(clearBtn && !clearBtn.dataset.partyHooked){
+      clearBtn.dataset.partyHooked = '1';
+      clearBtn.addEventListener('click', function(){ if(partyViewActive) setTimeout(renderPartyReferenceList, 0); });
+    }
+    const seasonBtns = document.getElementById('season-btns');
+    if(seasonBtns && !seasonBtns.dataset.partyHooked){
+      seasonBtns.dataset.partyHooked = '1';
+      seasonBtns.addEventListener('click', function(){ if(partyViewActive) setTimeout(renderPartyReferenceList, 0); });
+    }
+  }
+
+  function fetchPartyReferenceJson(){
+    return fetch('party_list.json?v=' + Date.now(), {cache:'no-cache'}).then(r => r.ok ? r.json() : {parties:[]}).catch(() => ({parties:[]}));
+  }
+
+  async function initPartyReferenceExtension(){
+    ensurePartyReferenceStyle();
+    ensurePartyReferenceShell();
+    installPartyReferenceHandlers();
+    const raw = await fetchPartyReferenceJson();
+    PARTY_REFERENCE_DATA = normalizePartyReferenceData(raw);
+    renderPartyReferenceList();
+  }
+
+  window.addEventListener('load', function(){
+    initPartyReferenceExtension();
+  });
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape' && document.getElementById('party-ref-overlay')?.classList.contains('show')) closePartyReferenceDetail();
+  });
+})();
+</script>
+
 </body>
 </html>

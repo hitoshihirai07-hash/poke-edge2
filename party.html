@@ -4498,5 +4498,72 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 </script>
+
+<script id="party-reference-import-extension">
+(function(){
+  const PARTY_IMPORT_KEY = 'pokeedge_party_reference_transfer';
+  function buildPartyReferenceMove(moveName){
+    const name = String(moveName || '').trim();
+    if(!name) return null;
+    const key = typeof normalizeMoveLookupName === 'function' ? normalizeMoveLookupName(name) : name;
+    const found = typeof MOVE_LOOKUP !== 'undefined' && MOVE_LOOKUP ? MOVE_LOOKUP[key] : null;
+    if(found) return Object.assign({}, found);
+    return {name, type:'', category:'', power:0, accuracy:'', pp:'', description:''};
+  }
+  function buildPartyReferenceMember(member){
+    const name = String(member?.pokemon || '').trim();
+    const poke = (typeof findPokemonByDisplayName === 'function' ? findPokemonByDisplayName(name) : null) || (Array.isArray(pokeIndex) ? pokeIndex.find(p => p && p.name === name) : null) || {name, no:'', type1:'', type2:'', hp:0, atk:0, def:0, spa:0, spd:0, spe:0};
+    const abilityOptions = typeof getAbilityOptions === 'function' ? getAbilityOptions(poke.name) : [];
+    return {
+      poke,
+      lv: 50,
+      nature: typeof normalizeNatureName === 'function' ? normalizeNatureName(member?.nature || 'がんばりや') : (member?.nature || 'がんばりや'),
+      ability: abilityOptions[0] || '',
+      iv: 31,
+      ev: {
+        hp: Number(member?.ev?.hp || 0) || 0,
+        atk: Number(member?.ev?.atk || 0) || 0,
+        def: Number(member?.ev?.def || 0) || 0,
+        spa: Number(member?.ev?.spa || 0) || 0,
+        spd: Number(member?.ev?.spd || 0) || 0,
+        spe: Number(member?.ev?.spe || 0) || 0
+      },
+      moves: (Array.isArray(member?.moves) ? member.moves : []).map(buildPartyReferenceMove).filter(Boolean),
+      item: String(member?.item || '').trim(),
+      memo: '',
+      gameMode: 'champions'
+    };
+  }
+  function consumePartyReferenceTransfer(){
+    const params = new URLSearchParams(location.search || '');
+    let payload = null;
+    try{
+      const raw = localStorage.getItem(PARTY_IMPORT_KEY);
+      payload = raw ? JSON.parse(raw) : null;
+    }catch(_){ payload = null; }
+    if(!payload || !Array.isArray(payload.members) || !payload.members.length) return;
+    party = payload.members.slice(0, 6).map(buildPartyReferenceMember).filter(member => member && member.poke && member.poke.name);
+    selectedSlot = -1;
+    if(typeof setCurrentPartySourceMeta === 'function') setCurrentPartySourceMeta(null);
+    const saveName = `${payload.season ? payload.season + ' ' : ''}参考パーティー No.${payload.no || ''}`.trim();
+    if(typeof setPartySaveNameValue === 'function') setPartySaveNameValue(saveName || '参考パーティー');
+    if(typeof renderPartySlotList === 'function') renderPartySlotList();
+    if(party.length && typeof selectSlot === 'function') selectSlot(0);
+    if(typeof renderRegPokeList === 'function') renderRegPokeList(document.getElementById('party-reg-search')?.value || '');
+    if(typeof updateCoverage === 'function') updateCoverage();
+    if(typeof savePartyDraftNow === 'function') savePartyDraftNow();
+    try{ localStorage.removeItem(PARTY_IMPORT_KEY); }catch(_){ }
+    if(params.get('from') === 'party_reference'){
+      const note = document.createElement('div');
+      note.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:120;padding:12px 14px;border:1px solid var(--accent);background:rgba(0,200,240,0.14);color:var(--text);border-radius:14px;font-size:12px;line-height:1.8;box-shadow:0 14px 30px rgba(0,0,0,.22);';
+      note.textContent = `${saveName || '参考パーティー'} を編成中のパーティーに反映しました。必要ならそのまま編集して保存できます。`;
+      document.body.appendChild(note);
+      setTimeout(()=>{ note.remove(); }, 3800);
+    }
+  }
+  window.addEventListener('load', function(){ setTimeout(consumePartyReferenceTransfer, 30); });
+})();
+</script>
+
 </body>
 </html>
