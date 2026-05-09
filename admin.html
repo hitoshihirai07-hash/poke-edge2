@@ -334,6 +334,11 @@ input[type=file]{display:none;}
       <div class="status-lbl">pokemon_moves.json（ポケモン数）</div>
       <div class="status-date" id="s-pmove-d">未取得</div>
     </div>
+    <div class="status-card">
+      <div class="status-val" id="s-party_list">—</div>
+      <div class="status-lbl">party_list.json（パーティー数）</div>
+      <div class="status-date" id="s-party_list-d">未取得</div>
+    </div>
   </div>
   <div style="text-align:right;margin-bottom:20px;">
     <button class="btn btn-gen" onclick="checkStatus()" style="font-size:13px;padding:8px 18px;">🔍 現在のJSON状態を確認</button>
@@ -371,6 +376,7 @@ input[type=file]{display:none;}
         <option value="season">使用可能ポケモン更新（season.json）</option>
         <option value="belongings">道具データ更新</option>
         <option value="mega">メガ進化対応更新（mega.json）</option>
+        <option value="party_list">参考パーティー更新（party_list.json）</option>
       </select>
       <button type="button" class="admin-quick-btn" onclick="goToSelectedUpdateSection()">選択先へ移動</button>
       <button type="button" class="admin-quick-btn primary" onclick="openSelectedUpdateFile()">選択してCSVを開く</button>
@@ -381,9 +387,48 @@ input[type=file]{display:none;}
       <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_double')">ダブル順位</button>
       <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_history_single')">シングル順位推移</button>
       <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_history_double')">ダブル順位推移</button>
+      <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('party_list')">参考パーティー</button>
       <button type="button" class="admin-quick-chip" onclick="window.scrollTo({top:0,behavior:'smooth'})">ページ上へ戻る</button>
     </div>
   </div>
+
+
+<!-- party_list.csv → party_list.json -->
+<div class="section" id="update-section-party_list">
+  <div class="sec-title">参考パーティー更新</div>
+  <div class="sec-file">party_list.csv → party_list.json</div>
+  <div class="sec-cols">
+    必須カラム：<span>No</span>・<span>番号</span>・<span>ポケモン</span>・<span>シーズン</span> / 任意：<span>性格</span>・<span>持ち物</span>・<span>HP</span>・<span>攻撃</span>・<span>防御</span>・<span>特攻</span>・<span>特防</span>・<span>素早</span>・<span>技1〜技4</span>
+  </div>
+  <div class="steps">
+    <div class="step"><span class="step-n">1</span><span>party_list.csv をドロップ or クリックして選択</span></div>
+    <div class="step"><span class="step-n">2</span><span>プレビューを確認して「JSON生成」をクリック</span></div>
+    <div class="step"><span class="step-n">3</span><span>ダウンロードした party_list.json をCloudflare Pagesにアップロード（既存のファイルを上書き）</span></div>
+  </div>
+  <div class="drop-zone" id="dz-party_list" onclick="document.getElementById('f-party_list').click()"
+    ondragover="onDragOver(event,'dz-party_list')" ondragleave="onDragLeave('dz-party_list')" ondrop="onDrop(event,'party_list')">
+    <div class="drop-icon">🗂️</div>
+    <div class="drop-text">party_list.csv をここにドロップ</div>
+    <div class="drop-sub">またはクリックしてファイルを選択</div>
+  </div>
+  <input type="file" id="f-party_list" accept=".csv" onchange="loadFile(event,'party_list')">
+  <div class="preview" id="prev-party_list">
+    <div class="preview-head">
+      <div class="prev-stat"><div class="prev-val" id="prev-party_list-n">0</div><div class="prev-lbl">件数</div></div>
+      <div class="prev-stat"><div class="prev-val" id="prev-party_list-c">0</div><div class="prev-lbl">カラム数</div></div>
+      <div class="prev-stat" style="flex:1;text-align:left;padding-left:16px;">
+        <div class="prev-lbl" style="margin-bottom:4px;">カラム名</div>
+        <div id="prev-party_list-cols" style="font-size:10px;color:var(--text3);"></div>
+      </div>
+    </div>
+    <table class="preview-table" id="prev-party_list-table"><thead></thead><tbody></tbody></table>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-gen" id="btn-party_list-gen" onclick="generateJSON('party_list')" disabled>⚙️ JSON生成</button>
+    <button class="btn btn-dl" id="btn-party_list-dl" onclick="downloadJSON('party_list')" disabled>💾 party_list.json ダウンロード</button>
+  </div>
+  <div class="log" id="log-party_list">CSVを読み込んでください</div>
+</div>
 
 
 <!-- mega.csv → mega.json -->
@@ -1095,6 +1140,7 @@ const ADMIN_UPDATE_SHORTCUTS = {
   season: { label:'使用可能ポケモン更新', file:'season.csv', out:'season.json', sectionId:'update-section-season', inputId:'f-season' },
   belongings: { label:'道具データ更新', file:'belongings.csv', out:'belongings.json', sectionId:'update-section-belongings', inputId:'f-belongings' },
   mega: { label:'メガ進化対応更新', file:'mega.csv', out:'mega.json', sectionId:'update-section-mega', inputId:'f-mega' },
+  party_list: { label:'参考パーティー更新', file:'party_list.csv', out:'party_list.json', sectionId:'update-section-party_list', inputId:'f-party_list' },
   rank_single: { label:'順位データ更新（シングル）', file:'single.csv', out:'season_ranking_single.json', sectionId:'update-section-rank_single', inputId:'f-rank_single' },
   rank_double: { label:'順位データ更新（ダブル）', file:'double.csv', out:'season_ranking_double.json', sectionId:'update-section-rank_double', inputId:'f-rank_double' },
   rank_history_single: { label:'順位推移データ更新（シングル）', file:'single_ranking_change.csv', out:'season_ranking_history_single.json', sectionId:'update-section-rank_history_single', inputId:'f-rank_history_single' },
@@ -1434,6 +1480,7 @@ const state = {
   ab_data: { csv: null, json: null },
   belongings: { csv: null, json: null },
   mega: { csv: null, json: null },
+  party_list: { csv: null, json: null },
 };
 
 // ===== CSV パーサー =====
@@ -1714,6 +1761,72 @@ function generateJSON(type) {
       json = { rows, baseToForms, formToBase };
       log.innerHTML = `<span class="ok">✅ mega.jsonを生成しました（通常${Object.keys(baseToForms).length}種 / メガ${rows.length}件）</span>`;
     }
+    else if(type==='party_list') {
+      const required = ['No','番号','ポケモン'];
+      const missing = required.filter(k=>!data.headers.includes(k));
+      if(missing.length) { log.innerHTML=`<span class="err">❌ 必須カラムが不足: ${missing.join(', ')}</span>`; return; }
+
+      const toInt = (value) => {
+        const n = parseInt(String(value == null ? '' : value).trim(), 10);
+        return Number.isFinite(n) ? n : 0;
+      };
+      const seasonSeen = new Set();
+      const groupMap = new Map();
+
+      data.rows.forEach((r, idx) => {
+        const no = String(r['No'] || '').trim();
+        const pokemon = String(r['ポケモン'] || '').trim();
+        if(!no || !pokemon) return;
+        const season = String(r['シーズン'] || '').trim();
+        const slot = toInt(r['番号']) || (idx + 1);
+        if(season) seasonSeen.add(season);
+        const groupKey = `${season || 'all'}::${no}`;
+        if(!groupMap.has(groupKey)) {
+          groupMap.set(groupKey, {
+            id: groupKey,
+            no,
+            season,
+            members: []
+          });
+        }
+        groupMap.get(groupKey).members.push({
+          slot,
+          pokemon,
+          nature: String(r['性格'] || '').trim(),
+          item: String(r['持ち物'] || '').trim(),
+          ev: {
+            hp: toInt(r['HP']),
+            atk: toInt(r['攻撃']),
+            def: toInt(r['防御']),
+            spa: toInt(r['特攻']),
+            spd: toInt(r['特防']),
+            spe: toInt(r['素早'])
+          },
+          moves: ['技1','技2','技3','技4'].map(key => String(r[key] || '').trim()).filter(Boolean)
+        });
+      });
+
+      const parties = Array.from(groupMap.values()).map(party => {
+        party.members.sort((a,b)=>(a.slot||999)-(b.slot||999));
+        party.memberCount = party.members.length;
+        return party;
+      }).filter(party => party.memberCount > 0).sort((a,b) => {
+        const seasonCmp = String(a.season || '').localeCompare(String(b.season || ''), 'ja');
+        if(seasonCmp) return seasonCmp;
+        const an = parseInt(String(a.no || '').replace(/\D+/g,''), 10);
+        const bn = parseInt(String(b.no || '').replace(/\D+/g,''), 10);
+        if(Number.isFinite(an) && Number.isFinite(bn) && an !== bn) return an - bn;
+        return String(a.no || '').localeCompare(String(b.no || ''), 'ja');
+      });
+
+      json = {
+        partyCount: parties.length,
+        memberCount: parties.reduce((sum, party) => sum + (party.memberCount || 0), 0),
+        seasons: Array.from(seasonSeen).sort((a,b)=>String(a).localeCompare(String(b),'ja')),
+        parties
+      };
+      log.innerHTML = `<span class="ok">✅ party_list.jsonを生成しました（${json.partyCount}件 / ${json.memberCount}匹 / ${json.seasons.length}シーズン）</span>`;
+    }
     else if(type==='ab') {
       // 特性CSV → abilities.json（{ポケモン名: [とくせい1, とくせい2, かくれとくせい]}）
       const nameKey = data.headers.includes('名前') ? '名前' : data.headers[1];
@@ -1746,7 +1859,7 @@ function generateJSON(type) {
 function downloadJSON(type) {
   const json = state[type].json;
   if(!json) return;
-  const names = { poke:'pokemon', move:'moves', pmove:'pokemon_moves', ab:'abilities', season:'season', ab_data:'abilities_data', belongings:'belongings', mega:'mega' };
+  const names = { poke:'pokemon', move:'moves', pmove:'pokemon_moves', ab:'abilities', season:'season', ab_data:'abilities_data', belongings:'belongings', mega:'mega', party_list:'party_list' };
   const filename = names[type]+'.json';
   const blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -1764,6 +1877,7 @@ async function checkStatus() {
     {key:'move', file:'moves.json',   valId:'s-move', dateId:'s-move-d'},
     {key:'belongings', file:'belongings.json', valId:'s-belongings', dateId:'s-belongings-d'},
     {key:'pmove', file:'pokemon_moves.json', valId:'s-pmove', dateId:'s-pmove-d', getCount(data){ return data && data.pokemonCount ? data.pokemonCount : Object.keys((data && data.pokemon) || {}).length; }},
+    {key:'party_list', file:'party_list.json', valId:'s-party_list', dateId:'s-party_list-d', getCount(data){ return data && data.partyCount ? data.partyCount : Array.isArray(data?.parties) ? data.parties.length : 0; }},
   ];
   for(const f of files) {
     try {
