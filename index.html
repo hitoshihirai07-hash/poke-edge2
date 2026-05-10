@@ -242,6 +242,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="calc.html">ダメージ計算</a>
     <a class="nav-btn" href="endure.html">耐久調整</a>
     <a class="nav-btn" href="move.html">技選択判定</a>
+    <a class="nav-btn" href="battle.html">バトル</a>
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
@@ -259,10 +260,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   </button>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
-<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">技選択判定</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link" href="scope.html">バトルアナライザー</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a></div></div></aside>
+<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">技選択判定</a><a class="side-link" href="battle.html">バトルシミュレーション</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link" href="scope.html">バトルアナライザー</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a></div></div></aside>
 <nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
   <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link active" href="index.html" aria-current="page">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">技判定</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
+  <div class="mobile-tool-scroll"><a class="mobile-tool-link active" href="index.html" aria-current="page">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">技判定</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
 </nav>
 
 
@@ -302,6 +303,12 @@ POKE-EDGE
       <div class="tool-card-name">技選択判定</div>
       <div class="tool-card-desc">相手ポケモンに対して複数の技をまとめて比較し、通りやすい技を見つけやすくします。登録済みポケモンを選ぶと技・努力値が自動入力されます。確定数の目安、タイプ相性、タイプ一致補正、特性による無効も確認できます。</div>
       <span class="tool-card-tag">登録ポケモン連携 / 全技自動計算</span>
+    </a>
+    <a class="tool-card" href="battle.html">
+      <div class="tool-card-icon">⚔️</div>
+      <div class="tool-card-name">バトルシミュレーション</div>
+      <div class="tool-card-desc">自分と相手の6匹を並べて、対面や選出の流れを確認しやすくするページです。盤面ごとの比較や分析をまとめて見たい時に使えます。</div>
+      <span class="tool-card-tag">対戦確認 / 選出分析</span>
     </a>
     <a class="tool-card" href="party.html">
       <div class="tool-card-icon">📋</div>
