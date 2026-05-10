@@ -3148,8 +3148,59 @@ function formatScopeComboNames(teamIndices, party){
 function hasMegaSelectionConflictForParty(teamIndices, party){
   return (teamIndices || []).map(i=>party[i]).filter(slot=>slot && slot.poke && isScopeMegaCandidateName(slot.poke.name)).length > 1;
 }
+const SCOPE_PRO_HAZARD_MOVES = new Set(['ステルスロック','まきびし','どくびし','ねばねばネット']);
+const SCOPE_PRO_PIVOT_MOVES = new Set(['とんぼがえり','ボルトチェンジ','クイックターン','すてゼリフ','バトンタッチ']);
+const SCOPE_PRO_SETUP_MOVES = new Set(['つるぎのまい','わるだくみ','りゅうのまい','めいそう','ビルドアップ','てっぺき','こうそくいどう','ちょうのまい','からをやぶる','のろい']);
+const SCOPE_PRO_PRIORITY_MOVES = new Set(['しんそく','ふいうち','であいがしら','かげうち','バレットパンチ','こおりのつぶて','アクアジェット','マッハパンチ','ねこだまし','でんこうせっか']);
+function getScopeProPartyCombos(party){
+  if(!party || !party.length) return [];
+  const size = Math.min(3, party.length);
+  const indices = party.map((_,i)=>i);
+  const combos = getCombinations(indices, size);
+  const filtered = combos.filter(team=>!hasMegaSelectionConflictForParty(team, party));
+  return filtered.length ? filtered : combos;
+}
+function getScopeProSlotTypes(slot){
+  const poke = slot && slot.poke;
+  return poke ? [poke.type1, poke.type2].filter(Boolean) : [];
+}
+function getScopeProRoleTags(slot){
+  const tags = new Set();
+  const stats = slot && slot.stats || {};
+  const moves = Array.isArray(slot && slot.moves) ? slot.moves : [];
+  if((stats.spe || 0) >= 135) tags.add('fast');
+  if(((stats.hp || 0) + Math.max(stats.def || 0, stats.spd || 0)) >= 260) tags.add('bulk');
+  if(moves.some(m=>SCOPE_PRO_HAZARD_MOVES.has(m && m.name))) tags.add('hazard');
+  if(moves.some(m=>SCOPE_PRO_PIVOT_MOVES.has(m && m.name))) tags.add('pivot');
+  if(moves.some(m=>SCOPE_PRO_SETUP_MOVES.has(m && m.name) || /自分の.*ランク.*(上がる|上げる)/.test(String(m && m.effect || '')))) tags.add('setup');
+  if(moves.some(m=>SCOPE_PRO_PRIORITY_MOVES.has(m && m.name))) tags.add('priority');
+  return tags;
+}
+function getScopeProComboTypePenalty(teamIndices, party){
+  const counts = {};
+  (teamIndices || []).map(i=>party[i]).filter(Boolean).forEach(slot=>{
+    getScopeProSlotTypes(slot).forEach(type=>{ counts[type] = (counts[type] || 0) + 1; });
+  });
+  return Object.values(counts).reduce((sum, n)=>sum + Math.max(0, n - 1) * 18, 0);
+}
+function getScopeProComboRoleBonus(teamIndices, party){
+  const tags = new Set();
+  (teamIndices || []).map(i=>party[i]).filter(Boolean).forEach(slot=>getScopeProRoleTags(slot).forEach(tag=>tags.add(tag)));
+  let score = 0;
+  if(tags.has('fast')) score += 18;
+  if(tags.has('bulk')) score += 14;
+  if(tags.has('hazard')) score += 18;
+  if(tags.has('pivot')) score += 12;
+  if(tags.has('priority')) score += 10;
+  if(tags.has('setup')) score += 10;
+  return score;
+}
+function getScopeProMegaPenalty(teamIndices, party){
+  return Math.max(0, (teamIndices || []).map(i=>party[i]).filter(slot=>slot && slot.poke && isScopeMegaCandidateName(slot.poke.name)).length - 1) * 240;
+}
 function scoreScopeCombo(teamIndices, party, foeParty){
-  const reports = (foeParty || []).map((foe, foeIdx)=>{
+  const foeSlots = (foeParty || []).filter(Boolean);
+  const reports = foeSlots.map(foe=>{
     let bestScore = -999;
     let bestIdx = null;
     let bestMu = null;
@@ -3163,31 +3214,68 @@ function scoreScopeCombo(teamIndices, party, foeParty){
         bestMu = mu;
       }
     });
-    return {foeIdx, foe, bestIdx, bestMu, bestScore};
+    return {foe, bestScore, bestIdx, bestMu};
   });
-  const typeSet = new Set();
-  (teamIndices || []).forEach(idx=>{
-    const slot = party[idx];
-    if(!slot || !slot.poke) return;
-    if(slot.poke.type1) typeSet.add(slot.poke.type1);
-    if(slot.poke.type2) typeSet.add(slot.poke.type2);
-  });
-  const total = reports.reduce((sum, r)=>sum + (Number.isFinite(r.bestScore) ? r.bestScore : 0), 0);
-  const winCount = reports.filter(r=>r.bestScore >= 10).length;
-  const loseCount = reports.filter(r=>r.bestScore <= -15).length;
-  const speedEdges = reports.filter(r=>r.bestMu && r.bestMu.faster).length;
-  const uniqueHandlers = new Set(reports.map(r=>r.bestIdx).filter(v=>v!==null)).size;
-  const score = total + typeSet.size * 1.5 + uniqueHandlers * 2 + winCount * 3 - loseCount * 3 + speedEdges;
-  return {team:teamIndices.slice(), score, reports, winCount, loseCount, speedEdges, uniqueHandlers};
+  const total = reports.reduce((sum, report)=>sum + report.bestScore, 0);
+  const winCount = reports.filter(report=>report.bestScore >= 15).length;
+  const loseCount = reports.filter(report=>report.bestScore < 0).length;
+  const speedEdges = reports.filter(report=>report.bestMu && report.bestMu.faster).length;
+  const uniqueHandlers = new Set(reports.map(report=>report.bestIdx).filter(v=>v!==null)).size;
+  const score = total + getScopeProComboRoleBonus(teamIndices, party) - getScopeProComboTypePenalty(teamIndices, party) + uniqueHandlers * 2 + winCount * 3 - loseCount * 3 + speedEdges;
+  return {team:teamIndices.slice(), score, total, reports, winCount, loseCount, speedEdges, uniqueHandlers};
 }
-function getScopeComboRanking(party, foeParty, maxResults){
-  if(!party.length || !foeParty.length) return [];
-  const size = Math.min(3, party.length);
-  const indices = party.map((_,i)=>i);
-  const combos = getCombinations(indices, size);
-  const filtered = combos.filter(team=>!hasMegaSelectionConflictForParty(team, party));
-  const source = filtered.length ? filtered : combos;
-  return source.map(team=>scoreScopeCombo(team, party, foeParty)).sort((a,b)=>b.score-a.score).slice(0, maxResults || 3);
+function getScopeProThreatRanking(party, foeParty, maxResults){
+  const combos = getScopeProPartyCombos(party);
+  if(!combos.length || !foeParty.length) return [];
+  return combos.map(team=>{
+    const picked = team.map(i=>party[i]).filter(Boolean);
+    const pressure = (foeParty || []).reduce((sum, foe)=>sum + Math.max(0, ...picked.map(slot=>evaluateMatchup(slot, foe).score)), 0);
+    const speed = picked.reduce((sum, slot)=>sum + ((slot && slot.stats && slot.stats.spe) || 0) / 9, 0);
+    const comboView = scoreScopeCombo(team, party, foeParty);
+    return Object.assign(comboView, {
+      score: pressure + speed + getScopeProComboRoleBonus(team, party) - getScopeProComboTypePenalty(team, party) - getScopeProMegaPenalty(team, party)
+    });
+  }).sort((a,b)=>b.score-a.score).slice(0, maxResults || 3);
+}
+function scoreScopePseudoBattle(myTeam, oppTeam, party, foeParty){
+  const oppProjected = (oppTeam || []).map(i=>foeParty[i]).filter(Boolean);
+  const myProjected = (myTeam || []).map(i=>party[i]).filter(Boolean);
+  const myView = scoreScopeCombo(myTeam, party, oppProjected);
+  const oppView = scoreScopeCombo(oppTeam, foeParty, myProjected);
+  const swing = myView.score - oppView.score;
+  const confidence = Math.max(0, Math.min(100, Math.round(50 + swing / 4)));
+  return {winner:swing >= 0 ? 'my' : 'opp', swing, confidence, myView, oppView};
+}
+function getScopeProAverageRanking(party, foeParty, maxResults){
+  const combos = getScopeProPartyCombos(party);
+  const foeCombos = getScopeProPartyCombos(foeParty);
+  if(!combos.length || !foeCombos.length) return [];
+  return combos.map(team=>{
+    let wins = 0;
+    let total = 0;
+    let swingSum = 0;
+    foeCombos.forEach(oppTeam=>{
+      const result = scoreScopePseudoBattle(team, oppTeam, party, foeParty);
+      if(result.winner === 'my') wins += 1;
+      total += 1;
+      swingSum += result.swing;
+    });
+    return {team, rate:wins / Math.max(1, total), avgSwing:swingSum / Math.max(1, total)};
+  }).sort((a,b)=>b.rate-a.rate || b.avgSwing-a.avgSwing).slice(0, maxResults || 3);
+}
+function getScopeProAnswerRanking(party, foeParty, projectedOppTeam, maxResults){
+  const combos = getScopeProPartyCombos(party);
+  const projectedOppParty = (projectedOppTeam || []).map(i=>foeParty[i]).filter(Boolean);
+  if(!combos.length || !projectedOppParty.length) return [];
+  return combos.map(team=>{
+    const result = scoreScopePseudoBattle(team, projectedOppTeam, party, foeParty);
+    const comboView = scoreScopeCombo(team, party, projectedOppParty);
+    return Object.assign(comboView, {
+      pseudoRate: result.confidence / 100,
+      confidence: result.confidence,
+      swing: result.swing
+    });
+  }).sort((a,b)=>b.score-a.score || b.swing-a.swing).slice(0, maxResults || 3);
 }
 function getScopeLeadRanking(teamIndices, party, foeParty){
   return (teamIndices || []).map(idx=>{
@@ -3204,19 +3292,22 @@ function getScopeLeadRanking(teamIndices, party, foeParty){
     return {idx, slot, leadScore, fastCount, avg: foeParty.length ? (sum / foeParty.length) : sum};
   }).filter(Boolean).sort((a,b)=>b.leadScore-a.leadScore);
 }
-function buildScopeReasonText(myBest, oppBest, dangerNames){
-  const coverNames = myBest.reports.filter(r=>r.bestScore >= 12).slice(0,3).map(r=>getScopeSlotDisplayName(r.foe));
-  const speedLead = (myBest.leads && myBest.leads[0] && myBest.leads[0].fastCount) ? '初手候補で上を取りやすい枠があります。' : '初手は対面の通しより引き先も意識した並びです。';
+function buildScopeReasonText(myBest, oppBest, dangerNames, stableBest){
+  const coverNames = myBest.reports.filter(r=>r.bestScore >= 15).slice(0,3).map(r=>getScopeSlotDisplayName(r.foe));
+  const speedLead = (myBest.leads && myBest.leads[0] && myBest.leads[0].fastCount) ? '初手候補で上を取りやすい枠があります。' : '初手は対面処理と引き先の両方を見た並びです。';
   let text = '';
   if(coverNames.length){
-    text += coverNames.join('・') + ' に強めの回答を残しやすい並びです。';
+    text += coverNames.join('・') + ' を見ながら役割分担しやすい3体です。';
   } else {
-    text += '相手全体に対して極端な不利を減らす寄せ方です。';
+    text += '相手想定3体に対して極端な不利を減らした寄せ方です。';
   }
   if(oppBest && oppBest.team && oppBest.team.length){
-    text += ' 相手は ' + oppBest.team.map(i=>getScopeSlotDisplayName(oppParty[i])).join(' / ') + ' の並びを想定しています。';
+    text += ' 相手は ' + oppBest.team.map(i=>getScopeSlotDisplayName(oppParty[i])).join(' / ') + ' の並びを最有力として見ています。';
   }
   text += ' ' + speedLead;
+  if(stableBest && stableBest.team && stableBest.team.join(',') !== myBest.team.join(',')){
+    text += ' 見せ合い全体の平均では ' + stableBest.team.map(i=>getScopeSlotDisplayName(myParty[i])).join(' / ') + ' も安定寄りです。';
+  }
   if(dangerNames.length){
     text += ' 特に ' + dangerNames.join('・') + ' は崩されやすいので、雑に切らない前提で見ておくと安全です。';
   }
@@ -3224,19 +3315,20 @@ function buildScopeReasonText(myBest, oppBest, dangerNames){
 }
 function buildScopeProForecast(){
   if(myParty.length < 3 || oppParty.length < 3) return null;
-  const oppRanking = getScopeComboRanking(oppParty, myParty, 3);
+  const oppRanking = getScopeProThreatRanking(oppParty, myParty, 3);
   if(!oppRanking.length) return null;
   const oppBest = oppRanking[0];
+  const averageRanking = getScopeProAverageRanking(myParty, oppParty, 3);
+  const answerRanking = getScopeProAnswerRanking(myParty, oppParty, oppBest.team, 3);
+  const myBest = answerRanking[0] || averageRanking[0];
+  if(!myBest) return null;
   const oppProjectedParty = oppBest.team.map(i=>oppParty[i]).filter(Boolean);
-  const myRanking = getScopeComboRanking(myParty, oppProjectedParty, 3);
-  if(!myRanking.length) return null;
-  const myBest = myRanking[0];
   myBest.leads = getScopeLeadRanking(myBest.team, myParty, oppProjectedParty).slice(0,2);
   oppBest.leads = getScopeLeadRanking(oppBest.team, oppParty, myBest.team.map(i=>myParty[i]).filter(Boolean)).slice(0,2);
   const dangerNames = myBest.reports.filter(r=>r.bestScore < 0).sort((a,b)=>a.bestScore-b.bestScore).slice(0,2).map(r=>getScopeSlotDisplayName(r.foe));
   const safeNames = myBest.reports.filter(r=>r.bestScore >= 15).slice(0,2).map(r=>getScopeSlotDisplayName(r.foe));
   const finisher = myBest.leads.length ? getScopeSlotDisplayName(myBest.leads[0].slot) : '';
-  const altPlans = myRanking.slice(1,3);
+  const altPlans = answerRanking.slice(1,3);
   return {
     myBest,
     oppBest,
@@ -3244,7 +3336,8 @@ function buildScopeProForecast(){
     dangerNames,
     safeNames,
     finisher,
-    reasonText: buildScopeReasonText(myBest, oppBest, dangerNames)
+    stableBest: averageRanking[0] || null,
+    reasonText: buildScopeReasonText(myBest, oppBest, dangerNames, averageRanking[0] || null)
   };
 }
 function renderScopeProLocked(status){
@@ -3280,7 +3373,7 @@ function renderScopeProResult(forecast){
     return '<div class="scope-pro-alt" onclick="applySelection([' + plan.team.join(',') + '])"><div class="scope-pro-alt-no">' + (idx + 2) + '</div><div><div class="scope-pro-alt-main">' + formatScopeComboNames(plan.team, myParty) + '</div><div class="scope-pro-alt-sub">相手想定 ' + safeCount + ' 体に有利寄り / ' + Math.round(plan.score) + 'pt</div></div></div>';
   }).join('') : '<div class="damage-empty-note">別案はまだありません。</div>';
   resultEl.innerHTML = '<div class="scope-pro-grid">'
-    + '<div class="scope-pro-panel"><div class="scope-pro-title">相手の想定選出</div><div class="scope-pro-main">' + formatScopeComboNames(forecast.oppBest.team, oppParty) + '</div><div class="scope-pro-line"><b>初手候補</b> ' + oppLeadText + '</div><div class="scope-pro-line warn"><b>要注意</b> ' + dangerText + '</div><div class="scope-pro-sub">見せ合い全体への通りと対面スコアから想定しています。</div></div>'
+    + '<div class="scope-pro-panel"><div class="scope-pro-title">相手の想定選出</div><div class="scope-pro-main">' + formatScopeComboNames(forecast.oppBest.team, oppParty) + '</div><div class="scope-pro-line"><b>初手候補</b> ' + oppLeadText + '</div><div class="scope-pro-line warn"><b>要注意</b> ' + dangerText + '</div><div class="scope-pro-sub">バトルシミュレーション側の分析基準に寄せて、圧力と対面評価から想定しています。</div></div>'
     + '<div class="scope-pro-panel"><div class="scope-pro-title">こちらの推奨選出</div><div class="scope-pro-main">' + formatScopeComboNames(forecast.myBest.team, myParty) + '</div><div class="scope-pro-line"><b>初手候補</b> ' + myLeadText + '</div><div class="scope-pro-line safe"><b>通しやすい相手</b> ' + safeText + '</div><div class="scope-pro-line"><b>締め候補</b> ' + escapeHtml(forecast.finisher || '—') + '</div><div class="scope-pro-cta-row"><button type="button" class="scope-pro-mini-btn primary" onclick="applySelection([' + forecast.myBest.team.join(',') + '])">この3体を反映</button></div></div>'
     + '</div>'
     + '<div class="scope-pro-panel"><div class="scope-pro-title">別案</div><div class="scope-pro-alt-list">' + altHtml + '</div></div>'
