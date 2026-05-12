@@ -61,6 +61,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
 .arena{display:grid;grid-template-columns:1fr 1fr;gap:14px}.active-mon{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;display:grid;gap:12px}.active-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.mon-name{font-size:20px;font-weight:800}.mon-small{font-size:11px;color:var(--text2);line-height:1.6}.hpbar{height:12px;background:#172033;border:1px solid var(--border2);border-radius:999px;overflow:hidden}.hpfill{height:100%;background:linear-gradient(90deg,var(--green),var(--accent));transition:width .35s}.hpfill.low{background:linear-gradient(90deg,var(--accent2),#ff9030)}.hptext{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);text-align:right}.bench{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.bench-btn{background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px;text-align:left;min-height:58px}.bench-btn:hover{border-color:var(--accent)}.bench-btn.active{border-color:var(--accent3)}.bench-btn.fainted{opacity:.42}.moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.move-btn{background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px;text-align:left;min-height:72px;display:grid;gap:5px}.move-btn:hover{border-color:var(--accent)}.move-title{font-size:13px;font-weight:800}.move-meta{font-size:10px;color:var(--text2);line-height:1.5}
 .log{height:445px;overflow:auto;display:flex;flex-direction:column-reverse;gap:7px;padding-right:2px}.log-line{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:12px;line-height:1.65}.log-line.important{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,.08)}.log-line.cpu{border-color:rgba(255,48,96,.35)}.log-line.player{border-color:rgba(0,200,240,.35)}
 .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.analysis-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.metric{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px}.metric-label{font-size:10px;color:var(--text2);letter-spacing:1px}.metric-value{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--accent);letter-spacing:2px}.result-list{display:grid;gap:8px}.result-row{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;display:grid;gap:6px}.result-row.best{border-color:var(--accent3);background:rgba(255,200,0,.07)}.result-main{display:flex;align-items:center;justify-content:space-between;gap:10px}.result-name{font-size:13px;font-weight:800;line-height:1.5}.result-score{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)}.bar{height:7px;background:#172033;border:1px solid var(--border2);border-radius:999px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green))}
+.pro-lock{display:grid;gap:12px;background:linear-gradient(180deg,rgba(0,200,240,.08),rgba(255,200,0,.06));border:1px solid rgba(0,200,240,.28);border-radius:10px;padding:16px}.pro-lock.hidden{display:none}.pro-lock-title{font-size:16px;font-weight:800;color:var(--text)}.pro-lock-sub{font-size:12px;line-height:1.8;color:var(--text2)}.pro-lock-badge{display:inline-flex;align-items:center;gap:6px;width:max-content;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,200,0,.35);background:rgba(255,200,0,.10);color:var(--accent3);font-size:11px;font-weight:800;letter-spacing:1px}.pro-lock-actions{display:flex;gap:8px;flex-wrap:wrap}.pro-lock-note{font-size:11px;color:var(--text2);line-height:1.7}.pro-lock-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:var(--bg2);font-size:11px;color:var(--text)}.analysis-panels.hidden{display:none}
 .ai-settings{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.stat{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px;text-align:center}.stat-label{font-size:9px;color:var(--text2)}.stat-val{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text)}
 .hidden{display:none!important}.empty{color:var(--text2);font-size:12px;line-height:1.8}.notice{border:1px solid var(--border);background:var(--bg2);border-radius:8px;padding:10px 12px;color:var(--text3);font-size:12px;line-height:1.75}
 @media(min-width:1241px){body{padding-right:290px}}@media(max-width:1240px){.side-dock{display:none}body{padding-right:0}.page{max-width:1180px}}
@@ -165,7 +166,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
   </div>
   <div class="view-tabs">
     <button class="tab-btn active" id="tab-battle" onclick="showToolTab('battle')">編成・対戦</button>
-    <button class="tab-btn" id="tab-analysis" onclick="showToolTab('analysis')">6v6集計分析</button>
+    <button class="tab-btn" id="tab-analysis" onclick="showToolTab('analysis')">6v6集計分析PRO</button>
   </div>
 
   <section id="setup-view" class="grid setup-grid">
@@ -262,15 +263,22 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
   <section id="analysis-view" class="grid hidden">
     <div class="panel">
       <div class="panel-head">
-        <div><div class="panel-title">6v6 組み合わせ集計</div><div class="panel-sub">自分6匹とCPU6匹から3匹選出の全組み合わせを軽量シミュレーションします。</div></div>
-        <button class="btn primary" onclick="runMatchupAnalysis()">集計実行</button>
+        <div><div class="panel-title">6v6 組み合わせ集計 PRO</div><div class="panel-sub" id="analysis-panel-sub">自分6匹とCPU6匹から3匹選出の全組み合わせを軽量シミュレーションします。</div></div>
+        <button class="btn primary" id="btn-run-analysis" onclick="runMatchupAnalysis()">集計実行</button>
       </div>
       <div class="panel-body">
-        <div class="notice">全400通りを評価し、自分の勝ちやすい3匹、相手が来そうな3匹、相手予想への推奨選出を表示します。結果は現在の技・持ち物・特性・努力値設定を元にした近似です。</div>
+        <div class="notice" id="analysis-free-note">全400通りを評価し、自分の勝ちやすい3匹、相手が来そうな3匹、相手予想への推奨選出を表示します。結果は現在の技・持ち物・特性・努力値設定を元にした近似です。</div>
+        <div class="pro-lock hidden" id="analysis-pro-lock">
+          <div class="pro-lock-badge" id="analysis-pro-badge">分析PRO</div>
+          <div class="pro-lock-title" id="analysis-pro-title">6v6集計分析はPRO機能です。</div>
+          <div class="pro-lock-sub" id="analysis-pro-text">ログイン後、OFUSEの月額200円メンバーシップ加入と反映連絡で使えるようにしています。</div>
+          <div class="pro-lock-actions" id="analysis-pro-actions"></div>
+          <div class="pro-lock-note" id="analysis-pro-note">編成と対戦はそのまま使えます。分析だけPRO対象です。</div>
+        </div>
         <div class="analysis-summary" id="analysis-summary" style="margin-top:12px"></div>
       </div>
     </div>
-    <div class="analysis-grid">
+    <div class="analysis-grid analysis-panels" id="analysis-panels">
       <div class="panel">
         <div class="panel-head"><div><div class="panel-title">自分の推奨3匹</div><div class="panel-sub">全相手選出への平均勝率順</div></div></div>
         <div class="panel-body"><div class="result-list" id="analysis-player-results"><div class="empty">集計実行後に表示します。</div></div></div>
@@ -280,7 +288,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
         <div class="panel-body"><div class="result-list" id="analysis-cpu-results"><div class="empty">集計実行後に表示します。</div></div></div>
       </div>
     </div>
-    <div class="panel">
+    <div class="panel analysis-panels" id="analysis-answer-panel">
       <div class="panel-head"><div><div class="panel-title">相手予想への回答</div><div class="panel-sub">最有力の相手3匹に対して勝ちやすい自分3匹</div></div></div>
       <div class="panel-body"><div class="result-list" id="analysis-answer-results"><div class="empty">集計実行後に表示します。</div></div></div>
     </div>
@@ -318,7 +326,7 @@ const NATURES={
   'おくびょう':{atk:.9,def:1,spa:1,spd:1,spe:1.1},'せっかち':{atk:1,def:.9,spa:1,spd:1,spe:1.1},'ようき':{atk:1,def:1,spa:.9,spd:1,spe:1.1},'むじゃき':{atk:1,def:1,spa:1,spd:.9,spe:1.1}
 };
 const el=id=>document.getElementById(id);
-const state={pokemon:[],moves:[],movesByName:new Map(),known:{},season:new Set(),items:[],megaItems:[],abilitiesByPokemon:{},abilitiesData:[],abilitiesByName:new Map(),rankings:[],rankingByName:new Map(),baseRoster:[],registered:[],savedParties:[],playerSix:Array(6).fill(null),cpuSix:Array(6).fill(null),selectedSlot:0,selectedCpuSlot:0,rosterTarget:'player',rosterSource:'season',cpuManual:false,playerPick:[],cpuPick:[],battle:null,loaded:false};
+const state={pokemon:[],moves:[],movesByName:new Map(),known:{},season:new Set(),items:[],megaItems:[],abilitiesByPokemon:{},abilitiesData:[],abilitiesByName:new Map(),rankings:[],rankingByName:new Map(),baseRoster:[],registered:[],savedParties:[],playerSix:Array(6).fill(null),cpuSix:Array(6).fill(null),selectedSlot:0,selectedCpuSlot:0,rosterTarget:'player',rosterSource:'season',cpuManual:false,playerPick:[],cpuPick:[],battle:null,loaded:false,analysisPro:{checked:false,loggedIn:false,active:false,expiresAt:'',status:'',source:'none'}};
 
 function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function fetchJson(url,fallback){try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(url);return await r.json();}catch(e){console.warn(e);return fallback;}}
@@ -482,6 +490,92 @@ function buildRandomParty(excludeSpecies=new Set()){const candidates=buildRandom
 function typeHtml(p){return `<div class="types">${getTypes(p).map(t=>`<span class="type-pill">${escapeHtml(t)}</span>`).join('')}</div>`;}
 function setPhase(title,note){el('phase-line').textContent=title;el('phase-note').textContent=note;}
 
+const BATTLE_ANALYSIS_REMOTE_TABLE='pro_memberships';
+const BATTLE_ANALYSIS_AUTH_URL='auth.html?redirect=battle.html';
+const BATTLE_ANALYSIS_MEMBERSHIP_URL='https://ofuse.me/memberships/4525';
+const BATTLE_ANALYSIS_CONTACT_URL='https://x.com/sorasitekanri';
+const BATTLE_ANALYSIS_PRICE_LABEL='月額200円';
+
+function clearAnalysisOutputs(message='集計実行後に表示します。'){
+  const summary = el('analysis-summary');
+  const player = el('analysis-player-results');
+  const cpu = el('analysis-cpu-results');
+  const answer = el('analysis-answer-results');
+  if(summary) summary.innerHTML='';
+  if(player) player.innerHTML='<div class="empty">'+escapeHtml(message)+'</div>';;
+  if(cpu) cpu.innerHTML='<div class="empty">'+escapeHtml(message)+'</div>';;
+  if(answer) answer.innerHTML='<div class="empty">'+escapeHtml(message)+'</div>';;
+}
+function getBattleAnalysisSupportActionsHtml(status){
+  const loginAction = status.loggedIn ? '' : '<a class="btn" href="'+BATTLE_ANALYSIS_AUTH_URL+'">無料登録 / ログイン</a>';
+  const membershipAction = '<a class="btn primary" href="'+BATTLE_ANALYSIS_MEMBERSHIP_URL+'" target="_blank" rel="noopener noreferrer">OFUSEで加入</a>';
+  const contactAction = '<a class="btn" href="'+BATTLE_ANALYSIS_CONTACT_URL+'" target="_blank" rel="noopener noreferrer">加入後に連絡</a>';
+  return loginAction + membershipAction + contactAction;
+}
+function getBattleAnalysisStatusText(status){
+  if(status.active){
+    const dateText = status.expiresAt ? '（有効期限 ' + formatDateYmd(status.expiresAt) + '）' : '';
+    return {badge:'PRO利用中', title:'6v6集計分析を使えます。', text:'ログイン中アカウントに分析PROを反映しています。' + dateText, note:'編成と対戦に加えて、推奨3匹・相手予想・回答3匹まで表示します。'};
+  }
+  if(status.loggedIn){
+    return {badge:'PRO未反映', title:'6v6集計分析はPRO機能です。', text:'現在のアカウントでは分析PROが未反映です。OFUSEの'+BATTLE_ANALYSIS_PRICE_LABEL+'加入後、Xで連絡をもらう形にしています。', note:'編成と対戦は無料のままです。分析だけPRO対象です。'};
+  }
+  return {badge:'ログインが必要', title:'6v6集計分析はPRO機能です。', text:'分析はログイン後、OFUSEの'+BATTLE_ANALYSIS_PRICE_LABEL+'メンバーシップ加入と反映連絡で使えるようにしています。', note:'編成と対戦はそのまま使えます。分析だけPRO対象です。'};
+}
+function formatDateYmd(value){
+  if(!value) return '';
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
+}
+async function loadBattleAnalysisRemoteMembership(){
+  const user = (typeof getCurrentUser==='function') ? getCurrentUser() : null;
+  state.analysisPro = {checked:true,loggedIn:!!(user&&user.id),active:false,expiresAt:'',status:'',source:'none'};
+  if(!user || !user.id || typeof getSB!=='function') return state.analysisPro;
+  try{
+    const {data,error} = await getSB().from(BATTLE_ANALYSIS_REMOTE_TABLE).select('status, scope_pro_until').eq('user_id', user.id).maybeSingle();
+    if(error) throw error;
+    const expiresAt = data && data.scope_pro_until ? data.scope_pro_until : '';
+    const expiresMs = expiresAt ? new Date(expiresAt).getTime() : 0;
+    const active = !!data && ((String(data.status||'').toLowerCase()==='active' && !expiresAt) || (expiresMs && expiresMs > Date.now()));
+    state.analysisPro = {checked:true,loggedIn:true,active,expiresAt,status:(data&&data.status)||'',source:data?'supabase':'none'};
+  }catch(e){
+    console.warn('battle analysis membership check failed', e);
+    state.analysisPro = {checked:true,loggedIn:true,active:false,expiresAt:'',status:'',source:'error'};
+  }
+  return state.analysisPro;
+}
+async function refreshBattleAnalysisAccess(options={}){
+  await loadBattleAnalysisRemoteMembership();
+  const status = state.analysisPro || {checked:true,loggedIn:false,active:false};
+  const lock = el('analysis-pro-lock');
+  const freeNote = el('analysis-free-note');
+  const panels = el('analysis-panels');
+  const answerPanel = el('analysis-answer-panel');
+  const summary = el('analysis-summary');
+  const btn = el('btn-run-analysis');
+  const info = getBattleAnalysisStatusText(status);
+  if(el('analysis-pro-badge')) el('analysis-pro-badge').textContent = info.badge;
+  if(el('analysis-pro-title')) el('analysis-pro-title').textContent = info.title;
+  if(el('analysis-pro-text')) el('analysis-pro-text').textContent = info.text;
+  if(el('analysis-pro-note')) el('analysis-pro-note').textContent = info.note;
+  if(el('analysis-pro-actions')) el('analysis-pro-actions').innerHTML = status.active ? '<span class="pro-lock-chip">分析PRO利用中</span><a class="btn" href="'+BATTLE_ANALYSIS_CONTACT_URL+'" target="_blank" rel="noopener noreferrer">問い合わせ</a>' : getBattleAnalysisSupportActionsHtml(status);
+  if(lock) lock.classList.toggle('hidden', !!status.active);
+  if(freeNote) freeNote.classList.toggle('hidden', !status.active);
+  if(panels) panels.classList.toggle('hidden', !status.active);
+  if(answerPanel) answerPanel.classList.toggle('hidden', !status.active);
+  if(btn) btn.disabled = !status.active;
+  if(!status.active){
+    clearAnalysisOutputs('分析PROの反映後に表示します。');
+    if(summary) summary.innerHTML='';
+  }
+  if(options.updatePhase){
+    if(status.active) setPhase('6v6集計分析','現在の6匹同士で、3匹選出の組み合わせを集計します。');
+    else setPhase('6v6集計分析PRO','分析はPRO反映後に利用できます。編成と対戦はそのまま使えます。');
+  }
+  return status;
+}
+
 async function init(){
   const [pd,md,sd,bd,pm,rankSingle,abMap,abData,partyList]=await Promise.all([fetchJson('pokemon.json',[]),fetchJson('moves.json',[]),fetchJson('season.json',{seasons:[]}),fetchJson('belongings.json',[]),fetchJson('pokemon_moves.json',{pokemon:{}}),fetchJson('season_ranking_single.json',{rows:[]}),fetchJson('abilities.json',{}),fetchJson('abilities_data.json',[]),fetchJson('party_list.json',{parties:[]})]);
   state.pokemon=normalizePokemon(pd);state.moves=normalizeMoves(md);state.movesByName=new Map(state.moves.map(m=>[m.name,m]));state.known=normalizeKnown(pm);
@@ -501,6 +595,7 @@ async function init(){
   try{state.savedParties=mergeSavedParties(typeof loadParties==='function'?await loadParties():(typeof loadLocalPartiesRaw==='function'?loadLocalPartiesRaw().map(normalizePartyRecord):[]),normalizePartyListRecords(partyList));}catch(e){state.savedParties=normalizePartyListRecords(partyList);}
   state.loaded=true;setPhase('6匹見せ合い編成',`内定 ${state.baseRoster.length}匹から、自分と相手の6匹を選んでください。`);
   el('btn-start-select').disabled=false;updateAiText();renderSavedPartyOptions();renderRoster();renderParties();generateCpuParty();
+  await refreshBattleAnalysisAccess();
 }
 function selectedIndexForSide(side){return side==='cpu'?state.selectedCpuSlot:state.selectedSlot;}
 function setSelectedIndexForSide(side,i){if(side==='cpu')state.selectedCpuSlot=i;else state.selectedSlot=i;}
@@ -566,7 +661,7 @@ function backSetup(){el('selection-view').classList.add('hidden');el('setup-view
 function togglePick(i){if(state.playerPick.includes(i))state.playerPick=state.playerPick.filter(x=>x!==i);else if(state.playerPick.length<3)state.playerPick.push(i);renderSelection();}
 function chooseCpuThree(){const strict=comboIndexes(6,3,state.cpuSix,1);const combos=strict.length?strict:comboIndexes(6,3);const best=combos.map(idxs=>({idxs,score:cpuComboThreat(idxs)})).sort((a,b)=>b.score-a.score)[0];return best?best.idxs:[0,1,2];}
 function renderSelection(){el('btn-start-battle').disabled=state.playerPick.length!==3;el('player-pick-list').innerHTML=state.playerSix.map((u,i)=>`<div class="pick-card ${state.playerPick.includes(i)?'active':''}"><button class="choice" onclick="togglePick(${i})"><div class="choice-name">${escapeHtml(u.base.name)} ${state.playerPick.includes(i)?'選出中':''}</div>${typeHtml(u.base)}<div class="choice-meta">${escapeHtml(u.item||'持ち物なし')}</div></button></div>`).join('');el('cpu-pick-list').innerHTML=state.cpuSix.map((u,i)=>`<div class="pick-card"><div class="choice-name">${escapeHtml(u.base.name)}</div>${typeHtml(u.base)}<div class="choice-meta">${escapeHtml(u.item||'持ち物なし')}</div></div>`).join('');el('cpu-pick-note').textContent='CPUの選出は伏せています。対戦開始時に先発だけ表示します。';}
-function showToolTab(tab){const analysis=tab==='analysis';el('analysis-view').classList.toggle('hidden',!analysis);el('setup-view').classList.toggle('hidden',analysis||!!state.battle);el('selection-view').classList.add('hidden');el('battle-view').classList.toggle('hidden',analysis||!state.battle);el('tab-analysis').classList.toggle('active',analysis);el('tab-battle').classList.toggle('active',!analysis);if(analysis)setPhase('6v6集計分析','現在の6匹同士で、3匹選出の組み合わせを集計します。');else setPhase(state.battle?'バトル中':'6匹見せ合い編成',state.battle?'技か交代を選んでターンを進めます。':'必要なら持ち物やCPU設定を調整してください。');}
+async function showToolTab(tab){const analysis=tab==='analysis';el('analysis-view').classList.toggle('hidden',!analysis);el('setup-view').classList.toggle('hidden',analysis||!!state.battle);el('selection-view').classList.add('hidden');el('battle-view').classList.toggle('hidden',analysis||!state.battle);el('tab-analysis').classList.toggle('active',analysis);el('tab-battle').classList.toggle('active',!analysis);if(analysis){await refreshBattleAnalysisAccess({updatePhase:true});}else setPhase(state.battle?'バトル中':'6匹見せ合い編成',state.battle?'技か交代を選んでターンを進めます。':'必要なら持ち物やCPU設定を調整してください。');}
 function comboMegaCount(team,idxs){return idxs.reduce((n,i)=>n+(isMegaCapableUnit(team[i])?1:0),0);}
 function comboIndexes(n,k=3,team=null,maxMega=Infinity){const out=[];const rec=(start,arr)=>{if(arr.length===k){if(!team||comboMegaCount(team,arr)<=maxMega)out.push(arr.slice());return;}for(let i=start;i<n;i++)rec(i+1,arr.concat(i));};rec(0,[]);return out;}
 function comboLabel(team,idxs){return idxs.map(i=>displayNameFor(team[i]?.base?.name||team[i]?.current?.name||'')).join(' / ');}
@@ -594,7 +689,7 @@ function careReason(team,idxs,targets){const picked=idxs.map(i=>team[i]);const t
 function cpuReason(idxs){const picked=idxs.map(i=>state.cpuSix[i]);const player=state.playerSix.filter(Boolean);const lead=picked.map(u=>{const views=player.map(p=>matchupView(u,p));return {u,score:views.reduce((s,v)=>s+v.score,0)+getStats(u).spe/8,top:views.sort((a,b)=>b.score-a.score)[0]};}).sort((a,b)=>b.score-a.score)[0];return lead?`${displayNameFor(lead.u.base.name)}がこちらに圧力をかけやすく、相手はこの軸を選びそうです。`:'';}
 function buildAdvice(row,kind,ctx={}){if(kind==='cpu')return cpuReason(row.idxs);if(kind==='answer')return `${comboAceReason(state.playerSix,row.idxs,ctx.cpuTeam||state.cpuSix)} ${careReason(state.playerSix,row.idxs,ctx.cpuTeam||state.cpuSix)}`.trim();const cpuTargets=ctx.cpuTeam||state.cpuSix;const prefix=row.rate>=.7?'集計上は勝率が高めです。':row.rate>=.55?'集計上は安定寄りです。':'勝率は控えめなので噛み合い注意です。';return `${prefix} ${comboAceReason(state.playerSix,row.idxs,cpuTargets)} ${careReason(state.playerSix,row.idxs,cpuTargets)}`.trim();}
 function renderAnalysisRows(id,rows,team,scoreLabel='勝率'){el(id).innerHTML=rows.slice(0,8).map((r,i)=>`<div class="result-row ${i===0?'best':''}"><div class="result-main"><div class="result-name">${escapeHtml(comboLabel(team,r.idxs))}</div><div class="result-score">${escapeHtml(r.label||`${scoreLabel} ${Math.round(r.rate*100)}%`)}</div></div><div class="bar"><div class="bar-fill" style="width:${Math.max(3,Math.min(100,Math.round((r.rate||0)*100)))}%"></div></div><div class="choice-meta">${escapeHtml(comboMini(team,r.idxs))}</div>${r.advice?`<div class="notice">${escapeHtml(r.advice)}</div>`:''}</div>`).join('')||'<div class="empty">結果なし</div>';}
-function runMatchupAnalysis(){if(state.playerSix.filter(Boolean).length!==6||state.cpuSix.filter(Boolean).length!==6){alert('自分とCPUの6匹を先に揃えてください。');return;}const pCombos=comboIndexes(6,3);const limitedCpuCombos=comboIndexes(6,3,state.cpuSix,1);const cCombos=limitedCpuCombos.length?limitedCpuCombos:comboIndexes(6,3);el('analysis-summary').innerHTML='<div class="notice">集計中です。少し待ってください。</div>';setTimeout(()=>{const cpuPred=cCombos.map(idxs=>({idxs,threat:cpuComboThreat(idxs)})).sort((a,b)=>b.threat-a.threat);const playerRows=pCombos.map(idxs=>({idxs,wins:0,total:0}));for(const pr of playerRows){for(const cc of cCombos){const winner=simBattle(pr.idxs,cc);pr.wins+=winner==='player'?1:0;pr.total++;}}playerRows.forEach(r=>r.rate=r.wins/Math.max(1,r.total));playerRows.sort((a,b)=>b.rate-a.rate);const topCpu=cpuPred[0]?.idxs||cCombos[0];const topCpuTeam=topCpu.map(i=>state.cpuSix[i]);const answerRows=pCombos.map(idxs=>{const wins=[0,1,2].reduce((s)=>s+(simBattle(idxs,topCpu)==='player'?1:0),0);return {idxs,rate:wins/3,label:`対予想 ${Math.round(wins/3*100)}%`};}).sort((a,b)=>b.rate-a.rate);const cpuRows=cpuPred.slice(0,8).map((r,i)=>({idxs:r.idxs,rate:(cpuPred.length-i)/cpuPred.length,label:`予想 ${i+1}位`}));playerRows.forEach(r=>r.advice=buildAdvice(r,'player'));answerRows.forEach(r=>r.advice=buildAdvice(r,'answer',{cpuTeam:topCpuTeam}));cpuRows.forEach(r=>r.advice=buildAdvice(r,'cpu'));const best=playerRows[0],answer=answerRows[0];el('analysis-summary').innerHTML=`<div class="metric"><div class="metric-label">評価組数</div><div class="metric-value">${pCombos.length*cCombos.length}</div></div><div class="metric"><div class="metric-label">最高平均勝率</div><div class="metric-value">${Math.round(best.rate*100)}%</div></div><div class="metric"><div class="metric-label">相手予想</div><div class="metric-value">#1</div></div><div class="metric"><div class="metric-label">回答勝率</div><div class="metric-value">${Math.round(answer.rate*100)}%</div></div>`;renderAnalysisRows('analysis-player-results',playerRows,state.playerSix);renderAnalysisRows('analysis-cpu-results',cpuRows,state.cpuSix,'予想');renderAnalysisRows('analysis-answer-results',answerRows,state.playerSix);setPhase('6v6集計完了','推奨選出と相手予想を更新しました。');},20);}
+async function runMatchupAnalysis(){const status=await refreshBattleAnalysisAccess();if(!status.active){alert('6v6集計分析はPRO反映後に使えます。');return;}if(state.playerSix.filter(Boolean).length!==6||state.cpuSix.filter(Boolean).length!==6){alert('自分とCPUの6匹を先に揃えてください。');return;}const pCombos=comboIndexes(6,3);const limitedCpuCombos=comboIndexes(6,3,state.cpuSix,1);const cCombos=limitedCpuCombos.length?limitedCpuCombos:comboIndexes(6,3);el('analysis-summary').innerHTML='<div class="notice">集計中です。少し待ってください。</div>';setTimeout(()=>{const cpuPred=cCombos.map(idxs=>({idxs,threat:cpuComboThreat(idxs)})).sort((a,b)=>b.threat-a.threat);const playerRows=pCombos.map(idxs=>({idxs,wins:0,total:0}));for(const pr of playerRows){for(const cc of cCombos){const winner=simBattle(pr.idxs,cc);pr.wins+=winner==='player'?1:0;pr.total++;}}playerRows.forEach(r=>r.rate=r.wins/Math.max(1,r.total));playerRows.sort((a,b)=>b.rate-a.rate);const topCpu=cpuPred[0]?.idxs||cCombos[0];const topCpuTeam=topCpu.map(i=>state.cpuSix[i]);const answerRows=pCombos.map(idxs=>{const wins=[0,1,2].reduce((s)=>s+(simBattle(idxs,topCpu)==='player'?1:0),0);return {idxs,rate:wins/3,label:`対予想 ${Math.round(wins/3*100)}%`};}).sort((a,b)=>b.rate-a.rate);const cpuRows=cpuPred.slice(0,8).map((r,i)=>({idxs:r.idxs,rate:(cpuPred.length-i)/cpuPred.length,label:`予想 ${i+1}位`}));playerRows.forEach(r=>r.advice=buildAdvice(r,'player'));answerRows.forEach(r=>r.advice=buildAdvice(r,'answer',{cpuTeam:topCpuTeam}));cpuRows.forEach(r=>r.advice=buildAdvice(r,'cpu'));const best=playerRows[0],answer=answerRows[0];el('analysis-summary').innerHTML=`<div class="metric"><div class="metric-label">評価組数</div><div class="metric-value">${pCombos.length*cCombos.length}</div></div><div class="metric"><div class="metric-label">最高平均勝率</div><div class="metric-value">${Math.round(best.rate*100)}%</div></div><div class="metric"><div class="metric-label">相手予想</div><div class="metric-value">#1</div></div><div class="metric"><div class="metric-label">回答勝率</div><div class="metric-value">${Math.round(answer.rate*100)}%</div></div>`;renderAnalysisRows('analysis-player-results',playerRows,state.playerSix);renderAnalysisRows('analysis-cpu-results',cpuRows,state.cpuSix,'予想');renderAnalysisRows('analysis-answer-results',answerRows,state.playerSix);setPhase('6v6集計完了','推奨選出と相手予想を更新しました。');},20);}
 function startBattle(){const pTeam=state.playerPick.map(i=>cloneUnit(state.playerSix[i],'bp'+i));const cTeam=state.cpuPick.map(i=>cloneUnit(state.cpuSix[i],'bc'+i));state.battle={turn:1,player:pTeam,cpu:cTeam,pActive:0,cActive:0,ended:false,pendingSwitch:null,playerMegaUsed:false,cpuMegaUsed:false,weather:'',weatherTurns:0,field:'',fieldTurns:0,trickRoomTurns:0,hazards:{player:{rocks:false,spikes:0,toxicSpikes:0,web:false},cpu:{rocks:false,spikes:0,toxicSpikes:0,web:false}}};el('selection-view').classList.add('hidden');el('battle-view').classList.remove('hidden');setPhase('バトル中','技か交代を選んでターンを進めます。');log(`対戦開始。相手の先発は ${cTeam[0].base.name}。`,'important');applyEntryAbility(pTeam[0],'player');applyEntryAbility(cTeam[0],'cpu');renderBattle();}
 function cloneUnit(unit,id){const copy=makeUnit(unit.base,{id,item:unit.item,ability:unit.ability,rec:unit.rec,ev:unit.ev});copy.moves=unit.moves.map(m=>Object.assign({},m));return copy;}
 function teamFor(side){return side==='player'?state.battle.player:state.battle.cpu;}
