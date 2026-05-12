@@ -2756,6 +2756,59 @@ function getBelongingsNameSet(){
 function getPokemonAbilityCandidates(pokeName){
   return [...new Set((ABILITY_MAP[pokeName]||[]).map(v=>String(v||'').trim()).filter(Boolean))];
 }
+function normalizeMegaScanText(value){
+  return String(value||'').trim().replace(/[Ｘｘ]/g,'X').replace(/[Ｙｙ]/g,'Y').replace(/[Ｚｚ]/g,'Z').replace(/\s+/g,'');
+}
+function getMegaScanNameAliases(name){
+  const raw = String(name||'').trim();
+  if(!raw) return [];
+  const set = new Set([raw]);
+  const site = INNER_ALIAS_TO_SITE_NAME[raw] || raw;
+  if(site) set.add(site);
+  const rankingAliases = INNER_SITE_NAME_TO_RANKING_NAMES[site] || [];
+  rankingAliases.forEach(v=>set.add(String(v||'').trim()));
+  const compact = raw.replace(/[♂♀]$/,'').replace(/\((オス|メス)\)$/,'').trim();
+  if(compact) set.add(compact);
+  const siteCompact = site.replace(/[♂♀]$/,'').replace(/\((オス|メス)\)$/,'').trim();
+  if(siteCompact) set.add(siteCompact);
+  return Array.from(set).filter(Boolean);
+}
+function getMegaFormSuffixForScan(name){
+  const normalized = normalizeMegaScanText(name);
+  const last = normalized.slice(-1);
+  return ['X','Y','Z'].includes(last) ? last : '';
+}
+function isMegaStoneLikeForScan(item){
+  const name = String(item?.name || '').trim();
+  const category = String(item?.category || '').trim();
+  const effect = String(item?.effect || '').trim();
+  return !!(name && (category.includes('メガ') || effect.includes('メガシンカ可能') || name.includes('ナイト')));
+}
+function getFixedMegaStoneCandidatesForInner(name){
+  const megaName = String(name||'').trim();
+  const baseName = getMegaBaseNameFromRelations(megaName);
+  if(!megaName || !baseName) return [];
+  const aliases = new Set(getMegaScanNameAliases(baseName).map(normalizeMegaScanText));
+  const suffix = getMegaFormSuffixForScan(megaName);
+  const out = [];
+  (BELONGINGS_DATA||[]).forEach(item=>{
+    if(!isMegaStoneLikeForScan(item)) return;
+    const itemName = String(item?.name || '').trim();
+    const itemNameNorm = normalizeMegaScanText(itemName);
+    const effectTargetMatch = String(item?.effect || '').trim().match(/^(.+?)がバトル中メガシンカ可能になる/);
+    const effectTarget = effectTargetMatch ? normalizeMegaScanText(effectTargetMatch[1]) : '';
+    const nameMatch = Array.from(aliases).some(alias=>alias && (itemNameNorm.includes(alias) || effectTarget===alias));
+    if(!nameMatch) return;
+    const itemSuffix = getMegaFormSuffixForScan(itemName);
+    if(suffix){
+      if(itemSuffix && itemSuffix !== suffix) return;
+    } else if(itemSuffix){
+      return;
+    }
+    if(!out.includes(itemName)) out.push(itemName);
+  });
+  return out.length ? out : ['メガストーン固定'];
+}
 function inferBaseRankingNamesForInner(name){
   if(!name || !String(name).startsWith('メガ')) return [];
   let base = String(name).replace(/^メガ/,'').replace(/[XY]$/,'');
@@ -2901,9 +2954,10 @@ function buildInnerScanProfile(pokeName){
   const exactAbilities = getPokemonAbilityCandidates(pokeName);
   const rankingAbilities = uniqInner((primaryRow?.abilities||[]).map(getTopRateName));
   const abilityCandidates = exactAbilities.length ? exactAbilities : (rankingAbilities.length ? rankingAbilities : ['']);
+  const fixedMegaItems = getFixedMegaStoneCandidatesForInner(pokeName);
   const allowed = getBelongingsNameSet();
   const rankingItems = uniqInner((primaryRow?.items||[]).map(getTopRateName)).filter(name=>!allowed.size || allowed.has(name));
-  const itemCandidates = rankingItems.length ? rankingItems : [''];
+  const itemCandidates = fixedMegaItems.length ? fixedMegaItems : (rankingItems.length ? rankingItems : ['']);
   const natureName = getTopRateName(primaryRow?.natures) || inferInnerScanNature(poke, moves);
   const spread = parseSpreadForInner(primaryRow?.spreads?.[0]) || inferInnerScanSpread(poke, moves);
   const lv = 50;
@@ -2956,6 +3010,8 @@ function getInnerScanCandidateAbilities(rec, poke){
 function getInnerScanCandidateItems(rec, poke){
   const allowed=getBelongingsNameSet();
   const exactName = String(poke?.name || rec?.pokeName || rec?.displayName || '').trim();
+  const fixedMegaItems = getFixedMegaStoneCandidatesForInner(exactName);
+  if(fixedMegaItems.length) return fixedMegaItems.slice(0,8);
   const out=[];
   const add=(name)=>{
     const n=String(name||'').trim();
@@ -2963,6 +3019,9 @@ function getInnerScanCandidateItems(rec, poke){
     if(allowed.size && !allowed.has(n)) return;
     out.push(n);
   };
+  if(Array.isArray(rec?.itemCandidates) && rec.itemCandidates.length){
+    rec.itemCandidates.forEach(add);
+  }
   if(rec?.item) add(rec.item);
   if(exactName){
     const rows = getCalcSeasonRankingRowsForInner(exactName);
