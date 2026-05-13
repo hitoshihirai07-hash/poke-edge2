@@ -1,0 +1,2359 @@
+{
+  "battleType": "single",
+  "updatedAt": "",
+  "columns": [
+    {
+      "key": "prev1",
+      "label": "prev1"
+    },
+    {
+      "key": "prev2",
+      "label": "prev2"
+    }
+  ],
+  "rows": [
+    {
+      "rank": 1,
+      "name": "ガブリアス",
+      "siteName": "ガブリアス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "1",
+        "prev2": "1"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 2,
+      "name": "アシレーヌ",
+      "siteName": "アシレーヌ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "2",
+        "prev2": "2"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 3,
+      "name": "ブリジュラス",
+      "siteName": "ブリジュラス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "3",
+        "prev2": "3"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 4,
+      "name": "リザードン",
+      "siteName": "リザードン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "4",
+        "prev2": "4"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 5,
+      "name": "アーマーガア",
+      "siteName": "アーマーガア",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "5",
+        "prev2": "5"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 6,
+      "name": "カバルドン",
+      "siteName": "カバルドン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "6",
+        "prev2": "6"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 7,
+      "name": "カイリュー",
+      "siteName": "カイリュー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "7",
+        "prev2": "7"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 8,
+      "name": "ゲンガー",
+      "siteName": "ゲンガー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "8",
+        "prev2": "8"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 9,
+      "name": "マスカーニャ",
+      "siteName": "マスカーニャ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "10",
+        "prev2": "10"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 10,
+      "name": "イダイトウ♂",
+      "siteName": "イダイトウ♂",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "11",
+        "prev2": "11"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 11,
+      "name": "ギルガルド",
+      "siteName": "ギルガルド",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "9",
+        "prev2": "9"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 12,
+      "name": "ハッサム",
+      "siteName": "ハッサム",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "12",
+        "prev2": "12"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 13,
+      "name": "ミミッキュ",
+      "siteName": "ミミッキュ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "13",
+        "prev2": "13"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 14,
+      "name": "ミミロップ",
+      "siteName": "ミミロップ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "14",
+        "prev2": "14"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 15,
+      "name": "ドドゲザン",
+      "siteName": "ドドゲザン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "15",
+        "prev2": "15"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 16,
+      "name": "キラフロル",
+      "siteName": "キラフロル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "16",
+        "prev2": "16"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 17,
+      "name": "サザンドラ",
+      "siteName": "サザンドラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "17",
+        "prev2": "17"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 18,
+      "name": "ルカリオ",
+      "siteName": "ルカリオ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "19",
+        "prev2": "19"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 19,
+      "name": "ギャラドス",
+      "siteName": "ギャラドス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "20",
+        "prev2": "20"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 20,
+      "name": "ロトム水",
+      "siteName": "ロトム水",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "18",
+        "prev2": "18"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 21,
+      "name": "ガルーラ",
+      "siteName": "ガルーラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "22",
+        "prev2": "22"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 22,
+      "name": "ブラッキー",
+      "siteName": "ブラッキー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "21",
+        "prev2": "21"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 23,
+      "name": "ウルガモス",
+      "siteName": "ウルガモス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "25",
+        "prev2": "25"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 24,
+      "name": "マフォクシー",
+      "siteName": "マフォクシー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "23",
+        "prev2": "23"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 25,
+      "name": "フラエッテえいえん",
+      "siteName": "フラエッテえいえん",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "24",
+        "prev2": "24"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 26,
+      "name": "メガニウム",
+      "siteName": "メガニウム",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "26",
+        "prev2": "26"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 27,
+      "name": "ゲッコウガ",
+      "siteName": "ゲッコウガ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "27",
+        "prev2": "27"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 28,
+      "name": "オオニューラ",
+      "siteName": "オオニューラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "28",
+        "prev2": "28"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 29,
+      "name": "フシギバナ",
+      "siteName": "フシギバナ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "29",
+        "prev2": "29"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 30,
+      "name": "スターミー",
+      "siteName": "スターミー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "30",
+        "prev2": "30"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 31,
+      "name": "ピクシー",
+      "siteName": "ピクシー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "31",
+        "prev2": "31"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 32,
+      "name": "ニンフィア",
+      "siteName": "ニンフィア",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "33",
+        "prev2": "33"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 33,
+      "name": "バンギラス",
+      "siteName": "バンギラス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "32",
+        "prev2": "32"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 34,
+      "name": "ラウドボーン",
+      "siteName": "ラウドボーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "35",
+        "prev2": "35"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 35,
+      "name": "ロトム炎",
+      "siteName": "ロトム炎",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "34",
+        "prev2": "34"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 36,
+      "name": "ドラパルト",
+      "siteName": "ドラパルト",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "36",
+        "prev2": "36"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 37,
+      "name": "クエスパトラ",
+      "siteName": "クエスパトラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "38",
+        "prev2": "38"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 38,
+      "name": "ドヒドイデ",
+      "siteName": "ドヒドイデ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "37",
+        "prev2": "37"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 39,
+      "name": "ハラバリー",
+      "siteName": "ハラバリー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "39",
+        "prev2": "39"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 40,
+      "name": "ペリッパー",
+      "siteName": "ペリッパー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "40",
+        "prev2": "40"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 41,
+      "name": "マンムー",
+      "siteName": "マンムー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "41",
+        "prev2": "41"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 42,
+      "name": "ソウブレイズ",
+      "siteName": "ソウブレイズ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "43",
+        "prev2": "43"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 43,
+      "name": "マリルリ",
+      "siteName": "マリルリ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "42",
+        "prev2": "42"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 44,
+      "name": "ホルード",
+      "siteName": "ホルード",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "44",
+        "prev2": "44"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 45,
+      "name": "カビゴン",
+      "siteName": "カビゴン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "45",
+        "prev2": "45"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 46,
+      "name": "エンペルト",
+      "siteName": "エンペルト",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "46",
+        "prev2": "46"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 47,
+      "name": "カメックス",
+      "siteName": "カメックス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "47",
+        "prev2": "47"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 48,
+      "name": "ユキメノコ",
+      "siteName": "ユキメノコ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "48",
+        "prev2": "48"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 49,
+      "name": "エアームド",
+      "siteName": "エアームド",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "50",
+        "prev2": "50"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 50,
+      "name": "スコヴィラン",
+      "siteName": "スコヴィラン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "49",
+        "prev2": "49"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 51,
+      "name": "ドリュウズ",
+      "siteName": "ドリュウズ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "51",
+        "prev2": "51"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 52,
+      "name": "オニシズクモ",
+      "siteName": "オニシズクモ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "54",
+        "prev2": "54"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 53,
+      "name": "サーナイト",
+      "siteName": "サーナイト",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "52",
+        "prev2": "52"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 54,
+      "name": "エルレイド",
+      "siteName": "エルレイド",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "56",
+        "prev2": "56"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 55,
+      "name": "キュウコンA",
+      "siteName": "キュウコンA",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "55",
+        "prev2": "55"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 56,
+      "name": "ウツボット",
+      "siteName": "ウツボット",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "53",
+        "prev2": "53"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 57,
+      "name": "ダイケンキH",
+      "siteName": "ダイケンキH",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "63",
+        "prev2": "63"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 58,
+      "name": "エルフーン",
+      "siteName": "エルフーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "58",
+        "prev2": "58"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 59,
+      "name": "ヌメルゴンH",
+      "siteName": "ヌメルゴンH",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "57",
+        "prev2": "57"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 60,
+      "name": "バサギリ",
+      "siteName": "バサギリ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "59",
+        "prev2": "59"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 61,
+      "name": "ゾロアークH",
+      "siteName": "ゾロアークH",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "60",
+        "prev2": "60"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 62,
+      "name": "ヤドキングG",
+      "siteName": "ヤドキングG",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "61",
+        "prev2": "61"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 63,
+      "name": "ミロカロス",
+      "siteName": "ミロカロス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "62",
+        "prev2": "62"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 64,
+      "name": "ジュペッタ",
+      "siteName": "ジュペッタ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "64",
+        "prev2": "64"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 65,
+      "name": "ヘラクロス",
+      "siteName": "ヘラクロス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "67",
+        "prev2": "67"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 66,
+      "name": "ガオガエン",
+      "siteName": "ガオガエン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "65",
+        "prev2": "65"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 67,
+      "name": "ブリムオン",
+      "siteName": "ブリムオン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "66",
+        "prev2": "66"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 68,
+      "name": "ジャローダ",
+      "siteName": "ジャローダ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "68",
+        "prev2": "68"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 69,
+      "name": "デカヌチャン",
+      "siteName": "デカヌチャン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "69",
+        "prev2": "69"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 70,
+      "name": "ローブシン",
+      "siteName": "ローブシン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "70",
+        "prev2": "70"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 71,
+      "name": "グレンアルマ",
+      "siteName": "グレンアルマ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "71",
+        "prev2": "71"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 72,
+      "name": "バイバニラ",
+      "siteName": "バイバニラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "92",
+        "prev2": "92"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 73,
+      "name": "ウインディH",
+      "siteName": "ウインディH",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "73",
+        "prev2": "73"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 74,
+      "name": "シャンデラ",
+      "siteName": "シャンデラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "72",
+        "prev2": "72"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 75,
+      "name": "メタモン",
+      "siteName": "メタモン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "74",
+        "prev2": "74"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 76,
+      "name": "プテラ",
+      "siteName": "プテラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "75",
+        "prev2": "75"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 77,
+      "name": "エレザード",
+      "siteName": "エレザード",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "77",
+        "prev2": "77"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 78,
+      "name": "ヤドラン",
+      "siteName": "ヤドラン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "78",
+        "prev2": "78"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 79,
+      "name": "ヤミラミ",
+      "siteName": "ヤミラミ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "81",
+        "prev2": "81"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 80,
+      "name": "ブリガロン",
+      "siteName": "ブリガロン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "76",
+        "prev2": "76"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 81,
+      "name": "ボスゴドラ",
+      "siteName": "ボスゴドラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "79",
+        "prev2": "79"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 82,
+      "name": "ドデカバシ",
+      "siteName": "ドデカバシ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "87",
+        "prev2": "87"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 83,
+      "name": "ヤバソチャ",
+      "siteName": "ヤバソチャ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "83",
+        "prev2": "83"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 84,
+      "name": "サメハダー",
+      "siteName": "サメハダー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "84",
+        "prev2": "84"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 85,
+      "name": "ポットデス",
+      "siteName": "ポットデス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "91",
+        "prev2": "91"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 86,
+      "name": "ミミズズ",
+      "siteName": "ミミズズ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "82",
+        "prev2": "82"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 87,
+      "name": "ウインディ",
+      "siteName": "ウインディ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "80",
+        "prev2": "80"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 88,
+      "name": "ウェーニバル",
+      "siteName": "ウェーニバル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "86",
+        "prev2": "86"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 89,
+      "name": "ルチャブル",
+      "siteName": "ルチャブル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "88",
+        "prev2": "88"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 90,
+      "name": "エーフィ",
+      "siteName": "エーフィ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "85",
+        "prev2": "85"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 91,
+      "name": "オーダイル",
+      "siteName": "オーダイル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "90",
+        "prev2": "90"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 92,
+      "name": "イルカマン",
+      "siteName": "イルカマン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "89",
+        "prev2": "89"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 93,
+      "name": "イッカネズミ",
+      "siteName": "イッカネズミ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "94",
+        "prev2": "94"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 94,
+      "name": "スピアー",
+      "siteName": "スピアー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "93",
+        "prev2": "93"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 95,
+      "name": "ゴウカザル",
+      "siteName": "ゴウカザル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "95",
+        "prev2": "95"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 96,
+      "name": "シャワーズ",
+      "siteName": "シャワーズ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "98",
+        "prev2": "98"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 97,
+      "name": "フーディン",
+      "siteName": "フーディン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "96",
+        "prev2": "96"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 98,
+      "name": "ケケンカニ",
+      "siteName": "ケケンカニ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "99",
+        "prev2": "99"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 99,
+      "name": "マニューラ",
+      "siteName": "マニューラ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "97",
+        "prev2": "97"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 100,
+      "name": "イダイトウ♀",
+      "siteName": "イダイトウ♀",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "100",
+        "prev2": "100"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 101,
+      "name": "ビビヨン",
+      "siteName": "ビビヨン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "103",
+        "prev2": "103"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 102,
+      "name": "ファイアロー",
+      "siteName": "ファイアロー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "101",
+        "prev2": "101"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 103,
+      "name": "カイロス",
+      "siteName": "カイロス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "102",
+        "prev2": "102"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 104,
+      "name": "チリーン",
+      "siteName": "チリーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "104",
+        "prev2": "104"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 105,
+      "name": "ヤドランG",
+      "siteName": "ヤドランG",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "107",
+        "prev2": "107"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 106,
+      "name": "バクフーンH",
+      "siteName": "バクフーンH",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "105",
+        "prev2": "105"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 107,
+      "name": "キョジオーン",
+      "siteName": "キョジオーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "106",
+        "prev2": "106"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 108,
+      "name": "ユキノオー",
+      "siteName": "ユキノオー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "108",
+        "prev2": "108"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 109,
+      "name": "バンバドロ",
+      "siteName": "バンバドロ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "109",
+        "prev2": "109"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 110,
+      "name": "エンニュート",
+      "siteName": "エンニュート",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "115",
+        "prev2": "115"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 111,
+      "name": "ライボルト",
+      "siteName": "ライボルト",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "110",
+        "prev2": "110"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 112,
+      "name": "ルガルガンたそがれ",
+      "siteName": "ルガルガンたそがれ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "111",
+        "prev2": "111"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 113,
+      "name": "ピジョット",
+      "siteName": "ピジョット",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "112",
+        "prev2": "112"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 114,
+      "name": "グライオン",
+      "siteName": "グライオン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "113",
+        "prev2": "113"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 115,
+      "name": "チルタリス",
+      "siteName": "チルタリス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "114",
+        "prev2": "114"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 116,
+      "name": "サンダース",
+      "siteName": "サンダース",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "117",
+        "prev2": "117"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 117,
+      "name": "エンブオー",
+      "siteName": "エンブオー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "116",
+        "prev2": "116"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 118,
+      "name": "ジュナイパーH",
+      "siteName": "ジュナイパーH",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "119",
+        "prev2": "119"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 119,
+      "name": "ケンタロスP炎",
+      "siteName": "ケンタロスP炎",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "118",
+        "prev2": "118"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 120,
+      "name": "カイリキー",
+      "siteName": "カイリキー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "121",
+        "prev2": "121"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 121,
+      "name": "デンリュウ",
+      "siteName": "デンリュウ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "122",
+        "prev2": "122"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 122,
+      "name": "ロトム草",
+      "siteName": "ロトム草",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "120",
+        "prev2": "120"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 123,
+      "name": "チャーレム",
+      "siteName": "チャーレム",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "124",
+        "prev2": "124"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 124,
+      "name": "ワルビアル",
+      "siteName": "ワルビアル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "125",
+        "prev2": "125"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 125,
+      "name": "ドダイトス",
+      "siteName": "ドダイトス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "123",
+        "prev2": "123"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 126,
+      "name": "ジャラランガ",
+      "siteName": "ジャラランガ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "126",
+        "prev2": "126"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 127,
+      "name": "デスバーン",
+      "siteName": "デスバーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "127",
+        "prev2": "127"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 128,
+      "name": "コータス",
+      "siteName": "コータス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "128",
+        "prev2": "128"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 129,
+      "name": "グレイシア",
+      "siteName": "グレイシア",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "129",
+        "prev2": "129"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 130,
+      "name": "フォレトス",
+      "siteName": "フォレトス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "130",
+        "prev2": "130"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 131,
+      "name": "アマージョ",
+      "siteName": "アマージョ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "131",
+        "prev2": "131"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 132,
+      "name": "ハガネール",
+      "siteName": "ハガネール",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "132",
+        "prev2": "132"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 133,
+      "name": "ニョロトノ",
+      "siteName": "ニョロトノ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "133",
+        "prev2": "133"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 134,
+      "name": "デスカーン",
+      "siteName": "デスカーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "134",
+        "prev2": "134"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 135,
+      "name": "ペロリーム",
+      "siteName": "ペロリーム",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "139",
+        "prev2": "139"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 136,
+      "name": "アリアドス",
+      "siteName": "アリアドス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "138",
+        "prev2": "138"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 137,
+      "name": "オンバーン",
+      "siteName": "オンバーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "137",
+        "prev2": "137"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 138,
+      "name": "ジジーロン",
+      "siteName": "ジジーロン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "136",
+        "prev2": "136"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 139,
+      "name": "ヌメルゴン",
+      "siteName": "ヌメルゴン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "135",
+        "prev2": "135"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 140,
+      "name": "アブソル",
+      "siteName": "アブソル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "140",
+        "prev2": "140"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 141,
+      "name": "オニゴーリ",
+      "siteName": "オニゴーリ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "141",
+        "prev2": "141"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 142,
+      "name": "リキキリン",
+      "siteName": "リキキリン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "142",
+        "prev2": "142"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 143,
+      "name": "ヤドキング",
+      "siteName": "ヤドキング",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "143",
+        "prev2": "143"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 144,
+      "name": "ブロスター",
+      "siteName": "ブロスター",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "144",
+        "prev2": "144"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 145,
+      "name": "ミカルゲ",
+      "siteName": "ミカルゲ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "148",
+        "prev2": "148"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 146,
+      "name": "ゾロアーク",
+      "siteName": "ゾロアーク",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "145",
+        "prev2": "145"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 147,
+      "name": "ピカチュウ",
+      "siteName": "ピカチュウ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "147",
+        "prev2": "147"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 148,
+      "name": "カミツオロチ",
+      "siteName": "カミツオロチ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "149",
+        "prev2": "149"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 149,
+      "name": "ドサイドン",
+      "siteName": "ドサイドン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "146",
+        "prev2": "146"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 150,
+      "name": "モルペコ",
+      "siteName": "モルペコ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "153",
+        "prev2": "153"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 151,
+      "name": "ロズレイド",
+      "siteName": "ロズレイド",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "151",
+        "prev2": "151"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 152,
+      "name": "ヘルガー",
+      "siteName": "ヘルガー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "154",
+        "prev2": "154"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 153,
+      "name": "クレベース",
+      "siteName": "クレベース",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "150",
+        "prev2": "150"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 154,
+      "name": "クレッフィ",
+      "siteName": "クレッフィ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "152",
+        "prev2": "152"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 155,
+      "name": "サダイジャ",
+      "siteName": "サダイジャ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "155",
+        "prev2": "155"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 156,
+      "name": "ゴルーグ",
+      "siteName": "ゴルーグ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "157",
+        "prev2": "157"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 157,
+      "name": "マホイップ",
+      "siteName": "マホイップ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "158",
+        "prev2": "158"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 158,
+      "name": "クレベースH",
+      "siteName": "クレベースH",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "156",
+        "prev2": "156"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 159,
+      "name": "ランクルス",
+      "siteName": "ランクルス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "159",
+        "prev2": "159"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 160,
+      "name": "ドクロッグ",
+      "siteName": "ドクロッグ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "165",
+        "prev2": "165"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 161,
+      "name": "ケンタロスP水",
+      "siteName": "ケンタロスP水",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "160",
+        "prev2": "160"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 162,
+      "name": "ロトム氷",
+      "siteName": "ロトム氷",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "161",
+        "prev2": "161"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 163,
+      "name": "ニャオニクス♂",
+      "siteName": "ニャオニクス♂",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "162",
+        "prev2": "162"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 164,
+      "name": "アマルルガ",
+      "siteName": "アマルルガ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "164",
+        "prev2": "164"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 165,
+      "name": "キュウコン",
+      "siteName": "キュウコン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "163",
+        "prev2": "163"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 166,
+      "name": "オーロット",
+      "siteName": "オーロット",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "167",
+        "prev2": "167"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 167,
+      "name": "バクフーン",
+      "siteName": "バクフーン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "166",
+        "prev2": "166"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 168,
+      "name": "ガチゴラス",
+      "siteName": "ガチゴラス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "168",
+        "prev2": "168"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 169,
+      "name": "トリデプス",
+      "siteName": "トリデプス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "171",
+        "prev2": "171"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 170,
+      "name": "レントラー",
+      "siteName": "レントラー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "170",
+        "prev2": "170"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 171,
+      "name": "ゴロンダ",
+      "siteName": "ゴロンダ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "172",
+        "prev2": "172"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 172,
+      "name": "マッギョ",
+      "siteName": "マッギョ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "169",
+        "prev2": "169"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 173,
+      "name": "バクーダ",
+      "siteName": "バクーダ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "173",
+        "prev2": "173"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 174,
+      "name": "リーフィア",
+      "siteName": "リーフィア",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "174",
+        "prev2": "174"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 175,
+      "name": "フラージェス",
+      "siteName": "フラージェス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "175",
+        "prev2": "175"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 176,
+      "name": "エモンガ",
+      "siteName": "エモンガ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "176",
+        "prev2": "176"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 177,
+      "name": "ブースター",
+      "siteName": "ブースター",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "177",
+        "prev2": "177"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 178,
+      "name": "ジュナイパー",
+      "siteName": "ジュナイパー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "178",
+        "prev2": "178"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 179,
+      "name": "ライチュウA",
+      "siteName": "ライチュウA",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "179",
+        "prev2": "179"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 180,
+      "name": "ライチュウ",
+      "siteName": "ライチュウ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "180",
+        "prev2": "180"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 181,
+      "name": "パンプジン特",
+      "siteName": "パンプジン特",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "182",
+        "prev2": "182"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 182,
+      "name": "ニャオニクス♀",
+      "siteName": "ニャオニクス♀",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "181",
+        "prev2": "181"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 183,
+      "name": "アヤシシ",
+      "siteName": "アヤシシ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "183",
+        "prev2": "183"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 184,
+      "name": "ルガルガンまひる",
+      "siteName": "ルガルガンまひる",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "184",
+        "prev2": "184"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 185,
+      "name": "タブンネ",
+      "siteName": "タブンネ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "186",
+        "prev2": "186"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 186,
+      "name": "ラムパルド",
+      "siteName": "ラムパルド",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "185",
+        "prev2": "185"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 187,
+      "name": "デデンネ",
+      "siteName": "デデンネ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "187",
+        "prev2": "187"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 188,
+      "name": "アーボック",
+      "siteName": "アーボック",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "188",
+        "prev2": "188"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 189,
+      "name": "トリミアン",
+      "siteName": "トリミアン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "194",
+        "prev2": "194"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 190,
+      "name": "マッギョG",
+      "siteName": "マッギョG",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "190",
+        "prev2": "190"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 191,
+      "name": "バリコオル",
+      "siteName": "バリコオル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "191",
+        "prev2": "191"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 192,
+      "name": "ロトム飛",
+      "siteName": "ロトム飛",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "192",
+        "prev2": "192"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 193,
+      "name": "ツンベアー",
+      "siteName": "ツンベアー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "193",
+        "prev2": "193"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 194,
+      "name": "タルップル",
+      "siteName": "タルップル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "189",
+        "prev2": "189"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 195,
+      "name": "レパルダス",
+      "siteName": "レパルダス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "195",
+        "prev2": "195"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 196,
+      "name": "アップリュー",
+      "siteName": "アップリュー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "196",
+        "prev2": "196"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 197,
+      "name": "ダストダス",
+      "siteName": "ダストダス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "197",
+        "prev2": "197"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 198,
+      "name": "ルガルガンまよなか",
+      "siteName": "ルガルガンまよなか",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "198",
+        "prev2": "198"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 199,
+      "name": "ヒヤッキー",
+      "siteName": "ヒヤッキー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "200",
+        "prev2": "200"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 200,
+      "name": "ヤレユータン",
+      "siteName": "ヤレユータン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "199",
+        "prev2": "199"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 201,
+      "name": "ケンタロス",
+      "siteName": "ケンタロス",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "202",
+        "prev2": "202"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 202,
+      "name": "ダイケンキ",
+      "siteName": "ダイケンキ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "201",
+        "prev2": "201"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 203,
+      "name": "パンプジン普",
+      "siteName": "パンプジン普",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "203",
+        "prev2": "203"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 204,
+      "name": "ナゲツケサル",
+      "siteName": "ナゲツケサル",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "204",
+        "prev2": "204"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 205,
+      "name": "ミルホッグ",
+      "siteName": "ミルホッグ",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "205",
+        "prev2": "205"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 206,
+      "name": "ヤナッキー",
+      "siteName": "ヤナッキー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "207",
+        "prev2": "207"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 207,
+      "name": "バオッキー",
+      "siteName": "バオッキー",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "206",
+        "prev2": "206"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 208,
+      "name": "フレフワン",
+      "siteName": "フレフワン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "208",
+        "prev2": "208"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 209,
+      "name": "ロトム",
+      "siteName": "ロトム",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "209",
+        "prev2": "209"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 210,
+      "name": "ケンタロスP",
+      "siteName": "ケンタロスP",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "212",
+        "prev2": "212"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 211,
+      "name": "パンプジン小",
+      "siteName": "パンプジン小",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "210",
+        "prev2": "210"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 212,
+      "name": "パンプジン大",
+      "siteName": "パンプジン大",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "211",
+        "prev2": "211"
+      },
+      "updatedAt": ""
+    },
+    {
+      "rank": 213,
+      "name": "ポワルン",
+      "siteName": "ポワルン",
+      "battleType": "single",
+      "ranks": {
+        "prev1": "213",
+        "prev2": "213"
+      },
+      "updatedAt": ""
+    }
+  ]
+}
