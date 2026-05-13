@@ -793,6 +793,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="footer-text">非公式ファンサイト / 個人運営</div>
   <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
+<script src="ranking-season-helper.js"></script>
 
 <script>
 
@@ -809,6 +810,8 @@ let moveIndex    = [];
 let _dataLoaded = false;
 let RANKING_SINGLE = {rows:[]};
 let RANKING_DOUBLE = {rows:[]};
+let ACTIVE_RANKING_SEASON = '';
+
 let rankingAssistMode = 'single';
 let lastBulkCandidates = [];
 let _pokemonMovesLoaded = false;
@@ -862,11 +865,34 @@ async function ensurePokemonMovesLoaded(){
   });
   return _pokemonMovesPromise;
 }
+function getPokemonStoredSeasonLabel(){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.getStored === 'function') return pokeEdgeRankingSeason.getStored() || '';
+  return '';
+}
+function resolvePokemonSeasonLabel(preferred){
+  const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons : [];
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') return pokeEdgeRankingSeason.resolve(labels, preferred || ACTIVE_RANKING_SEASON || getPokemonStoredSeasonLabel());
+  return String(preferred || ACTIVE_RANKING_SEASON || labels[0] || '').trim();
+}
+function getPokemonRankingFilePath(mode, seasonLabel){
+  const base = mode==='double' ? 'season_ranking_double' : 'season_ranking_single';
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.file === 'function') return pokeEdgeRankingSeason.file(base, seasonLabel);
+  const raw = String(seasonLabel || '').trim();
+  const m = raw.match(/(\d+)/);
+  const num = m ? parseInt(m[1], 10) : 0;
+  return num && num !== 1 ? `${base}_s${num}.json` : `${base}.json`;
+}
 async function ensureRankingDataLoaded(mode){
   const key = mode==='double' ? 'double' : 'single';
+  const seasonLabel = resolvePokemonSeasonLabel(document.getElementById('global-season-filter')?.value || getPokemonStoredSeasonLabel());
+  if(ACTIVE_RANKING_SEASON !== seasonLabel){
+    ACTIVE_RANKING_SEASON = seasonLabel;
+    _rankingLoaded = {single:false, double:false};
+    _rankingPromises = {single:null, double:null};
+  }
   if(_rankingLoaded[key]) return key==='double' ? RANKING_DOUBLE : RANKING_SINGLE;
   if(_rankingPromises[key]) return _rankingPromises[key];
-  const file = key==='double' ? 'season_ranking_double.json' : 'season_ranking_single.json';
+  const file = getPokemonRankingFilePath(key, ACTIVE_RANKING_SEASON);
   _rankingPromises[key] = fetchDataJson(file, {rows:[]}).then(data=>{
     const normalized = data && Array.isArray(data.rows) ? data : {rows:[]};
     if(key==='double') RANKING_DOUBLE = normalized;
@@ -875,6 +901,15 @@ async function ensureRankingDataLoaded(mode){
     return normalized;
   });
   return _rankingPromises[key];
+}
+async function reloadPokemonRankingData(preferred){
+  const seasonLabel = resolvePokemonSeasonLabel(preferred);
+  ACTIVE_RANKING_SEASON = seasonLabel;
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && seasonLabel) pokeEdgeRankingSeason.setStored(seasonLabel);
+  _rankingLoaded = {single:false, double:false};
+  _rankingPromises = {single:null, double:null};
+  await ensureRankingDataLoaded(rankingAssistMode);
+  if(selectedPokeName) renderRankingRecommend();
 }
 
 
@@ -1032,6 +1067,7 @@ async function loadGameData() {
     MOVES_DATA   = md;
     ABILITY_MAP  = ad;
     SEASON_DATA  = sd;
+    ACTIVE_RANKING_SEASON = resolvePokemonSeasonLabel(getPokemonStoredSeasonLabel());
     ITEMS_DATA   = Array.isArray(idata) ? idata : [];
     MEGA_DATA   = normalizeMegaRelations(megaData);
     pokeIndex    = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
@@ -2564,6 +2600,8 @@ function switchPokemonMobileTabIfMobile(tab){
 }
 
 // ===== 初期化 =====
+window.addEventListener('pokeedge:season-change', function(ev){ const season = ev?.detail?.season || ''; const sel = document.getElementById('global-season-filter'); if(season && sel && Array.from(sel.options).some(opt=>opt.value===season)){ sel.value = season; reloadPokemonRankingData(season); } });
+
 window.onload = async () => {
   await loadGameData();
   onPokeModeChange();
@@ -2576,17 +2614,6 @@ window.onload = async () => {
   initSeasonFilter();
 
   // シーズンフィルター初期化
-  const sfWrap = document.getElementById('season-filter-wrap');
-  const sfSel  = document.getElementById('global-season-filter');
-  if(sfWrap && sfSel && SEASON_DATA.seasons && SEASON_DATA.seasons.length) {
-    sfWrap.style.display = 'block';
-    SEASON_DATA.seasons.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s;
-      opt.textContent = s + '（' + (SEASON_DATA[s]||[]).length + '件）';
-      sfSel.appendChild(opt);
-    });
-  }
 
   registeredPokes = await initPokemonData();
   setupPokeSearch();
@@ -2630,6 +2657,9 @@ function getSeasonFilteredPokes() {
   return visible.filter(p => seasonIncludesDisplayName(SEASON_DATA[season], p.name));
 }
 function onSeasonFilterChange() {
+  const season = document.getElementById('global-season-filter')?.value || '';
+  if(season && window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function') pokeEdgeRankingSeason.setStored(season);
+  reloadPokemonRankingData(season || getPokemonStoredSeasonLabel());
   document.querySelectorAll('input.search-input').forEach(inp => {
     inp.dispatchEvent(new Event('input'));
   });
@@ -2647,6 +2677,8 @@ function initSeasonFilter() {
       opt.textContent = s + '（' + (SEASON_DATA[s]||[]).length + '件）';
       sel.appendChild(opt);
     });
+    const preferred = resolvePokemonSeasonLabel(getPokemonStoredSeasonLabel());
+    if(preferred) sel.value = preferred;
   }
 }
 

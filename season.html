@@ -656,6 +656,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="footer-logo">PokeEdge</div>
   <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
+<script src="ranking-season-helper.js"></script>
 
 <script>
 var POKE_DATA = [];
@@ -698,7 +699,7 @@ function getMegaFormsFromRelations(baseName){
   return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
 }
 
-let currentSeason = '';
+let currentSeason = (window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.getStored === 'function') ? (pokeEdgeRankingSeason.getStored() || '') : '';
 let sortKey = 'no';
 let sortDir = 1;
 let currentDetailName = '';
@@ -905,9 +906,11 @@ function clearSeasonSearch() {
 
 function setSeason(btn, season) {
   currentSeason = season;
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && season) pokeEdgeRankingSeason.setStored(season);
   document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   render();
+  if(partyViewActive) renderPartyReferenceList();
 }
 
 function sortBy(key) {
@@ -988,10 +991,16 @@ function render() {
 
 function buildSeasonBtns() {
   const container = document.getElementById('season-btns');
-  SEASON_DATA.seasons.forEach(s => {
+  if(!container) return;
+  const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons.slice() : [];
+  const preferred = (window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function')
+    ? pokeEdgeRankingSeason.resolve(labels, currentSeason)
+    : (currentSeason || labels[0] || '');
+  if(preferred) currentSeason = preferred;
+  labels.forEach(s => {
     const count = (SEASON_DATA[s]||[]).length;
     const btn = document.createElement('button');
-    btn.className = 'season-btn';
+    btn.className = 'season-btn' + (s === currentSeason ? ' active' : '');
     btn.dataset.season = s;
     btn.textContent = `${s}（${count}件）`;
     btn.onclick = () => setSeason(btn, s);
@@ -1299,6 +1308,7 @@ window.onload = async () => {
       POKE_BY_NAME[p.name] = p;
     });
     SEASON_DATA = sd || {seasons:[]};
+    if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') currentSeason = pokeEdgeRankingSeason.resolve(SEASON_DATA.seasons || [], currentSeason);
     ABILITIES_BY_NAME = normalizeAbilitiesData(ad);
     ABILITY_EFFECTS_BY_NAME = normalizeAbilityEffectsData(aed);
     MEGA_DATA = normalizeMegaRelations(megaData);
@@ -1467,6 +1477,10 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   function rankingFilePath(kind, battle, season) {
+    if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.file === 'function') {
+      const base = kind === 'ranking' ? `season_ranking_${battle}` : `season_ranking_history_${battle}`;
+      return pokeEdgeRankingSeason.file(base, season);
+    }
     const suffix = isBaseRankingSeason(season) ? '' : seasonSuffixFromLabel(season);
     if(kind === 'ranking') return `season_ranking_${battle}${suffix}.json`;
     return `season_ranking_history_${battle}${suffix}.json`;
@@ -1562,7 +1576,10 @@ document.addEventListener('DOMContentLoaded',function(){
         if(singleRes.ok || doubleRes.ok || singleHistoryRes.ok || doubleHistoryRes.ok) available.push(season);
       }
       RANKING_AVAILABLE_SEASONS = sortSeasonLabels(available, true);
+      const preferred = (window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') ? pokeEdgeRankingSeason.resolve(RANKING_AVAILABLE_SEASONS.length ? RANKING_AVAILABLE_SEASONS : seasonCandidates, currentRankingSeason) : '';
+      if(preferred) currentRankingSeason = preferred;
       if(!currentRankingSeason) currentRankingSeason = RANKING_AVAILABLE_SEASONS[0] || sortSeasonLabels(seasonCandidates, true)[0] || '';
+      if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && currentRankingSeason) pokeEdgeRankingSeason.setStored(currentRankingSeason);
       _seasonRankingLoaded = true;
       renderRankingSeasonOptions();
       renderActiveRankingPanel();
@@ -1776,7 +1793,7 @@ document.addEventListener('DOMContentLoaded',function(){
     const seasonSelect = rankingRoot.querySelector('#rank-season-select');
     const nameInput = rankingRoot.querySelector('#rank-name-search');
     const clearBtn = rankingRoot.querySelector('#rank-clear-btn');
-    if(seasonSelect) seasonSelect.addEventListener('change', function(){ currentRankingSeason = seasonSelect.value || ''; renderActiveRankingPanel(); });
+    if(seasonSelect) seasonSelect.addEventListener('change', function(){ currentRankingSeason = seasonSelect.value || ''; if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && currentRankingSeason) pokeEdgeRankingSeason.setStored(currentRankingSeason); renderActiveRankingPanel(); });
     if(nameInput) nameInput.addEventListener('input', function(){ currentRankingNameQuery = String(nameInput.value || '').trim(); renderActiveRankingPanel(); });
     if(clearBtn) clearBtn.addEventListener('click', function(){
       currentRankingNameQuery = '';
@@ -1815,6 +1832,7 @@ document.addEventListener('DOMContentLoaded',function(){
     const select = document.getElementById('rank-season-select');
     if(!select) return;
     const seasons = RANKING_AVAILABLE_SEASONS.length ? RANKING_AVAILABLE_SEASONS : sortSeasonLabels(SEASON_DATA?.seasons || [], true);
+    if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') currentRankingSeason = pokeEdgeRankingSeason.resolve(seasons, currentRankingSeason);
     if(!currentRankingSeason) currentRankingSeason = seasons[0] || '';
     select.innerHTML = seasons.length ? seasons.map(season => `<option value="${escapeHtml(season)}">${escapeHtml(season)}</option>`).join('') : '<option value="">未設定</option>';
     select.value = currentRankingSeason;
@@ -2467,12 +2485,21 @@ document.addEventListener('DOMContentLoaded',function(){
     if((ctx.abilities || []).some(query => !matchesSeasonSearchFields(partyRefAbilityFields(party), query))) return false;
     return true;
   }
+  function partyRefSeasonMatchesCurrent(partySeason, selectedSeason){
+    const partyValue = String(partySeason || '').trim();
+    const currentValue = String(selectedSeason || '').trim();
+    if(!currentValue) return true;
+    if(!partyValue) return false;
+    if(partyValue === currentValue) return true;
+    const partyNum = (window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.num === 'function') ? pokeEdgeRankingSeason.num(partyValue) : (parseInt((partyValue.match(/(\d+)/)||[])[1]||'',10) || 0);
+    const currentNum = (window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.num === 'function') ? pokeEdgeRankingSeason.num(currentValue) : (parseInt((currentValue.match(/(\d+)/)||[])[1]||'',10) || 0);
+    return !!partyNum && !!currentNum && partyNum === currentNum;
+  }
   function getFilteredPartyReferences(){
     const criteria = getSeasonSearchCriteria();
     const type = document.getElementById('type-filter')?.value || '';
     return (PARTY_REFERENCE_DATA.parties || []).filter(party => {
-      if(currentSeason && party.season && party.season !== currentSeason) return false;
-      if(currentSeason && !party.season) return false;
+      if(currentSeason && !partyRefSeasonMatchesCurrent(party.season, currentSeason)) return false;
       if(type && !partyRefMatchesTypeFilter(party, type)) return false;
       if(!partyRefMatchesSearchCriteria(party, criteria)) return false;
       return true;
@@ -2602,7 +2629,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!season) return;
     const btn = document.querySelector(`.season-btn[data-season="${CSS.escape(season)}"]`);
     if(btn && typeof setSeason === 'function') setSeason(btn, season);
-    else { currentSeason = season; if(typeof render === 'function') render(); }
+    else { currentSeason = season; if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && season) pokeEdgeRankingSeason.setStored(season); if(typeof render === 'function') render(); }
   }
 
   function openSeasonPokemonFromParty(name, season){

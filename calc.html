@@ -1582,6 +1582,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>ポケモン1210種・技520種対応</div>
   <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
+<script src="ranking-season-helper.js"></script>
 <script>
 // ===== データ =====
 let POKEMON_DATA = [];
@@ -1589,6 +1590,8 @@ let MOVES_DATA   = [];
 let ABILITY_MAP  = {};
 let SEASON_DATA  = {seasons:[]};
 let SEASON_RANKING = {rows:[]};
+let ACTIVE_RANKING_SEASON = '';
+
 let BELONGINGS_DATA = [];
 let ABILITIES_DATA = [];
 let MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
@@ -1915,6 +1918,36 @@ function normalizePokemonMoves(raw){
   if(raw && typeof raw === 'object' && !Array.isArray(raw)) return raw;
   return {};
 }
+function getCalcStoredSeasonLabel(){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.getStored === 'function') return pokeEdgeRankingSeason.getStored() || '';
+  return '';
+}
+function resolveCalcSeasonLabel(preferred){
+  const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons : [];
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') return pokeEdgeRankingSeason.resolve(labels, preferred || ACTIVE_RANKING_SEASON || getCalcStoredSeasonLabel());
+  return String(preferred || ACTIVE_RANKING_SEASON || labels[0] || '').trim();
+}
+function getCalcRankingFilePath(seasonLabel){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.file === 'function') return pokeEdgeRankingSeason.file('season_ranking_single', seasonLabel);
+  const raw = String(seasonLabel || '').trim();
+  const m = raw.match(/(\d+)/);
+  const num = m ? parseInt(m[1], 10) : 0;
+  return num && num !== 1 ? `season_ranking_single_s${num}.json` : 'season_ranking_single.json';
+}
+async function reloadCalcSeasonRanking(preferred){
+  const seasonLabel = resolveCalcSeasonLabel(preferred);
+  ACTIVE_RANKING_SEASON = seasonLabel;
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && seasonLabel) pokeEdgeRankingSeason.setStored(seasonLabel);
+  const payload = await fetchJsonFlexible(getCalcRankingFilePath(seasonLabel), {rows:[]}, false);
+  SEASON_RANKING = normalizeSeasonRanking(payload);
+  const statusSuffix = seasonLabel ? ` / 参照 ${seasonLabel}` : '';
+  ['atk','def'].forEach(side=>{
+    const status = el(side+'-ranking-status');
+    if(status && !(window['_'+side+'Base'] && window['_'+side+'Base'].name)) status.textContent = 'ポケモンを選ぶと、上位の性格・努力値をここで確認できます。' + statusSuffix;
+  });
+  try{ refreshCalcRankingInfo('atk'); }catch(_){ }
+  try{ refreshCalcRankingInfo('def'); }catch(_){ }
+}
 function setSearchError(message){
   const msg = message || 'データを読み込めませんでした。時間をおいて再読み込みしてください。';
   ['atk-drop','def-drop','atk2-drop'].forEach(id=>{
@@ -1952,12 +1985,11 @@ function bindPokemonSearchFinalize(inputId){
 }
 async function loadGameData() {
   if(_dataLoaded) return;
-  const [pd,md,ad,sd,sr,bd,pm] = await Promise.all([
+  const [pd,md,ad,sd,bd,pm] = await Promise.all([
     fetchJsonFlexible('pokemon.json', [], true),
     fetchJsonFlexible('moves.json', [], true),
     fetchJsonFlexible('abilities.json', {}, false),
     fetchJsonFlexible('season.json', {seasons:[]}, false),
-    fetchJsonFlexible('season_ranking_single.json', {rows:[]}, false),
     fetchJsonFlexible('belongings.json', [], false),
     fetchJsonFlexible('pokemon_moves.json', {pokemon:{}}, false),
   ]);
@@ -1965,9 +1997,10 @@ async function loadGameData() {
   MOVES_DATA = normalizeMovesDataset(md);
   ABILITY_MAP = normalizeAbilityMap(ad);
   SEASON_DATA = normalizeSeasonData(sd);
-  SEASON_RANKING = normalizeSeasonRanking(sr);
   BELONGINGS_DATA = normalizeBelongingsData(bd);
   POKEMON_MOVES = normalizePokemonMoves(pm);
+  ACTIVE_RANKING_SEASON = resolveCalcSeasonLabel(getCalcStoredSeasonLabel());
+  SEASON_RANKING = normalizeSeasonRanking(await fetchJsonFlexible(getCalcRankingFilePath(ACTIVE_RANKING_SEASON), {rows:[]}, false));
   if(!POKEMON_DATA.length || !MOVES_DATA.length) throw new Error('data_empty');
   pokeIndex = POKEMON_DATA.map((p,i)=>Object.assign({_i:i},p));
   moveIndex = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
@@ -5100,9 +5133,14 @@ function initSeasonFilter(){
       opt.value=s; opt.textContent=s+'（'+(SEASON_DATA[s]||[]).length+'件）';
       sel.appendChild(opt);
     });
+    const preferred = resolveCalcSeasonLabel(sel.value || getCalcStoredSeasonLabel());
+    if(preferred) sel.value = preferred;
   }
 }
 function onSeasonFilterChange(){
+  const season = (el('global-season-filter')?.value || '').trim();
+  if(season && window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function') pokeEdgeRankingSeason.setStored(season);
+  reloadCalcSeasonRanking(season || getCalcStoredSeasonLabel());
   document.querySelectorAll('input.search-input').forEach(inp=>inp.dispatchEvent(new Event('input')));
   if(el('damage-setup-modal')?.classList.contains('show')) renderDamageSetupLists();
 }
@@ -5202,6 +5240,8 @@ window.onload = async()=>{
   setupMoveSearch('atk1b-move-search','atk1b-move-drop');
   setupMoveSearch('atk2-move-search','atk2-move-drop');
   initSeasonFilter();
+  const initialCalcSeason = (el('global-season-filter')?.value || getCalcStoredSeasonLabel() || ACTIVE_RANKING_SEASON || '');
+  if(initialCalcSeason) await reloadCalcSeasonRanking(initialCalcSeason);
   await loadRegisteredCalcPokemon();
   setupEvents();
   bindAutoCalcEvents();

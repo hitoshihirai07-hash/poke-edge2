@@ -576,12 +576,31 @@ async function refreshBattleAnalysisAccess(options={}){
   return status;
 }
 
+function getBattleStoredSeasonLabel(){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.getStored === 'function') return pokeEdgeRankingSeason.getStored() || '';
+  return '';
+}
+function resolveBattleSeasonLabel(labels, preferred){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') return pokeEdgeRankingSeason.resolve(labels, preferred || getBattleStoredSeasonLabel());
+  return String(preferred || (labels||[])[0] || '').trim();
+}
+function getBattleRankingFilePath(seasonLabel){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.file === 'function') return pokeEdgeRankingSeason.file('season_ranking_single', seasonLabel);
+  const raw = String(seasonLabel || '').trim();
+  const m = raw.match(/(\d+)/);
+  const num = m ? parseInt(m[1], 10) : 0;
+  return num && num !== 1 ? `season_ranking_single_s${num}.json` : 'season_ranking_single.json';
+}
+
 async function init(){
-  const [pd,md,sd,bd,pm,rankSingle,abMap,abData,partyList]=await Promise.all([fetchJson('pokemon.json',[]),fetchJson('moves.json',[]),fetchJson('season.json',{seasons:[]}),fetchJson('belongings.json',[]),fetchJson('pokemon_moves.json',{pokemon:{}}),fetchJson('season_ranking_single.json',{rows:[]}),fetchJson('abilities.json',{}),fetchJson('abilities_data.json',[]),fetchJson('party_list.json',{parties:[]})]);
+  const [pd,md,sd,bd,pm,abMap,abData,partyList]=await Promise.all([fetchJson('pokemon.json',[]),fetchJson('moves.json',[]),fetchJson('season.json',{seasons:[]}),fetchJson('belongings.json',[]),fetchJson('pokemon_moves.json',{pokemon:{}}),fetchJson('abilities.json',{}),fetchJson('abilities_data.json',[]),fetchJson('party_list.json',{parties:[]})]);
+  const seasonKey=resolveBattleSeasonLabel(sd.seasons||[], getBattleStoredSeasonLabel()) || (sd.seasons&&sd.seasons[0]) || '内定';
+  const rankSingle = await fetchJson(getBattleRankingFilePath(seasonKey), {rows:[]});
   state.pokemon=normalizePokemon(pd);state.moves=normalizeMoves(md);state.movesByName=new Map(state.moves.map(m=>[m.name,m]));state.known=normalizeKnown(pm);
   state.abilitiesByPokemon=abMap||{};state.abilitiesData=Array.isArray(abData)?abData:[];state.abilitiesByName=new Map(state.abilitiesData.map(a=>[a.name,a]));
   state.rankings=normalizeRankings(rankSingle);state.rankingByName=buildRankingMap(state.rankings);
-  const seasonKey=(sd.seasons&&sd.seasons[0])||'内定';state.season=new Set(sd[seasonKey]||[]);
+  state.season=new Set(sd[seasonKey]||[]);
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && seasonKey) pokeEdgeRankingSeason.setStored(seasonKey);
   state.items=(Array.isArray(bd)?bd:[]).filter(i=>i&&i.name);state.megaItems=state.items.filter(isMegaStoneItem);
   state.baseRoster=state.pokemon.filter(p=>state.season.has(p.name)&&!isDisplayHiddenFormName(p.name));
   if((state.season.has('ギルガルド盾')||state.season.has('ギルガルド剣'))&&!state.baseRoster.some(p=>p.name==='ギルガルド')){

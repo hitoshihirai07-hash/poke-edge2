@@ -965,6 +965,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>ポケモン1210種・技520種対応</div>
   <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
+<script src="ranking-season-helper.js"></script>
 
 <script>
 
@@ -980,6 +981,8 @@ let pokeIndex    = [];
 let moveIndex    = [];
 let MOVE_LOOKUP  = {};
 let PARTY_RANKING_DATA = {single:{rows:[],updatedAt:''}, double:{rows:[],updatedAt:''}};
+let ACTIVE_RANKING_SEASON = '';
+
 let PARTY_RANKING_MODE = localStorage.getItem('pokeedge_party_ranking_mode') || 'single';
 let MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
 
@@ -1044,6 +1047,38 @@ function normalizeRankingPayload(payload, battleType){
   const rows = payload && Array.isArray(payload.rows) ? payload.rows : [];
   const updatedAt = payload && payload.updatedAt ? String(payload.updatedAt) : '';
   return {battleType, updatedAt, rows};
+}
+function getPartyStoredSeasonLabel(){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.getStored === 'function') return pokeEdgeRankingSeason.getStored() || '';
+  return '';
+}
+function resolvePartySeasonLabel(preferred){
+  const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons : [];
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') return pokeEdgeRankingSeason.resolve(labels, preferred || ACTIVE_RANKING_SEASON || getPartyStoredSeasonLabel());
+  return String(preferred || ACTIVE_RANKING_SEASON || labels[0] || '').trim();
+}
+function getPartyRankingFilePath(mode, seasonLabel){
+  const base = mode === 'double' ? 'season_ranking_double' : 'season_ranking_single';
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.file === 'function') return pokeEdgeRankingSeason.file(base, seasonLabel);
+  const raw = String(seasonLabel || '').trim();
+  const m = raw.match(/(\d+)/);
+  const num = m ? parseInt(m[1], 10) : 0;
+  return num && num !== 1 ? `${base}_s${num}.json` : `${base}.json`;
+}
+async function reloadPartyRankingData(preferred){
+  const seasonLabel = resolvePartySeasonLabel(preferred);
+  ACTIVE_RANKING_SEASON = seasonLabel;
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && seasonLabel) pokeEdgeRankingSeason.setStored(seasonLabel);
+  const [rankingSingle, rankingDouble] = await Promise.all([
+    fetchDataJson(getPartyRankingFilePath('single', seasonLabel), {rows:[], updatedAt:''}),
+    fetchDataJson(getPartyRankingFilePath('double', seasonLabel), {rows:[], updatedAt:''})
+  ]);
+  PARTY_RANKING_DATA = {
+    single: normalizeRankingPayload(rankingSingle, 'single'),
+    double: normalizeRankingPayload(rankingDouble, 'double')
+  };
+  if(selectedSlot>=0 && party[selectedSlot] && party[selectedSlot].poke) renderPeMoveQuick(party[selectedSlot].poke.name);
+  updateCoverage();
 }
 function normalizeMoveLookupName(name){
   return String(name||'').replace(/[\s　]+/g,'').trim();
@@ -1253,14 +1288,12 @@ function getAegislashForms(){ return getSpecialForms(AEGISLASH_BASE_NAME); }
 async function loadGameData() {
   if(_dataLoaded) return;
   try {
-    const [pd, md, ad, sd, idata, rankingSingle, rankingDouble, megaData] = await Promise.all([
+    const [pd, md, ad, sd, idata, megaData] = await Promise.all([
       fetchDataJson('pokemon.json', []),
       fetchDataJson('moves.json', []),
       fetchDataJson('abilities.json', {}),
       fetchDataJson('season.json', {seasons:[]}),
       fetchDataJson('belongings.json', []),
-      fetchDataJson('season_ranking_single.json', {rows:[], updatedAt:''}),
-      fetchDataJson('season_ranking_double.json', {rows:[], updatedAt:''}),
       fetchDataJson('mega.json', {rows:[], baseToForms:{}, formToBase:{}}),
     ]);
     POKEMON_DATA = ensureSpecialFormDisplayPokemon((Array.isArray(pd)?pd:[]).map(markSpecialFormEntry));
@@ -1272,10 +1305,8 @@ async function loadGameData() {
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     MOVE_LOOKUP  = Object.fromEntries(moveIndex.map(m=>[normalizeMoveLookupName(m.name), m]));
     MEGA_DATA = normalizeMegaRelations(megaData);
-    PARTY_RANKING_DATA = {
-      single: normalizeRankingPayload(rankingSingle, 'single'),
-      double: normalizeRankingPayload(rankingDouble, 'double')
-    };
+    ACTIVE_RANKING_SEASON = resolvePartySeasonLabel(getPartyStoredSeasonLabel());
+    await reloadPartyRankingData(ACTIVE_RANKING_SEASON);
     _dataLoaded  = true;
   } catch(e) {
     console.error('データ読み込みエラー:', e);
@@ -4007,18 +4038,6 @@ window.onload = async () => {
   });
   syncPartyMegaTargetUI();
 
-  // シーズンフィルター初期化
-  const sfWrap = document.getElementById('season-filter-wrap');
-  const sfSel  = document.getElementById('global-season-filter');
-  if(sfWrap && sfSel && SEASON_DATA.seasons && SEASON_DATA.seasons.length) {
-    sfWrap.style.display = 'block';
-    SEASON_DATA.seasons.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s;
-      opt.textContent = s + '（' + (SEASON_DATA[s]||[]).length + '件）';
-      sfSel.appendChild(opt);
-    });
-  }
 
   setupItemMasterList();
   if(window.requestIdleCallback){
@@ -4409,6 +4428,8 @@ const TYPE_COLORS = {
 window.exportPartyImage = exportPartyImage;
 setupPartyExportSizeSwitch();
 
+window.addEventListener('pokeedge:season-change', function(ev){ const season = ev?.detail?.season || ''; const sel = document.getElementById('global-season-filter'); if(season && sel && Array.from(sel.options).some(opt=>opt.value===season)){ sel.value = season; reloadPartyRankingData(season); renderRegPokeList(document.getElementById('party-reg-search')?.value||''); } });
+
 document.addEventListener('DOMContentLoaded',()=>{ renderRegPokeList(); renderPartySlotList(); });
 };
 window.addEventListener('beforeunload', savePartyDraftNow);
@@ -4424,6 +4445,9 @@ function getSeasonFilteredPokes() {
   return visible.filter(p => seasonIncludesDisplayName(SEASON_DATA[season], p.name));
 }
 function onSeasonFilterChange() {
+  const season = document.getElementById('global-season-filter')?.value || '';
+  if(season && window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function') pokeEdgeRankingSeason.setStored(season);
+  reloadPartyRankingData(season || getPartyStoredSeasonLabel());
   document.querySelectorAll('input.search-input').forEach(inp => {
     inp.dispatchEvent(new Event('input'));
   });
@@ -4441,6 +4465,8 @@ function initSeasonFilter() {
       opt.textContent = s + '（' + (SEASON_DATA[s]||[]).length + '件）';
       sel.appendChild(opt);
     });
+    const preferred = resolvePartySeasonLabel(getPartyStoredSeasonLabel());
+    if(preferred) sel.value = preferred;
   }
 }
 

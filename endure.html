@@ -450,7 +450,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
         <h2>ランキング側</h2>
         <div class="sub">変化技は候補から外し、攻撃技だけ見られる形にしています。クリックしたポケモンは下にまとめて表示されます。</div>
       </div>
-      <button type="button" class="btn clear-btn" id="clear-ranking-selection">選択をクリア</button>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+        <label style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;">参照シーズン
+          <select id="endure-season-select" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:11px;font-family:'Noto Sans JP',sans-serif;outline:none;"></select>
+        </label>
+        <button type="button" class="btn clear-btn" id="clear-ranking-selection">選択をクリア</button>
+      </div>
     </div>
     <div class="chooser" id="ranking-list"></div>
   </section>
@@ -546,6 +551,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
   <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>耐久ラインを複数候補で並べて確認</div>
   <div style="font-size:10px;"><a href="policy.html" style="color:var(--muted);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
+<script src="ranking-season-helper.js"></script>
 
 <script>
 const NATURE_NAMES = [
@@ -605,6 +611,8 @@ const STATE = {
   rankingConfigs: {},
   defenderWindowOpen: true
 };
+let ACTIVE_RANKING_SEASON = '';
+
 function el(id){ return document.getElementById(id); }
 function clamp32(v){ const n = parseInt(v,10); return Number.isFinite(n) ? Math.max(0, Math.min(32, n)) : 0; }
 function uniq(arr){ return [...new Set((arr||[]).filter(Boolean))]; }
@@ -1515,19 +1523,36 @@ function getMegaFormsFromRelations(baseName){
   return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
 }
 
+function getEndureStoredSeasonLabel(){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.getStored === 'function') return pokeEdgeRankingSeason.getStored() || '';
+  return '';
+}
+function resolveEndureSeasonLabel(labels, preferred){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') return pokeEdgeRankingSeason.resolve(labels, preferred || ACTIVE_RANKING_SEASON || getEndureStoredSeasonLabel());
+  return String(preferred || (labels||[])[0] || '').trim();
+}
+function getEndureRankingFilePath(seasonLabel){
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.file === 'function') return pokeEdgeRankingSeason.file('season_ranking_single', seasonLabel);
+  const raw = String(seasonLabel || '').trim();
+  const m = raw.match(/(\d+)/);
+  const num = m ? parseInt(m[1], 10) : 0;
+  return num && num !== 1 ? `season_ranking_single_s${num}.json` : 'season_ranking_single.json';
+}
 async function loadData(){
-  const [pokemon, moves, season, ranking, abilities, pokemonMoves, megaData] = await Promise.all([
+  const [pokemon, moves, season, abilities, pokemonMoves, megaData] = await Promise.all([
     fetch('pokemon.json').then(r=>r.json()),
     fetch('moves.json').then(r=>r.json()),
     fetch('season.json').then(r=>r.json()),
-    fetch('season_ranking_single.json').then(r=>r.json()),
     fetch('abilities.json').then(r=>r.json()),
     fetch('pokemon_moves.json').then(r=>r.json()),
     fetch('mega.json').then(r=>r.json()).catch(()=>({rows:[], baseToForms:{}, formToBase:{}}))
   ]);
+  const seasonLabels = Array.isArray(season?.seasons) ? season.seasons : [];
+  ACTIVE_RANKING_SEASON = resolveEndureSeasonLabel(seasonLabels, getEndureStoredSeasonLabel());
+  const ranking = await fetch(getEndureRankingFilePath(ACTIVE_RANKING_SEASON)).then(r=>r.ok ? r.json() : ({rows:[]})).catch(()=>({rows:[]}));
   const pokemonByName = Object.fromEntries((pokemon || []).map(p => [p.name, p]));
   const allPokemonNames = (pokemon || []).map(p => p.name);
-  const innerNames = Array.isArray(season?.['内定']) ? season['内定'] : (Array.isArray(season?.seasons) ? season.seasons : []);
+  const innerNames = (ACTIVE_RANKING_SEASON && Array.isArray(season?.[ACTIVE_RANKING_SEASON])) ? season[ACTIVE_RANKING_SEASON] : (Array.isArray(season?.['内定']) ? season['内定'] : (Array.isArray(season?.seasons) ? season.seasons : []));
   const movesByName = Object.fromEntries((moves || []).map(m => [m.name, m]));
   const damagingMoveNames = (moves || []).filter(m => m.category !== '変化').map(m => m.name).sort((a,b)=>a.localeCompare(b,'ja'));
   const megaRelations = normalizeMegaRelations(megaData);
@@ -1549,9 +1574,36 @@ async function loadData(){
     abilityMap: abilities || {},
     pokemonMoves: pokemonMoves?.pokemon || {},
     megaMap,
-    megaFormSet
+    megaFormSet,
+    seasonLabels,
+    seasonData: season || {}
   };
 }
+async function reloadEndureSeasonData(preferred){
+  if(!STATE.data) return;
+  const seasonLabels = Array.isArray(STATE.data.seasonLabels) ? STATE.data.seasonLabels : [];
+  const seasonLabel = resolveEndureSeasonLabel(seasonLabels, preferred);
+  ACTIVE_RANKING_SEASON = seasonLabel;
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && seasonLabel) pokeEdgeRankingSeason.setStored(seasonLabel);
+  const ranking = await fetch(getEndureRankingFilePath(seasonLabel)).then(r=>r.ok ? r.json() : ({rows:[]})).catch(()=>({rows:[]}));
+  STATE.data.innerNames = (seasonLabel && Array.isArray(STATE.data.seasonData?.[seasonLabel])) ? STATE.data.seasonData[seasonLabel] : (Array.isArray(STATE.data.seasonData?.['内定']) ? STATE.data.seasonData['内定'] : STATE.data.innerNames);
+  STATE.data.rankingRows = Array.isArray(ranking?.rows) ? ranking.rows : [];
+  const select = el('endure-season-select');
+  if(select && seasonLabel) select.value = seasonLabel;
+  STATE.rankingSelected = STATE.data.rankingRows.slice(0,3).map(r => r.name);
+  STATE.rankingConfigs = {};
+  renderRankingList();
+  STATE.rankingSelected.forEach(name => ensureRankingConfig(name));
+  renderSelectedRankingCards();
+  const allowed = getAllowedNames();
+  if(allowed.length && (!STATE.defender.baseName || !allowed.includes(STATE.defender.baseName))) applyDefenderPokemon(allowed[0]);
+  const freeDefault = allowed.find(name => !isMegaName(name)) || allowed[0] || '';
+  if(freeDefault && (!STATE.free.baseName || !allowed.includes(STATE.free.baseName))) applyFreePokemon(freeDefault);
+  renderFreeSection();
+  renderDefenderSection();
+  scheduleUpdateAllResults();
+}
+
 function bindStaticEvents(){
   el('defender-name').addEventListener('change', e => applyDefenderPokemon(e.target.value));
   el('defender-name').addEventListener('blur', e => applyDefenderPokemon(e.target.value));
@@ -1566,6 +1618,8 @@ function bindStaticEvents(){
     renderSelectedRankingCards();
     scheduleUpdateAllResults();
   });
+  const seasonSelect = el('endure-season-select');
+  if(seasonSelect) seasonSelect.addEventListener('change', () => reloadEndureSeasonData(seasonSelect.value));
 
 }
 
@@ -1620,6 +1674,12 @@ async function init(){
   renderModeButtons();
   bindStaticEvents();
   STATE.data = await loadData();
+  const seasonSelect = el('endure-season-select');
+  if(seasonSelect){
+    const labels = Array.isArray(STATE.data.seasonLabels) ? STATE.data.seasonLabels.slice() : [];
+    seasonSelect.innerHTML = labels.map(label => `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`).join('');
+    if(ACTIVE_RANKING_SEASON) seasonSelect.value = ACTIVE_RANKING_SEASON;
+  }
   renderDamagingMoveDatalist();
   renderPokemonDatalist();
   updateModeStatus();
@@ -1640,6 +1700,8 @@ async function init(){
 document.getElementById('calc-frame').addEventListener('load', () => {
   if(STATE.data) scheduleUpdateAllResults();
 });
+window.addEventListener('pokeedge:season-change', function(ev){ const season = ev?.detail?.season || ''; const select = el('endure-season-select'); if(season && select && Array.from(select.options).some(opt=>opt.value===season)){ select.value = season; reloadEndureSeasonData(season); } });
+
 init().catch(err => {
   console.error(err);
   el('mode-status').textContent = 'データ読み込みに失敗しました。';
