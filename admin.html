@@ -392,6 +392,22 @@ input[type=file]{display:none;}
     </div>
   </div>
 
+<div class="section" id="ranking-season-section">
+  <div class="sec-title">ランキング用の出力シーズン</div>
+  <div class="sec-file">シーズンを選ぶと、順位関連4種類の出力名が切り替わります</div>
+  <div class="steps">
+    <div class="step"><span class="step-n">1</span><span>現在対応中のシーズンを選択</span></div>
+    <div class="step"><span class="step-n">2</span><span>single_s2.csv などを読み込み</span></div>
+    <div class="step"><span class="step-n">3</span><span>選んだシーズン名のJSONでダウンロードしてアップロード</span></div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;">
+    <label style="display:grid;gap:6px;min-width:220px;">
+      <span style="font-size:11px;color:var(--text2);">シーズン</span>
+      <select id="ranking-season-select" class="admin-select"></select>
+    </label>
+    <div id="ranking-season-output-preview" style="font-size:11px;color:var(--text2);line-height:1.8;"></div>
+  </div>
+</div>
 
 <!-- party_list.csv → party_list.json -->
 <div class="section" id="update-section-party_list">
@@ -767,7 +783,7 @@ input[type=file]{display:none;}
   <!-- single.csv → season_ranking_single.json -->
   <div class="section" id="update-section-rank_single">
     <div class="sec-title">順位データ更新（シングル）</div>
-    <div class="sec-file">single.csv → season_ranking_single.json</div>
+    <div class="sec-file" id="rank-single-file-label">single.csv → season_ranking_single.json</div>
     <div class="sec-cols">
       必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>性格1〜5</span>・<span>努力値1〜5</span>・<span>更新日</span><br>
       <span style="font-size:10px;color:var(--text3);">順位一覧用CSVです。順位推移CSVとは別です。対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜5</span> / <span>努力値</span> または <span>努力値1〜5</span></span>
@@ -800,7 +816,7 @@ input[type=file]{display:none;}
     </div>
     <div class="btn-row">
       <button class="btn btn-gen" id="btn-rank_single-gen" onclick="generateJSON('rank_single')" disabled>⚡ JSON生成</button>
-      <button class="btn btn-dl" id="btn-rank_single-dl" onclick="downloadJSON('rank_single')" disabled>💾 season_ranking_single.json ダウンロード</button>
+      <button class="btn btn-dl" id="btn-rank_single-dl" onclick="downloadJSON('rank_single')" disabled>💾 順位JSON ダウンロード</button>
     </div>
     <div class="log" id="log-rank_single">CSVを読み込んでください</div>
   </div>
@@ -808,7 +824,7 @@ input[type=file]{display:none;}
   <!-- double.csv → season_ranking_double.json -->
   <div class="section" id="update-section-rank_double">
     <div class="sec-title">順位データ更新（ダブル）</div>
-    <div class="sec-file">double.csv → season_ranking_double.json</div>
+    <div class="sec-file" id="rank-double-file-label">double.csv → season_ranking_double.json</div>
     <div class="sec-cols">
       必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>技1〜10</span>・<span>持ちもの1〜10</span>・<span>性格1〜5</span>・<span>努力値1〜5</span>・<span>更新日</span><br>
       <span style="font-size:10px;color:var(--text3);">順位一覧用CSVです。順位推移CSVとは別です。対応カラム：<span>特性</span> または <span>特性1〜2</span> / <span>性格</span> または <span>性格1〜5</span> / <span>努力値</span> または <span>努力値1〜5</span></span>
@@ -841,7 +857,7 @@ input[type=file]{display:none;}
     </div>
     <div class="btn-row">
       <button class="btn btn-gen" id="btn-rank_double-gen" onclick="generateJSON('rank_double')" disabled>⚡ JSON生成</button>
-      <button class="btn btn-dl" id="btn-rank_double-dl" onclick="downloadJSON('rank_double')" disabled>💾 season_ranking_double.json ダウンロード</button>
+      <button class="btn btn-dl" id="btn-rank_double-dl" onclick="downloadJSON('rank_double')" disabled>💾 順位JSON ダウンロード</button>
     </div>
     <div class="log" id="log-rank_double">CSVを読み込んでください</div>
   </div>
@@ -850,7 +866,7 @@ input[type=file]{display:none;}
   <!-- single_ranking_change.csv → season_ranking_history_single.json -->
   <div class="section" id="update-section-rank_history_single">
     <div class="sec-title">順位推移データ更新（シングル）</div>
-    <div class="sec-file">single_ranking_change.csv → season_ranking_history_single.json</div>
+    <div class="sec-file" id="rank-history-single-file-label">single_ranking_change.csv → season_ranking_history_single.json</div>
     <div class="sec-cols">
       必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>prev1</span>〜<span>prevN</span><br>
       <span style="font-size:10px;color:var(--text3);">順位推移用CSVです。順位一覧CSVとは別です。先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
@@ -883,7 +899,7 @@ input[type=file]{display:none;}
     </div>
     <div class="btn-row">
       <button class="btn btn-gen" id="btn-rank_history_single-gen" onclick="generateJSON('rank_history_single')" disabled>⚡ JSON生成</button>
-      <button class="btn btn-dl" id="btn-rank_history_single-dl" onclick="downloadJSON('rank_history_single')" disabled>💾 season_ranking_history_single.json ダウンロード</button>
+      <button class="btn btn-dl" id="btn-rank_history_single-dl" onclick="downloadJSON('rank_history_single')" disabled>💾 順位推移JSON ダウンロード</button>
     </div>
     <div class="log" id="log-rank_history_single">CSVを読み込んでください</div>
   </div>
@@ -891,7 +907,7 @@ input[type=file]{display:none;}
   <!-- double_ranking_change.csv → season_ranking_history_double.json -->
   <div class="section" id="update-section-rank_history_double">
     <div class="sec-title">順位推移データ更新（ダブル）</div>
-    <div class="sec-file">double_ranking_change.csv → season_ranking_history_double.json</div>
+    <div class="sec-file" id="rank-history-double-file-label">double_ranking_change.csv → season_ranking_history_double.json</div>
     <div class="sec-cols">
       必須カラム：<span>順位</span>・<span>ポケモン名</span>・<span>prev1</span>〜<span>prevN</span><br>
       <span style="font-size:10px;color:var(--text3);">順位推移用CSVです。順位一覧CSVとは別です。先頭の推移列を最新順位として扱います。更新日列がある場合はJSONにも入ります。</span>
@@ -924,7 +940,7 @@ input[type=file]{display:none;}
     </div>
     <div class="btn-row">
       <button class="btn btn-gen" id="btn-rank_history_double-gen" onclick="generateJSON('rank_history_double')" disabled>⚡ JSON生成</button>
-      <button class="btn btn-dl" id="btn-rank_history_double-dl" onclick="downloadJSON('rank_history_double')" disabled>💾 season_ranking_history_double.json ダウンロード</button>
+      <button class="btn btn-dl" id="btn-rank_history_double-dl" onclick="downloadJSON('rank_history_double')" disabled>💾 順位推移JSON ダウンロード</button>
     </div>
     <div class="log" id="log-rank_history_double">CSVを読み込んでください</div>
   </div>
@@ -1212,6 +1228,71 @@ async function adminFetchText(file){
 async function adminFetchJSON(file){
   const text = await adminFetchText(file);
   return JSON.parse(text);
+}
+
+function adminSeasonNumber(label){
+  const m = String(label || '').match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : 0;
+}
+function adminRankingSeasonSuffix(label){
+  const num = adminSeasonNumber(label);
+  if(num <= 1) return '';
+  return `_s${num}`;
+}
+function adminRankingOutputFilename(type){
+  const season = document.getElementById('ranking-season-select')?.value || 'S1';
+  const suffix = adminRankingSeasonSuffix(season);
+  const map = {
+    rank_single: `season_ranking_single${suffix}.json`,
+    rank_double: `season_ranking_double${suffix}.json`,
+    rank_history_single: `season_ranking_history_single${suffix}.json`,
+    rank_history_double: `season_ranking_history_double${suffix}.json`
+  };
+  return map[type] || '';
+}
+function updateRankingSeasonUI(){
+  const single = adminRankingOutputFilename('rank_single') || 'season_ranking_single.json';
+  const double = adminRankingOutputFilename('rank_double') || 'season_ranking_double.json';
+  const hs = adminRankingOutputFilename('rank_history_single') || 'season_ranking_history_single.json';
+  const hd = adminRankingOutputFilename('rank_history_double') || 'season_ranking_history_double.json';
+  const preview = document.getElementById('ranking-season-output-preview');
+  if(preview) preview.innerHTML = `シングル順位: <b>${adminEsc(single)}</b><br>ダブル順位: <b>${adminEsc(double)}</b><br>シングル順位推移: <b>${adminEsc(hs)}</b><br>ダブル順位推移: <b>${adminEsc(hd)}</b>`;
+  const labelMap = {
+    'rank-single-file-label': `single.csv → ${single}` ,
+    'rank-double-file-label': `double.csv → ${double}` ,
+    'rank-history-single-file-label': `single_ranking_change.csv → ${hs}` ,
+    'rank-history-double-file-label': `double_ranking_change.csv → ${hd}`
+  };
+  Object.entries(labelMap).forEach(([id, text]) => { const el = document.getElementById(id); if(el) el.textContent = text; });
+}
+async function loadRankingSeasonOptions(){
+  const select = document.getElementById('ranking-season-select');
+  if(!select) return;
+  let seasons = [];
+  try{
+    const data = await adminFetchJSON('season.json');
+    seasons = Array.isArray(data?.seasons) ? data.seasons.slice() : [];
+  }catch(_){ }
+  seasons = Array.from(new Set(seasons.filter(Boolean))).sort((a,b)=>{ const av=adminSeasonNumber(a), bv=adminSeasonNumber(b); if(av!==bv) return bv-av; return String(b).localeCompare(String(a),'ja'); });
+  if(!seasons.length) seasons = ['S1'];
+  select.innerHTML = seasons.map(season => `<option value="${adminEsc(season)}">${adminEsc(season)}</option>`).join('');
+  if(!select.value) select.value = seasons[0];
+  updateRankingSeasonUI();
+  if(!select.dataset.bound){
+    select.dataset.bound = '1';
+    select.addEventListener('change', updateRankingSeasonUI);
+  }
+}
+function trySetRankingSeasonFromFilename(name){
+  const select = document.getElementById('ranking-season-select');
+  if(!select || !name) return;
+  const m = String(name).match(/_s(\d+)\.csv$/i);
+  if(!m) return;
+  const value = `S${m[1]}`;
+  if(Array.from(select.options).some(opt => opt.value === value)) {
+    select.value = value;
+    updateRankingSeasonUI();
+  }
 }
 function adminEsc(value){
   return String(value == null ? '' : value).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
@@ -1554,6 +1635,7 @@ function loadFile(e, type) { const f=e.target.files[0]; if(f) readFile(f,type); 
 function readFile(file, type) {
   const log = document.getElementById('log-'+type);
   log.innerHTML = `<span class="warn">読み込み中... ${file.name}</span>`;
+  if(['rank_single','rank_double','rank_history_single','rank_history_double'].includes(type)) trySetRankingSeasonFromFilename(file.name);
   const reader = new FileReader();
   reader.onload = e => {
     try {
@@ -1990,6 +2072,8 @@ function toggleTheme() {
 </script>
 
 <script>
+document.addEventListener('DOMContentLoaded', function(){ loadRankingSeasonOptions(); });
+
 (function(){
   if(typeof state === 'undefined') return;
   state.rank_single = { csv:null, json:null };
@@ -2153,7 +2237,8 @@ function toggleTheme() {
         : buildRankingJSON(data, battleType);
       state[type].json = json;
       document.getElementById('btn-' + type + '-dl').disabled = false;
-      log.innerHTML = `<span class="ok">✅ ${json.rows.length}件の${(type === 'rank_history_single' || type === 'rank_history_double') ? '順位推移' : '順位'}データを生成しました</span>`;
+      const filename = adminRankingOutputFilename(type);
+      log.innerHTML = `<span class="ok">✅ ${json.rows.length}件の${(type === 'rank_history_single' || type === 'rank_history_double') ? '順位推移' : '順位'}データを生成しました（出力名: ${filename}）</span>`;
     } catch(err) {
       log.innerHTML = `<span class="err">❌ 生成エラー: ${err.message}</span>`;
     }
@@ -2166,13 +2251,7 @@ function toggleTheme() {
     }
     const json = state[type].json;
     if(!json) return;
-    const filenameMap = {
-      rank_single: 'season_ranking_single.json',
-      rank_double: 'season_ranking_double.json',
-      rank_history_single: 'season_ranking_history_single.json',
-      rank_history_double: 'season_ranking_history_double.json'
-    };
-    const filename = filenameMap[type];
+    const filename = adminRankingOutputFilename(type);
     const blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2181,6 +2260,7 @@ function toggleTheme() {
     a.click();
     URL.revokeObjectURL(url);
     document.getElementById('log-'+type).innerHTML += `<br><span class="ok">💾 ${filename} をダウンロードしました — 公開中の同名JSONへ上書きアップロードしてください</span>`;
+    updateRankingSeasonUI();
   };
 })();
 </script>

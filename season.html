@@ -179,6 +179,23 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .rank-subtab{padding:6px 12px;border:1px solid var(--border);background:var(--panel);color:var(--text2);font-size:11px;cursor:pointer;}
 .rank-subtab.active,.rank-subtab:hover{border-color:var(--accent3);color:var(--accent3);background:rgba(255,200,0,0.08);}
 .rank-meta{font-size:11px;color:var(--text2);margin-bottom:10px;}
+.rank-toolbar{display:grid;grid-template-columns:minmax(160px,220px) minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:12px;}
+.rank-toolbar .search-field{display:grid;gap:6px;}
+.rank-toolbar .search-field-label{font-size:10px;color:var(--text2);letter-spacing:1px;}
+.rank-toolbar select,.rank-toolbar input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;}
+.rank-toolbar select:focus,.rank-toolbar input:focus{border-color:var(--accent);}
+.rank-clear-btn{padding:9px 14px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;}
+.rank-clear-btn:hover{border-color:var(--accent);color:var(--accent);}
+.rank-view-subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.rank-subpanel{display:none;}
+.rank-subpanel.show{display:block;}
+.detail-main-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.detail-main-tab{padding:8px 12px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;}
+.detail-main-tab.active,.detail-main-tab:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.08);}
+.detail-tab-panel{display:none;}
+.detail-tab-panel.show{display:block;}
+.detail-season-heading{font-size:12px;color:var(--accent3);margin:0 0 10px;letter-spacing:1px;}
+@media(max-width:900px){.rank-toolbar{grid-template-columns:1fr;}}
 .rank-wrap{overflow:auto;border:1px solid var(--border);}
 .rank-table{width:100%;border-collapse:collapse;font-size:12px;min-width:980px;}
 .rank-table th{position:sticky;top:0;background:var(--bg2);color:var(--text2);padding:8px;border-bottom:1px solid var(--border);text-align:left;font-size:10px;letter-spacing:1px;font-weight:400;}
@@ -1396,19 +1413,57 @@ document.addEventListener('DOMContentLoaded',function(){
     'イルカマン（マイティ）':['イルカマン']
   };
 
-  let SINGLE_RANKINGS = {rows:[], updatedAt:''};
-  let DOUBLE_RANKINGS = {rows:[], updatedAt:''};
-  let SINGLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
-  let DOUBLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
-  let currentViewMode = 'list';
+  let currentMainView = 'list';
+  let currentRankingView = 'ranking';
   let currentRankingBattle = 'single';
-  let currentHistoryBattle = 'single';
+  let currentRankingSeason = '';
+  let currentRankingNameQuery = '';
   let currentDetailMoves = [];
   let currentDetailMovesExpanded = false;
   let currentDetailTransferName = '';
+  let currentDetailTab = 'moves';
+
+  let RANKING_AVAILABLE_SEASONS = [];
+  let RANKING_STORE = {
+    single: {},
+    double: {},
+    historySingle: {},
+    historyDouble: {}
+  };
 
   function uniq(arr) {
     return Array.from(new Set((arr || []).filter(Boolean)));
+  }
+
+  function seasonNumericValue(label) {
+    const m = String(label || '').match(/(\d+)/);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+
+  function sortSeasonLabels(arr, desc) {
+    return uniq(arr).sort((a,b) => {
+      const av = seasonNumericValue(a);
+      const bv = seasonNumericValue(b);
+      if(av !== bv) return desc ? bv - av : av - bv;
+      return desc ? String(b).localeCompare(String(a), 'ja') : String(a).localeCompare(String(b), 'ja');
+    });
+  }
+
+  function isBaseRankingSeason(season) {
+    return seasonNumericValue(season) === 1;
+  }
+
+  function seasonSuffixFromLabel(season) {
+    const raw = String(season || '').trim();
+    const num = seasonNumericValue(raw);
+    if(num) return `_s${num}`;
+    return '_' + raw.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+
+  function rankingFilePath(kind, battle, season) {
+    const suffix = isBaseRankingSeason(season) ? '' : seasonSuffixFromLabel(season);
+    if(kind === 'ranking') return `season_ranking_${battle}${suffix}.json`;
+    return `season_ranking_history_${battle}${suffix}.json`;
   }
 
   function formatRankingDate(value) {
@@ -1444,45 +1499,130 @@ document.addEventListener('DOMContentLoaded',function(){
     return uniq(names);
   }
 
+  function fetchMaybeJson(path) {
+    return fetch(path, {cache:'no-cache'}).then(async (r) => {
+      if(!r.ok) return {ok:false, data:null};
+      return {ok:true, data:await r.json()};
+    }).catch(() => ({ok:false, data:null}));
+  }
+
+  function normalizeRankingPayload(raw, battle, season) {
+    const base = raw && typeof raw === 'object' ? raw : {};
+    const rows = Array.isArray(base.rows) ? base.rows : [];
+    return {
+      battleType: battle,
+      season,
+      updatedAt: base.updatedAt || '',
+      rows: rows.map(row => Object.assign({}, row, { battleType: battle, season }))
+    };
+  }
+
+  function normalizeHistoryPayload(raw, battle, season) {
+    const base = raw && typeof raw === 'object' ? raw : {};
+    const rows = Array.isArray(base.rows) ? base.rows : [];
+    const columns = Array.isArray(base.columns) ? base.columns : [];
+    return {
+      battleType: battle,
+      season,
+      updatedAt: base.updatedAt || '',
+      columns,
+      rows: rows.map(row => Object.assign({}, row, { battleType: battle, season }))
+    };
+  }
+
+  async function loadRankingJson() {
+    if(_seasonRankingLoaded) return RANKING_STORE;
+    if(_seasonRankingPromise) return _seasonRankingPromise;
+    _seasonRankingPromise = (async()=>{
+      const seasonCandidates = sortSeasonLabels((SEASON_DATA && Array.isArray(SEASON_DATA.seasons) ? SEASON_DATA.seasons : []).filter(Boolean), false);
+      const available = [];
+      for(const season of seasonCandidates) {
+        const [singleRes, doubleRes, singleHistoryRes, doubleHistoryRes] = await Promise.all([
+          fetchMaybeJson(rankingFilePath('ranking', 'single', season)),
+          fetchMaybeJson(rankingFilePath('ranking', 'double', season)),
+          fetchMaybeJson(rankingFilePath('history', 'single', season)),
+          fetchMaybeJson(rankingFilePath('history', 'double', season))
+        ]);
+        if(singleRes.ok) RANKING_STORE.single[season] = normalizeRankingPayload(singleRes.data, 'single', season);
+        if(doubleRes.ok) RANKING_STORE.double[season] = normalizeRankingPayload(doubleRes.data, 'double', season);
+        if(singleHistoryRes.ok) RANKING_STORE.historySingle[season] = normalizeHistoryPayload(singleHistoryRes.data, 'single', season);
+        if(doubleHistoryRes.ok) RANKING_STORE.historyDouble[season] = normalizeHistoryPayload(doubleHistoryRes.data, 'double', season);
+        if(singleRes.ok || doubleRes.ok || singleHistoryRes.ok || doubleHistoryRes.ok) available.push(season);
+      }
+      RANKING_AVAILABLE_SEASONS = sortSeasonLabels(available, true);
+      if(!currentRankingSeason) currentRankingSeason = RANKING_AVAILABLE_SEASONS[0] || sortSeasonLabels(seasonCandidates, true)[0] || '';
+      _seasonRankingLoaded = true;
+      renderRankingSeasonOptions();
+      renderActiveRankingPanel();
+      return RANKING_STORE;
+    })();
+    return _seasonRankingPromise;
+  }
+
+  function getRankingData(season, battle) {
+    return battle === 'double'
+      ? (RANKING_STORE.double[season] || {rows:[], updatedAt:'', season})
+      : (RANKING_STORE.single[season] || {rows:[], updatedAt:'', season});
+  }
+
+  function getHistoryData(season, battle) {
+    return battle === 'double'
+      ? (RANKING_STORE.historyDouble[season] || {columns:[], rows:[], updatedAt:'', season})
+      : (RANKING_STORE.historySingle[season] || {columns:[], rows:[], updatedAt:'', season});
+  }
+
+  function getCurrentRankingData() {
+    return getRankingData(currentRankingSeason, currentRankingBattle);
+  }
+
+  function getCurrentHistoryData() {
+    return getHistoryData(currentRankingSeason, currentRankingBattle);
+  }
+
+  function rankingSearchMatches(row, query) {
+    if(!query) return true;
+    const siteNames = resolveSiteNames(row.name || row.siteName || '');
+    const records = siteNames.map(n => POKE_BY_NAME[n]).filter(Boolean);
+    const fields = uniqSeasonValues([row.name, row.siteName].concat(siteNames).concat(records.flatMap(p => getPokemonNameTexts(p))));
+    return matchesSeasonSearchFields(fields, query);
+  }
+
   function buildSearchablePokemonFromName(name) {
     const siteNames = resolveSiteNames(name || '');
     return siteNames.map(n => POKE_BY_NAME[n]).filter(Boolean);
   }
 
-  function matchesSeasonRankingSearch(row, siteNames, criteria) {
-    const ctx = criteria || getSeasonSearchCriteria();
-    const records = (siteNames && siteNames.length ? siteNames : resolveSiteNames(row.name || row.siteName || '')).map(n => POKE_BY_NAME[n]).filter(Boolean);
-    if(!matchesSeasonTypeFilterForRecords(records, ctx.type)) return false;
-    const nameFields = uniqSeasonValues([row.name, row.siteName].concat(siteNames || []).concat(records.flatMap(p => getPokemonNameTexts(p))));
-    const abilityFields = uniqSeasonValues((row.abilities || []).concat(records.flatMap(p => getPokemonAbilityTexts(p.name, true))));
-    const moveFields = uniqSeasonValues((row.moves || []).concat(records.flatMap(p => getPokemonMoveTexts(p.name))));
-    if(ctx.name && !matchesSeasonSearchFields(nameFields, ctx.name)) return false;
-    if((ctx.moves || []).some(query => !matchesSeasonSearchFields(moveFields, query))) return false;
-    if((ctx.abilities || []).some(query => !matchesSeasonSearchFields(abilityFields, query))) return false;
-    return true;
-  }
-
   function resolveRankingRowsForName(name) {
     const lookup = resolveRankingLookupNames(name);
     const baseLookups = inferBaseRankingNames(name);
-    function collect(sourceRows) {
-      const seen = new Set();
+    function collect(store) {
       const out = [];
-      (sourceRows || []).forEach(row => {
-        const key = [row.battleType,row.rank,row.name].join('::');
-        const matchSelf = lookup.includes(row.name) || lookup.includes(row.siteName);
-        const matchBase = !matchSelf && (baseLookups.includes(row.name) || baseLookups.includes(row.siteName));
-        if((matchSelf || matchBase) && !seen.has(key)) {
-          seen.add(key);
-          out.push(Object.assign({}, row, {rankingSource: matchBase ? 'base' : 'self'}));
-        }
+      const seen = new Set();
+      sortSeasonLabels(RANKING_AVAILABLE_SEASONS, true).forEach(season => {
+        const data = store[season] || {rows:[]};
+        (data.rows || []).forEach(row => {
+          const key = [season, row.battleType, row.rank, row.name].join('::');
+          const matchSelf = lookup.includes(row.name) || lookup.includes(row.siteName);
+          const matchBase = !matchSelf && (baseLookups.includes(row.name) || baseLookups.includes(row.siteName));
+          if((matchSelf || matchBase) && !seen.has(key)) {
+            seen.add(key);
+            out.push(Object.assign({}, row, { rankingSource: matchBase ? 'base' : 'self', season }));
+          }
+        });
       });
       return out;
     }
     return {
-      single: collect(SINGLE_RANKINGS.rows),
-      double: collect(DOUBLE_RANKINGS.rows)
+      single: collect(RANKING_STORE.single),
+      double: collect(RANKING_STORE.double)
     };
+  }
+
+  function getHistoryRowsForName(name, battle, season) {
+    const data = getHistoryData(season, battle);
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    const lookup = resolveRankingLookupNames(name || '').concat(inferBaseRankingNames(name || ''));
+    return rows.filter(row => lookup.includes(row.name) || lookup.includes(row.siteName));
   }
 
   function collectDetailContext(name) {
@@ -1533,101 +1673,319 @@ document.addEventListener('DOMContentLoaded',function(){
     tabs.id = 'view-tabs';
     tabs.innerHTML = `
       <button class="view-tab active" type="button" data-view="list">使用可能ポケモン</button>
-      <button class="view-tab" type="button" data-view="ranking">順位確認</button>
-      <button class="view-tab" type="button" data-view="history">順位推移</button>
+      <button class="view-tab" type="button" data-view="ranking">ランキング関連</button>
+      <button class="view-tab" type="button" data-view="party">パーティー一覧</button>
     `;
-    filterBar.insertAdjacentElement('afterend', tabs);
+    main.insertBefore(tabs, filterBar);
 
     const listWrap = document.createElement('div');
     listWrap.id = 'season-list-view';
-    statsBar.parentNode.insertBefore(listWrap, statsBar);
+    main.insertBefore(listWrap, filterBar);
+    listWrap.appendChild(filterBar);
     listWrap.appendChild(statsBar);
     listWrap.appendChild(tableWrap);
 
-    const rankWrap = document.createElement('div');
-    rankWrap.id = 'season-ranking-view';
-    rankWrap.className = 'rank-panel';
-    rankWrap.innerHTML = `
+    const rankingRoot = document.createElement('div');
+    rankingRoot.id = 'season-ranking-root';
+    rankingRoot.className = 'rank-panel';
+    rankingRoot.innerHTML = `
+      <div class="rank-toolbar">
+        <label class="search-field">
+          <span class="search-field-label">シーズン</span>
+          <select id="rank-season-select" aria-label="ランキングシーズン選択"></select>
+        </label>
+        <label class="search-field">
+          <span class="search-field-label">ポケモン名</span>
+          <input type="text" id="rank-name-search" placeholder="ポケモン名で検索" autocomplete="off">
+        </label>
+        <button class="rank-clear-btn" type="button" id="rank-clear-btn">クリア</button>
+      </div>
+      <div class="rank-view-subtabs">
+        <button class="view-tab active" type="button" data-rank-view="ranking">ポケモンランキング</button>
+        <button class="view-tab" type="button" data-rank-view="history">順位推移</button>
+      </div>
       <div class="rank-subtabs">
         <button class="rank-subtab active" type="button" data-battle="single">シングル</button>
         <button class="rank-subtab" type="button" data-battle="double">ダブル</button>
       </div>
-      <div class="rank-meta" id="rank-meta">順位データを読み込み中...</div>
-      <div class="rank-wrap">
-        <table class="rank-table">
-          <thead>
-            <tr>
-              <th>順位</th>
-              <th>ポケモン</th>
-              <th>技</th>
-              <th>持ち物</th>
-              <th>特性</th>
-              <th>性格</th>
-              <th>努力値</th>
-              <th>更新日</th>
-            </tr>
-          </thead>
-          <tbody id="rank-tbody"></tbody>
-        </table>
+      <div class="rank-subpanel show" id="season-ranking-view">
+        <div class="rank-meta" id="rank-meta">順位データを読み込み中...</div>
+        <div class="rank-wrap">
+          <table class="rank-table">
+            <thead>
+              <tr>
+                <th>順位</th>
+                <th>ポケモン</th>
+                <th>技</th>
+                <th>持ち物</th>
+                <th>特性</th>
+                <th>性格</th>
+                <th>努力値</th>
+                <th>更新日</th>
+              </tr>
+            </thead>
+            <tbody id="rank-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="rank-subpanel" id="season-history-view">
+        <div class="rank-meta" id="rank-history-meta">順位推移データを読み込み中...</div>
+        <div class="rank-wrap">
+          <table class="rank-table" id="rank-history-table">
+            <thead id="rank-history-head"></thead>
+            <tbody id="rank-history-tbody"></tbody>
+          </table>
+        </div>
       </div>
     `;
-    listWrap.insertAdjacentElement('afterend', rankWrap);
-
-    const historyWrap = document.createElement('div');
-    historyWrap.id = 'season-history-view';
-    historyWrap.className = 'rank-panel';
-    historyWrap.innerHTML = `
-      <div class="rank-subtabs">
-        <button class="rank-subtab active" type="button" data-history-battle="single">シングル</button>
-        <button class="rank-subtab" type="button" data-history-battle="double">ダブル</button>
-      </div>
-      <div class="rank-meta" id="rank-history-meta">順位推移データを読み込み中...</div>
-      <div class="rank-wrap">
-        <table class="rank-table" id="rank-history-table">
-          <thead id="rank-history-head"></thead>
-          <tbody id="rank-history-tbody"></tbody>
-        </table>
-      </div>
-    `;
-    rankWrap.insertAdjacentElement('afterend', historyWrap);
+    main.insertBefore(rankingRoot, listWrap.nextSibling);
 
     tabs.addEventListener('click', function(e) {
       const btn = e.target.closest('.view-tab');
-      if(!btn) return;
-      setViewMode(btn.dataset.view || 'list');
+      if(!btn || btn.dataset.rankView) return;
+      if(btn.dataset.view === 'party') return;
+      setMainView(btn.dataset.view || 'list');
     });
-    rankWrap.addEventListener('click', function(e) {
-      const btn = e.target.closest('.rank-subtab');
-      if(!btn) return;
-      currentRankingBattle = btn.dataset.battle || 'single';
-      rankWrap.querySelectorAll('.rank-subtab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderRankings();
+
+    rankingRoot.addEventListener('click', function(e) {
+      const battleBtn = e.target.closest('.rank-subtab');
+      if(battleBtn) {
+        currentRankingBattle = battleBtn.dataset.battle || 'single';
+        rankingRoot.querySelectorAll('.rank-subtab').forEach(btn => btn.classList.toggle('active', btn === battleBtn));
+        renderActiveRankingPanel();
+        return;
+      }
+      const viewBtn = e.target.closest('[data-rank-view]');
+      if(viewBtn) {
+        setRankingView(viewBtn.dataset.rankView || 'ranking');
+      }
     });
-    historyWrap.addEventListener('click', function(e) {
-      const btn = e.target.closest('.rank-subtab');
-      if(!btn) return;
-      currentHistoryBattle = btn.dataset.historyBattle || 'single';
-      historyWrap.querySelectorAll('.rank-subtab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderRankingHistory();
+
+    const seasonSelect = rankingRoot.querySelector('#rank-season-select');
+    const nameInput = rankingRoot.querySelector('#rank-name-search');
+    const clearBtn = rankingRoot.querySelector('#rank-clear-btn');
+    if(seasonSelect) seasonSelect.addEventListener('change', function(){ currentRankingSeason = seasonSelect.value || ''; renderActiveRankingPanel(); });
+    if(nameInput) nameInput.addEventListener('input', function(){ currentRankingNameQuery = String(nameInput.value || '').trim(); renderActiveRankingPanel(); });
+    if(clearBtn) clearBtn.addEventListener('click', function(){
+      currentRankingNameQuery = '';
+      if(nameInput) nameInput.value = '';
+      renderActiveRankingPanel();
     });
+  }
+
+  function setMainView(mode) {
+    currentMainView = mode === 'ranking' ? 'ranking' : 'list';
+    const listView = document.getElementById('season-list-view');
+    const rankingRoot = document.getElementById('season-ranking-root');
+    document.querySelectorAll('.view-tab').forEach(btn => {
+      if(btn.dataset.rankView) return;
+      btn.classList.toggle('active', btn.dataset.view === currentMainView);
+    });
+    if(listView) listView.style.display = currentMainView === 'list' ? '' : 'none';
+    if(rankingRoot) rankingRoot.classList.toggle('show', currentMainView === 'ranking');
+    if(currentMainView === 'ranking') {
+      loadRankingJson();
+      renderActiveRankingPanel();
+    }
+  }
+
+  function setRankingView(mode) {
+    currentRankingView = mode === 'history' ? 'history' : 'ranking';
+    document.querySelectorAll('[data-rank-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.rankView === currentRankingView));
+    const rankingView = document.getElementById('season-ranking-view');
+    const historyView = document.getElementById('season-history-view');
+    if(rankingView) rankingView.classList.toggle('show', currentRankingView === 'ranking');
+    if(historyView) historyView.classList.toggle('show', currentRankingView === 'history');
+    renderActiveRankingPanel();
+  }
+
+  function renderRankingSeasonOptions() {
+    const select = document.getElementById('rank-season-select');
+    if(!select) return;
+    const seasons = RANKING_AVAILABLE_SEASONS.length ? RANKING_AVAILABLE_SEASONS : sortSeasonLabels(SEASON_DATA?.seasons || [], true);
+    if(!currentRankingSeason) currentRankingSeason = seasons[0] || '';
+    select.innerHTML = seasons.length ? seasons.map(season => `<option value="${escapeHtml(season)}">${escapeHtml(season)}</option>`).join('') : '<option value="">未設定</option>';
+    select.value = currentRankingSeason;
+  }
+
+  function historyRankValues(row, columns) {
+    const values = [];
+    const latest = row ? Number(row.rank) : NaN;
+    if(Number.isFinite(latest) && latest > 0) values.push(latest);
+    (columns || []).forEach(col => {
+      const v = row && row.ranks ? Number(row.ranks[col.key]) : NaN;
+      if(Number.isFinite(v) && v > 0) values.push(v);
+    });
+    return values;
+  }
+
+  function sparklineHtml(row, columns, title) {
+    const values = historyRankValues(row, columns);
+    if(values.length < 2) return '';
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    const width = 220, height = 46, pad = 6;
+    const denom = Math.max(1, max - min);
+    const pts = values.map((v,i) => {
+      const x = pad + (i * ((width - pad*2) / Math.max(1, values.length - 1)));
+      const y = pad + ((v - min) / denom) * (height - pad*2);
+      return `${x},${y}`;
+    }).join(' ');
+    const latest = values[0];
+    const prev = values[1];
+    const trend = Number.isFinite(latest) && Number.isFinite(prev)
+      ? (latest < prev ? '上昇' : latest > prev ? '下降' : '維持')
+      : '推移';
+    const titleText = title ? `${title} / ` : '';
+    return `<div class="rank-spark"><div class="rank-spark-title">${escapeHtml(titleText)}最新 ${escapeHtml(latest)}位 / ${escapeHtml(trend)}</div><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2"></polyline></svg><div class="rank-spark-values">${values.map(v => `${v}位`).join(' → ')}</div></div>`;
+  }
+
+  function rankingRowsForCurrentView() {
+    const data = getCurrentRankingData();
+    const source = Array.isArray(data.rows) ? data.rows : [];
+    return source.filter(row => rankingSearchMatches(row, currentRankingNameQuery)).sort((a,b) => (a.rank || 0) - (b.rank || 0));
+  }
+
+  function formatHistoryRank(value) {
+    if(value == null || value === '') return '—';
+    return String(value);
+  }
+
+  function latestHistoryRank(row, columns) {
+    if(row && row.rank != null && row.rank !== '') return row.rank;
+    const firstCol = Array.isArray(columns) && columns.length ? columns[0] : null;
+    const key = firstCol && firstCol.key ? firstCol.key : null;
+    const value = key && row && row.ranks ? row.ranks[key] : null;
+    if(value != null && value !== '') return value;
+    return '';
+  }
+
+  function historyColumnLabel(col, index) {
+    const raw = String((col && (col.label || col.key)) || '');
+    if(/^prev\d+$/i.test(raw) || /^current$/i.test(raw)) return `${index + 1}回前`;
+    return raw || `${index + 1}回前`;
+  }
+
+  function rankHistoryRowsForCurrentView() {
+    const data = getCurrentHistoryData();
+    const source = Array.isArray(data.rows) ? data.rows : [];
+    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
+    return source.filter(row => rankingSearchMatches(row, currentRankingNameQuery)).sort((a,b) => {
+      const avRaw = latestHistoryRank(a, columns);
+      const bvRaw = latestHistoryRank(b, columns);
+      const av = Number.isFinite(Number(avRaw)) && Number(avRaw) > 0 ? Number(avRaw) : Number.MAX_SAFE_INTEGER;
+      const bv = Number.isFinite(Number(bvRaw)) && Number(bvRaw) > 0 ? Number(bvRaw) : Number.MAX_SAFE_INTEGER;
+      if(av !== bv) return av - bv;
+      return String(a && a.name || '').localeCompare(String(b && b.name || ''), 'ja');
+    });
+  }
+
+  function renderRankings() {
+    const tbody = document.getElementById('rank-tbody');
+    const meta = document.getElementById('rank-meta');
+    if(!tbody || !meta) return;
+    const data = getCurrentRankingData();
+    const rows = rankingRowsForCurrentView();
+    const updated = formatRankingDate(data.updatedAt) || '未取得';
+    meta.textContent = `${currentRankingSeason || 'シーズン未設定'} / ${currentRankingBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件`;
+    if(!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="detail-empty">順位データがありません</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(row => `
+      <tr>
+        <td><span class="rank-badge">${escapeHtml(row.rank || '—')}</span></td>
+        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}" data-detail-tab="ranking">${escapeHtml(row.name || '—')}</button></td>
+        <td><div class="rank-cell-block">${(row.moves || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.items || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.abilities || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.natures || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td><div class="rank-cell-block">${(row.spreads || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
+        <td>${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderRankingHistory() {
+    const head = document.getElementById('rank-history-head');
+    const body = document.getElementById('rank-history-tbody');
+    const meta = document.getElementById('rank-history-meta');
+    if(!head || !body || !meta) return;
+    const data = getCurrentHistoryData();
+    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
+    const rows = rankHistoryRowsForCurrentView();
+    const updated = formatRankingDate(data.updatedAt) || '未取得';
+    meta.textContent = `${currentRankingSeason || 'シーズン未設定'} / ${currentRankingBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件 / 左端を最新として表示`;
+    head.innerHTML = `<tr><th>最新順位</th><th>ポケモン</th><th>推移</th>${columns.map((col, index) => `<th>${escapeHtml(historyColumnLabel(col, index))}</th>`).join('')}</tr>`;
+    if(!rows.length) {
+      body.innerHTML = `<tr><td colspan="${columns.length + 3}" class="detail-empty">順位推移データがありません</td></tr>`;
+      return;
+    }
+    body.innerHTML = rows.map(row => `
+      <tr>
+        <td>${escapeHtml(formatHistoryRank(latestHistoryRank(row, columns)))}</td>
+        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}" data-detail-tab="ranking">${escapeHtml(row.name || '—')}</button></td>
+        <td class="rank-history-mini">${sparklineHtml(row, columns, '')}</td>
+        ${columns.map(col => `<td>${escapeHtml(formatHistoryRank(row.ranks ? row.ranks[col.key] : null))}</td>`).join('')}
+      </tr>
+    `).join('');
+  }
+
+  function renderActiveRankingPanel() {
+    renderRankingSeasonOptions();
+    if(currentRankingView === 'history') renderRankingHistory();
+    else renderRankings();
   }
 
   function ensureDetailRankingBox() {
     const detailMain = document.querySelector('.detail-main');
-    if(!detailMain || document.getElementById('detail-ranking-box')) return;
-    const card = document.createElement('div');
-    card.className = 'detail-card';
-    card.id = 'detail-ranking-box';
-    card.innerHTML = `
-      <div class="detail-card-title">順位情報</div>
-      <div id="detail-ranking-summary" class="detail-ranking-grid"><div class="detail-empty">順位データがありません</div></div>
+    if(!detailMain || document.getElementById('detail-main-tabs')) return;
+
+    const moveCard = detailMain.querySelector('.detail-card');
+    if(!moveCard) return;
+
+    const tabBar = document.createElement('div');
+    tabBar.className = 'detail-main-tabs';
+    tabBar.id = 'detail-main-tabs';
+    tabBar.innerHTML = `
+      <button class="detail-main-tab active" type="button" data-detail-tab="moves">技</button>
+      <button class="detail-main-tab" type="button" data-detail-tab="ranking">ランキング</button>
     `;
-    detailMain.insertBefore(card, detailMain.firstElementChild);
+
+    const movePanel = document.createElement('div');
+    movePanel.className = 'detail-tab-panel show';
+    movePanel.id = 'detail-tab-moves';
+    movePanel.appendChild(moveCard);
+
+    const rankingPanel = document.createElement('div');
+    rankingPanel.className = 'detail-tab-panel';
+    rankingPanel.id = 'detail-tab-ranking';
+    rankingPanel.innerHTML = `
+      <div class="detail-card" id="detail-ranking-box">
+        <div class="detail-card-title">ランキング</div>
+        <div id="detail-ranking-summary" class="detail-ranking-grid"><div class="detail-empty">順位データがありません</div></div>
+      </div>
+    `;
+
+    detailMain.appendChild(tabBar);
+    detailMain.appendChild(movePanel);
+    detailMain.appendChild(rankingPanel);
+
+    tabBar.addEventListener('click', function(e){
+      const btn = e.target.closest('[data-detail-tab]');
+      if(!btn) return;
+      setDetailTab(btn.dataset.detailTab || 'moves');
+    });
   }
 
-
+  function setDetailTab(mode) {
+    currentDetailTab = mode === 'ranking' ? 'ranking' : 'moves';
+    document.querySelectorAll('.detail-main-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.detailTab === currentDetailTab));
+    const movePanel = document.getElementById('detail-tab-moves');
+    const rankPanel = document.getElementById('detail-tab-ranking');
+    if(movePanel) movePanel.classList.toggle('show', currentDetailTab === 'moves');
+    if(rankPanel) rankPanel.classList.toggle('show', currentDetailTab === 'ranking');
+  }
 
   function ensureDetailTransferBox() {
     const detailSide = document.querySelector('.detail-side');
@@ -1711,128 +2069,8 @@ document.addEventListener('DOMContentLoaded',function(){
     if(btn) btn.addEventListener('click', function(){ currentDetailMovesExpanded = !currentDetailMovesExpanded; renderDetailMovesPatched(); });
   }
 
-  function getHistoryRowsForName(name, battle) {
-    const data = battle === 'double' ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY;
-    const rows = Array.isArray(data.rows) ? data.rows : [];
-    const lookup = resolveRankingLookupNames(name || '').concat(inferBaseRankingNames(name || ''));
-    return rows.filter(row => lookup.includes(row.name) || lookup.includes(row.siteName));
-  }
-
-  function historyRankValues(row, columns) {
-    const values = [];
-    const latest = row ? Number(row.rank) : NaN;
-    if(Number.isFinite(latest) && latest > 0) values.push(latest);
-    (columns || []).forEach(col => {
-      const v = row && row.ranks ? Number(row.ranks[col.key]) : NaN;
-      if(Number.isFinite(v) && v > 0) values.push(v);
-    });
-    return values;
-  }
-
-  function sparklineHtml(row, columns, title) {
-    const values = historyRankValues(row, columns);
-    if(values.length < 2) return '';
-    const max = Math.max(...values);
-    const min = Math.min(...values);
-    const width = 220, height = 46, pad = 6;
-    const denom = Math.max(1, max - min);
-    const pts = values.map((v,i) => {
-      const x = values.length === 1 ? width / 2 : pad + i * ((width - pad*2) / (values.length - 1));
-      const y = pad + ((v - min) / denom) * (height - pad*2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-    const latest = values[0];
-    const oldest = values[values.length-1];
-    const diff = latest - oldest;
-    const trend = diff < 0 ? `上昇 ${Math.abs(diff)}` : diff > 0 ? `下降 ${diff}` : '横ばい';
-    const titleText = title ? `${title} / ` : '';
-    return `<div class="rank-spark"><div class="rank-spark-title">${escapeHtml(titleText)}最新 ${escapeHtml(latest)}位 / ${escapeHtml(trend)}</div><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2"></polyline></svg><div class="rank-spark-values">${values.map(v => `${v}位`).join(' → ')}</div></div>`;
-  }
-
-  function setViewMode(mode) {
-    currentViewMode = mode === 'ranking' ? 'ranking' : mode === 'history' ? 'history' : 'list';
-    const listView = document.getElementById('season-list-view');
-    const rankView = document.getElementById('season-ranking-view');
-    const historyView = document.getElementById('season-history-view');
-    document.querySelectorAll('.view-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.view === currentViewMode));
-    if(listView) listView.style.display = currentViewMode === 'list' ? '' : 'none';
-    if(rankView) rankView.classList.toggle('show', currentViewMode === 'ranking');
-    if(historyView) historyView.classList.toggle('show', currentViewMode === 'history');
-    if(currentViewMode === 'ranking'){ loadRankingJson(); renderRankings(); }
-    if(currentViewMode === 'history'){ loadRankingJson(); renderRankingHistory(); }
-  }
-
-  function rankingRowsForCurrentView() {
-    const source = currentRankingBattle === 'double' ? (DOUBLE_RANKINGS.rows || []) : (SINGLE_RANKINGS.rows || []);
-    const criteria = getSeasonSearchCriteria();
-    return source.filter(row => {
-      const siteNames = resolveSiteNames(row.name);
-      if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
-      if(!matchesSeasonRankingSearch(row, siteNames, criteria)) return false;
-      return true;
-    }).sort((a,b) => (a.rank || 0) - (b.rank || 0));
-  }
-
-  function renderRankings() {
-    const tbody = document.getElementById('rank-tbody');
-    const meta = document.getElementById('rank-meta');
-    if(!tbody || !meta) return;
-
-    const data = currentRankingBattle === 'double' ? DOUBLE_RANKINGS : SINGLE_RANKINGS;
-    const rows = rankingRowsForCurrentView();
-    const updated = formatRankingDate(data.updatedAt) || '未取得';
-    meta.textContent = `${currentRankingBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件`;
-
-    if(!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="detail-empty">順位データがありません</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = rows.map(row => `
-      <tr>
-        <td><span class="rank-badge">${escapeHtml(row.rank || '—')}</span></td>
-        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
-        <td><div class="rank-cell-block">${(row.moves || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.items || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.abilities || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.natures || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td><div class="rank-cell-block">${(row.spreads || []).map(v => `<span>${escapeHtml(v)}</span>`).join('') || '<span>—</span>'}</div></td>
-        <td>${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</td>
-      </tr>
-    `).join('');
-  }
-
-  function renderDetailRanking(rankings) {
-    const box = document.getElementById('detail-ranking-summary');
-    if(!box) return;
-    const groups = [];
-    if(rankings.single.length) groups.push({title:'シングル順位', rows:rankings.single});
-    if(rankings.double.length) groups.push({title:'ダブル順位', rows:rankings.double});
-    if(!groups.length) {
-      box.innerHTML = '<div class="detail-empty">順位データがありません</div>';
-      return;
-    }
-    box.innerHTML = groups.map(group => `
-      <div class="detail-ranking-box">
-        <h5>${escapeHtml(group.title)}</h5>
-        ${group.rows.map(row => `
-          <div class="detail-ranking-line"><b>${escapeHtml(row.rank)}位</b>${escapeHtml(row.name || '')}${row.rankingSource === 'base' ? ' <span style="color:var(--accent3)">（元ポケモン順位）</span>' : ''}</div>
-          ${sparklineHtml((getHistoryRowsForName(row.name || '', group.title.includes('ダブル') ? 'double' : 'single') || [])[0], (group.title.includes('ダブル') ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY).columns || [], group.title + 'の推移')}
-          <div class="detail-ranking-line">更新日: ${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</div>
-          <div class="detail-ranking-line">技: ${escapeHtml((row.moves || []).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">持ち物: ${escapeHtml((row.items || []).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">特性: ${escapeHtml((row.abilities || []).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">性格: ${escapeHtml((row.natures || []).join(' / ') || '—')}</div>
-          <div class="detail-ranking-line">努力値: ${escapeHtml((row.spreads || []).join(' / ') || '—')}</div>
-        `).join('')}
-      </div>
-    `).join('');
-  }
-
   function renderDetailStats(records) {
-    if(!records.length) {
-      return '<div class="detail-empty">種族値データがありません</div>';
-    }
+    if(!records.length) return '<div class="detail-empty">種族値データがありません</div>';
     const stats = [['HP','hp'],['攻撃','atk'],['防御','def'],['特攻','spa'],['特防','spd'],['素早','spe']];
     if(records.length === 1) {
       const pokemon = records[0];
@@ -1843,19 +2081,17 @@ document.addEventListener('DOMContentLoaded',function(){
         return `<div class="detail-stat-row"><span>${label}</span><b>${val}</b><div class="detail-stat-bar"><span style="width:${pct}%;background:${color};"></span></div></div>`;
       }).join('');
     }
-    return `<div class="detail-form-grid">${
-      records.map(pokemon => `
-        <div class="detail-form-card">
-          <div class="detail-form-card-title">${escapeHtml(typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(pokemon.name) : pokemon.name)}</div>
-          ${stats.map(([label,key]) => {
-            const val = pokemon[key] || 0;
-            const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
-            const color = STAT_COLORS[key] || 'var(--accent)';
-            return `<div class="detail-stat-row"><span>${label}</span><b>${val}</b><div class="detail-stat-bar"><span style="width:${pct}%;background:${color};"></span></div></div>`;
-          }).join('')}
-        </div>
-      `).join('')
-    }</div>`;
+    return `<div class="detail-form-grid">${records.map(pokemon => `
+      <div class="detail-form-card">
+        <div class="detail-form-card-title">${escapeHtml(typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(pokemon.name) : pokemon.name)}</div>
+        ${stats.map(([label,key]) => {
+          const val = pokemon[key] || 0;
+          const pct = Math.min(100, Math.round(val / STAT_MAX[key] * 100));
+          const color = STAT_COLORS[key] || 'var(--accent)';
+          return `<div class="detail-stat-row"><span>${label}</span><b>${val}</b><div class="detail-stat-bar"><span style="width:${pct}%;background:${color};"></span></div></div>`;
+        }).join('')}
+      </div>
+    `).join('')}</div>`;
   }
 
   function renderAbilities(abilityNames) {
@@ -1866,14 +2102,50 @@ document.addEventListener('DOMContentLoaded',function(){
     }).join('');
   }
 
+  function renderDetailRanking(rankings) {
+    const box = document.getElementById('detail-ranking-summary');
+    if(!box) return;
+    const seasons = sortSeasonLabels(uniq((rankings.single || []).concat(rankings.double || []).map(row => row.season)), true);
+    if(!seasons.length) {
+      box.innerHTML = '<div class="detail-empty">順位データがありません</div>';
+      return;
+    }
+    box.innerHTML = seasons.map(season => {
+      const singleRows = (rankings.single || []).filter(row => row.season === season).sort((a,b) => (a.rank || 0) - (b.rank || 0));
+      const doubleRows = (rankings.double || []).filter(row => row.season === season).sort((a,b) => (a.rank || 0) - (b.rank || 0));
+      const groups = [];
+      if(singleRows.length) groups.push({title:'シングル順位', rows:singleRows, battle:'single'});
+      if(doubleRows.length) groups.push({title:'ダブル順位', rows:doubleRows, battle:'double'});
+      if(!groups.length) return '';
+      return `<div class="detail-ranking-box">
+        <h5 class="detail-season-heading">${escapeHtml(season)}</h5>
+        ${groups.map(group => `
+          <div class="detail-ranking-line"><b>${escapeHtml(group.title)}</b></div>
+          ${group.rows.map(row => {
+            const historyData = getHistoryData(season, group.battle);
+            const historyRow = (getHistoryRowsForName(row.name || '', group.battle, season) || [])[0];
+            return `
+              <div class="detail-ranking-line"><b>${escapeHtml(row.rank)}位</b>${escapeHtml(row.name || '')}${row.rankingSource === 'base' ? ' <span style="color:var(--accent3)">（元ポケモン順位）</span>' : ''}</div>
+              ${sparklineHtml(historyRow, historyData.columns || [], `${season} ${group.title}の推移`)}
+              <div class="detail-ranking-line">更新日: ${escapeHtml(formatRankingDate(row.updatedAt) || '—')}</div>
+              <div class="detail-ranking-line">技: ${escapeHtml((row.moves || []).join(' / ') || '—')}</div>
+              <div class="detail-ranking-line">持ち物: ${escapeHtml((row.items || []).join(' / ') || '—')}</div>
+              <div class="detail-ranking-line">特性: ${escapeHtml((row.abilities || []).join(' / ') || '—')}</div>
+              <div class="detail-ranking-line">性格: ${escapeHtml((row.natures || []).join(' / ') || '—')}</div>
+              <div class="detail-ranking-line">努力値: ${escapeHtml((row.spreads || []).join(' / ') || '—')}</div>
+            `;
+          }).join('')}
+        `).join('')}
+      </div>`;
+    }).join('') || '<div class="detail-empty">順位データがありません</div>';
+  }
+
   function renderDetailMovesPatched() {
     ensureDetailMoveToggleButton();
     const body = document.getElementById('detail-moves-body');
     const query = (document.getElementById('detail-move-search').value || '').trim();
     const moves = Array.isArray(currentDetailMoves) ? currentDetailMoves : [];
-    const filtered = !query ? moves : moves.filter(m => {
-      return [m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query);
-    });
+    const filtered = !query ? moves : moves.filter(m => [m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query));
     const limit = 16;
     const visible = (!query && !currentDetailMovesExpanded) ? filtered.slice(0, limit) : filtered;
     const btn = document.getElementById('detail-move-toggle-btn');
@@ -1896,85 +2168,14 @@ document.addEventListener('DOMContentLoaded',function(){
     </tr>`).join('');
   }
 
-  function getHistoryData() {
-    return currentHistoryBattle === 'double' ? DOUBLE_RANKING_HISTORY : SINGLE_RANKING_HISTORY;
-  }
-
-  function rankHistoryRowsForCurrentView() {
-    const data = getHistoryData();
-    const source = Array.isArray(data.rows) ? data.rows : [];
-    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
-    const criteria = getSeasonSearchCriteria();
-    return source.filter(row => {
-      const siteNames = resolveSiteNames(row.name || row.siteName || '');
-      if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
-      if(!matchesSeasonRankingSearch(row, siteNames, criteria)) return false;
-      return true;
-    }).sort((a,b) => {
-      const avRaw = latestHistoryRank(a, columns);
-      const bvRaw = latestHistoryRank(b, columns);
-      const av = Number.isFinite(Number(avRaw)) && Number(avRaw) > 0 ? Number(avRaw) : Number.MAX_SAFE_INTEGER;
-      const bv = Number.isFinite(Number(bvRaw)) && Number(bvRaw) > 0 ? Number(bvRaw) : Number.MAX_SAFE_INTEGER;
-      if(av !== bv) return av - bv;
-      return String(a && a.name || '').localeCompare(String(b && b.name || ''), 'ja');
-    });
-  }
-
-  function formatHistoryRank(value) {
-    if(value == null || value === '') return '—';
-    return String(value);
-  }
-
-  function latestHistoryRank(row, columns) {
-    if(row && row.rank != null && row.rank !== '') return row.rank;
-    const firstCol = Array.isArray(columns) && columns.length ? columns[0] : null;
-    const key = firstCol && firstCol.key ? firstCol.key : null;
-    const value = key && row && row.ranks ? row.ranks[key] : null;
-    if(value != null && value !== '') return value;
-    return '';
-  }
-
-  function historyColumnLabel(col, index) {
-    const raw = String((col && (col.label || col.key)) || '');
-    if(/^prev\d+$/i.test(raw) || /^current$/i.test(raw)) {
-      return `${index + 1}回前`;
-    }
-    return raw || `${index + 1}回前`;
-  }
-
-  function renderRankingHistory() {
-    const head = document.getElementById('rank-history-head');
-    const body = document.getElementById('rank-history-tbody');
-    const meta = document.getElementById('rank-history-meta');
-    if(!head || !body || !meta) return;
-    const data = getHistoryData();
-    const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
-    const rows = rankHistoryRowsForCurrentView();
-    const updated = formatRankingDate(data.updatedAt) || '未取得';
-    meta.textContent = `${currentHistoryBattle === 'double' ? 'ダブル' : 'シングル'} / 更新日: ${updated} / ${rows.length}件 / 左端を最新として表示`;
-
-    head.innerHTML = `<tr><th>最新順位</th><th>ポケモン</th><th>推移</th>${columns.map((col, index) => `<th>${escapeHtml(historyColumnLabel(col, index))}</th>`).join('')}</tr>`;
-
-    if(!rows.length) {
-      body.innerHTML = `<tr><td colspan="${columns.length + 3}" class="detail-empty">順位推移データがありません</td></tr>`;
-      return;
-    }
-
-    body.innerHTML = rows.map(row => `
-      <tr>
-        <td>${escapeHtml(formatHistoryRank(latestHistoryRank(row, columns)))}</td>
-        <td><button class="name-open-btn js-open-detail" type="button" data-name="${escapeHtml(row.name || '')}">${escapeHtml(row.name || '—')}</button></td>
-        <td class="rank-history-mini">${sparklineHtml(row, columns, '')}</td>
-        ${columns.map(col => `<td>${escapeHtml(formatHistoryRank(row.ranks ? row.ranks[col.key] : null))}</td>`).join('')}
-      </tr>
-    `).join('');
-  }
-
   const originalOpenPokemonDetail = window.openPokemonDetail;
   window.renderDetailMoves = renderDetailMovesPatched;
-  window.openPokemonDetail = async function(name) {
+  window.openPokemonDetail = async function(name, preferredTab) {
     await Promise.all([ensureSeasonMovesLoaded(), loadRankingJson()]);
     ensureDetailRankingBox();
+    ensureDetailTransferBox();
+    ensureDetailMoveToggleButton();
+
     const ctx = collectDetailContext(name);
     if(!ctx.records.length) {
       if(typeof originalOpenPokemonDetail === 'function') return originalOpenPokemonDetail(name);
@@ -1984,8 +2185,6 @@ document.addEventListener('DOMContentLoaded',function(){
     currentDetailName = primary.name;
     currentDetailMoves = ctx.moves;
     currentDetailMovesExpanded = false;
-    ensureDetailTransferBox();
-    ensureDetailMoveToggleButton();
     setSeasonTransferName(ctx.displayName || primary.name);
 
     const rankingNameNote = ctx.siteNames.length > 1
@@ -2015,13 +2214,12 @@ document.addEventListener('DOMContentLoaded',function(){
 
     renderDetailRanking(ctx.rankings);
 
-    const rankingUpdates = uniq(
-      ctx.rankings.single.concat(ctx.rankings.double).map(row => row.updatedAt).filter(Boolean)
-    );
+    const rankingUpdates = uniq(ctx.rankings.single.concat(ctx.rankings.double).map(row => row.updatedAt).filter(Boolean));
     const updatedAt = formatRankingDate(rankingUpdates[0] || '');
     document.getElementById('detail-move-meta').textContent = ctx.moves.length ? `${ctx.moves.length}件の技${updatedAt ? ` / 更新日: ${updatedAt}` : ''}` : `技データ未登録${updatedAt ? ` / 更新日: ${updatedAt}` : ''}`;
     document.getElementById('detail-move-search').value = '';
     renderDetailMovesPatched();
+    setDetailTab(preferredTab === 'ranking' || currentMainView === 'ranking' ? 'ranking' : 'moves');
 
     document.getElementById('detail-overlay').classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -2030,38 +2228,18 @@ document.addEventListener('DOMContentLoaded',function(){
   const originalRender = window.render;
   window.render = function() {
     if(typeof originalRender === 'function') originalRender();
-    renderRankings();
-    renderRankingHistory();
+    if(currentMainView === 'ranking') renderActiveRankingPanel();
   };
 
-  async function loadRankingJson() {
-    if(_seasonRankingLoaded) return {single:SINGLE_RANKINGS, double:DOUBLE_RANKINGS};
-    if(_seasonRankingPromise) return _seasonRankingPromise;
-    _seasonRankingPromise = (async()=>{
-      try {
-        const [singleRes, doubleRes, singleHistoryRes, doubleHistoryRes] = await Promise.all([
-          fetchDataJson('season_ranking_single.json', {rows:[], updatedAt:''}),
-          fetchDataJson('season_ranking_double.json', {rows:[], updatedAt:''}),
-          fetchDataJson('season_ranking_history_single.json', {columns:[], rows:[], updatedAt:''}),
-          fetchDataJson('season_ranking_history_double.json', {columns:[], rows:[], updatedAt:''})
-        ]);
-        SINGLE_RANKINGS = singleRes && Array.isArray(singleRes.rows) ? singleRes : {rows:[], updatedAt:''};
-        DOUBLE_RANKINGS = doubleRes && Array.isArray(doubleRes.rows) ? doubleRes : {rows:[], updatedAt:''};
-        SINGLE_RANKING_HISTORY = singleHistoryRes && Array.isArray(singleHistoryRes.rows) ? singleHistoryRes : {columns:[], rows:[], updatedAt:''};
-        DOUBLE_RANKING_HISTORY = doubleHistoryRes && Array.isArray(doubleHistoryRes.rows) ? doubleHistoryRes : {columns:[], rows:[], updatedAt:''};
-      } catch(e) {
-        SINGLE_RANKINGS = {rows:[], updatedAt:''};
-        DOUBLE_RANKINGS = {rows:[], updatedAt:''};
-        SINGLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
-        DOUBLE_RANKING_HISTORY = {columns:[], rows:[], updatedAt:''};
-      }
-      _seasonRankingLoaded = true;
-      renderRankings();
-      renderRankingHistory();
-      return {single:SINGLE_RANKINGS, double:DOUBLE_RANKINGS};
-    })();
-    return _seasonRankingPromise;
-  }
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.js-open-detail');
+    if(btn && btn.dataset.detailTab) {
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+      window.openPokemonDetail(btn.dataset.name || '', btn.dataset.detailTab || 'moves');
+    }
+  }, true);
 
   document.addEventListener('DOMContentLoaded', function() {
     ensureSeasonViews();
@@ -2074,8 +2252,11 @@ document.addEventListener('DOMContentLoaded',function(){
     ensureDetailRankingBox();
     ensureDetailTransferBox();
     ensureDetailMoveToggleButton();
+    loadRankingJson();
   });
 })();
+</script>
+
 </script>
 
 
@@ -2197,7 +2378,7 @@ document.addEventListener('DOMContentLoaded',function(){
       panel.id = 'season-party-view';
       panel.className = 'party-ref-view rank-panel';
       panel.innerHTML = '<div class="rank-meta" id="party-ref-meta">参考パーティーを読み込み中...</div><div id="party-ref-grid" class="party-ref-grid"></div>';
-      const insertAfter = document.getElementById('season-history-view') || document.getElementById('season-ranking-view') || document.getElementById('season-list-view');
+      const insertAfter = document.getElementById('season-ranking-root') || document.getElementById('season-list-view');
       if(insertAfter && insertAfter.parentNode) insertAfter.parentNode.insertBefore(panel, insertAfter.nextSibling);
     }
     if(!document.getElementById('party-ref-overlay')){
@@ -2304,12 +2485,10 @@ document.addEventListener('DOMContentLoaded',function(){
   function showPartyReferenceView(){
     ensurePartyReferenceShell();
     const listView = document.getElementById('season-list-view');
-    const rankView = document.getElementById('season-ranking-view');
-    const historyView = document.getElementById('season-history-view');
+    const rankingRoot = document.getElementById('season-ranking-root');
     const partyView = document.getElementById('season-party-view');
     if(listView) listView.style.display = 'none';
-    if(rankView) rankView.classList.remove('show');
-    if(historyView) historyView.classList.remove('show');
+    if(rankingRoot) rankingRoot.classList.remove('show');
     if(partyView) { partyView.classList.add('show'); partyView.style.display = ''; }
     document.querySelectorAll('.view-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.view === 'party'));
     setPartyViewFilterState(true);
