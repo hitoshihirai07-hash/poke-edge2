@@ -74,26 +74,16 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .search-clear-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 9px;font-family:'Noto Sans JP',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;}
 .search-clear-btn:hover{border-color:var(--accent);color:var(--accent);}
 .search-help{font-size:10px;color:var(--text2);line-height:1.6;flex-basis:100%;}
-.search-suggest-wrap{position:relative;min-width:0;}
-.filter-bar>.search-suggest-wrap{flex:1 1 220px;min-width:220px;}
-.search-suggest-wrap .search-input{width:100%;}
-.search-advanced-fields .search-suggest-wrap{min-width:0;}
-.search-suggest-list{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:45;display:none;max-height:260px;overflow:auto;background:var(--panel);border:1px solid var(--border2);border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.28);padding:6px;}
-.search-suggest-list.show{display:block;}
-.search-suggest-item,.search-suggest-empty{display:block;width:100%;padding:9px 10px;border:none;background:transparent;color:var(--text);text-align:left;border-radius:10px;font-size:13px;line-height:1.45;}
-.search-suggest-item{cursor:pointer;}
-.search-suggest-item:hover,.search-suggest-item.active{background:rgba(0,200,240,.14);color:var(--accent);}
-.search-suggest-empty{color:var(--text2);cursor:default;}
-.search-suggest-mark{color:var(--accent3);font-weight:700;}
 .search-hit-note{color:var(--accent3);font-weight:700;}
-.search-advanced{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;flex-basis:100%;}
-.search-advanced-group{border:1px solid var(--border);background:var(--bg2);padding:10px 12px;display:grid;gap:8px;min-width:0;}
-.search-advanced-title{font-size:10px;color:var(--accent);letter-spacing:2px;}
-.search-advanced-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
-.search-advanced-fields .search-input{min-width:0;width:100%;}
-.search-advanced-note{font-size:10px;color:var(--text2);line-height:1.6;}
-.search-advanced-group.ability .search-advanced-title{color:var(--accent2);}
-.search-advanced-group.keyword .search-advanced-title{color:var(--accent3);}
+.search-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;flex:1 1 100%;}
+.search-field{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.search-field-label{font-size:10px;color:var(--text2);letter-spacing:1px;}
+.search-suggest-wrap{position:relative;}
+.search-suggest-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:40;display:flex;flex-direction:column;gap:2px;background:var(--panel);border:1px solid var(--border);box-shadow:0 14px 28px rgba(0,0,0,.22);max-height:220px;overflow-y:auto;padding:6px;}
+.search-suggest-list[hidden]{display:none;}
+.search-suggest-item{background:transparent;border:none;color:var(--text);text-align:left;font:inherit;font-size:12px;padding:7px 8px;cursor:pointer;border-radius:8px;line-height:1.45;}
+.search-suggest-item:hover,.search-suggest-item.active{background:var(--bg2);color:var(--accent);}
+.search-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
 /* 統計バー */
 .stats-bar{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
@@ -277,9 +267,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .filter-bar{display:grid;grid-template-columns:1fr;gap:9px;padding:12px;}
   .season-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
   .season-btn{width:100%;padding:8px 6px;}
+  .search-grid{grid-template-columns:1fr;}
+  .search-field{width:100%;}
   .search-input,.search-mode-select{min-width:0;width:100%;}
-  .search-advanced{grid-template-columns:1fr;}
-  .search-advanced-fields{grid-template-columns:1fr;}
+  .search-actions{display:grid;grid-template-columns:1fr;gap:8px;}
   .stats-bar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
   .stat-item{background:var(--panel);border:1px solid var(--border);padding:8px 10px;}
   .table-wrap,.rank-wrap,.detail-moves-wrap{overflow:visible;border:none;}
@@ -503,43 +494,64 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <div class="season-btns" id="season-btns">
       <button class="season-btn active" data-season="" onclick="setSeason(this,'')">すべて</button>
     </div>
-    <select class="search-mode-select" id="search-mode" onchange="render()" aria-label="検索対象">
-      <option value="all">全て</option>
-      <option value="name">名前</option>
-      <option value="move">技</option>
-      <option value="ability">特性</option>
-    </select>
     <select class="search-mode-select" id="type-filter" onchange="render()" aria-label="タイプ絞り込み">
       <option value="">全タイプ</option>
     </select>
-    <input class="search-input" id="name-search" type="text" placeholder="名前・技・特性を空白区切りで検索..." oninput="render()">
-    <button class="search-clear-btn" type="button" onclick="clearSeasonSearch()">クリア</button>
-    <div class="search-advanced">
-      <div class="search-advanced-group keyword">
-        <div class="search-advanced-title">使い方</div>
-        <div class="search-advanced-note">上の検索欄は空白区切りでAND検索できます。「ステルスロック ちょうはつ」のように入れると、両方を満たすポケモンだけに絞れます。</div>
-        <div class="search-advanced-note">下の技・特性欄は1つずつ別条件として扱います。技2〜3個、特性2〜3個を同時に入れて探したいときはこちらが使いやすいです。</div>
-      </div>
-      <div class="search-advanced-group">
-        <div class="search-advanced-title">技条件（すべて一致）</div>
-        <div class="search-advanced-fields">
-          <input class="search-input" id="move-search-1" type="text" placeholder="技1" oninput="render()">
-          <input class="search-input" id="move-search-2" type="text" placeholder="技2" oninput="render()">
-          <input class="search-input" id="move-search-3" type="text" placeholder="技3" oninput="render()">
+    <div class="search-grid" aria-label="検索条件">
+      <div class="search-field">
+        <span class="search-field-label">名前</span>
+        <div class="search-suggest-wrap">
+          <input class="search-input" id="name-search" type="text" placeholder="ポケモン名で検索" autocomplete="off" data-suggest-kind="name">
+          <div class="search-suggest-list" id="name-search-suggest" hidden></div>
         </div>
-        <div class="search-advanced-note">入力すると候補が表示されます。複数条件の絞り込みにも使えます。</div>
       </div>
-      <div class="search-advanced-group ability">
-        <div class="search-advanced-title">特性条件（すべて一致）</div>
-        <div class="search-advanced-fields">
-          <input class="search-input" id="ability-search-1" type="text" placeholder="特性1" oninput="render()">
-          <input class="search-input" id="ability-search-2" type="text" placeholder="特性2" oninput="render()">
-          <input class="search-input" id="ability-search-3" type="text" placeholder="特性3" oninput="render()">
+      <div class="search-field">
+        <span class="search-field-label">技1</span>
+        <div class="search-suggest-wrap">
+          <input class="search-input" id="move-search-1" type="text" placeholder="技名を入力" autocomplete="off" data-suggest-kind="move">
+          <div class="search-suggest-list" id="move-search-1-suggest" hidden></div>
         </div>
-        <div class="search-advanced-note">入力すると候補が表示されます。複数条件の絞り込みにも使えます。</div>
+      </div>
+      <div class="search-field">
+        <span class="search-field-label">技2</span>
+        <div class="search-suggest-wrap">
+          <input class="search-input" id="move-search-2" type="text" placeholder="技名を入力" autocomplete="off" data-suggest-kind="move">
+          <div class="search-suggest-list" id="move-search-2-suggest" hidden></div>
+        </div>
+      </div>
+      <div class="search-field">
+        <span class="search-field-label">技3</span>
+        <div class="search-suggest-wrap">
+          <input class="search-input" id="move-search-3" type="text" placeholder="技名を入力" autocomplete="off" data-suggest-kind="move">
+          <div class="search-suggest-list" id="move-search-3-suggest" hidden></div>
+        </div>
+      </div>
+      <div class="search-field">
+        <span class="search-field-label">特性1</span>
+        <div class="search-suggest-wrap">
+          <input class="search-input" id="ability-search-1" type="text" placeholder="特性名を入力" autocomplete="off" data-suggest-kind="ability">
+          <div class="search-suggest-list" id="ability-search-1-suggest" hidden></div>
+        </div>
+      </div>
+      <div class="search-field">
+        <span class="search-field-label">特性2</span>
+        <div class="search-suggest-wrap">
+          <input class="search-input" id="ability-search-2" type="text" placeholder="特性名を入力" autocomplete="off" data-suggest-kind="ability">
+          <div class="search-suggest-list" id="ability-search-2-suggest" hidden></div>
+        </div>
+      </div>
+      <div class="search-field">
+        <span class="search-field-label">特性3</span>
+        <div class="search-suggest-wrap">
+          <input class="search-input" id="ability-search-3" type="text" placeholder="特性名を入力" autocomplete="off" data-suggest-kind="ability">
+          <div class="search-suggest-list" id="ability-search-3-suggest" hidden></div>
+        </div>
+      </div>
+      <div class="search-actions">
+        <button class="search-clear-btn" type="button" onclick="clearSeasonSearch()">クリア</button>
       </div>
     </div>
-    <div class="search-help">タイプを選んだまま、名前・技・特性を重ねて検索できます。</div>
+    <div class="search-help">名前・技・特性をそれぞれ入力すると、文字に応じて候補が表示されます。技と特性は3件まで同時に絞り込めます。</div>
   </div>
 
   <!-- 統計 -->
@@ -636,6 +648,7 @@ var ABILITIES_BY_NAME = {};
 var ABILITY_EFFECTS_BY_NAME = {};
 var SEASON_DATA = {seasons:[]};
 var MEGA_DATA = {rows:[], baseToForms:{}, formToBase:{}};
+var SEASON_SEARCH_SUGGESTIONS = {name:[], move:[], ability:[]};
 
 
 function normalizeMegaRelations(raw){
@@ -761,32 +774,30 @@ function seasonsForName(name) {
   return SEASON_DATA.seasons.filter(s => seasonIncludesDisplayPokemon(SEASON_DATA[s]||[], name));
 }
 
-function getSeasonSearchMode() {
-  return document.getElementById('search-mode')?.value || 'all';
-}
-
 function getSeasonTypeFilter() {
   return document.getElementById('type-filter')?.value || '';
 }
 
-function getSeasonMultiInputValues(ids) {
-  return (ids || []).map(id => String(document.getElementById(id)?.value || '').trim()).filter(Boolean);
+function getSearchInputValue(id) {
+  return String(document.getElementById(id)?.value || '').trim();
 }
 
-function getSeasonAdvancedSearch() {
+function getSearchValueList(ids) {
+  return (ids || []).map(id => getSearchInputValue(id)).filter(Boolean);
+}
+
+function getSeasonSearchCriteria() {
   return {
-    moves: getSeasonMultiInputValues(['move-search-1','move-search-2','move-search-3']),
-    abilities: getSeasonMultiInputValues(['ability-search-1','ability-search-2','ability-search-3'])
+    type: getSeasonTypeFilter(),
+    name: getSearchInputValue('name-search'),
+    moves: getSearchValueList(['move-search-1','move-search-2','move-search-3']),
+    abilities: getSearchValueList(['ability-search-1','ability-search-2','ability-search-3'])
   };
 }
 
-function matchesSeasonTermList(fields, terms) {
-  return (terms || []).every(term => matchesSeasonSearchFields(fields, term));
-}
-
-function matchesSeasonAdvancedSearch(moveFields, abilityFields, filters) {
-  const active = filters || getSeasonAdvancedSearch();
-  return matchesSeasonTermList(moveFields, active.moves) && matchesSeasonTermList(abilityFields, active.abilities);
+function hasSeasonSearchCriteria(criteria) {
+  const ctx = criteria || getSeasonSearchCriteria();
+  return !!(ctx.name || (ctx.moves || []).length || (ctx.abilities || []).length || ctx.type);
 }
 
 function matchesSeasonTypeFilter(p, type) {
@@ -803,6 +814,15 @@ function normalizeSeasonSearchText(value) {
   return String(value == null ? '' : value).toLowerCase().replace(/[\s　]+/g, '');
 }
 
+function uniqSeasonValues(values) {
+  return Array.from(new Set((values || []).map(v => String(v || '').trim()).filter(Boolean)));
+}
+
+function getPokemonNameTexts(p) {
+  if(!p) return [];
+  return uniqSeasonValues([p.name, p.no].concat(seasonSearchAliases(p.name)));
+}
+
 function getPokemonMoveTexts(name) {
   const names = seasonGroupedNames(name);
   const texts = [];
@@ -811,11 +831,11 @@ function getPokemonMoveTexts(name) {
     const moves = Array.isArray(detail.moves) ? detail.moves : [];
     moves.forEach(m => texts.push(...[m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description].filter(Boolean)));
   });
-  return texts;
+  return uniqSeasonValues(texts);
 }
 
 function getPokemonAbilityTexts(name, includeEffects) {
-  const abilities = Array.from(new Set(seasonGroupedNames(name).flatMap(siteName => Array.isArray(ABILITIES_BY_NAME[siteName]) ? ABILITIES_BY_NAME[siteName] : [])));
+  const abilities = uniqSeasonValues(seasonGroupedNames(name).flatMap(siteName => Array.isArray(ABILITIES_BY_NAME[siteName]) ? ABILITIES_BY_NAME[siteName] : []));
   const out = abilities.slice();
   if(includeEffects) {
     abilities.forEach(ability => {
@@ -823,212 +843,7 @@ function getPokemonAbilityTexts(name, includeEffects) {
       if(effect) out.push(effect);
     });
   }
-  return out;
-}
-
-function sortSeasonSuggestionValues(values) {
-  return Array.from(new Set((values || []).map(v => String(v || '').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'ja'));
-}
-
-function buildSeasonSuggestionIndex() {
-  const names = sortSeasonSuggestionValues((POKE_DATA || []).flatMap(p => [p && p.name ? p.name : ''].concat(seasonSearchAliases(p && p.name ? p.name : ''))));
-  const moves = sortSeasonSuggestionValues(Object.values(POKE_MOVES_BY_NAME || {}).flatMap(detail => Array.isArray(detail && detail.moves) ? detail.moves.map(m => m && m.name ? m.name : '') : []));
-  const abilities = sortSeasonSuggestionValues(Object.keys(ABILITY_EFFECTS_BY_NAME || {}).concat(Object.values(ABILITIES_BY_NAME || {}).flatMap(v => Array.isArray(v) ? v : [])));
-  SEASON_SUGGESTION_INDEX = {
-    names,
-    moves,
-    abilities,
-    all: sortSeasonSuggestionValues([].concat(names, moves, abilities))
-  };
-}
-
-function getSeasonSuggestionSource(input) {
-  if(!input) return [];
-  const id = input.id || '';
-  if(id.indexOf('move-search-') === 0) return SEASON_SUGGESTION_INDEX.moves || [];
-  if(id.indexOf('ability-search-') === 0) return SEASON_SUGGESTION_INDEX.abilities || [];
-  if(id === 'name-search') {
-    const mode = getSeasonSearchMode();
-    if(mode === 'name') return SEASON_SUGGESTION_INDEX.names || [];
-    if(mode === 'move') return SEASON_SUGGESTION_INDEX.moves || [];
-    if(mode === 'ability') return SEASON_SUGGESTION_INDEX.abilities || [];
-    return SEASON_SUGGESTION_INDEX.all || [];
-  }
-  return [];
-}
-
-function getSeasonSuggestionQuery(input) {
-  const value = String(input && input.value || '');
-  if((input && input.id) === 'name-search') {
-    const parts = value.split(/([\s　]+)/);
-    for(let i = parts.length - 1; i >= 0; i--) {
-      if(!/[\s　]+/.test(parts[i])) return parts[i];
-    }
-    return '';
-  }
-  return value;
-}
-
-function applySeasonSuggestionValue(input, selected) {
-  if(!input) return;
-  const value = String(selected || '').trim();
-  if(input.id === 'name-search') {
-    const raw = String(input.value || '');
-    const match = raw.match(/^(.*?)([^\s　]*)$/);
-    const prefix = match ? match[1] : '';
-    input.value = prefix + value;
-  } else {
-    input.value = value;
-  }
-  closeSeasonSuggestionList();
-  if(typeof render === 'function') render();
-  input.focus();
-  try {
-    const pos = input.value.length;
-    input.setSelectionRange(pos, pos);
-  } catch(_e) {}
-}
-
-function buildSeasonSuggestionItemLabel(value, query) {
-  const q = normalizeSeasonSearchText(query || '');
-  if(!q) return escapeHtml(value);
-  const raw = String(value || '');
-  const rawNormChars = Array.from(raw).map(ch => normalizeSeasonSearchText(ch));
-  let normalized = '';
-  const startMap = [];
-  const endMap = [];
-  rawNormChars.forEach((norm, index) => {
-    if(!norm) return;
-    for(let i = 0; i < norm.length; i++) {
-      startMap.push(index);
-      endMap.push(index + 1);
-    }
-    normalized += norm;
-  });
-  const pos = normalized.indexOf(q);
-  if(pos < 0 || !startMap.length) return escapeHtml(raw);
-  const start = startMap[pos] || 0;
-  const end = endMap[Math.min(pos + q.length - 1, endMap.length - 1)] || raw.length;
-  return `${escapeHtml(raw.slice(0, start))}<span class="search-suggest-mark">${escapeHtml(raw.slice(start, end))}</span>${escapeHtml(raw.slice(end))}`;
-}
-
-function getSeasonSuggestionMatches(input) {
-  const query = getSeasonSuggestionQuery(input);
-  const source = getSeasonSuggestionSource(input);
-  const normalized = normalizeSeasonSearchText(query);
-  if(!normalized) return source.slice(0, 12);
-  const starts = [];
-  const includes = [];
-  source.forEach(value => {
-    const hay = normalizeSeasonSearchText(value);
-    if(!hay || !hay.includes(normalized)) return;
-    if(hay.startsWith(normalized)) starts.push(value);
-    else includes.push(value);
-  });
-  return starts.concat(includes).slice(0, 12);
-}
-
-function ensureSeasonSuggestionShell(input) {
-  if(!input || input.dataset.suggestReady === '1') return;
-  const wrap = document.createElement('div');
-  wrap.className = 'search-suggest-wrap';
-  input.parentNode.insertBefore(wrap, input);
-  wrap.appendChild(input);
-  const list = document.createElement('div');
-  list.className = 'search-suggest-list';
-  list.id = `${input.id}-suggestions`;
-  wrap.appendChild(list);
-  input.dataset.suggestReady = '1';
-  input.setAttribute('autocomplete', 'off');
-  list.addEventListener('mousedown', function(ev){
-    const item = ev.target.closest('[data-value]');
-    if(!item) return;
-    ev.preventDefault();
-    applySeasonSuggestionValue(input, item.dataset.value || '');
-  });
-  input.addEventListener('focus', function(){ renderSeasonSuggestionList(input); });
-  input.addEventListener('input', function(){ renderSeasonSuggestionList(input); });
-  input.addEventListener('keydown', function(ev){
-    const state = seasonSuggestionState;
-    if(state.input !== input || !state.items.length || !state.list || !state.list.classList.contains('show')) {
-      if(ev.key === 'ArrowDown') {
-        renderSeasonSuggestionList(input);
-        if(seasonSuggestionState.items.length) {
-          ev.preventDefault();
-          setSeasonSuggestionActiveIndex(0);
-        }
-      }
-      return;
-    }
-    if(ev.key === 'ArrowDown') {
-      ev.preventDefault();
-      setSeasonSuggestionActiveIndex(Math.min(state.items.length - 1, state.activeIndex + 1));
-    } else if(ev.key === 'ArrowUp') {
-      ev.preventDefault();
-      setSeasonSuggestionActiveIndex(Math.max(0, state.activeIndex - 1));
-    } else if(ev.key === 'Enter') {
-      if(state.activeIndex >= 0 && state.items[state.activeIndex]) {
-        ev.preventDefault();
-        applySeasonSuggestionValue(input, state.items[state.activeIndex].dataset.value || '');
-      }
-    } else if(ev.key === 'Escape') {
-      closeSeasonSuggestionList();
-    }
-  });
-}
-
-function setSeasonSuggestionActiveIndex(index) {
-  const state = seasonSuggestionState;
-  state.activeIndex = index;
-  state.items.forEach((item, idx) => item.classList.toggle('active', idx === index));
-  const active = state.items[index];
-  if(active) active.scrollIntoView({block:'nearest'});
-}
-
-function closeSeasonSuggestionList() {
-  const state = seasonSuggestionState;
-  if(state.list) state.list.classList.remove('show');
-  state.input = null;
-  state.list = null;
-  state.items = [];
-  state.activeIndex = -1;
-}
-
-function renderSeasonSuggestionList(input) {
-  if(!input) return;
-  ensureSeasonSuggestionShell(input);
-  const list = document.getElementById(`${input.id}-suggestions`);
-  if(!list) return;
-  const matches = getSeasonSuggestionMatches(input);
-  if(!matches.length) {
-    list.innerHTML = '<div class="search-suggest-empty">候補がありません</div>';
-    list.classList.add('show');
-    seasonSuggestionState = {input, list, items:[], activeIndex:-1};
-    return;
-  }
-  const query = getSeasonSuggestionQuery(input);
-  list.innerHTML = matches.map(value => `<button type="button" class="search-suggest-item" data-value="${escapeHtml(value)}">${buildSeasonSuggestionItemLabel(value, query)}</button>`).join('');
-  const items = Array.from(list.querySelectorAll('.search-suggest-item'));
-  list.classList.add('show');
-  seasonSuggestionState = {input, list, items, activeIndex:-1};
-}
-
-function initSeasonSearchSuggestions() {
-  ['name-search','move-search-1','move-search-2','move-search-3','ability-search-1','ability-search-2','ability-search-3'].forEach(id => {
-    const input = document.getElementById(id);
-    if(input) ensureSeasonSuggestionShell(input);
-  });
-}
-
-function getPokemonSearchFields(p, mode) {
-  if(!p) return [];
-  const nameFields = [p.name, p.no].concat(seasonSearchAliases(p.name));
-  const moveFields = getPokemonMoveTexts(p.name);
-  const abilityFields = getPokemonAbilityTexts(p.name, mode === 'all');
-  if(mode === 'name') return nameFields;
-  if(mode === 'move') return moveFields;
-  if(mode === 'ability') return abilityFields;
-  return nameFields.concat(moveFields, abilityFields);
+  return uniqSeasonValues(out);
 }
 
 function matchesSeasonSearchFields(fields, query) {
@@ -1038,19 +853,36 @@ function matchesSeasonSearchFields(fields, query) {
   return tokens.every(token => hay.includes(token));
 }
 
-function matchesSeasonPokemonSearch(p, query, mode) {
-  return matchesSeasonSearchFields(getPokemonSearchFields(p, mode || getSeasonSearchMode()), query);
+function matchesSeasonPokemonCriteria(p, criteria) {
+  if(!p) return false;
+  const ctx = criteria || getSeasonSearchCriteria();
+  const nameFields = getPokemonNameTexts(p);
+  const moveFields = getPokemonMoveTexts(p.name);
+  const abilityFields = getPokemonAbilityTexts(p.name, true);
+  if(ctx.name && !matchesSeasonSearchFields(nameFields, ctx.name)) return false;
+  if((ctx.moves || []).some(query => !matchesSeasonSearchFields(moveFields, query))) return false;
+  if((ctx.abilities || []).some(query => !matchesSeasonSearchFields(abilityFields, query))) return false;
+  return true;
+}
+
+function seasonSearchSummaryHtml(criteria) {
+  const ctx = criteria || getSeasonSearchCriteria();
+  const parts = [];
+  if(ctx.type) parts.push(`<span class="search-hit-note">タイプ:</span> ${escapeHtml(ctx.type)}`);
+  if(ctx.name) parts.push(`<span class="search-hit-note">名前:</span> ${escapeHtml(ctx.name)}`);
+  if((ctx.moves || []).length) parts.push(`<span class="search-hit-note">技:</span> ${ctx.moves.map(v => escapeHtml(v)).join(' / ')}`);
+  if((ctx.abilities || []).length) parts.push(`<span class="search-hit-note">特性:</span> ${ctx.abilities.map(v => escapeHtml(v)).join(' / ')}`);
+  return parts.join(' / ');
 }
 
 function clearSeasonSearch() {
-  const input = document.getElementById('name-search');
-  const typeFilter = document.getElementById('type-filter');
-  if(input) input.value = '';
-  if(typeFilter) typeFilter.value = '';
-  ['move-search-1','move-search-2','move-search-3','ability-search-1','ability-search-2','ability-search-3'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.value = '';
+  ['name-search','move-search-1','move-search-2','move-search-3','ability-search-1','ability-search-2','ability-search-3'].forEach(id => {
+    const input = document.getElementById(id);
+    if(input) input.value = '';
   });
+  const typeFilter = document.getElementById('type-filter');
+  if(typeFilter) typeFilter.value = '';
+  hideAllSeasonSuggestLists();
   render();
 }
 
@@ -1084,15 +916,12 @@ function statCellHtml(p, key) {
 }
 
 function render() {
-  const q = (document.getElementById('name-search')?.value||'').trim();
-  const searchMode = getSeasonSearchMode();
-  const typeFilter = getSeasonTypeFilter();
-  const advanced = getSeasonAdvancedSearch();
+  const criteria = getSeasonSearchCriteria();
   let filtered = POKE_DATA.filter(p => {
     if(currentSeason && !inSeason(p.name, currentSeason)) return false;
-    if(!matchesSeasonTypeFilterForRecords(seasonFormRecordsForDisplayName(p.name).length ? seasonFormRecordsForDisplayName(p.name) : [p], typeFilter)) return false;
-    if(q && !matchesSeasonPokemonSearch(p, q, searchMode)) return false;
-    if(!matchesSeasonAdvancedSearch(getPokemonMoveTexts(p.name), getPokemonAbilityTexts(p.name, true), advanced)) return false;
+    const records = seasonFormRecordsForDisplayName(p.name).length ? seasonFormRecordsForDisplayName(p.name) : [p];
+    if(!matchesSeasonTypeFilterForRecords(records, criteria.type)) return false;
+    if(!matchesSeasonPokemonCriteria(p, criteria)) return false;
     return true;
   });
 
@@ -1108,14 +937,8 @@ function render() {
   document.getElementById('stat-nintei').textContent = totalNintei;
   const hint = document.querySelector('.detail-hint');
   if(hint) {
-    const modeLabel = ({all:'全て', name:'名前', move:'技', ability:'特性'})[searchMode] || '全て';
-    const typeNote = typeFilter ? ` / タイプ: ${escapeHtml(typeFilter)}` : '';
-    const advancedNote = [
-      advanced.moves.length ? `技${advanced.moves.length}件` : '',
-      advanced.abilities.length ? `特性${advanced.abilities.length}件` : ''
-    ].filter(Boolean).join(' / ');
-    const advancedHtml = advancedNote ? ` / <span class="search-hit-note">複数条件:</span> ${escapeHtml(advancedNote)}` : '';
-    hint.innerHTML = q ? `<span class="search-hit-note">${escapeHtml(modeLabel)}検索中:</span> ${escapeHtml(q)}${typeNote}${advancedHtml} / 名前クリックで詳細表示` : `${typeFilter ? `<span class="search-hit-note">タイプ絞り込み:</span> ${escapeHtml(typeFilter)} / ` : ''}${advancedHtml ? advancedHtml.replace(/^ \/ /,'') + ' / ' : ''}名前クリックで詳細表示`;
+    const summary = seasonSearchSummaryHtml(criteria);
+    hint.innerHTML = summary ? `${summary} / 名前クリックで詳細表示` : '名前クリックで詳細表示';
   }
 
   if(!filtered.length) {
@@ -1190,6 +1013,151 @@ function normalizeAbilityEffectsData(raw) {
     if(item && item.name) acc[item.name] = item;
     return acc;
   }, {});
+}
+
+function buildSeasonSearchSuggestionData() {
+  const nameSet = new Set();
+  Object.keys(POKE_BY_NAME || {}).forEach(name => {
+    if(!name) return;
+    nameSet.add(String(name).trim());
+    const base = seasonFormBaseName(name);
+    if(base) nameSet.add(base);
+  });
+  (POKE_DATA || []).forEach(p => { if(p && p.name) nameSet.add(String(p.name).trim()); });
+  const moveSet = new Set();
+  Object.values(POKE_MOVES_BY_NAME || {}).forEach(detail => {
+    const moves = Array.isArray(detail?.moves) ? detail.moves : [];
+    moves.forEach(m => { if(m && m.name) moveSet.add(String(m.name).trim()); });
+  });
+  const abilitySet = new Set();
+  Object.values(ABILITIES_BY_NAME || {}).forEach(list => {
+    (Array.isArray(list) ? list : []).forEach(name => { if(name) abilitySet.add(String(name).trim()); });
+  });
+  const sorter = (a,b) => String(a).localeCompare(String(b), 'ja');
+  SEASON_SEARCH_SUGGESTIONS.name = Array.from(nameSet).sort(sorter);
+  SEASON_SEARCH_SUGGESTIONS.move = Array.from(moveSet).sort(sorter);
+  SEASON_SEARCH_SUGGESTIONS.ability = Array.from(abilitySet).sort(sorter);
+}
+
+function getSeasonSuggestListEl(input) {
+  return document.getElementById(`${input.id}-suggest`);
+}
+
+function hideSeasonSuggestList(input) {
+  if(!input) return;
+  const list = getSeasonSuggestListEl(input);
+  if(list) {
+    list.hidden = true;
+    list.innerHTML = '';
+    delete list.dataset.activeIndex;
+  }
+}
+
+function hideAllSeasonSuggestLists() {
+  document.querySelectorAll('.search-suggest-list').forEach(list => {
+    list.hidden = true;
+    list.innerHTML = '';
+    delete list.dataset.activeIndex;
+  });
+}
+
+function getSeasonSuggestItems(input) {
+  const kind = input?.dataset?.suggestKind || 'name';
+  const source = Array.isArray(SEASON_SEARCH_SUGGESTIONS[kind]) ? SEASON_SEARCH_SUGGESTIONS[kind] : [];
+  const query = normalizeSeasonSearchText(input?.value || '');
+  if(!query) return [];
+  const starts = [];
+  const contains = [];
+  source.forEach(item => {
+    const norm = normalizeSeasonSearchText(item);
+    if(!norm.includes(query)) return;
+    if(norm.startsWith(query)) starts.push(item);
+    else contains.push(item);
+  });
+  return starts.concat(contains).slice(0, 12);
+}
+
+function renderSeasonSuggestList(input) {
+  if(!input) return;
+  const list = getSeasonSuggestListEl(input);
+  if(!list) return;
+  const items = getSeasonSuggestItems(input);
+  if(!items.length) {
+    hideSeasonSuggestList(input);
+    return;
+  }
+  const activeIndex = Math.max(-1, Math.min(Number(list.dataset.activeIndex || -1), items.length - 1));
+  list.dataset.activeIndex = String(activeIndex);
+  list.innerHTML = items.map((item, index) => `<button type="button" class="search-suggest-item ${index === activeIndex ? 'active' : ''}" data-value="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join('');
+  list.hidden = false;
+}
+
+function moveSeasonSuggestSelection(input, direction) {
+  const list = getSeasonSuggestListEl(input);
+  if(!list || list.hidden) {
+    renderSeasonSuggestList(input);
+    return;
+  }
+  const items = getSeasonSuggestItems(input);
+  if(!items.length) return;
+  let next = Number(list.dataset.activeIndex || -1) + direction;
+  if(next < 0) next = items.length - 1;
+  if(next >= items.length) next = 0;
+  list.dataset.activeIndex = String(next);
+  renderSeasonSuggestList(input);
+}
+
+function applySeasonSuggestValue(input, value) {
+  if(!input) return;
+  input.value = value || '';
+  hideSeasonSuggestList(input);
+  render();
+}
+
+function initSeasonSuggestInputs() {
+  document.querySelectorAll('.search-input[data-suggest-kind]').forEach(input => {
+    if(input.dataset.suggestInit === '1') return;
+    input.dataset.suggestInit = '1';
+    input.addEventListener('input', function() {
+      renderSeasonSuggestList(input);
+      render();
+    });
+    input.addEventListener('focus', function() {
+      renderSeasonSuggestList(input);
+    });
+    input.addEventListener('keydown', function(e) {
+      if(e.key === 'ArrowDown') {
+        e.preventDefault();
+        moveSeasonSuggestSelection(input, 1);
+      } else if(e.key === 'ArrowUp') {
+        e.preventDefault();
+        moveSeasonSuggestSelection(input, -1);
+      } else if(e.key === 'Enter') {
+        const list = getSeasonSuggestListEl(input);
+        if(list && !list.hidden) {
+          const items = getSeasonSuggestItems(input);
+          const index = Number(list.dataset.activeIndex || -1);
+          if(items[index]) {
+            e.preventDefault();
+            applySeasonSuggestValue(input, items[index]);
+          }
+        }
+      } else if(e.key === 'Escape') {
+        hideSeasonSuggestList(input);
+      }
+    });
+  });
+  document.querySelectorAll('.search-suggest-list').forEach(list => {
+    if(list.dataset.suggestInit === '1') return;
+    list.dataset.suggestInit = '1';
+    list.addEventListener('mousedown', function(e) {
+      const btn = e.target.closest('.search-suggest-item');
+      if(!btn) return;
+      e.preventDefault();
+      const input = document.getElementById(list.id.replace(/-suggest$/, ''));
+      applySeasonSuggestValue(input, btn.dataset.value || '');
+    });
+  });
 }
 
 function openPokemonDetail(name) {
@@ -1292,13 +1260,13 @@ async function ensureSeasonMovesLoaded(){
 window.onload = async () => {
   await initAuth();
   try {
-    const [pd, sd, ad, aed, megaData, moveData] = await Promise.all([
+    const [pd, sd, ad, aed, megaData, _movesReady] = await Promise.all([
       fetchDataJson('pokemon.json', []),
       fetchDataJson('season.json', {seasons:[]}),
       fetchDataJson('abilities.json', {}),
       fetchDataJson('abilities_data.json', []),
       fetchDataJson('mega.json', {rows:[], baseToForms:{}, formToBase:{}}),
-      fetchDataJson('pokemon_moves.json', null),
+      ensureSeasonMovesLoaded()
     ]);
     const rawPokemonData = Array.isArray(pd) ? pd : [];
     POKE_BY_NAME = {};
@@ -1316,17 +1284,15 @@ window.onload = async () => {
     SEASON_DATA = sd || {seasons:[]};
     ABILITIES_BY_NAME = normalizeAbilitiesData(ad);
     ABILITY_EFFECTS_BY_NAME = normalizeAbilityEffectsData(aed);
-    POKE_MOVES_BY_NAME = normalizePokemonMovesData(moveData);
-    _seasonMovesLoaded = true;
     MEGA_DATA = normalizeMegaRelations(megaData);
   } catch(e) {
     console.error('データ読み込みエラー:', e);
     alert('データの読み込みに失敗しました。');
   }
-  buildSeasonSuggestionIndex();
-  initSeasonSearchSuggestions();
   buildSeasonBtns();
   buildTypeFilter();
+  buildSeasonSearchSuggestionData();
+  initSeasonSuggestInputs();
   render();
 };
 
@@ -1343,23 +1309,19 @@ document.addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
   const closeBtn = document.getElementById('detail-close');
   const moveSearch = document.getElementById('detail-move-search');
-  const searchMode = document.getElementById('search-mode');
   if(closeBtn) closeBtn.addEventListener('click', closePokemonDetail);
   if(moveSearch) moveSearch.addEventListener('input', renderDetailMoves);
-  if(searchMode) searchMode.addEventListener('change', function(){
-    const input = document.getElementById('name-search');
-    if(input && document.activeElement === input) renderSeasonSuggestionList(input);
-  });
-  document.addEventListener('click', function(ev){
-    const activeInput = seasonSuggestionState.input;
-    if(!activeInput) return;
-    const wrap = activeInput.closest('.search-suggest-wrap');
-    if(wrap && wrap.contains(ev.target)) return;
-    closeSeasonSuggestionList();
+  const typeFilter = document.getElementById('type-filter');
+  if(typeFilter && !typeFilter.dataset.searchInit) {
+    typeFilter.dataset.searchInit = '1';
+    typeFilter.addEventListener('change', render);
+  }
+  document.addEventListener('click', function(e) {
+    if(!e.target.closest('.search-suggest-wrap')) hideAllSeasonSuggestLists();
   });
   document.addEventListener('keydown', function(ev) {
     if(ev.key === 'Escape') {
-      closeSeasonSuggestionList();
+      hideAllSeasonSuggestLists();
       closePokemonDetail();
     }
   });
@@ -1444,8 +1406,6 @@ document.addEventListener('DOMContentLoaded',function(){
   let currentDetailMoves = [];
   let currentDetailMovesExpanded = false;
   let currentDetailTransferName = '';
-  let SEASON_SUGGESTION_INDEX = {names:[], moves:[], abilities:[], all:[]};
-  let seasonSuggestionState = {input:null, list:null, items:[], activeIndex:-1};
 
   function uniq(arr) {
     return Array.from(new Set((arr || []).filter(Boolean)));
@@ -1489,22 +1449,17 @@ document.addEventListener('DOMContentLoaded',function(){
     return siteNames.map(n => POKE_BY_NAME[n]).filter(Boolean);
   }
 
-  function matchesSeasonRankingSearch(row, siteNames, query) {
-    const mode = getSeasonSearchMode();
-    const typeFilter = getSeasonTypeFilter();
-    const advanced = getSeasonAdvancedSearch();
+  function matchesSeasonRankingSearch(row, siteNames, criteria) {
+    const ctx = criteria || getSeasonSearchCriteria();
     const records = (siteNames && siteNames.length ? siteNames : resolveSiteNames(row.name || row.siteName || '')).map(n => POKE_BY_NAME[n]).filter(Boolean);
-    if(!matchesSeasonTypeFilterForRecords(records, typeFilter)) return false;
-    const nameFields = [row.name, row.siteName].concat(siteNames || []);
-    const abilityFields = (row.abilities || []).concat(records.flatMap(p => getPokemonAbilityTexts(p.name, true)));
-    const moveFields = (row.moves || []).concat(records.flatMap(p => getPokemonMoveTexts(p.name)));
-    if(!matchesSeasonAdvancedSearch(moveFields, abilityFields, advanced)) return false;
-    let fields = [];
-    if(mode === 'name') fields = nameFields;
-    else if(mode === 'ability') fields = abilityFields;
-    else if(mode === 'move') fields = moveFields;
-    else fields = nameFields.concat(abilityFields, moveFields);
-    return matchesSeasonSearchFields(fields, query);
+    if(!matchesSeasonTypeFilterForRecords(records, ctx.type)) return false;
+    const nameFields = uniqSeasonValues([row.name, row.siteName].concat(siteNames || []).concat(records.flatMap(p => getPokemonNameTexts(p))));
+    const abilityFields = uniqSeasonValues((row.abilities || []).concat(records.flatMap(p => getPokemonAbilityTexts(p.name, true))));
+    const moveFields = uniqSeasonValues((row.moves || []).concat(records.flatMap(p => getPokemonMoveTexts(p.name))));
+    if(ctx.name && !matchesSeasonSearchFields(nameFields, ctx.name)) return false;
+    if((ctx.moves || []).some(query => !matchesSeasonSearchFields(moveFields, query))) return false;
+    if((ctx.abilities || []).some(query => !matchesSeasonSearchFields(abilityFields, query))) return false;
+    return true;
   }
 
   function resolveRankingRowsForName(name) {
@@ -1809,13 +1764,11 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function rankingRowsForCurrentView() {
     const source = currentRankingBattle === 'double' ? (DOUBLE_RANKINGS.rows || []) : (SINGLE_RANKINGS.rows || []);
-    const q = (document.getElementById('name-search')?.value || '').trim();
+    const criteria = getSeasonSearchCriteria();
     return source.filter(row => {
       const siteNames = resolveSiteNames(row.name);
       if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
-      if(q) {
-        if(!matchesSeasonRankingSearch(row, siteNames, q)) return false;
-      }
+      if(!matchesSeasonRankingSearch(row, siteNames, criteria)) return false;
       return true;
     }).sort((a,b) => (a.rank || 0) - (b.rank || 0));
   }
@@ -1951,13 +1904,11 @@ document.addEventListener('DOMContentLoaded',function(){
     const data = getHistoryData();
     const source = Array.isArray(data.rows) ? data.rows : [];
     const columns = Array.isArray(data.columns) && data.columns.length ? data.columns : [{key:'current', label:'最新'}];
-    const q = (document.getElementById('name-search')?.value || '').trim();
+    const criteria = getSeasonSearchCriteria();
     return source.filter(row => {
       const siteNames = resolveSiteNames(row.name || row.siteName || '');
       if(currentSeason && !siteNames.some(n => inSeason(n, currentSeason))) return false;
-      if(q) {
-        if(!matchesSeasonRankingSearch(row, siteNames, q)) return false;
-      }
+      if(!matchesSeasonRankingSearch(row, siteNames, criteria)) return false;
       return true;
     }).sort((a,b) => {
       const avRaw = latestHistoryRank(a, columns);
@@ -2310,18 +2261,27 @@ document.addEventListener('DOMContentLoaded',function(){
     });
     return fields;
   }
+  function partyRefMoveFields(party){
+    return uniqSeasonValues((party.members || []).flatMap(member => Array.isArray(member.moves) ? member.moves : []));
+  }
+  function partyRefAbilityFields(party){
+    return uniqSeasonValues((party.members || []).flatMap(member => getPokemonAbilityTexts(member.pokemon, true)));
+  }
+  function partyRefMatchesSearchCriteria(party, criteria){
+    const ctx = criteria || getSeasonSearchCriteria();
+    if(ctx.name && typeof matchesSeasonSearchFields === 'function' && !matchesSeasonSearchFields(partyRefFields(party), ctx.name)) return false;
+    if((ctx.moves || []).some(query => !matchesSeasonSearchFields(partyRefMoveFields(party), query))) return false;
+    if((ctx.abilities || []).some(query => !matchesSeasonSearchFields(partyRefAbilityFields(party), query))) return false;
+    return true;
+  }
   function getFilteredPartyReferences(){
-    const q = (document.getElementById('name-search')?.value || '').trim();
+    const criteria = getSeasonSearchCriteria();
     const type = document.getElementById('type-filter')?.value || '';
-    const advanced = getSeasonAdvancedSearch();
     return (PARTY_REFERENCE_DATA.parties || []).filter(party => {
       if(currentSeason && party.season && party.season !== currentSeason) return false;
       if(currentSeason && !party.season) return false;
       if(type && !partyRefMatchesTypeFilter(party, type)) return false;
-      if(q && typeof matchesSeasonSearchFields === 'function' && !matchesSeasonSearchFields(partyRefFields(party), q)) return false;
-      const partyMoveFields = (party.members || []).flatMap(member => (member.moves || []).concat(getPokemonMoveTexts(member.pokemon || '')));
-      const partyAbilityFields = (party.members || []).flatMap(member => getPokemonAbilityTexts(member.pokemon || '', true));
-      if(!matchesSeasonAdvancedSearch(partyMoveFields, partyAbilityFields, advanced)) return false;
+      if(!partyRefMatchesSearchCriteria(party, criteria)) return false;
       return true;
     }).sort((a,b) => {
       const seasonCmp = String(a.season || '').localeCompare(String(b.season || ''), 'ja');
@@ -2335,12 +2295,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function setPartyViewFilterState(active){
     partyViewActive = !!active;
-    const searchMode = document.getElementById('search-mode');
     const help = document.querySelector('.search-help');
     const input = document.getElementById('name-search');
-    if(searchMode) searchMode.style.display = active ? 'none' : '';
-    if(help) help.textContent = active ? 'シーズン・タイプ・検索欄で参考パーティーを絞り込めます。検索はNo・ポケモン名・持ち物・技名までまとめて対応します。' : '技・特性は検索欄、タイプは選択欄で絞り込めます。タイプを選んだまま名前や技名で追加検索できます。';
-    if(input) input.placeholder = active ? 'No・ポケモン名・持ち物・技名で検索...' : '名前・技・特性で検索...';
+    if(help) help.textContent = active ? 'シーズン・タイプ・名前・技・特性の入力欄で参考パーティーを絞り込めます。名前欄はNo・ポケモン名・持ち物もまとめて探せます。' : '名前・技・特性をそれぞれ入力すると、文字に応じて候補が表示されます。技と特性は3件まで同時に絞り込めます。';
+    if(input) input.placeholder = active ? 'No・ポケモン名・持ち物で検索' : 'ポケモン名で検索';
   }
 
   function showPartyReferenceView(){
@@ -2537,11 +2495,13 @@ document.addEventListener('DOMContentLoaded',function(){
       });
     }
 
-    const input = document.getElementById('name-search');
-    if(input && !input.dataset.partyHooked){
-      input.dataset.partyHooked = '1';
-      input.addEventListener('input', function(){ if(partyViewActive) renderPartyReferenceList(); });
-    }
+    ['name-search','move-search-1','move-search-2','move-search-3','ability-search-1','ability-search-2','ability-search-3'].forEach(id => {
+      const input = document.getElementById(id);
+      if(input && !input.dataset.partyHooked){
+        input.dataset.partyHooked = '1';
+        input.addEventListener('input', function(){ if(partyViewActive) renderPartyReferenceList(); });
+      }
+    });
     const typeFilter = document.getElementById('type-filter');
     if(typeFilter && !typeFilter.dataset.partyHooked){
       typeFilter.dataset.partyHooked = '1';
