@@ -1311,6 +1311,12 @@ window.onload = async () => {
   buildSeasonSearchSuggestionData();
   initSeasonSuggestInputs();
   render();
+  if(typeof loadRankingJson === 'function') {
+    if(typeof _seasonRankingLoaded !== 'undefined') _seasonRankingLoaded = false;
+    if(typeof _seasonRankingPromise !== 'undefined') _seasonRankingPromise = null;
+    if(typeof RANKING_AVAILABLE_SEASONS !== 'undefined') RANKING_AVAILABLE_SEASONS = [];
+    loadRankingJson();
+  }
 };
 
 document.addEventListener('click', function(e) {
@@ -1531,10 +1537,16 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   async function loadRankingJson() {
+    const seasonCandidates = sortSeasonLabels((SEASON_DATA && Array.isArray(SEASON_DATA.seasons) ? SEASON_DATA.seasons : []).filter(Boolean), false);
+    if(!seasonCandidates.length) {
+      _seasonRankingLoaded = false;
+      _seasonRankingPromise = null;
+      RANKING_AVAILABLE_SEASONS = [];
+      return Promise.resolve(RANKING_STORE);
+    }
     if(_seasonRankingLoaded) return RANKING_STORE;
     if(_seasonRankingPromise) return _seasonRankingPromise;
     _seasonRankingPromise = (async()=>{
-      const seasonCandidates = sortSeasonLabels((SEASON_DATA && Array.isArray(SEASON_DATA.seasons) ? SEASON_DATA.seasons : []).filter(Boolean), false);
       const available = [];
       for(const season of seasonCandidates) {
         const [singleRes, doubleRes, singleHistoryRes, doubleHistoryRes] = await Promise.all([
