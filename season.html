@@ -544,31 +544,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         </div>
       </div>
       <div class="search-field">
-        <span class="search-field-label">特性1</span>
+        <span class="search-field-label">特性</span>
         <div class="search-suggest-wrap">
           <input class="search-input" id="ability-search-1" type="text" placeholder="特性名を入力" autocomplete="off" data-suggest-kind="ability">
           <div class="search-suggest-list" id="ability-search-1-suggest" hidden></div>
-        </div>
-      </div>
-      <div class="search-field">
-        <span class="search-field-label">特性2</span>
-        <div class="search-suggest-wrap">
-          <input class="search-input" id="ability-search-2" type="text" placeholder="特性名を入力" autocomplete="off" data-suggest-kind="ability">
-          <div class="search-suggest-list" id="ability-search-2-suggest" hidden></div>
-        </div>
-      </div>
-      <div class="search-field">
-        <span class="search-field-label">特性3</span>
-        <div class="search-suggest-wrap">
-          <input class="search-input" id="ability-search-3" type="text" placeholder="特性名を入力" autocomplete="off" data-suggest-kind="ability">
-          <div class="search-suggest-list" id="ability-search-3-suggest" hidden></div>
         </div>
       </div>
       <div class="search-actions">
         <button class="search-clear-btn" type="button" onclick="clearSeasonSearch()">クリア</button>
       </div>
     </div>
-    <div class="search-help">名前・技・特性をそれぞれ入力すると、文字に応じて候補が表示されます。技と特性は3件まで同時に絞り込めます。</div>
+    <div class="search-help">名前・技・特性をそれぞれ入力すると、文字に応じて候補が表示されます。技は3件まで、特性は1件で絞り込めます。技検索は技名のみを対象にします。</div>
   </div>
 
   <!-- 統計 -->
@@ -638,7 +624,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div class="detail-card-title">技一覧</div>
           <div class="detail-tools">
             <div class="detail-meta-line" id="detail-move-meta"></div>
-            <input type="text" id="detail-move-search" placeholder="技名・タイプ・ヒット数・説明で絞り込み">
+            <input type="text" id="detail-move-search" placeholder="技名で絞り込み">
           </div>
           <div class="detail-moves-wrap">
             <table class="detail-moves-table">
@@ -809,7 +795,7 @@ function getSeasonSearchCriteria() {
     type: getSeasonTypeFilter(),
     name: getSearchInputValue('name-search'),
     moves: getSearchValueList(['move-search-1','move-search-2','move-search-3']),
-    abilities: getSearchValueList(['ability-search-1','ability-search-2','ability-search-3'])
+    abilities: getSearchValueList(['ability-search-1'])
   };
 }
 
@@ -847,7 +833,7 @@ function getPokemonMoveTexts(name) {
   names.forEach(siteName => {
     const detail = POKE_MOVES_BY_NAME[siteName] || { moves: [] };
     const moves = Array.isArray(detail.moves) ? detail.moves : [];
-    moves.forEach(m => texts.push(...[m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description].filter(Boolean)));
+    moves.forEach(m => { if(m && m.name) texts.push(m.name); });
   });
   return uniqSeasonValues(texts);
 }
@@ -876,7 +862,7 @@ function matchesSeasonPokemonCriteria(p, criteria) {
   const ctx = criteria || getSeasonSearchCriteria();
   const nameFields = getPokemonNameTexts(p);
   const moveFields = getPokemonMoveTexts(p.name);
-  const abilityFields = getPokemonAbilityTexts(p.name, true);
+  const abilityFields = getPokemonAbilityTexts(p.name, false);
   if(ctx.name && !matchesSeasonSearchFields(nameFields, ctx.name)) return false;
   if((ctx.moves || []).some(query => !matchesSeasonSearchFields(moveFields, query))) return false;
   if((ctx.abilities || []).some(query => !matchesSeasonSearchFields(abilityFields, query))) return false;
@@ -894,7 +880,7 @@ function seasonSearchSummaryHtml(criteria) {
 }
 
 function clearSeasonSearch() {
-  ['name-search','move-search-1','move-search-2','move-search-3','ability-search-1','ability-search-2','ability-search-3'].forEach(id => {
+  ['name-search','move-search-1','move-search-2','move-search-3','ability-search-1'].forEach(id => {
     const input = document.getElementById(id);
     if(input) input.value = '';
   });
@@ -1237,7 +1223,7 @@ function renderDetailMoves() {
   const detail = POKE_MOVES_BY_NAME[currentDetailName] || { moves: [] };
   const moves = Array.isArray(detail.moves) ? detail.moves : [];
   const filtered = !query ? moves : moves.filter(m => {
-    return matchesSeasonSearchFields([m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description], query);
+    return matchesSeasonSearchFields([m.name], query);
   });
   if(!filtered.length) {
     body.innerHTML = `<tr><td colspan="8" class="detail-empty">${moves.length ? '条件に合う技がありません' : '技データがありません'}</td></tr>`;
@@ -2175,7 +2161,7 @@ document.addEventListener('DOMContentLoaded',function(){
     const body = document.getElementById('detail-moves-body');
     const query = (document.getElementById('detail-move-search').value || '').trim();
     const moves = Array.isArray(currentDetailMoves) ? currentDetailMoves : [];
-    const filtered = !query ? moves : moves.filter(m => [m.name, m.type, m.category, m.power, m.accuracy, m.pp, m.hits, m.description].filter(Boolean).join(' ').includes(query));
+    const filtered = !query ? moves : moves.filter(m => matchesSeasonSearchFields([m.name], query));
     const limit = 16;
     const visible = (!query && !currentDetailMovesExpanded) ? filtered.slice(0, limit) : filtered;
     const btn = document.getElementById('detail-move-toggle-btn');
@@ -2476,7 +2462,7 @@ document.addEventListener('DOMContentLoaded',function(){
     return uniqSeasonValues((party.members || []).flatMap(member => Array.isArray(member.moves) ? member.moves : []));
   }
   function partyRefAbilityFields(party){
-    return uniqSeasonValues((party.members || []).flatMap(member => getPokemonAbilityTexts(member.pokemon, true)));
+    return uniqSeasonValues((party.members || []).flatMap(member => getPokemonAbilityTexts(member.pokemon, false)));
   }
   function partyRefMatchesSearchCriteria(party, criteria){
     const ctx = criteria || getSeasonSearchCriteria();
@@ -2517,7 +2503,7 @@ document.addEventListener('DOMContentLoaded',function(){
     partyViewActive = !!active;
     const help = document.querySelector('.search-help');
     const input = document.getElementById('name-search');
-    if(help) help.textContent = active ? 'シーズン・タイプ・名前・技・特性の入力欄で参考パーティーを絞り込めます。名前欄はNo・ポケモン名・持ち物もまとめて探せます。' : '名前・技・特性をそれぞれ入力すると、文字に応じて候補が表示されます。技と特性は3件まで同時に絞り込めます。';
+    if(help) help.textContent = active ? 'シーズン・タイプ・名前・技・特性の入力欄で参考パーティーを絞り込めます。技は技名のみ、特性は1件のみで絞り込めます。名前欄はNo・ポケモン名・持ち物もまとめて探せます。' : '名前・技・特性をそれぞれ入力すると、文字に応じて候補が表示されます。技は3件まで、特性は1件で絞り込めます。技検索は技名のみを対象にします。';
     if(input) input.placeholder = active ? 'No・ポケモン名・持ち物で検索' : 'ポケモン名で検索';
   }
 
@@ -2713,7 +2699,7 @@ document.addEventListener('DOMContentLoaded',function(){
       });
     }
 
-    ['name-search','move-search-1','move-search-2','move-search-3','ability-search-1','ability-search-2','ability-search-3'].forEach(id => {
+    ['name-search','move-search-1','move-search-2','move-search-3','ability-search-1'].forEach(id => {
       const input = document.getElementById(id);
       if(input && !input.dataset.partyHooked){
         input.dataset.partyHooked = '1';
