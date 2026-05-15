@@ -27,9 +27,9 @@
 [data-theme="light"]{--bg:#edf5f9;--bg2:#ffffff;--panel:#f8fbff;--panel2:#eef6fc;--panel3:#e4f1f9;--border:#9fc2d7;--border2:#6d9eba;--accent:#005f9e;--accent2:#b80f3e;--accent3:#9b6100;--green:#00764b;--text:#071b2c;--text2:#3d5c76;--text3:#6b849a;--shadow:0 14px 30px rgba(27,70,100,.13)}
 *{box-sizing:border-box;margin:0;padding:0} body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden} body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(ellipse 45% 28% at 10% 0%,rgba(0,200,240,.10),transparent 65%),radial-gradient(ellipse 42% 30% at 90% 100%,rgba(255,48,96,.06),transparent 65%),linear-gradient(rgba(0,200,240,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,.018) 1px,transparent 1px);background-size:auto,auto,52px 52px,52px 52px} a{color:inherit}
 header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 20px} [data-theme="light"] header{background:rgba(248,251,255,.96)} .logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-decoration:none;white-space:nowrap}.logo em{color:var(--accent2);font-style:normal}.header-sep{width:1px;height:16px;background:var(--border)}.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;white-space:nowrap}.header-nav{display:flex;gap:3px;margin-left:auto;overflow-x:auto}.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:11px;letter-spacing:1px;text-decoration:none;white-space:nowrap;transition:.16s}.nav-btn:hover,.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.08)}.theme-toggle{border:1px solid var(--border);background:var(--panel);color:var(--text);width:32px;height:28px;border-radius:9px;cursor:pointer}.hamburger{display:none;flex-direction:column;gap:5px;margin-left:auto;background:none;border:none;padding:6px;cursor:pointer}.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:.2s}.nav-overlay{display:none;position:fixed;inset:52px 0 0;background:rgba(0,0,0,.42);z-index:80}
-.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 42px}.hero{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;margin-bottom:14px}.hero-card,.status-card,.card{border:1px solid var(--border);background:var(--panel);box-shadow:var(--shadow);border-radius:22px;overflow:hidden}.hero-card{padding:17px;background:linear-gradient(135deg,rgba(0,200,240,.13),rgba(255,48,96,.05)),var(--panel)}.eyebrow{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:2px;margin-bottom:5px}h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px}.lead{color:var(--text2);font-size:13px;line-height:1.75}.badge-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.badge{display:inline-flex;align-items:center;border:1px solid var(--border2);background:rgba(0,200,240,.07);border-radius:999px;color:var(--text2);font-size:11px;font-weight:800;padding:6px 10px}.status-card{padding:14px}.status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.status-pill{border:1px solid var(--border);background:var(--panel2);border-radius:15px;padding:10px;min-height:58px}.status-label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px;margin-bottom:4px}.status-value{font-size:15px;font-weight:900;color:var(--text);line-height:1.3}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:14px}.field{display:grid;gap:5px}.field.flex1{flex:1 1 180px}.label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px}.input,.select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;color:var(--text);padding:10px 11px;font-size:15px;font-family:'Noto Sans JP',sans-serif;outline:none}.input:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.12)}.btn{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:12px;padding:10px 12px;font-size:12px;font-weight:900;cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;gap:6px;white-space:nowrap}.btn:hover{border-color:var(--accent);color:var(--accent)}.btn.primary{background:linear-gradient(135deg,rgba(0,200,240,.22),rgba(0,200,240,.08));border-color:var(--accent);color:var(--accent)}.btn.danger{border-color:rgba(255,48,96,.55);color:var(--accent2)}.grid{display:grid;grid-template-columns:390px minmax(0,1fr);gap:14px;align-items:start}.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}.card-title{font-size:14px;font-weight:900;letter-spacing:.06em}.card-body{padding:14px}.side-stack{display:grid;gap:12px}.side-box{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:12px}.side-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}.side-title{font-size:13px;font-weight:900;color:var(--text);letter-spacing:.05em}.search-wrap{position:relative}.suggestions{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;border:1px solid var(--border2);background:var(--panel);border-radius:14px;box-shadow:var(--shadow);max-height:280px;overflow:auto;padding:6px}.suggestions.show{display:block}.suggestion{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;width:100%;border:0;background:transparent;color:var(--text);padding:9px;border-radius:10px;text-align:left;cursor:pointer}.suggestion:hover{background:var(--panel2)}.rank-badge{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:11px;font-weight:900;min-width:35px}.sug-name{font-weight:900}.sug-note{font-size:10px;color:var(--text3);font-weight:800}.type-row,.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.type-pill{display:inline-flex;border:1px solid var(--border2);background:rgba(0,200,240,.08);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900}.chip{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;cursor:pointer}.chip:hover{border-color:var(--accent);color:var(--accent)}.auto-note{font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px}.move-list{display:grid;gap:9px;margin-top:10px}.move-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}.move-no{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:12px;font-weight:900;text-align:center;padding-top:11px}.move-box{position:relative}.move-suggestions{display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:35;border:1px solid var(--border2);background:var(--panel);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow:auto;padding:5px}.move-suggestions.show{display:block}.move-option{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:0;background:transparent;color:var(--text);width:100%;padding:8px;border-radius:9px;text-align:left;cursor:pointer}.move-option:hover{background:var(--panel2)}.move-option-main{font-size:13px;font-weight:900}.move-option-sub{font-size:10px;color:var(--text3);font-weight:800}.quick-moves{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.quick-move-chip{border:1px solid var(--border);background:var(--panel);border-radius:999px;color:var(--text2);font-size:11px;font-weight:900;padding:6px 8px;cursor:pointer}.quick-move-chip:hover{border-color:var(--accent);color:var(--accent)}details{border-top:1px dashed var(--border);margin-top:12px;padding-top:11px}summary{cursor:pointer;color:var(--accent);font-weight:900;font-size:12px;list-style:none}summary::-webkit-details-marker{display:none}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}.ev-grid,.nature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px}.mini-field{border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:8px}.mini-field .label{margin-bottom:4px}.mini-field input,.mini-field select{padding:8px;border-radius:9px;font-size:14px}.result-card{position:sticky;top:68px}.pair-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.pair-title{font-size:18px;font-weight:900;line-height:1.35}.pair-sub{font-size:12px;color:var(--text2);margin-top:5px}.speed-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:11px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.speed-num{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:900}.speed-num.right{text-align:right}.speed-mid{font-size:12px;color:var(--text2);font-weight:900;text-align:center}.result-list{display:grid;gap:10px}.damage-card{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:13px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:12px;align-items:center}.damage-card.best{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.09)}.damage-move{font-size:16px;font-weight:900;display:flex;align-items:center;gap:7px;flex-wrap:wrap}.damage-meta{font-size:11px;color:var(--text2);line-height:1.6;margin-top:5px}.damage-main{text-align:right}.damage-pct{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:23px;font-weight:900}.damage-range{font-size:12px;color:var(--text2);margin-top:4px}.ko{display:inline-flex;margin-top:6px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900;border:1px solid var(--border2)}.ko.k1{color:var(--accent2);border-color:rgba(255,48,96,.6)}.ko.k2{color:var(--accent3);border-color:rgba(255,200,0,.6)}.ko.k3{color:var(--green);border-color:rgba(0,230,118,.55)}.eff-good{color:var(--accent2);font-weight:900}.eff-bad,.eff-zero{color:var(--text3);font-weight:900}.empty{border:1px dashed var(--border2);background:var(--panel2);border-radius:18px;padding:18px;color:var(--text2);font-size:13px;line-height:1.8;text-align:center}.note{font-size:11px;color:var(--text3);line-height:1.65;margin-top:9px}.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:13px}.warning{border:1px solid rgba(255,200,0,.45);background:rgba(255,200,0,.08);border-radius:14px;padding:9px 10px;color:var(--accent3);font-size:11px;font-weight:900;line-height:1.55;margin-top:8px}footer{text-align:center;color:var(--text3);font-size:11px;padding:24px 12px 34px}.footer-logo{font-family:'Bebas Neue',sans-serif;letter-spacing:5px;color:var(--text2);font-size:20px;margin-bottom:6px}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 42px}.hero{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;margin-bottom:14px}.hero-card,.status-card,.card{border:1px solid var(--border);background:var(--panel);box-shadow:var(--shadow);border-radius:22px;overflow:hidden}.hero-card{padding:17px;background:linear-gradient(135deg,rgba(0,200,240,.13),rgba(255,48,96,.05)),var(--panel)}.eyebrow{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:2px;margin-bottom:5px}h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px}.lead{color:var(--text2);font-size:13px;line-height:1.75}.badge-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.badge{display:inline-flex;align-items:center;border:1px solid var(--border2);background:rgba(0,200,240,.07);border-radius:999px;color:var(--text2);font-size:11px;font-weight:800;padding:6px 10px}.status-card{padding:14px}.status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.status-pill{border:1px solid var(--border);background:var(--panel2);border-radius:15px;padding:10px;min-height:58px}.status-label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px;margin-bottom:4px}.status-value{font-size:15px;font-weight:900;color:var(--text);line-height:1.3}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:14px}.field{display:grid;gap:5px}.field.flex1{flex:1 1 180px}.label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px}.input,.select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;color:var(--text);padding:10px 11px;font-size:15px;font-family:'Noto Sans JP',sans-serif;outline:none}.input:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.12)}.btn{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:12px;padding:10px 12px;font-size:12px;font-weight:900;cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;gap:6px;white-space:nowrap}.btn:hover{border-color:var(--accent);color:var(--accent)}.btn.primary{background:linear-gradient(135deg,rgba(0,200,240,.22),rgba(0,200,240,.08));border-color:var(--accent);color:var(--accent)}.btn.danger{border-color:rgba(255,48,96,.55);color:var(--accent2)}.grid{display:grid;grid-template-columns:390px minmax(0,1fr);gap:14px;align-items:start}.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}.card-title{font-size:14px;font-weight:900;letter-spacing:.06em}.card-body{padding:14px}.side-stack{display:grid;gap:12px}.side-box{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:12px}.side-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}.side-title{font-size:13px;font-weight:900;color:var(--text);letter-spacing:.05em}.search-wrap{position:relative}.suggestions{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;border:1px solid var(--border2);background:var(--panel);border-radius:14px;box-shadow:var(--shadow);max-height:280px;overflow:auto;padding:6px}.suggestions.show{display:block}.suggestion{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;width:100%;border:0;background:transparent;color:var(--text);padding:9px;border-radius:10px;text-align:left;cursor:pointer}.suggestion:hover{background:var(--panel2)}.rank-badge{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:11px;font-weight:900;min-width:35px}.sug-name{font-weight:900}.sug-note{font-size:10px;color:var(--text3);font-weight:800}.type-row,.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.type-pill{display:inline-flex;border:1px solid var(--border2);background:rgba(0,200,240,.08);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900}.chip{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;cursor:pointer}.chip:hover{border-color:var(--accent);color:var(--accent)}.auto-note{font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px}.move-list{display:grid;gap:9px;margin-top:10px}.move-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}.move-no{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:12px;font-weight:900;text-align:center;padding-top:11px}.move-box{position:relative}.move-suggestions{display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:35;border:1px solid var(--border2);background:var(--panel);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow:auto;padding:5px}.move-suggestions.show{display:block}.move-option{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:0;background:transparent;color:var(--text);width:100%;padding:8px;border-radius:9px;text-align:left;cursor:pointer}.move-option:hover{background:var(--panel2)}.move-option-main{font-size:13px;font-weight:900}.move-option-sub{font-size:10px;color:var(--text3);font-weight:800}.quick-moves{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.quick-move-chip{border:1px solid var(--border);background:var(--panel);border-radius:999px;color:var(--text2);font-size:11px;font-weight:900;padding:6px 8px;cursor:pointer}.quick-move-chip:hover{border-color:var(--accent);color:var(--accent)}details{border-top:1px dashed var(--border);margin-top:12px;padding-top:11px}summary{cursor:pointer;color:var(--accent);font-weight:900;font-size:12px;list-style:none}summary::-webkit-details-marker{display:none}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}.ev-grid,.nature-grid,.rank-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px}.mini-field{border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:8px}.mini-field .label{margin-bottom:4px}.mini-field input,.mini-field select{padding:8px;border-radius:9px;font-size:14px}.result-card{position:sticky;top:68px}.pair-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.pair-title{font-size:18px;font-weight:900;line-height:1.35}.pair-sub{font-size:12px;color:var(--text2);margin-top:5px}.speed-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:11px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.speed-num{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:900}.speed-num.right{text-align:right}.speed-mid{font-size:12px;color:var(--text2);font-weight:900;text-align:center}.result-list{display:grid;gap:10px}.damage-card{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:13px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:12px;align-items:center}.damage-card.best{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.09)}.damage-move{font-size:16px;font-weight:900;display:flex;align-items:center;gap:7px;flex-wrap:wrap}.damage-meta{font-size:11px;color:var(--text2);line-height:1.6;margin-top:5px}.damage-main{text-align:right}.damage-pct{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:23px;font-weight:900}.damage-range{font-size:12px;color:var(--text2);margin-top:4px}.ko{display:inline-flex;margin-top:6px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900;border:1px solid var(--border2)}.ko.k1{color:var(--accent2);border-color:rgba(255,48,96,.6)}.ko.k2{color:var(--accent3);border-color:rgba(255,200,0,.6)}.ko.k3{color:var(--green);border-color:rgba(0,230,118,.55)}.eff-good{color:var(--accent2);font-weight:900}.eff-bad,.eff-zero{color:var(--text3);font-weight:900}.empty{border:1px dashed var(--border2);background:var(--panel2);border-radius:18px;padding:18px;color:var(--text2);font-size:13px;line-height:1.8;text-align:center}.note{font-size:11px;color:var(--text3);line-height:1.65;margin-top:9px}.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:13px}.warning{border:1px solid rgba(255,200,0,.45);background:rgba(255,200,0,.08);border-radius:14px;padding:9px 10px;color:var(--accent3);font-size:11px;font-weight:900;line-height:1.55;margin-top:8px}footer{text-align:center;color:var(--text3);font-size:11px;padding:24px 12px 34px}.footer-logo{font-family:'Bebas Neue',sans-serif;letter-spacing:5px;color:var(--text2);font-size:20px;margin-bottom:6px}
 @media(max-width:980px){header{padding:0 12px}.header-sub,.header-sep{display:none}.hamburger{display:flex}.header-nav{position:fixed;top:52px;right:0;width:78vw;max-width:330px;height:calc(100vh - 52px);background:var(--panel);border-left:1px solid var(--border);padding:16px;display:none;flex-direction:column;overflow-y:auto;margin:0;z-index:90}.header-nav.open{display:flex}.nav-overlay.show{display:block}.nav-btn{padding:12px;border-radius:12px}.hero{grid-template-columns:1fr}.status-card{display:none}.grid{grid-template-columns:1fr}.result-card{position:static}.wrap{padding:13px 10px 34px}h1{font-size:22px}}
-@media(max-width:640px){.hero-card,.card{border-radius:18px}.hero-card{padding:14px}.card-head,.card-body{padding:12px}.toolbar{display:grid;grid-template-columns:1fr 1fr}.field.flex1{flex:auto}.side-box{border-radius:16px;padding:10px}.detail-grid,.ev-grid,.nature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.speed-box{grid-template-columns:1fr;gap:4px;text-align:center}.speed-num.right{text-align:center}.damage-card{grid-template-columns:1fr;gap:8px}.damage-main{text-align:left}.damage-pct{font-size:25px}.tools{grid-template-columns:1fr}.input,.select{font-size:16px;min-height:44px}.btn{min-height:42px}.suggestions,.move-suggestions{max-height:220px}.toolbar .field:nth-child(1),.toolbar .field:nth-child(2){grid-column:auto}.toolbar .field:nth-child(3){grid-column:1/3}}
+@media(max-width:640px){.hero-card,.card{border-radius:18px}.hero-card{padding:14px}.card-head,.card-body{padding:12px}.toolbar{display:grid;grid-template-columns:1fr 1fr}.field.flex1{flex:auto}.side-box{border-radius:16px;padding:10px}.detail-grid,.ev-grid,.nature-grid,.rank-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.speed-box{grid-template-columns:1fr;gap:4px;text-align:center}.speed-num.right{text-align:center}.damage-card{grid-template-columns:1fr;gap:8px}.damage-main{text-align:left}.damage-pct{font-size:25px}.tools{grid-template-columns:1fr}.input,.select{font-size:16px;min-height:44px}.btn{min-height:42px}.suggestions,.move-suggestions{max-height:220px}.toolbar .field:nth-child(1),.toolbar .field:nth-child(2){grid-column:auto}.toolbar .field:nth-child(3){grid-column:1/3}}
 </style>
 </head>
 <body>
@@ -116,6 +116,7 @@ header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96)
             <div class="detail-grid" id="attacker-basic"></div>
             <div class="ev-grid" id="attacker-evs"></div>
             <div class="nature-grid" id="attacker-natures"></div>
+            <div class="rank-grid" id="attacker-ranks"></div>
           </details>
         </div>
 
@@ -139,6 +140,7 @@ header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96)
             <div class="detail-grid" id="defender-basic"></div>
             <div class="ev-grid" id="defender-evs"></div>
             <div class="nature-grid" id="defender-natures"></div>
+            <div class="rank-grid" id="defender-ranks"></div>
           </details>
         </div>
       </div>
@@ -166,7 +168,7 @@ header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96)
           <button class="btn" type="button" id="swap-btn2">攻守入替</button>
           <button class="btn" type="button" id="copy-summary-btn">結果をコピー</button>
         </div>
-        <div class="note">※クイック確認用です。変化技は候補に出しません。細かいランク補正・状態異常・場の条件まで詰める場合はダメージ計算ページを使ってください。</div>
+        <div class="note">※クイック確認用です。変化技は候補に出しません。ランク補正はこのページ内で反映できます。状態異常・壁・場ダメージなど細かく詰める場合はダメージ計算ページを使ってください。</div>
       </div>
     </div>
   </section>
@@ -213,6 +215,8 @@ const TYPE_TABLE = {
 const NATURE_TOKEN = {A:'atk',B:'def',C:'spa',D:'spd',S:'spe'};
 const STAT_ORDER = ['hp','atk','def','spa','spd','spe'];
 const NATURE_ORDER = ['atk','def','spa','spd','spe'];
+const RANK_ORDER = ['atk','def','spa','spd','spe'];
+const RANK_TABLE = [2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
 const DEF_PRESETS = {
   none:{ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, nature:{atk:1,def:1,spa:1,spd:1,spe:1}},
   H32:{ev:{hp:32,atk:0,def:0,spa:0,spd:0,spe:0}, nature:{atk:1,def:1,spa:1,spd:1,spe:1}},
@@ -232,7 +236,7 @@ const state = {
   attacker: emptySide(), defender: emptySide(false)
 };
 function emptySide(withMoves=true){
-  const side = {name:'', lookupName:'', rankingKey:'', rankRow:null, item:'', ability:'', level:50, iv:31, ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, nature:{atk:1,def:1,spa:1,spd:1,spe:1}, source:'未設定', sourceDetail:''};
+  const side = {name:'', lookupName:'', rankingKey:'', rankRow:null, item:'', ability:'', level:50, iv:31, ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, nature:{atk:1,def:1,spa:1,spd:1,spe:1}, rank:{atk:0,def:0,spa:0,spd:0,spe:0}, source:'未設定', sourceDetail:''};
   if(withMoves) side.moves = ['','','',''];
   return side;
 }
@@ -406,7 +410,12 @@ function parseNature(text){
   return n;
 }
 function unique(v,i,a){return v && a.indexOf(v)===i;}
-function isDamagingMoveName(name){const m=getMove(name); return !!(m && (m.category==='物理'||m.category==='特殊') && getPower(m)>0);}
+function isDamagingMoveName(name){const m=getMove(name); return isDamagingMoveData(m);}
+function isDamagingMoveData(m){
+  if(!m || !(m.category==='物理'||m.category==='特殊')) return false;
+  if(getPower(m)>0) return true;
+  return ['けたぐり','くさむすび','ヘビーボンバー','ヒートスタンプ','きしかいせい','じたばた','アシストパワー','つけあがる','おはかまいり'].includes(m.name) || String(m.notes||'').includes('体重依存') || String(m.notes||'').includes('防御依存');
+}
 function canLearnMove(pokeName, moveName){
   const moves=learnableDamagingMoves(pokeName); if(!moves.length) return true;
   return moves.some(m=>m.name===moveName);
@@ -414,15 +423,15 @@ function canLearnMove(pokeName, moveName){
 function learnableDamagingMoves(pokeName){
   const key=pokeName || ''; const row=POKEMON_MOVES[key] || POKEMON_MOVES[key.replace(/^メガ/,'')] || null;
   const arr=row && Array.isArray(row.moves) ? row.moves : [];
-  const names=arr.filter(m=>(m.category==='物理'||m.category==='特殊') && Number(m.power)>0).map(m=>m.name).filter(unique);
-  return names.map(name=>getMove(name) || {name, category:'', type:'', power:''}).filter(m=>getPower(m)>0);
+  const names=arr.filter(m=>isDamagingMoveData(m)).map(m=>m.name).filter(unique);
+  return names.map(name=>getMove(name) || {name, category:'', type:'', power:''}).filter(m=>isDamagingMoveData(m));
 }
 function getMove(name){return moveByName.get(String(name||'').trim()) || null;}
 function getPokemon(name){return pokeByName.get(String(name||'').trim()) || null;}
 function clone(x){return JSON.parse(JSON.stringify(x));}
 function applyDefPreset(key){
   const p=DEF_PRESETS[key] || DEF_PRESETS.none;
-  state.defender.ev=clone(p.ev); state.defender.nature=clone(p.nature); state.defender.source='手動プリセット'; state.defender.sourceDetail=key;
+  state.defender.ev=clone(p.ev); state.defender.nature=clone(p.nature); state.defender.rank={atk:0,def:0,spa:0,spd:0,spe:0}; state.defender.source='手動プリセット'; state.defender.sourceDetail=key;
 }
 function swapSides(){
   const oldAtk=clone(state.attacker), oldDef=clone(state.defender);
@@ -474,7 +483,7 @@ function insertMove(name){
   else state.attacker.moves[0]=name;
 }
 function renderStatsEditors(){
-  renderBasic('attacker'); renderBasic('defender'); renderEV('attacker'); renderEV('defender'); renderNature('attacker'); renderNature('defender');
+  renderBasic('attacker'); renderBasic('defender'); renderEV('attacker'); renderEV('defender'); renderNature('attacker'); renderNature('defender'); renderRank('attacker'); renderRank('defender');
 }
 function renderBasic(side){
   const s=state[side], box=$(side+'-basic');
@@ -502,14 +511,34 @@ function renderNature(side){
   box.innerHTML=NATURE_ORDER.map(k=>`<div class="mini-field"><div class="label">${NATURE_STAT_LABELS[k]} 性格補正</div><select class="select" id="${side}-nature-${k}"><option value="0.9" ${s.nature[k]===0.9?'selected':''}>0.9</option><option value="1" ${s.nature[k]===1?'selected':''}>変化なし</option><option value="1.1" ${s.nature[k]===1.1?'selected':''}>1.1</option></select></div>`).join('');
   NATURE_ORDER.forEach(k=>$(`${side}-nature-${k}`).addEventListener('change',()=>{s.nature[k]=Number($(`${side}-nature-${k}`).value)||1; renderResults();}));
 }
+function renderRank(side){
+  const s=state[side], box=$(side+'-ranks');
+  if(!box) return;
+  if(!s.rank) s.rank={atk:0,def:0,spa:0,spd:0,spe:0};
+  box.innerHTML=RANK_ORDER.map(k=>{
+    const value=Number(s.rank[k]||0);
+    return `<div class="mini-field"><div class="label">${NATURE_STAT_LABELS[k]} ランク</div><select class="select" id="${side}-rank-${k}">${rankOptions(value)}</select></div>`;
+  }).join('');
+  RANK_ORDER.forEach(k=>$( `${side}-rank-${k}` ).addEventListener('change',()=>{s.rank[k]=clamp(parseInt($(`${side}-rank-${k}`).value||0,10)||0,-6,6); renderResults();}));
+}
+function rankOptions(current){
+  let html='';
+  for(let i=-6;i<=6;i++){
+    const label=i===0?'±0':(i>0?`+${i}`:`${i}`);
+    html+=`<option value="${i}" ${Number(current)===i?'selected':''}>${label}</option>`;
+  }
+  return html;
+}
 function renderResults(){
   const atkP=getPokemon(state.attacker.lookupName||state.attacker.name), defP=getPokemon(state.defender.lookupName||state.defender.name);
   $('pair-title').textContent = atkP && defP ? `${state.attacker.name} → ${state.defender.name}` : '自分と相手を選択';
   $('pair-sub').textContent = `${state.season} / ${state.rule==='single'?'シングル':'ダブル'} / ${state.attacker.source || ''}`;
   if(!atkP || !defP){$('result-list').innerHTML='<div class="empty">ポケモンを選ぶと、4技のダメージを表示します。</div>'; $('speed-box').innerHTML='<div class="speed-num">--</div><div class="speed-mid">素早さ</div><div class="speed-num right">--</div>'; return;}
   const atkStats=calcStats(atkP,state.attacker), defStats=calcStats(defP,state.defender);
-  const speedText=atkStats.spe>defStats.spe?'自分が上':(atkStats.spe<defStats.spe?'相手が上':'同速');
-  $('speed-box').innerHTML=`<div class="speed-num">${atkStats.spe}</div><div class="speed-mid">${esc(speedText)}</div><div class="speed-num right">${defStats.spe}</div>`;
+  const atkSpeed=applyRank(atkStats.spe, state.attacker.rank?.spe || 0);
+  const defSpeed=applyRank(defStats.spe, state.defender.rank?.spe || 0);
+  const speedText=atkSpeed>defSpeed?'自分が上':(atkSpeed<defSpeed?'相手が上':'同速');
+  $('speed-box').innerHTML=`<div class="speed-num">${atkSpeed}</div><div class="speed-mid">${esc(speedText)}</div><div class="speed-num right">${defSpeed}</div>`;
   const damages=(state.attacker.moves||[]).map((name,idx)=>calcMoveDamage(name, atkP, defP, atkStats, defStats, idx)).filter(Boolean);
   const valid=damages.filter(d=>d.kind==='damage');
   const bestMax=valid.length?Math.max(...valid.map(d=>d.maxPct)):0;
@@ -530,28 +559,212 @@ function calcStats(poke, side){
 function calcMoveDamage(moveName, atkP, defP, atkStats, defStats, idx){
   const name=String(moveName||'').trim(); if(!name) return null;
   const move=getMove(name); if(!move) return {kind:'note', text:`${name}: 技データなし`, name, idx, message:'技データが見つかりません'};
-  if(!(move.category==='物理'||move.category==='特殊') || getPower(move)<=0) return {kind:'note', text:`${name}: 変化技`, name, idx, message:'変化技はクイック計算の対象外です'};
-  let type=move.type, power=getPower(move), cat=move.category;
-  if(name==='ウェザーボール') {const w=effectiveWeather(); if(w==='sunny'){type='ほのお'; power=100;} if(w==='rain'){type='みず'; power=100;} if(w==='snow'){type='こおり'; power=100;} if(w==='sand'){type='いわ'; power=100;}}
-  if(name==='フリーズドライ') type='こおり';
-  const atkStat=cat==='物理' ? atkStats.atk : atkStats.spa;
-  const defStat=(cat==='物理' || ['サイコショック','サイコブレイク','しんぴのつるぎ'].includes(name)) ? defStats.def : defStats.spd;
-  let mod=1;
-  const stab=([atkP.type1,atkP.type2].includes(type)) ? (state.attacker.ability==='てきおうりょく'?2:1.5) : 1; mod*=stab;
-  const eff=typeEffectiveness(type, defP, name);
-  if(eff===0){
-    const hp=defStats.hp || 1; const ko=koText(0,0); const effText=effLabel(eff);
-    return {kind:'damage', idx, name, type, cat, power, min:0, max:0, minPct:0, maxPct:0, hp, ko, eff, effText, text:`${name}: 0.0〜0.0% ${ko.label} ${effText.label}`};
-  }
-  mod*=eff;
-  mod*=weatherMod(type);
-  mod*=abilityMod(move, type, cat);
-  mod*=itemMod(type, cat);
-  const base=Math.floor(Math.floor(Math.floor((2*Number(state.attacker.level||50)/5+2)*power*atkStat/Math.max(1,defStat))/50)+2);
-  const max=Math.max(1,Math.floor(base*mod)); const min=Math.max(1,Math.floor(max*0.85));
-  const hp=defStats.hp || 1; const minPct=min*100/hp, maxPct=max*100/hp;
+  if(!(move.category==='物理'||move.category==='特殊') && name!=='シェルアームズ') return {kind:'note', text:`${name}: 変化技`, name, idx, message:'変化技はクイック計算の対象外です'};
+  const result=calcQuickDamageScenario(name, move, atkP, defP, atkStats, defStats);
+  if(!result) return {kind:'note', text:`${name}: 計算対象外`, name, idx, message:'この技はクイック計算の対象外です'};
+  const {type, cat, power, min, max, minPct, maxPct, hp, eff, notes=[]}=result;
   const ko=koText(minPct,maxPct); const effText=effLabel(eff);
-  return {kind:'damage', idx, name, type, cat, power, min, max, minPct, maxPct, hp, ko, eff, effText, text:`${name}: ${formatPct(minPct)}〜${formatPct(maxPct)}% ${ko.label} ${effText.label}`};
+  const noteText=notes.length ? ` / ${notes.join(' / ')}` : '';
+  return {kind:'damage', idx, name, type, cat, power, min, max, minPct, maxPct, hp, ko, eff, effText, notes, text:`${name}: ${formatPct(minPct)}〜${formatPct(maxPct)}% ${ko.label} ${effText.label}${noteText}`};
+}
+function calcQuickDamageScenario(moveName, move, atkP, defP, atkStats, defStats){
+  let type=move.type || '';
+  let power=getResolvedPower(moveName, move, atkP, defP);
+  let cat=move.category || '';
+  const notes=[];
+  if(moveName==='ウェザーボール'){
+    const w=effectiveWeather();
+    const map={sunny:'ほのお',rain:'みず',snow:'こおり',sand:'いわ'};
+    if(map[w]){type=map[w]; power=100; notes.push('ウェザーボール: '+type+' / 威力100');}
+  }
+  if(moveName==='シェルアームズ'){
+    const physical=calcQuickDamageScenarioWithCategory(moveName, move, atkP, defP, atkStats, defStats, '物理', type, power);
+    const special=calcQuickDamageScenarioWithCategory(moveName, move, atkP, defP, atkStats, defStats, '特殊', type, power);
+    if(!physical) return special;
+    if(!special) return physical;
+    const chosen = physical.maxPct >= special.maxPct ? physical : special;
+    chosen.notes.push('シェルアームズ: '+chosen.cat+'で計算');
+    return chosen;
+  }
+  return calcQuickDamageScenarioWithCategory(moveName, move, atkP, defP, atkStats, defStats, cat, type, power, notes);
+}
+function calcQuickDamageScenarioWithCategory(moveName, move, atkP, defP, atkStats, defStats, cat, type, power, presetNotes=[]){
+  if(!power || power<=0) return null;
+  const notes=presetNotes.slice();
+  const atkSide=state.attacker, defSide=state.defender;
+  const isBodyPress=moveName==='ボディプレス';
+  const isFoulPlay=moveName==='イカサマ';
+  const isDefenseRefSpecial=['サイコショック','サイコブレイク','しんぴのつるぎ'].includes(moveName);
+  let attackStatKey=cat==='物理'?'atk':'spa';
+  let defenseStatKey=cat==='物理'?'def':'spd';
+  let attackBase=cat==='物理'?atkStats.atk:atkStats.spa;
+  if(isBodyPress){attackBase=atkStats.def; attackStatKey='def'; notes.push('ボディプレス: 自分の防御で計算');}
+  if(isFoulPlay){attackBase=defStats.atk; attackStatKey='defender-atk'; notes.push('イカサマ: 相手の攻撃で計算');}
+  if(isDefenseRefSpecial){defenseStatKey='def'; notes.push(moveName+': 相手の防御で計算');}
+  let defenseBase=defenseStatKey==='def'?defStats.def:defStats.spd;
+  const atkRank = isFoulPlay ? (defSide.rank?.atk||0) : (atkSide.rank?.[attackStatKey]||0);
+  const defRank = defSide.rank?.[defenseStatKey] || 0;
+  let atkStat=applyRank(attackBase, atkRank);
+  let defStat=applyRank(defenseBase, defRank);
+  const hp=defStats.hp || 1;
+  const lv=Number(atkSide.level||50);
+
+  const atkAb=atkSide.ability || '';
+  const defAb=defSide.ability || '';
+  const skin=applySkin(atkAb, type);
+  if(skin.type!==type){type=skin.type; notes.push(atkAb+'→'+type+'化');}
+  const eff=typeEffectiveness(type, defP, moveName);
+  if(eff===0 || isAbilityImmune(defAb,type,moveName)){
+    return {type,cat,power,min:0,max:0,minPct:0,maxPct:0,hp,eff:0,notes:notes.concat(defAb?['特性無効']:[])};
+  }
+  let effectivePower=Math.floor(power * skin.powerMult);
+  if(moveName==='はたきおとす' && isKnockOffBoostActive(defSide.item)){
+    effectivePower=Math.floor(effectivePower*1.5);
+    notes.push('はたきおとす: 持ち物あり威力1.5倍');
+  }
+  if(moveName==='アシストパワー' || moveName==='つけあがる'){
+    notes.push(moveName+': 正のランク合計で威力'+effectivePower);
+  }
+
+  let stab=([atkP.type1,atkP.type2].includes(type)) ? (atkAb==='てきおうりょく'?2:1.5) : 1;
+  if(['へんげんじざい','リベロ'].includes(atkAb) && type && moveName!=='わるあがき'){
+    stab=1.5;
+    notes.push(atkAb+': '+type+'タイプ化');
+  }
+  let modifier=stab * eff * weatherMod(type) * itemMod(type, cat, isBodyPress, eff) * attackerAbilityMod(moveName, move, type, cat, atkAb, isBodyPress, eff, notes) * defenderAbilityMod(moveName, type, cat, defAb, eff, notes);
+  const weatherDef=weatherDefenseMod(type, cat, defP);
+  if(weatherDef.mult!==1){defStat=Math.floor(defStat*weatherDef.mult); notes.push(weatherDef.note);}
+  const hits=parseHits(move.hits || '1');
+  let min=0,max=0;
+  const hitPowers=getHitPowers(moveName, effectivePower);
+  hitPowers.forEach(hitPower=>{
+    const base=Math.floor(Math.floor(Math.floor((2*lv/5+2)*hitPower*Math.max(1,atkStat)/Math.max(1,defStat))/50)+2);
+    max += Math.max(1,Math.floor(base*modifier));
+    min += Math.max(1,Math.floor(Math.floor(base*modifier)*0.85));
+  });
+  if(hitPowers.length===1){
+    min*=hits.min; max*=hits.max;
+  }else{
+    notes.push(moveName+': '+hitPowers.join('+')+'で計算');
+  }
+  if(atkAb==='おやこあい' && hits.max===1 && !['トリプルアクセル','トリプルキック'].includes(moveName)){
+    const secondPower=Math.max(1,Math.floor(effectivePower*0.25));
+    const base2=Math.floor(Math.floor(Math.floor((2*lv/5+2)*secondPower*Math.max(1,atkStat)/Math.max(1,defStat))/50)+2);
+    min += Math.max(1,Math.floor(Math.floor(base2*modifier)*0.85));
+    max += Math.max(1,Math.floor(base2*modifier));
+    notes.push('おやこあい: 2撃目25%');
+  }
+  const minPct=min*100/hp, maxPct=max*100/hp;
+  return {type,cat,power:effectivePower,min,max,minPct,maxPct,hp,eff,notes};
+}
+function getResolvedPower(moveName, move, atkP, defP){
+  if(moveName==='けたぐり' || moveName==='くさむすび') return weightPower(defP.weight);
+  if(moveName==='ヘビーボンバー' || moveName==='ヒートスタンプ') return heavyPower(atkP.weight, defP.weight);
+  if(moveName==='きしかいせい' || moveName==='じたばた') return 20;
+  if(moveName==='アシストパワー' || moveName==='つけあがる'){
+    const r=state.attacker.rank || {};
+    const total=RANK_ORDER.reduce((sum,k)=>sum+Math.max(0,Number(r[k]||0)),0);
+    return Math.min(860,20+20*total);
+  }
+  if(moveName==='おはかまいり') return 50;
+  return getPower(move);
+}
+function getHitPowers(moveName, power){
+  if(moveName==='トリプルアクセル') return [20,40,60];
+  if(moveName==='トリプルキック') return [10,20,30];
+  return [power];
+}
+function parseHits(raw){
+  const text=String(raw||'1');
+  const m=text.match(/(\d+)\s*[〜~\-]\s*(\d+)/);
+  if(m) return {min:Math.max(1,+m[1]), max:Math.max(+m[1],+m[2])};
+  const nums=text.match(/\d+/g); const n=nums?Math.max(1,+nums[0]):1;
+  return {min:n,max:n};
+}
+function weightPower(w){
+  const weight=Number(w||0);
+  if(!weight) return 0;
+  if(weight<10) return 20;
+  if(weight<25) return 40;
+  if(weight<50) return 60;
+  if(weight<100) return 80;
+  if(weight<200) return 100;
+  return 120;
+}
+function heavyPower(atkW, defW){
+  const a=Number(atkW||0), d=Number(defW||0);
+  if(!a||!d) return 0;
+  const ratio=a/d;
+  if(ratio>=5) return 120;
+  if(ratio>=4) return 100;
+  if(ratio>=3) return 80;
+  if(ratio>=2) return 60;
+  return 40;
+}
+function applyRank(stat, rank){
+  const r=clamp(parseInt(rank||0,10)||0,-6,6);
+  return Math.max(1,Math.floor(Number(stat||1)*RANK_TABLE[r+6]));
+}
+function applySkin(ab,type){
+  const map={'スカイスキン':'ひこう','フリーズスキン':'こおり','フェアリースキン':'フェアリー','エレキスキン':'でんき'};
+  if(map[ab] && type==='ノーマル') return {type:map[ab], powerMult:1.2};
+  return {type, powerMult:1};
+}
+function isAbilityImmune(defAb,type,moveName){
+  if(defAb==='ふゆう' && type==='じめん') return true;
+  if(['ちょすい','よびみず','かんそうはだ'].includes(defAb) && type==='みず') return true;
+  if(defAb==='もらいび' && type==='ほのお') return true;
+  if(defAb==='そうしょく' && type==='くさ') return true;
+  if(defAb==='でんきエンジン' && type==='でんき') return true;
+  if(defAb==='ひらいしん' && type==='でんき') return true;
+  if(defAb==='ぼうだん' && /ボール|だん|はどうだん|かふんだんご/.test(moveName)) return true;
+  return false;
+}
+function attackerAbilityMod(moveName, move, type, cat, ab, isBodyPress, eff, notes){
+  let mult=1;
+  if(ab==='かたいツメ' && move.contact===true){mult*=1.3; notes.push('かたいツメ');}
+  if(ab==='てつのこぶし' && /パンチ|拳/.test(moveName)){mult*=1.2; notes.push('てつのこぶし');}
+  if(ab==='すてみ' && /フレアドライブ|すてみタックル|ブレイブバード|ウッドハンマー|ボルテッカー|もろはのずつき|とびひざげり/.test(moveName)){mult*=1.2; notes.push('すてみ');}
+  if(ab==='がんじょうあご' && /かみ|キバ|くらいつく/.test(moveName)){mult*=1.5; notes.push('がんじょうあご');}
+  if(ab==='きれあじ' && /カッター|せいなるつるぎ|つじぎり|シェルブレード|リーフブレード/.test(moveName)){mult*=1.5; notes.push('きれあじ');}
+  if(ab==='メガランチャー' && /はどう|波動/.test(moveName)){mult*=1.5; notes.push('メガランチャー');}
+  if(ab==='パンクロック' && /音|ボイス|ばくおんぱ|オーバードライブ/.test(moveName)){mult*=1.3; notes.push('パンクロック');}
+  if(ab==='いわはこび' && type==='いわ'){mult*=1.5; notes.push('いわはこび');}
+  if(ab==='りゅうのあぎと' && type==='ドラゴン'){mult*=1.5; notes.push('りゅうのあぎと');}
+  if(ab==='はがねつかい' && type==='はがね'){mult*=1.5; notes.push('はがねつかい');}
+  if(ab==='トランジスタ' && type==='でんき'){mult*=1.3; notes.push('トランジスタ');}
+  if(ab==='サンパワー' && effectiveWeather()==='sunny' && cat==='特殊'){mult*=1.5; notes.push('サンパワー');}
+  if(['ちからもち','ヨガパワー'].includes(ab) && cat==='物理' && !isBodyPress){mult*=2; notes.push(ab);}
+  if(ab==='ごりむちゅう' && cat==='物理'){mult*=1.5; notes.push('ごりむちゅう');}
+  if(ab==='はりきり' && cat==='物理'){mult*=1.5; notes.push('はりきり');}
+  if(ab==='ちからずく'){mult*=1.3; notes.push('ちからずく');}
+  if(ab==='いろめがね' && eff<1){mult*=2; notes.push('いろめがね');}
+  if(['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(ab)){
+    const typeMap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
+    if(typeMap[ab]===type){mult*=1.5; notes.push(ab);}
+  }
+  return mult;
+}
+function defenderAbilityMod(moveName,type,cat,ab,eff,notes){
+  let mult=1;
+  if(ab==='あついしぼう' && ['ほのお','こおり'].includes(type)){mult*=0.5; notes.push('あついしぼう');}
+  if(['フィルター','ハードロック'].includes(ab) && eff>=2){mult*=0.75; notes.push(ab);}
+  if(['マルチスケイル','ファントムガード'].includes(ab)){mult*=0.5; notes.push(ab);}
+  if(ab==='パンクロック' && /音|ボイス|ばくおんぱ|オーバードライブ/.test(moveName)){mult*=0.5; notes.push('相手パンクロック');}
+  if(ab==='ファーコート' && cat==='物理'){mult*=0.5; notes.push('ファーコート');}
+  return mult;
+}
+function weatherDefenseMod(type,cat,defP){
+  const w=effectiveWeather(); const types=[defP.type1,defP.type2].filter(Boolean);
+  if(w==='snow' && types.includes('こおり') && cat==='物理') return {mult:1.5,note:'雪:こおり防御×1.5'};
+  if(w==='sand' && types.includes('いわ') && cat==='特殊') return {mult:1.5,note:'砂嵐:いわ特防×1.5'};
+  return {mult:1,note:''};
+}
+function isKnockOffBoostActive(item){
+  const text=String(item||'').trim();
+  if(!text) return false;
+  if(/ナイト|メガストーン|プレート|くちたけん|くちたたて|ブーストエナジー/.test(text)) return false;
+  return true;
 }
 function getPower(move){const p=Number(move?.power); return Number.isFinite(p)?p:0;}
 function typeEffectiveness(type, defP, moveName){
@@ -566,23 +779,14 @@ function effectiveWeather(){
   return '';
 }
 function weatherMod(type){const w=effectiveWeather(); if(w==='sunny'&&type==='ほのお') return 1.5; if(w==='sunny'&&type==='みず') return 0.5; if(w==='rain'&&type==='みず') return 1.5; if(w==='rain'&&type==='ほのお') return 0.5; return 1;}
-function abilityMod(move, type, cat){
-  const ab=state.attacker.ability;
-  if(ab==='かたいツメ' && move.contact===true) return 1.3;
-  if(ab==='てつのこぶし' && /パンチ|拳/.test(move.name)) return 1.2;
-  if(ab==='サンパワー' && effectiveWeather()==='sunny' && cat==='特殊') return 1.5;
-  if(ab==='りゅうのあぎと' && type==='ドラゴン') return 1.5;
-  if(ab==='トランジスタ' && type==='でんき') return 1.3;
-  if(ab==='はがねつかい' && type==='はがね') return 1.5;
-  if(ab==='いわはこび' && type==='いわ') return 1.5;
-  return 1;
-}
-function itemMod(type, cat){
+function itemMod(type, cat, isBodyPress=false, eff=1){
   const item=state.attacker.item || '';
-  if(item.includes('こだわりハチマキ') && cat==='物理') return 1.5;
+  if(item.includes('こだわりハチマキ') && cat==='物理' && !isBodyPress) return 1.5;
   if(item.includes('こだわりメガネ') && cat==='特殊') return 1.5;
   if(item.includes('いのちのたま')) return 1.3;
+  if(item.includes('たつじんのおび') && eff>1) return 1.2;
   if(item.includes('タイプ強化') || item.includes('プレート') || item.includes('ジュエル')) return 1.2;
+  if(item.includes('ふといホネ') && !isBodyPress) return 2;
   return 1;
 }
 function koText(minPct,maxPct){
@@ -603,7 +807,8 @@ function effLabel(eff){
 }
 function renderDamageCard(d,best){
   if(d.kind!=='damage') return `<div class="damage-card"><div><div class="damage-move">${esc(d.name)}</div><div class="damage-meta">${esc(d.message)}</div></div><div class="damage-main"><span class="ko">対象外</span></div></div>`;
-  return `<div class="damage-card ${best?'best':''}"><div><div class="damage-move">${esc(d.name)} ${best?'<span class="badge">最大</span>':''}</div><div class="damage-meta">${esc(d.type)} / ${esc(d.cat)} / 威力${esc(d.power)} / <span class="${d.effText.cls}">${esc(d.effText.label)}</span></div></div><div class="damage-main"><div class="damage-pct">${formatPct(d.minPct)}〜${formatPct(d.maxPct)}%</div><div class="damage-range">${d.min}〜${d.max} / HP${d.hp}</div><span class="ko ${d.ko.cls}">${esc(d.ko.label)}</span></div></div>`;
+  const note = d.notes && d.notes.length ? `<br><span style="color:var(--accent3);">${esc(d.notes.join(' / '))}</span>` : '';
+  return `<div class="damage-card ${best?'best':''}"><div><div class="damage-move">${esc(d.name)} ${best?'<span class="badge">最大</span>':''}</div><div class="damage-meta">${esc(d.type)} / ${esc(d.cat)} / 威力${esc(d.power)} / <span class="${d.effText.cls}">${esc(d.effText.label)}</span>${note}</div></div><div class="damage-main"><div class="damage-pct">${formatPct(d.minPct)}〜${formatPct(d.maxPct)}%</div><div class="damage-range">${d.min}〜${d.max} / HP${d.hp}</div><span class="ko ${d.ko.cls}">${esc(d.ko.label)}</span></div></div>`;
 }
 function formatPct(n){return (Math.round(n*10)/10).toFixed(1);}
 function copySummary(){
