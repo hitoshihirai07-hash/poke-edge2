@@ -115,8 +115,6 @@ details summary::-webkit-details-marker{display:none;}
 .result-card{position:sticky;top:68px;}
 .result-toggle{border:1px solid var(--border2);background:var(--panel2);color:var(--text2);border-radius:12px;padding:9px 11px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;}
 .result-toggle input{accent-color:var(--accent);}
-.result-card.is-floating{position:fixed;right:16px;bottom:16px;top:auto;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 96px);overflow:auto;z-index:130;box-shadow:0 24px 70px rgba(0,0,0,.45);}
-.result-card.is-floating .card-head{position:sticky;top:0;z-index:2;background:var(--panel);}
 .result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;}
 .pair-title{font-size:18px;font-weight:900;line-height:1.35;}
 .pair-sub{font-size:12px;color:var(--text2);margin-top:4px;}
@@ -176,7 +174,6 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
   .input,.select{font-size:16px;min-height:44px;}
   .registered-apply-row{grid-template-columns:1fr;}
   .registered-apply{padding:10px;border-radius:14px;}
-  .result-card.is-floating{left:8px;right:8px;bottom:8px;width:auto;max-height:70vh;border-radius:18px;}
   .result-controls{gap:6px;}
   .result-toggle{min-height:42px;justify-content:center;}
   .btn{min-height:42px;}
@@ -282,12 +279,6 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
               <div class="segment-grid" id="weather-chips"></div>
             </div>
           </div>
-          <div class="quick-list">
-            <button class="chip" type="button" onclick="quickUseDefPreset('none')">無振り</button>
-            <button class="chip" type="button" onclick="quickUseDefPreset('H252')">H252</button>
-            <button class="chip" type="button" onclick="quickUseDefPreset('HB')">HB</button>
-            <button class="chip" type="button" onclick="quickUseDefPreset('HD')">HD</button>
-          </div>
           <details class="advanced" id="defender-advanced">
             <summary>相手の詳細調整</summary>
             <div class="adv-grid" id="defender-settings"></div>
@@ -305,7 +296,6 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
           <div class="pair-sub" id="pair-sub">入力したら自動で表示します。</div>
         </div>
         <div class="btn-row result-controls">
-          <label class="result-toggle"><input type="checkbox" id="quick-result-sticky-toggle" onchange="quickToggleResultSticky(this.checked)">結果を常に表示</label>
           <button class="btn" type="button" onclick="quickClearMoves()">技クリア</button>
           <a class="btn" href="calc.html">精密計算へ</a>
         </div>
@@ -709,9 +699,9 @@ function getAbilityOptionsHtml(poke, selected){
   return base.join('');
 }
 function evEditorHtml(side, index, slot){
-  return `<div class="stat-grid">${['hp','atk','def','spa','spd','spe'].map(stat=>`<div class="stat-box"><div class="stat-name">${stat.toUpperCase()}</div><input class="stat-input" type="number" min="0" max="${slot.gameMode==='champions'?32:252}" value="${slot.ev[stat]||0}" onchange="setSlotEV('${side}',${index},'${stat}',this.value)"></div>`).join('')}</div>`;
+  return `<div class="stat-grid">${['hp','atk','def','spa','spd','spe'].map(stat=>`<div class="stat-box"><div class="stat-name">${quickStatLabel(stat)}</div><input class="stat-input" type="number" min="0" max="${slot.gameMode==='champions'?32:252}" value="${slot.ev[stat]||0}" onchange="setSlotEV('${side}',${index},'${stat}',this.value)"></div>`).join('')}</div>`;
 }
-function realStatsHtml(stats, keys){ return keys.map(key=>`<span class="real-pill">${key.toUpperCase()} <strong>${stats[key]}</strong></span>`).join(''); }
+function realStatsHtml(stats, keys){ return keys.map(key=>`<span class="real-pill">${quickStatLabel(key)} <strong>${stats[key]}</strong></span>`).join(''); }
 function getSlots(side){ return side==='self' ? selfSlots : oppSlots; }
 function setSlotField(side, index, field, value){
   const slot = getSlots(side)[index];
@@ -985,6 +975,11 @@ const QUICK_THEMES = {
   dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--panel2":"#11182b","--panel3":"#151d33","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#7f94b4","--text3":"#4a6080"},
   light:{"--bg":"#edf5f9","--bg2":"#ffffff","--panel":"#f8fbff","--panel2":"#f2f8fc","--panel3":"#e8f3fa","--border":"#8fb8d0","--border2":"#5f93b3","--accent":"#005f9e","--accent2":"#b80f3e","--accent3":"#a85d00","--green":"#006f42","--text":"#071b2c","--text2":"#35536e","--text3":"#5d7890"}
 };
+
+const QUICK_STAT_LABELS = {hp:'HP', atk:'攻撃', def:'防御', spa:'特攻', spd:'特防', spe:'素早さ'};
+const QUICK_BATTLE_STATS = ['atk','def','spa','spd','spe'];
+const QUICK_ALL_STATS = ['hp','atk','def','spa','spd','spe'];
+function quickStatLabel(stat){ return QUICK_STAT_LABELS[stat] || stat; }
 
 const quickState = {
   attacker: quickEmptySlot('attacker'),
@@ -1466,12 +1461,11 @@ function quickRenderSettings(role){
     settings.innerHTML = `
       <div class="field"><div class="label">レベル</div><input class="input" type="number" min="1" max="100" value="${slot.lv}" onchange="quickSetField('${role}','lv',this.value)"></div>
       <div class="field"><div class="label">ルール</div><div class="segment-grid">${modes.map(([v,l])=>`<button type="button" class="segment-btn ${slot.gameMode===v?'active':''}" onclick="quickSetField('${role}','mode','${v}')">${l}</button>`).join('')}</div></div>
-      <div class="field"><div class="label">性格補正</div><div class="note">${escapeHtml(slot.nature || 'カスタム')} / 各能力を0.9・変化なし・1.1で調整</div></div>
       <div class="field"><div class="label">特性</div>${abilityHtml}</div>
       <div class="field"><div class="label">持ち物</div><div class="search-wrap"><input class="input" id="${role}-item-input" value="${escapeAttr(slot.item||'')}" placeholder="持ち物を検索" autocomplete="off"><div class="search-panel" id="${role}-item-panel"></div></div></div>
       <div class="field"><div class="label">実数値</div><div class="note">${quickStatsText(slot)}${slot.rankingLabel ? '<br>' + escapeHtml(slot.rankingLabel) + 'を反映' : ''}</div></div>
-      <div class="field" style="grid-column:1/-1"><div class="label">性格補正</div><div class="rank-grid">${['atk','def','spa','spd','spe'].map(st=>`<div class="rank-box"><div class="label">${st.toUpperCase()}</div><div class="segment-grid">${quickNatureModButtons(role, st, nat[st])}</div></div>`).join('')}</div></div>
-      <div class="field" style="grid-column:1/-1"><div class="label">ランク補正</div><div class="rank-grid">${['atk','def','spa','spd','spe'].map(st=>`<div class="rank-box"><div class="label">${st.toUpperCase()}</div><input class="input" type="number" min="-6" max="6" value="${slot.rank?.[st]||0}" onchange="quickSetRank('${role}','${st}',this.value)"></div>`).join('')}</div></div>`;
+      <div class="field" style="grid-column:1/-1"><div class="label">性格補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><div class="segment-grid">${quickNatureModButtons(role, st, nat[st])}</div></div>`).join('')}</div></div>
+      <div class="field" style="grid-column:1/-1"><div class="label">ランク補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><input class="input" type="number" min="-6" max="6" value="${slot.rank?.[st]||0}" onchange="quickSetRank('${role}','${st}',this.value)"></div>`).join('')}</div></div>`;
     const itemInput = document.getElementById(role+'-item-input');
     if(itemInput){
       itemInput.addEventListener('input', e=>{ slot.item=e.target.value; quickShowSearchPanel(role+'-item-panel', quickItemSuggestions(e.target.value, role)); quickRenderResults(); });
@@ -1479,7 +1473,7 @@ function quickRenderSettings(role){
     }
   }
   if(evs){
-    evs.innerHTML = ['hp','atk','def','spa','spd','spe'].map(st=>`<div class="ev-box"><div class="label">${st.toUpperCase()}</div><input class="input" type="number" min="0" max="${slot.gameMode==='champions'?32:252}" value="${slot.ev[st]||0}" onchange="quickSetEV('${role}','${st}',this.value)"></div>`).join('');
+    evs.innerHTML = QUICK_ALL_STATS.map(st=>`<div class="ev-box"><div class="label">${quickStatLabel(st)}</div><input class="input" type="number" min="0" max="${slot.gameMode==='champions'?32:252}" value="${slot.ev[st]||0}" onchange="quickSetEV('${role}','${st}',this.value)"></div>`).join('');
   }
 }
 function quickAbilityOptions(slot){
@@ -1493,7 +1487,7 @@ function quickStatsText(slot){
   if(!slot.poke) return 'ポケモン未設定';
   const s = calcFullStats(slot);
   if(!s) return '計算不可';
-  return `H${s.hp} / A${s.atk} / B${s.def} / C${s.spa} / D${s.spd} / S${s.spe}`;
+  return `HP${s.hp} / 攻撃${s.atk} / 防御${s.def} / 特攻${s.spa} / 特防${s.spd} / 素早さ${s.spe}`;
 }
 function quickRenderSideLabels(){
   document.getElementById('attacker-types').innerHTML = quickTypePills(quickState.attacker);
@@ -1586,18 +1580,8 @@ function quickUpdateStatus(){
     <div class="status-pill"><div class="status-label">技</div><div class="status-value">${moveCount} / 4</div></div>
     <div class="status-pill"><div class="status-label">状態</div><div class="status-value">即時計算</div></div>`;
 }
-function quickApplyResultViewState(){
-  const card = document.querySelector('.result-card');
-  if(!card) return;
-  const sticky = localStorage.getItem('pokeedge_move_result_sticky') === '1';
-  card.classList.toggle('is-floating', sticky);
-  const toggle = document.getElementById('quick-result-sticky-toggle');
-  if(toggle) toggle.checked = sticky;
-}
-function quickToggleResultSticky(on){
-  localStorage.setItem('pokeedge_move_result_sticky', on ? '1' : '0');
-  quickApplyResultViewState();
-}
+function quickApplyResultViewState(){}
+function quickToggleResultSticky(){}
 function quickRenderAll(){
   quickRenderRecent();
   quickRenderSideLabels();
