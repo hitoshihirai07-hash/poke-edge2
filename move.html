@@ -187,6 +187,8 @@ let MOVES = [];
 let POKEMON_MOVES = {};
 let ABILITIES = {};
 let ABILITIES_DATA = [];
+let BELONGINGS = [];
+let itemByName = new Map();
 let MEGA = {rows:[], baseToForms:{}, formToBase:{}};
 let RANKINGS = {single:{S1:null,S2:null}, double:{S1:null,S2:null}};
 let pokeByName = new Map();
@@ -234,19 +236,19 @@ const TYPE_BOOST_ITEMS = {
 const RESIST_BERRIES = {'オッカのみ':'ほのお','イトケのみ':'みず','ソクノのみ':'でんき','リンドのみ':'くさ','ヤチェのみ':'こおり','ヨプのみ':'かくとう','ビアーのみ':'どく','シュカのみ':'じめん','バコウのみ':'ひこう','ウタンのみ':'エスパー','タンガのみ':'むし','ヨロギのみ':'いわ','カシブのみ':'ゴースト','ハバンのみ':'ドラゴン','ナモのみ':'あく','リリバのみ':'はがね','ロゼルのみ':'フェアリー','ホズのみ':'ノーマル'};
 
 const CHAR_X_SET = {
-  name:'メガリザードンX', rankingKey:'リザードン', item:'リザードナイトＸ', ability:'かたいツメ',
+  name:'メガリザードンX', rankingKey:'リザードン', item:'リザードナイトX', ability:'かたいツメ',
   moves:['フレアドライブ','かみなりパンチ','げきりん','じしん'],
   ev:{hp:0,atk:32,def:0,spa:0,spd:0,spe:32},
   nature:{atk:1.1,def:1,spa:0.9,spd:1,spe:1},
   note:'メガリザードンXはランキングのリザードン混在を使わず、専用初期値を入れています。技候補は覚える攻撃技から選べます。'
 };
-const CHAR_Y_SET = {name:'メガリザードンY', rankingKey:'リザードン', item:'リザードナイトＹ', ability:'ひでり'};
+const CHAR_Y_SET = {name:'メガリザードンY', rankingKey:'リザードン', item:'リザードナイトY', ability:'ひでり'};
 const state = {
   season:'S2', rule:'single', weather:'auto',
   attacker: emptySide(), defender: emptySide(false)
 };
 function emptySide(withMoves=true){
-  const side = {name:'', lookupName:'', rankingKey:'', rankRow:null, item:'', ability:'', level:50, iv:31, ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, nature:{atk:1,def:1,spa:1,spd:1,spe:1}, rank:{atk:0,def:0,spa:0,spd:0,spe:0}, source:'未設定', sourceDetail:''};
+  const side = {name:'', lookupName:'', rankingKey:'', rankRow:null, item:'', ability:'', abilityTrigger:false, level:50, iv:31, ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, nature:{atk:1,def:1,spa:1,spd:1,spe:1}, rank:{atk:0,def:0,spa:0,spd:0,spe:0}, source:'未設定', sourceDetail:''};
   if(withMoves) side.moves = ['','','',''];
   return side;
 }
@@ -301,16 +303,17 @@ function bindEvents(){
   });
 }
 async function loadData(){
-  const [pokes,moves,pm,ab,rs1,rs2,rd1,rd2,mega,abData] = await Promise.all([
+  const [pokes,moves,pm,ab,rs1,rs2,rd1,rd2,mega,abData,items] = await Promise.all([
     fetchJson('pokemon.json', []), fetchJson('moves.json', []), fetchJson('pokemon_moves.json', {}), fetchJson('abilities.json', {}),
     fetchJson('season_ranking_single.json', null), fetchJson('season_ranking_single_s2.json', null),
     fetchJson('season_ranking_double.json', null), fetchJson('season_ranking_double_s2.json', null),
-    fetchJson('mega.json', {rows:[], baseToForms:{}, formToBase:{}}), fetchJson('abilities_data.json', [])
+    fetchJson('mega.json', {rows:[], baseToForms:{}, formToBase:{}}), fetchJson('abilities_data.json', []), fetchJson('belongings.json', [])
   ]);
   POKEMON = Array.isArray(pokes)?pokes:[]; MOVES = Array.isArray(moves)?moves:[];
   POKEMON_MOVES = pm && pm.pokemon ? pm.pokemon : (pm || {});
   ABILITIES = ab || {};
   ABILITIES_DATA = Array.isArray(abData) ? abData : [];
+  BELONGINGS = Array.isArray(items) ? items : (items && Array.isArray(items.items) ? items.items : []);
   MEGA = mega || {rows:[], baseToForms:{}, formToBase:{}};
   if(!MEGA.baseToForms) MEGA.baseToForms = {};
   if(!MEGA.formToBase) MEGA.formToBase = {};
@@ -319,6 +322,7 @@ async function loadData(){
   pokeByName = new Map(POKEMON.map(p=>[String(p.name||'').trim(),p]));
   moveByName = new Map(MOVES.map(m=>[String(m.name||'').trim(),m]));
   abilityByName = new Map(ABILITIES_DATA.map(a=>[String(a.name||'').trim(),a]));
+  itemByName = new Map(BELONGINGS.map(item=>[String(item.name||'').trim(),item]));
   $('status-rank').textContent = '読込済み';
 }
 function currentRows(){return (RANKINGS[state.rule]?.[state.season]?.rows || []);}
@@ -402,6 +406,7 @@ function applyRankingPreset(side, withMoves){
     s.lookupName=fixed.name; s.rankingKey=fixed.rankingKey; s.rankRow=getRankRow(fixed.rankingKey);
     s.item=preferredItemForSide(s, s.rankRow, fixed.item);
     s.ability=preferredAbilityForSide(s, s.rankRow, fixed.ability);
+    s.abilityTrigger=false;
     s.ev=clone(fixed.ev); s.nature=clone(fixed.nature); s.source='専用初期値'; s.sourceDetail='メガリザードンX用の初期型を反映';
     if(withMoves) s.moves=fixed.moves.slice(0,4);
     return;
@@ -412,6 +417,7 @@ function applyRankingPreset(side, withMoves){
     const nature=parseNature(firstText(row.natures)); if(nature) s.nature=nature;
     s.item=preferredItemForSide(s, row, '');
     s.ability=preferredAbilityForSide(s, row, '');
+    if(!isConditionalPowerAbility(s.ability)) s.abilityTrigger=false;
     s.source=`ランキング #${row.rank || '-'}`;
     s.sourceDetail=[isMegaForm(s.lookupName)?'メガ反映':'ランキング型', firstText(row.natures), firstText(row.spreads)].filter(Boolean).join(' / ');
     if(withMoves){
@@ -422,6 +428,7 @@ function applyRankingPreset(side, withMoves){
   }else{
     s.item=preferredItemForSide(s, null, '');
     s.ability=preferredAbilityForSide(s, null, '');
+    if(!isConditionalPowerAbility(s.ability)) s.abilityTrigger=false;
     s.source=isMegaForm(s.lookupName)?'メガ反映':'手動選択';
     s.sourceDetail='';
     if(withMoves){s.moves=learnableDamagingMoves(s.lookupName).slice(0,4).map(m=>m.name); while(s.moves.length<4)s.moves.push('');}
@@ -597,10 +604,13 @@ function renderBasic(side){
   const s=state[side], box=$(side+'-basic');
   box.innerHTML=`
     <div class="field"><div class="label">特性</div><select class="select" id="${side}-ability">${abilityOptions(s.lookupName, s.ability)}</select></div>
-    <div class="field"><div class="label">持ち物</div><input class="input" id="${side}-item" value="${esc(s.item||'')}" placeholder="任意"></div>
+    ${abilityTriggerControl(side, s)}
+    <div class="field"><div class="label">持ち物</div><input class="input" id="${side}-item" list="${side}-item-list" value="${esc(s.item||'')}" placeholder="ランキング参照 / 手入力"><datalist id="${side}-item-list">${itemOptions()}</datalist></div>
     <div class="field"><div class="label">Lv</div><input class="input" id="${side}-level" type="number" min="1" max="100" value="${esc(s.level)}"></div>
     <div class="field"><div class="label">個体値</div><input class="input" id="${side}-iv" type="number" min="0" max="31" value="${esc(s.iv)}"></div>`;
-  $(`${side}-ability`).addEventListener('change',()=>{s.ability=$(`${side}-ability`).value; renderResults();});
+  $(`${side}-ability`).addEventListener('change',()=>{s.ability=$(`${side}-ability`).value; if(!isConditionalPowerAbility(s.ability)) s.abilityTrigger=false; renderStatsEditors(); renderResults();});
+  const triggerEl=$(`${side}-ability-trigger`);
+  if(triggerEl) triggerEl.addEventListener('change',()=>{s.abilityTrigger=triggerEl.value==='on'; renderResults();});
   $(`${side}-item`).addEventListener('input',()=>{s.item=$(`${side}-item`).value.trim(); renderResults();});
   $(`${side}-level`).addEventListener('input',()=>{s.level=clamp(parseInt($(`${side}-level`).value||50,10)||50,1,100); renderResults();});
   $(`${side}-iv`).addEventListener('input',()=>{s.iv=clamp(parseInt($(`${side}-iv`).value||31,10)||31,0,31); renderResults();});
@@ -608,6 +618,17 @@ function renderBasic(side){
 function abilityOptions(pokeName, current){
   const opts=(ABILITIES[pokeName] || []).slice(); if(current && !opts.includes(current)) opts.unshift(current); if(!opts.length) opts.push('');
   return opts.map(a=>`<option value="${esc(a)}" ${a===current?'selected':''}>${esc(a||'なし')}</option>`).join('');
+}
+function isConditionalPowerAbility(ability){
+  return ['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(String(ability||''));
+}
+function abilityTriggerControl(side, s){
+  if(!isConditionalPowerAbility(s.ability)) return '';
+  const text = s.ability==='もらいび' ? '発動状態' : 'HP1/3以下';
+  return `<div class="field"><div class="label">${esc(s.ability)} ${esc(text)}</div><select class="select" id="${side}-ability-trigger"><option value="off" ${!s.abilityTrigger?'selected':''}>未発動</option><option value="on" ${s.abilityTrigger?'selected':''}>発動中</option></select></div>`;
+}
+function itemOptions(){
+  return (BELONGINGS||[]).map(item=>String(item.name||'').trim()).filter(Boolean).map(name=>`<option value="${esc(name)}"></option>`).join('');
 }
 function renderEV(side){
   const s=state[side], box=$(side+'-evs');
@@ -749,7 +770,7 @@ function calcQuickDamageScenarioWithCategory(moveName, move, atkP, defP, atkStat
     stab=1.5;
     notes.push(atkAb+': '+type+'タイプ化');
   }
-  let modifier=stab * eff * weatherMod(type) * attackerItemMod(type, cat, isBodyPress, eff, atkP, notes) * attackerAbilityMod(moveName, move, type, cat, atkAb, isBodyPress, eff, notes) * defenderAbilityMod(moveName, type, cat, defAb, eff, notes) * defenderItemDamageMod(type, cat, eff, notes);
+  let modifier=stab * eff * weatherMod(type) * auraAbilityMod(type, notes) * attackerItemMod(type, cat, isBodyPress, eff, atkP, notes) * attackerAbilityMod(moveName, move, type, cat, atkAb, isBodyPress, eff, notes) * defenderAbilityMod(moveName, type, cat, defAb, eff, notes) * defenderItemDamageMod(type, cat, eff, notes);
   const weatherDef=weatherDefenseMod(type, cat, defP);
   if(weatherDef.mult!==1){defStat=Math.floor(defStat*weatherDef.mult); notes.push(weatherDef.note);}
   const defItemStat=defenderItemStatMod(cat, notes);
@@ -869,14 +890,14 @@ function attackerAbilityMod(moveName, move, type, cat, ab, isBodyPress, eff, not
   if(ab==='いろめがね' && eff<1){mult*=2; notes.push('いろめがね');}
   if(['もらいび','もうか','げきりゅう','しんりょく','むしのしらせ'].includes(ab)){
     const typeMap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
-    if(typeMap[ab]===type){mult*=1.5; notes.push(ab);}
+    if(typeMap[ab]===type && state.attacker.abilityTrigger){mult*=1.5; notes.push(ab);}
   }
   const data=getAbilityByName(ab);
-  if(data&&data.atkPowerUp){
+  if(data&&data.atkPowerUp && !['フェアリーオーラ','ダークオーラ'].includes(ab)){
     const up=data.atkPowerUp;
     const types=up.type?(Array.isArray(up.type)?up.type:[up.type]):[];
     const typeOk=!types.length||types.includes(type);
-    if(typeOk){mult*=Number(up.mult||1); if(up.info) notes.push(up.info);}
+    if(typeOk){mult*=Number(up.mult||1); notes.push(cleanAbilityNote(ab, up.info));}
   }
   return mult;
 }
@@ -932,9 +953,48 @@ function effectiveWeather(){
   return '';
 }
 function weatherMod(type){const w=effectiveWeather(); if(w==='sunny'&&type==='ほのお') return 1.5; if(w==='sunny'&&type==='みず') return 0.5; if(w==='rain'&&type==='みず') return 1.5; if(w==='rain'&&type==='ほのお') return 0.5; return 1;}
+function getItemDataByName(name){
+  const key=String(name||'').trim();
+  if(!key) return null;
+  return itemByName.get(key) || (BELONGINGS||[]).find(item=>key.includes(String(item.name||'').trim()) || String(item.name||'').trim().includes(key)) || null;
+}
+function getTypeBoostFromItemEffect(item){
+  const effect=String(item?.effect||'');
+  const m=effect.match(/(ノーマル|ほのお|みず|でんき|くさ|こおり|かくとう|どく|じめん|ひこう|エスパー|むし|いわ|ゴースト|ドラゴン|あく|はがね|フェアリー)タイプの技の威力が([0-9.]+)倍/);
+  if(!m) return null;
+  return {type:m[1], mult:Number(m[2])||1};
+}
+function getResistBerryFromItemEffect(item){
+  const effect=String(item?.effect||'');
+  const m=effect.match(/(?:効果バツグンの)?(ノーマル|ほのお|みず|でんき|くさ|こおり|かくとう|どく|じめん|ひこう|エスパー|むし|いわ|ゴースト|ドラゴン|あく|はがね|フェアリー)タイプの技を受けた時ダメージ[がを]半減/);
+  if(!m) return null;
+  return {type:m[1], superEffectiveOnly: effect.includes('効果バツグン')};
+}
+function cleanAbilityNote(abilityName, info){
+  const ab=String(abilityName||'');
+  if(['フェアリーオーラ','ダークオーラ'].includes(ab)) return ab;
+  return String(info||ab).replace(/×1\.3333333333333333/g,'').replace(/×1\.3333333333/g,'').replace(/×1\.33/g,'').replace(/\s+$/,'').trim() || ab;
+}
+function auraAbilityMod(type, notes=[]){
+  const abilities=[state.attacker.ability, state.defender.ability].map(v=>String(v||''));
+  const auraMap={'フェアリーオーラ':'フェアリー','ダークオーラ':'あく'};
+  const hasBreak=abilities.includes('オーラブレイク');
+  let mult=1;
+  abilities.forEach(ab=>{
+    if(auraMap[ab]===type){
+      mult *= hasBreak ? 0.75 : (4/3);
+      notes.push(ab);
+      if(hasBreak) notes.push('オーラブレイク');
+    }
+  });
+  return mult;
+}
 function attackerItemMod(type, cat, isBodyPress=false, eff=1, atkP=null, notes=[]){
   const item=String(state.attacker.item || '');
   if(!item) return 1;
+  const itemData=getItemDataByName(item);
+  const boost=getTypeBoostFromItemEffect(itemData);
+  if(boost && boost.type===type){notes.push(itemData.name); return boost.mult;}
   if(item.includes('こだわりハチマキ') && cat==='物理' && !isBodyPress){notes.push('こだわりハチマキ'); return 1.5;}
   if(item.includes('こだわりメガネ') && cat==='特殊'){notes.push('こだわりメガネ'); return 1.5;}
   if(item.includes('いのちのたま')){notes.push('いのちのたま'); return 1.3;}
@@ -949,14 +1009,22 @@ function attackerItemMod(type, cat, isBodyPress=false, eff=1, atkP=null, notes=[
 }
 function attackerItemStatMod(cat, isBodyPress=false, atkP=null, notes=[]){
   const item=String(state.attacker.item || '');
+  const itemData=getItemDataByName(item);
+  const effect=String(itemData?.effect||'');
   const name=atkP?.name || state.attacker.lookupName || state.attacker.name || '';
-  if(item.includes('でんきだま') && name.includes('ピカチュウ')){notes.push('でんきだま'); return 2;}
+  if((item.includes('でんきだま') || effect.includes('ピカチュウの攻撃 特攻が2倍')) && name.includes('ピカチュウ')){notes.push('でんきだま'); return 2;}
   if(item.includes('ふといホネ') && /カラカラ|ガラガラ/.test(name) && cat==='物理' && !isBodyPress){notes.push('ふといホネ'); return 2;}
   return 1;
 }
 function defenderItemDamageMod(type, cat, eff=1, notes=[]){
   const item=String(state.defender.item || '');
   if(!item) return 1;
+  const itemData=getItemDataByName(item);
+  const berry=getResistBerryFromItemEffect(itemData);
+  if(berry && berry.type===type && (!berry.superEffectiveOnly || eff>1)){
+    notes.push(itemData.name+':半減');
+    return 0.5;
+  }
   for(const [name,itemType] of Object.entries(RESIST_BERRIES)){
     if(item.includes(name) && itemType===type && (name==='ホズのみ' || eff>1)){
       notes.push(name+':半減');
