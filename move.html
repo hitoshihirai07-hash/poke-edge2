@@ -82,6 +82,9 @@ h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px;}
 .btn.danger{border-color:rgba(255,48,96,.45);color:var(--accent2);}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;}
 .quick-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.mega-switch{align-items:center;}
+.mini-label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:.08em;margin-right:2px;}
+.mega-grid{margin-top:0;}
 .search-wrap{position:relative;}
 .search-panel{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:80;border:1px solid var(--border2);background:var(--panel);border-radius:14px;box-shadow:0 18px 45px rgba(0,0,0,.35);padding:6px;max-height:260px;overflow:auto;}
 .search-panel.open{display:grid;gap:5px;}
@@ -112,7 +115,6 @@ details summary::-webkit-details-marker{display:none;}
 .result-card{position:sticky;top:68px;}
 .result-toggle{border:1px solid var(--border2);background:var(--panel2);color:var(--text2);border-radius:12px;padding:9px 11px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;}
 .result-toggle input{accent-color:var(--accent);}
-.result-card.is-collapsed .card-body{display:none;}
 .result-card.is-floating{position:fixed;right:16px;bottom:16px;top:auto;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 96px);overflow:auto;z-index:130;box-shadow:0 24px 70px rgba(0,0,0,.45);}
 .result-card.is-floating .card-head{position:sticky;top:0;z-index:2;background:var(--panel);}
 .result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;}
@@ -246,8 +248,9 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
           <div class="side-top"><div class="side-title">自分</div><button class="btn" type="button" onclick="quickAutoMoves()">候補技4つ</button></div>
           <div class="field">
             <div class="label">ポケモン</div>
-            <div class="search-wrap"><input class="input" id="attacker-name" placeholder="例：ガブリアス" autocomplete="off"><div class="search-panel" id="attacker-name-panel"></div></div>
+            <div class="search-wrap"><input class="input" id="attacker-name" placeholder="ポケモン名を入力" autocomplete="off"><div class="search-panel" id="attacker-name-panel"></div></div>
             <div class="type-row" id="attacker-types"></div>
+            <div class="quick-list mega-switch" id="attacker-mega-controls"></div>
           </div>
           <div class="field">
             <div class="label">4つの技</div>
@@ -265,8 +268,9 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
           <div class="side-top"><div class="side-title">相手</div><button class="btn" type="button" onclick="quickUseDefPreset('HB')">HB</button></div>
           <div class="field">
             <div class="label">ポケモン</div>
-            <div class="search-wrap"><input class="input" id="defender-name" placeholder="例：サーフゴー" autocomplete="off"><div class="search-panel" id="defender-name-panel"></div></div>
+            <div class="search-wrap"><input class="input" id="defender-name" placeholder="ポケモン名を入力" autocomplete="off"><div class="search-panel" id="defender-name-panel"></div></div>
             <div class="type-row" id="defender-types"></div>
+            <div class="quick-list mega-switch" id="defender-mega-controls"></div>
           </div>
           <div class="adv-grid">
             <div class="field">
@@ -302,7 +306,6 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
         </div>
         <div class="btn-row result-controls">
           <label class="result-toggle"><input type="checkbox" id="quick-result-sticky-toggle" onchange="quickToggleResultSticky(this.checked)">結果を常に表示</label>
-          <button class="btn" id="quick-result-fold-btn" type="button" onclick="quickToggleResultFold()">結果を隠す</button>
           <button class="btn" type="button" onclick="quickClearMoves()">技クリア</button>
           <a class="btn" href="calc.html">精密計算へ</a>
         </div>
@@ -616,7 +619,7 @@ function renderSelfEditor(){
 
     <div class="editor-grid two">
       <div><div class="label">特性</div><select class="select" onchange="setSlotField('self',${activeSelfIndex},'ability',this.value)">${abilityOptions}</select></div>
-      <div><div class="label">持ち物（攻撃側のみ反映）</div><input class="input" list="item-datalist" value="${escapeAttr(slot.item||'')}" onchange="setSlotField('self',${activeSelfIndex},'item',this.value)" placeholder="例: こだわりメガネ"></div>
+      <div><div class="label">持ち物（攻撃側のみ反映）</div><input class="input" list="item-datalist" value="${escapeAttr(slot.item||'')}" onchange="setSlotField('self',${activeSelfIndex},'item',this.value)" placeholder="持ち物を検索"></div>
     </div>
 
     <div class="section-label">努力値</div>
@@ -1024,6 +1027,37 @@ function quickRankingPercent(v){ const m = String(v || '').match(/\(([0-9.]+)%\)
 function quickRankingSortValue(name){ const row = RANKING_BY_NAME.get(name); return row ? (parseInt(row.rank,10)||9999) : 9999; }
 function quickMegaBaseName(name){ return String(MEGA_DATA?.formToBase?.[name] || '').trim(); }
 function quickBaseForMoveSource(name){ return quickMegaBaseName(name) || name; }
+function quickLatestSeasonList(){
+  const seasons = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons : [];
+  const key = seasons.length ? seasons[seasons.length - 1] : (SEASON_DATA?.S2 ? 'S2' : '');
+  const list = key && Array.isArray(SEASON_DATA[key]) ? SEASON_DATA[key] : (Array.isArray(SEASON_DATA?.['内定']) ? SEASON_DATA['内定'] : []);
+  return list.map(n=>String(n||'').trim()).filter(Boolean);
+}
+function quickAllowedPokemonSet(){ const list = quickLatestSeasonList(); return list.length ? new Set(list) : null; }
+function quickIsAllowedPokemon(name){ const set = quickAllowedPokemonSet(); return !set || set.has(String(name||'').trim()); }
+function quickMegaFormsForName(name){
+  const current = String(name || '').trim();
+  const base = quickMegaBaseName(current) || current;
+  const forms = Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base] : [];
+  return {base, forms:forms.filter(n=>pokeByName.has(n) && quickIsAllowedPokemon(n))};
+}
+function quickFindItemName(candidates){
+  const names = BELONGINGS.map(getItemName).filter(Boolean);
+  for(const cand of candidates){ const hit = names.find(n=>n === cand); if(hit) return hit; }
+  for(const cand of candidates){ const hit = names.find(n=>n.includes(cand)); if(hit) return hit; }
+  return '';
+}
+function quickMegaItemName(formName){
+  const form = String(formName || '').trim();
+  if(!form) return '';
+  const base = quickMegaBaseName(form);
+  if(!base) return '';
+  if(form === 'メガリザードンX') return quickFindItemName(['リザードナイトX','リザードナイトＸ']);
+  if(form === 'メガリザードンY') return quickFindItemName(['リザードナイトY','リザードナイトＹ']);
+  const shortBase = base.endsWith('ン') ? base.slice(0, -1) : base;
+  const compactBase = base.replace(/ー/g,'');
+  return quickFindItemName([base + 'ナイト', shortBase + 'ナイト', compactBase + 'ナイト']);
+}
 function quickRankLookupName(name){
   const n = String(name || '').trim();
   if(!n) return '';
@@ -1055,7 +1089,7 @@ function quickRankingMoveNames(row, pokeName){
 }
 function quickTopRankingValue(list){ return quickCleanUsageName((list || [])[0] || ''); }
 function quickApplyCharizardX(slot){
-  slot.item = 'リザードナイトＸ';
+  slot.item = 'リザードナイトX';
   slot.ability = (getAbilityOptions('メガリザードンX') || [])[0] || 'かたいツメ';
   slot.nature = 'いじっぱり';
   slot.natureMods = quickNatureModsFromName('いじっぱり');
@@ -1092,6 +1126,8 @@ function quickApplyRankingToSlot(role){
       quickEnsureAbility(role);
       slot.rankingLabel = 'ランキング未掲載';
     }
+    const megaItem = quickMegaItemName(slot.poke.name);
+    if(megaItem) slot.item = megaItem;
   }
   if(role === 'attacker'){
     const fallback = rankedMoves.length ? rankedMoves : knownMovesForPokemon(quickBaseForMoveSource(slot.poke.name)).map(m=>m.name).filter(Boolean).filter(n=>{ const m=moveByName.get(n); return m && (m.category==='物理'||m.category==='特殊'); }).slice(0,4);
@@ -1102,10 +1138,12 @@ function quickApplyRankingToSlot(role){
   }
 }
 function quickRankedPokemonList(){
+  const allowed = quickAllowedPokemonSet();
+  const isAllowed = p => !allowed || allowed.has(String(p?.name || '').trim());
   const rankedNames = RANKING_ROWS.map(r=>String(r.name||r.siteName||'').trim()).filter(Boolean);
   const seen = new Set();
-  const ranked = rankedNames.map(n=>pokeByName.get(n)).filter(Boolean).filter(p=>!seen.has(p.name) && seen.add(p.name));
-  const rest = pokeIndex.slice().filter(p=>!seen.has(p.name)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja'));
+  const ranked = rankedNames.map(n=>pokeByName.get(n)).filter(Boolean).filter(isAllowed).filter(p=>!seen.has(p.name) && seen.add(p.name));
+  const rest = pokeIndex.slice().filter(isAllowed).filter(p=>!seen.has(p.name)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja'));
   return ranked.concat(rest);
 }
 function quickShowSearchPanel(panelId, items){
@@ -1460,6 +1498,24 @@ function quickStatsText(slot){
 function quickRenderSideLabels(){
   document.getElementById('attacker-types').innerHTML = quickTypePills(quickState.attacker);
   document.getElementById('defender-types').innerHTML = quickTypePills(quickState.defender);
+  quickRenderMegaControls('attacker');
+  quickRenderMegaControls('defender');
+}
+function quickRenderMegaControls(role){
+  const wrap = document.getElementById(role + '-mega-controls');
+  if(!wrap) return;
+  const slot = quickSlot(role);
+  if(!slot.poke){ wrap.innerHTML = ''; return; }
+  const data = quickMegaFormsForName(slot.poke.name);
+  if(!data.forms.length){ wrap.innerHTML = ''; return; }
+  const current = slot.poke.name;
+  const choices = [];
+  if(pokeByName.has(data.base) && quickIsAllowedPokemon(data.base)) choices.push({name:data.base, label:'通常'});
+  data.forms.forEach(name=>choices.push({name, label:name.replace(/^メガ/,'メガ')}));
+  wrap.innerHTML = `<div class="mini-label">メガ進化</div><div class="segment-grid mega-grid">${choices.map(c=>`<button type="button" class="segment-btn ${current===c.name?'active':''}" onclick="quickSwitchMega('${role}','${escapeAttr(c.name)}')">${escapeHtml(c.label)}</button>`).join('')}</div>`;
+}
+function quickSwitchMega(role, name){
+  quickSetPokemon(role, name, role === 'attacker', true);
 }
 function quickGetMoveResult(moveName){
   return calcDamageResult(quickState.attacker, moveName, quickState.defender, quickState.weather || '');
@@ -1534,21 +1590,12 @@ function quickApplyResultViewState(){
   const card = document.querySelector('.result-card');
   if(!card) return;
   const sticky = localStorage.getItem('pokeedge_move_result_sticky') === '1';
-  const folded = localStorage.getItem('pokeedge_move_result_folded') === '1';
   card.classList.toggle('is-floating', sticky);
-  card.classList.toggle('is-collapsed', folded);
   const toggle = document.getElementById('quick-result-sticky-toggle');
   if(toggle) toggle.checked = sticky;
-  const btn = document.getElementById('quick-result-fold-btn');
-  if(btn) btn.textContent = folded ? '結果を表示' : '結果を隠す';
 }
 function quickToggleResultSticky(on){
   localStorage.setItem('pokeedge_move_result_sticky', on ? '1' : '0');
-  quickApplyResultViewState();
-}
-function quickToggleResultFold(){
-  const folded = localStorage.getItem('pokeedge_move_result_folded') === '1';
-  localStorage.setItem('pokeedge_move_result_folded', folded ? '0' : '1');
   quickApplyResultViewState();
 }
 function quickRenderAll(){
