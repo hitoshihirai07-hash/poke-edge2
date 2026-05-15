@@ -27,7 +27,7 @@
 [data-theme="light"]{--bg:#edf5f9;--bg2:#ffffff;--panel:#f8fbff;--panel2:#eef6fc;--panel3:#e4f1f9;--border:#9fc2d7;--border2:#6d9eba;--accent:#005f9e;--accent2:#b80f3e;--accent3:#9b6100;--green:#00764b;--text:#071b2c;--text2:#3d5c76;--text3:#6b849a;--shadow:0 14px 30px rgba(27,70,100,.13)}
 *{box-sizing:border-box;margin:0;padding:0} body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden} body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(ellipse 45% 28% at 10% 0%,rgba(0,200,240,.10),transparent 65%),radial-gradient(ellipse 42% 30% at 90% 100%,rgba(255,48,96,.06),transparent 65%),linear-gradient(rgba(0,200,240,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,240,.018) 1px,transparent 1px);background-size:auto,auto,52px 52px,52px 52px} a{color:inherit}
 header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 20px} [data-theme="light"] header{background:rgba(248,251,255,.96)} .logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--accent);text-decoration:none;white-space:nowrap}.logo em{color:var(--accent2);font-style:normal}.header-sep{width:1px;height:16px;background:var(--border)}.header-sub{font-size:10px;color:var(--text2);letter-spacing:2px;white-space:nowrap}.header-nav{display:flex;gap:3px;margin-left:auto;overflow-x:auto}.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:11px;letter-spacing:1px;text-decoration:none;white-space:nowrap;transition:.16s}.nav-btn:hover,.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.08)}.theme-toggle{border:1px solid var(--border);background:var(--panel);color:var(--text);width:32px;height:28px;border-radius:9px;cursor:pointer}.hamburger{display:none;flex-direction:column;gap:5px;margin-left:auto;background:none;border:none;padding:6px;cursor:pointer}.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:.2s}.nav-overlay{display:none;position:fixed;inset:52px 0 0;background:rgba(0,0,0,.42);z-index:80}
-.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 42px}.hero{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;margin-bottom:14px}.hero-card,.status-card,.card{border:1px solid var(--border);background:var(--panel);box-shadow:var(--shadow);border-radius:22px;overflow:hidden}.hero-card{padding:17px;background:linear-gradient(135deg,rgba(0,200,240,.13),rgba(255,48,96,.05)),var(--panel)}.eyebrow{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:2px;margin-bottom:5px}h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px}.lead{color:var(--text2);font-size:13px;line-height:1.75}.badge-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.badge{display:inline-flex;align-items:center;border:1px solid var(--border2);background:rgba(0,200,240,.07);border-radius:999px;color:var(--text2);font-size:11px;font-weight:800;padding:6px 10px}.status-card{padding:14px}.status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.status-pill{border:1px solid var(--border);background:var(--panel2);border-radius:15px;padding:10px;min-height:58px}.status-label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px;margin-bottom:4px}.status-value{font-size:15px;font-weight:900;color:var(--text);line-height:1.3}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:14px}.field{display:grid;gap:5px}.field.flex1{flex:1 1 180px}.label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px}.input,.select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;color:var(--text);padding:10px 11px;font-size:15px;font-family:'Noto Sans JP',sans-serif;outline:none}.input:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.12)}.btn{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:12px;padding:10px 12px;font-size:12px;font-weight:900;cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;gap:6px;white-space:nowrap}.btn:hover{border-color:var(--accent);color:var(--accent)}.btn.primary{background:linear-gradient(135deg,rgba(0,200,240,.22),rgba(0,200,240,.08));border-color:var(--accent);color:var(--accent)}.btn.danger{border-color:rgba(255,48,96,.55);color:var(--accent2)}.grid{display:grid;grid-template-columns:390px minmax(0,1fr);gap:14px;align-items:start}.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}.card-title{font-size:14px;font-weight:900;letter-spacing:.06em}.card-body{padding:14px}.side-stack{display:grid;gap:12px}.side-box{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:12px}.side-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}.side-title{font-size:13px;font-weight:900;color:var(--text);letter-spacing:.05em}.search-wrap{position:relative}.suggestions{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;border:1px solid var(--border2);background:var(--panel);border-radius:14px;box-shadow:var(--shadow);max-height:280px;overflow:auto;padding:6px}.suggestions.show{display:block}.suggestion{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;width:100%;border:0;background:transparent;color:var(--text);padding:9px;border-radius:10px;text-align:left;cursor:pointer}.suggestion:hover{background:var(--panel2)}.rank-badge{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:11px;font-weight:900;min-width:35px}.sug-name{font-weight:900}.sug-note{font-size:10px;color:var(--text3);font-weight:800}.type-row,.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.type-pill{display:inline-flex;border:1px solid var(--border2);background:rgba(0,200,240,.08);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900}.chip{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;cursor:pointer}.chip:hover{border-color:var(--accent);color:var(--accent)}.auto-note{font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px}.move-list{display:grid;gap:9px;margin-top:10px}.move-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}.move-no{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:12px;font-weight:900;text-align:center;padding-top:11px}.move-box{position:relative}.move-suggestions{display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:35;border:1px solid var(--border2);background:var(--panel);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow:auto;padding:5px}.move-suggestions.show{display:block}.move-option{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:0;background:transparent;color:var(--text);width:100%;padding:8px;border-radius:9px;text-align:left;cursor:pointer}.move-option:hover{background:var(--panel2)}.move-option-main{font-size:13px;font-weight:900}.move-option-sub{font-size:10px;color:var(--text3);font-weight:800}.quick-moves{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.quick-move-chip{border:1px solid var(--border);background:var(--panel);border-radius:999px;color:var(--text2);font-size:11px;font-weight:900;padding:6px 8px;cursor:pointer}.quick-move-chip:hover{border-color:var(--accent);color:var(--accent)}details{border-top:1px dashed var(--border);margin-top:12px;padding-top:11px}summary{cursor:pointer;color:var(--accent);font-weight:900;font-size:12px;list-style:none}summary::-webkit-details-marker{display:none}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}.ev-grid,.nature-grid,.rank-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px}.mini-field{border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:8px}.mini-field .label{margin-bottom:4px}.mini-field input,.mini-field select{padding:8px;border-radius:9px;font-size:14px}.result-card{position:sticky;top:68px}.pair-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.pair-title{font-size:18px;font-weight:900;line-height:1.35}.pair-sub{font-size:12px;color:var(--text2);margin-top:5px}.speed-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:11px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.speed-num{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:900}.speed-num.right{text-align:right}.speed-mid{font-size:12px;color:var(--text2);font-weight:900;text-align:center}.result-list{display:grid;gap:10px}.damage-card{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:13px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:12px;align-items:center}.damage-card.best{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.09)}.damage-move{font-size:16px;font-weight:900;display:flex;align-items:center;gap:7px;flex-wrap:wrap}.damage-meta{font-size:11px;color:var(--text2);line-height:1.6;margin-top:5px}.damage-main{text-align:right}.damage-pct{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:23px;font-weight:900}.damage-range{font-size:12px;color:var(--text2);margin-top:4px}.ko{display:inline-flex;margin-top:6px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900;border:1px solid var(--border2)}.ko.k1{color:var(--accent2);border-color:rgba(255,48,96,.6)}.ko.k2{color:var(--accent3);border-color:rgba(255,200,0,.6)}.ko.k3{color:var(--green);border-color:rgba(0,230,118,.55)}.eff-good{color:var(--accent2);font-weight:900}.eff-bad,.eff-zero{color:var(--text3);font-weight:900}.empty{border:1px dashed var(--border2);background:var(--panel2);border-radius:18px;padding:18px;color:var(--text2);font-size:13px;line-height:1.8;text-align:center}.note{font-size:11px;color:var(--text3);line-height:1.65;margin-top:9px}.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:13px}.warning{border:1px solid rgba(255,200,0,.45);background:rgba(255,200,0,.08);border-radius:14px;padding:9px 10px;color:var(--accent3);font-size:11px;font-weight:900;line-height:1.55;margin-top:8px}footer{text-align:center;color:var(--text3);font-size:11px;padding:24px 12px 34px}.footer-logo{font-family:'Bebas Neue',sans-serif;letter-spacing:5px;color:var(--text2);font-size:20px;margin-bottom:6px}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 42px}.hero{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;margin-bottom:14px}.hero-card,.status-card,.card{border:1px solid var(--border);background:var(--panel);box-shadow:var(--shadow);border-radius:22px;overflow:hidden}.hero-card{padding:17px;background:linear-gradient(135deg,rgba(0,200,240,.13),rgba(255,48,96,.05)),var(--panel)}.eyebrow{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:2px;margin-bottom:5px}h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px}.lead{color:var(--text2);font-size:13px;line-height:1.75}.badge-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.badge{display:inline-flex;align-items:center;border:1px solid var(--border2);background:rgba(0,200,240,.07);border-radius:999px;color:var(--text2);font-size:11px;font-weight:800;padding:6px 10px}.status-card{padding:14px}.status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.status-pill{border:1px solid var(--border);background:var(--panel2);border-radius:15px;padding:10px;min-height:58px}.status-label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px;margin-bottom:4px}.status-value{font-size:15px;font-weight:900;color:var(--text);line-height:1.3}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:14px}.field{display:grid;gap:5px}.field.flex1{flex:1 1 180px}.label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:1px}.input,.select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;color:var(--text);padding:10px 11px;font-size:15px;font-family:'Noto Sans JP',sans-serif;outline:none}.input:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.12)}.btn{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:12px;padding:10px 12px;font-size:12px;font-weight:900;cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;gap:6px;white-space:nowrap}.btn:hover{border-color:var(--accent);color:var(--accent)}.btn.primary{background:linear-gradient(135deg,rgba(0,200,240,.22),rgba(0,200,240,.08));border-color:var(--accent);color:var(--accent)}.btn.danger{border-color:rgba(255,48,96,.55);color:var(--accent2)}.grid{display:grid;grid-template-columns:390px minmax(0,1fr);gap:14px;align-items:start}.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}.card-title{font-size:14px;font-weight:900;letter-spacing:.06em}.card-body{padding:14px}.side-stack{display:grid;gap:12px}.side-box{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:12px}.side-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}.side-title{font-size:13px;font-weight:900;color:var(--text);letter-spacing:.05em}.search-wrap{position:relative}.suggestions{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;border:1px solid var(--border2);background:var(--panel);border-radius:14px;box-shadow:var(--shadow);max-height:280px;overflow:auto;padding:6px}.suggestions.show{display:block}.suggestion{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;width:100%;border:0;background:transparent;color:var(--text);padding:9px;border-radius:10px;text-align:left;cursor:pointer}.suggestion:hover{background:var(--panel2)}.rank-badge{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:11px;font-weight:900;min-width:35px}.sug-name{font-weight:900}.sug-note{font-size:10px;color:var(--text3);font-weight:800}.type-row,.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.type-pill{display:inline-flex;border:1px solid var(--border2);background:rgba(0,200,240,.08);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900}.chip{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;cursor:pointer}.chip:hover,.chip.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10)}.auto-note{font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px}.move-list{display:grid;gap:9px;margin-top:10px}.move-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}.move-no{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:12px;font-weight:900;text-align:center;padding-top:11px}.move-box{position:relative}.move-suggestions{display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:35;border:1px solid var(--border2);background:var(--panel);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow:auto;padding:5px}.move-suggestions.show{display:block}.move-option{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:0;background:transparent;color:var(--text);width:100%;padding:8px;border-radius:9px;text-align:left;cursor:pointer}.move-option:hover{background:var(--panel2)}.move-option-main{font-size:13px;font-weight:900}.move-option-sub{font-size:10px;color:var(--text3);font-weight:800}.quick-moves{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.quick-move-chip{border:1px solid var(--border);background:var(--panel);border-radius:999px;color:var(--text2);font-size:11px;font-weight:900;padding:6px 8px;cursor:pointer}.quick-move-chip:hover{border-color:var(--accent);color:var(--accent)}details{border-top:1px dashed var(--border);margin-top:12px;padding-top:11px}summary{cursor:pointer;color:var(--accent);font-weight:900;font-size:12px;list-style:none}summary::-webkit-details-marker{display:none}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}.ev-grid,.nature-grid,.rank-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px}.mini-field{border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:8px}.mini-field .label{margin-bottom:4px}.mini-field input,.mini-field select{padding:8px;border-radius:9px;font-size:14px}.result-card{position:sticky;top:68px}.pair-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.pair-title{font-size:18px;font-weight:900;line-height:1.35}.pair-sub{font-size:12px;color:var(--text2);margin-top:5px}.speed-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:11px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.speed-num{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:900}.speed-num.right{text-align:right}.speed-mid{font-size:12px;color:var(--text2);font-weight:900;text-align:center}.result-list{display:grid;gap:10px}.damage-card{border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:13px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:12px;align-items:center}.damage-card.best{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.09)}.damage-move{font-size:16px;font-weight:900;display:flex;align-items:center;gap:7px;flex-wrap:wrap}.damage-meta{font-size:11px;color:var(--text2);line-height:1.6;margin-top:5px}.damage-main{text-align:right}.damage-pct{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:23px;font-weight:900}.damage-range{font-size:12px;color:var(--text2);margin-top:4px}.ko{display:inline-flex;margin-top:6px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900;border:1px solid var(--border2)}.ko.k1{color:var(--accent2);border-color:rgba(255,48,96,.6)}.ko.k2{color:var(--accent3);border-color:rgba(255,200,0,.6)}.ko.k3{color:var(--green);border-color:rgba(0,230,118,.55)}.eff-good{color:var(--accent2);font-weight:900}.eff-bad,.eff-zero{color:var(--text3);font-weight:900}.empty{border:1px dashed var(--border2);background:var(--panel2);border-radius:18px;padding:18px;color:var(--text2);font-size:13px;line-height:1.8;text-align:center}.note{font-size:11px;color:var(--text3);line-height:1.65;margin-top:9px}.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:13px}.warning{border:1px solid rgba(255,200,0,.45);background:rgba(255,200,0,.08);border-radius:14px;padding:9px 10px;color:var(--accent3);font-size:11px;font-weight:900;line-height:1.55;margin-top:8px}footer{text-align:center;color:var(--text3);font-size:11px;padding:24px 12px 34px}.footer-logo{font-family:'Bebas Neue',sans-serif;letter-spacing:5px;color:var(--text2);font-size:20px;margin-bottom:6px}
 @media(max-width:980px){header{padding:0 12px}.header-sub,.header-sep{display:none}.hamburger{display:flex}.header-nav{position:fixed;top:52px;right:0;width:78vw;max-width:330px;height:calc(100vh - 52px);background:var(--panel);border-left:1px solid var(--border);padding:16px;display:none;flex-direction:column;overflow-y:auto;margin:0;z-index:90}.header-nav.open{display:flex}.nav-overlay.show{display:block}.nav-btn{padding:12px;border-radius:12px}.hero{grid-template-columns:1fr}.status-card{display:none}.grid{grid-template-columns:1fr}.result-card{position:static}.wrap{padding:13px 10px 34px}h1{font-size:22px}}
 @media(max-width:640px){.hero-card,.card{border-radius:18px}.hero-card{padding:14px}.card-head,.card-body{padding:12px}.toolbar{display:grid;grid-template-columns:1fr 1fr}.field.flex1{flex:auto}.side-box{border-radius:16px;padding:10px}.detail-grid,.ev-grid,.nature-grid,.rank-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.speed-box{grid-template-columns:1fr;gap:4px;text-align:center}.speed-num.right{text-align:center}.damage-card{grid-template-columns:1fr;gap:8px}.damage-main{text-align:left}.damage-pct{font-size:25px}.tools{grid-template-columns:1fr}.input,.select{font-size:16px;min-height:44px}.btn{min-height:42px}.suggestions,.move-suggestions{max-height:220px}.toolbar .field:nth-child(1),.toolbar .field:nth-child(2){grid-column:auto}.toolbar .field:nth-child(3){grid-column:1/3}}
 </style>
@@ -58,13 +58,13 @@ header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96)
   <section class="hero">
     <div class="hero-card">
       <div class="eyebrow">QUICK MOVE DAMAGE</div>
-      <h1>ランキング型を読み込んで、4技をすぐ比較</h1>
-      <p class="lead">ポケモンを選ぶと、ランキングの技・努力値・性格倍率を自動反映します。変化技は候補から外し、スマホでも「今の4技がどれくらい入るか」をすぐ確認できます。</p>
+      <h1>ポケモンを選んで、4技のダメージをすぐ確認</h1>
+      <p class="lead">ランキング型を自動反映し、相手を変えた瞬間に4技のダメージをまとめて表示します。細かい条件は折りたたみで調整できます。</p>
       <div class="badge-row">
-        <span class="badge">ランキング参照</span>
+        <span class="badge">ランキング型を自動反映</span>
         <span class="badge">4技同時</span>
-        <span class="badge">変化技は候補外</span>
-        <span class="badge">メガリザードンX専用対応</span>
+        <span class="badge">メガ切替対応</span>
+        <span class="badge">ランク補正対応</span>
       </div>
     </div>
     <div class="status-card">
@@ -108,7 +108,8 @@ header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96)
             <div class="suggestions" id="attacker-suggestions"></div>
           </div>
           <div class="type-row" id="attacker-types"></div>
-          <div class="auto-note" id="attacker-note">ランキングから選ぶと、技・努力値・性格倍率を自動で入れます。</div>
+          <div class="chip-row" id="attacker-mega-row"></div>
+          <div class="auto-note" id="attacker-note">ランキングから選ぶと、型情報を自動で入れます。</div>
           <div class="move-list" id="move-list"></div>
           <div class="quick-moves" id="learnable-moves"></div>
           <details>
@@ -128,7 +129,8 @@ header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96)
             <div class="suggestions" id="defender-suggestions"></div>
           </div>
           <div class="type-row" id="defender-types"></div>
-          <div class="auto-note" id="defender-note">相手側もランキングの努力値・性格倍率を参照できます。</div>
+          <div class="chip-row" id="defender-mega-row"></div>
+          <div class="auto-note" id="defender-note">相手側もランキング型を参照できます。</div>
           <div class="chip-row">
             <button class="chip" type="button" data-preset="none">無振り</button>
             <button class="chip" type="button" data-preset="H32">H32</button>
@@ -168,7 +170,7 @@ header{position:sticky;top:0;z-index:100;height:52px;background:rgba(7,9,15,.96)
           <button class="btn" type="button" id="swap-btn2">攻守入替</button>
           <button class="btn" type="button" id="copy-summary-btn">結果をコピー</button>
         </div>
-        <div class="note">※クイック確認用です。変化技は候補に出しません。ランク補正はこのページ内で反映できます。状態異常・壁・場ダメージなど細かく詰める場合はダメージ計算ページを使ってください。</div>
+        <div class="note">※クイック確認用です。ランク補正・持ち物・特性はこのページ内で反映できます。さらに細かい条件を詰める場合はダメージ計算ページを使ってください。</div>
       </div>
     </div>
   </section>
@@ -184,9 +186,12 @@ let POKEMON = [];
 let MOVES = [];
 let POKEMON_MOVES = {};
 let ABILITIES = {};
+let ABILITIES_DATA = [];
+let MEGA = {rows:[], baseToForms:{}, formToBase:{}};
 let RANKINGS = {single:{S1:null,S2:null}, double:{S1:null,S2:null}};
 let pokeByName = new Map();
 let moveByName = new Map();
+let abilityByName = new Map();
 let candidateCache = [];
 let resultTextCache = '';
 
@@ -223,6 +228,11 @@ const DEF_PRESETS = {
   HB:{ev:{hp:32,atk:0,def:32,spa:0,spd:0,spe:0}, nature:{atk:0.9,def:1.1,spa:1,spd:1,spe:1}},
   HD:{ev:{hp:32,atk:0,def:0,spa:0,spd:32,spe:0}, nature:{atk:0.9,def:1,spa:1,spd:1.1,spe:1}}
 };
+const TYPE_BOOST_ITEMS = {
+  'シルクのスカーフ':'ノーマル','もくたん':'ほのお','しんぴのしずく':'みず','じしゃく':'でんき','きせきのタネ':'くさ','とけないこおり':'こおり','くろおび':'かくとう','どくバリ':'どく','やわらかいすな':'じめん','するどいくちばし':'ひこう','まがったスプーン':'エスパー','ぎんのこな':'むし','かたいいし':'いわ','のろいのおふだ':'ゴースト','りゅうのキバ':'ドラゴン','くろいメガネ':'あく','メタルコート':'はがね','ようせいのハネ':'フェアリー'
+};
+const RESIST_BERRIES = {'オッカのみ':'ほのお','イトケのみ':'みず','ソクノのみ':'でんき','リンドのみ':'くさ','ヤチェのみ':'こおり','ヨプのみ':'かくとう','ビアーのみ':'どく','シュカのみ':'じめん','バコウのみ':'ひこう','ウタンのみ':'エスパー','タンガのみ':'むし','ヨロギのみ':'いわ','カシブのみ':'ゴースト','ハバンのみ':'ドラゴン','ナモのみ':'あく','リリバのみ':'はがね','ロゼルのみ':'フェアリー','ホズのみ':'ノーマル'};
+
 const CHAR_X_SET = {
   name:'メガリザードンX', rankingKey:'リザードン', item:'リザードナイトＸ', ability:'かたいツメ',
   moves:['フレアドライブ','かみなりパンチ','げきりん','じしん'],
@@ -252,8 +262,10 @@ async function init(){
   await loadData();
   buildCandidates();
   renderAll();
-  quickSelect('attacker', candidateCache[0] || null);
-  quickSelect('defender', candidateCache[1] || candidateCache[0] || null);
+  const firstCandidate = candidateCache[0] || null;
+  const secondCandidate = candidateCache.find(c=>firstCandidate && c.rankingKey!==firstCandidate.rankingKey) || candidateCache[1] || firstCandidate;
+  quickSelect('attacker', firstCandidate);
+  quickSelect('defender', secondCandidate);
 }
 function setupNav(){
   const nav=$('header-nav'), ham=$('hamburger'), overlay=$('nav-overlay');
@@ -289,36 +301,58 @@ function bindEvents(){
   });
 }
 async function loadData(){
-  const [pokes,moves,pm,ab,rs1,rs2,rd1,rd2] = await Promise.all([
+  const [pokes,moves,pm,ab,rs1,rs2,rd1,rd2,mega,abData] = await Promise.all([
     fetchJson('pokemon.json', []), fetchJson('moves.json', []), fetchJson('pokemon_moves.json', {}), fetchJson('abilities.json', {}),
     fetchJson('season_ranking_single.json', null), fetchJson('season_ranking_single_s2.json', null),
-    fetchJson('season_ranking_double.json', null), fetchJson('season_ranking_double_s2.json', null)
+    fetchJson('season_ranking_double.json', null), fetchJson('season_ranking_double_s2.json', null),
+    fetchJson('mega.json', {rows:[], baseToForms:{}, formToBase:{}}), fetchJson('abilities_data.json', [])
   ]);
   POKEMON = Array.isArray(pokes)?pokes:[]; MOVES = Array.isArray(moves)?moves:[];
   POKEMON_MOVES = pm && pm.pokemon ? pm.pokemon : (pm || {});
   ABILITIES = ab || {};
+  ABILITIES_DATA = Array.isArray(abData) ? abData : [];
+  MEGA = mega || {rows:[], baseToForms:{}, formToBase:{}};
+  if(!MEGA.baseToForms) MEGA.baseToForms = {};
+  if(!MEGA.formToBase) MEGA.formToBase = {};
   RANKINGS.single.S1 = rs1; RANKINGS.single.S2 = rs2 || rs1;
   RANKINGS.double.S1 = rd1; RANKINGS.double.S2 = rd2 || rd1;
   pokeByName = new Map(POKEMON.map(p=>[String(p.name||'').trim(),p]));
   moveByName = new Map(MOVES.map(m=>[String(m.name||'').trim(),m]));
+  abilityByName = new Map(ABILITIES_DATA.map(a=>[String(a.name||'').trim(),a]));
   $('status-rank').textContent = '読込済み';
 }
 function currentRows(){return (RANKINGS[state.rule]?.[state.season]?.rows || []);}
 function getRankRow(key){return currentRows().find(r=>String(r.name||r.siteName||'').trim()===key || String(r.siteName||'').trim()===key) || null;}
 function buildCandidates(){
-  const rows=currentRows(); const list=[];
+  const rows=currentRows(); const list=[]; const seen=new Set();
+  function addCandidate(display, lookup, rankingKey, rank, note){
+    if(!display || !lookup) return;
+    const key=display+'|'+rankingKey;
+    if(seen.has(key)) return;
+    seen.add(key);
+    list.push({display, lookup, rankingKey, rank, note});
+  }
   rows.forEach(r=>{
     const name=String(r.name||r.siteName||'').trim(); if(!name) return;
-    if(name==='リザードン'){
-      list.push({display:'メガリザードンY', lookup:'メガリザードンY', rankingKey:'リザードン', rank:r.rank, note:'ランキング参照'});
-      list.push({display:'メガリザードンX', lookup:'メガリザードンX', rankingKey:'リザードン', rank:r.rank, note:'専用固定'});
-      list.push({display:'リザードン', lookup:'リザードン', rankingKey:'リザードン', rank:r.rank, note:'ランキング参照'});
-    }else{
-      list.push({display:name, lookup:name, rankingKey:name, rank:r.rank, note:'ランキング参照'});
-    }
+    addCandidate(name, name, name, r.rank, 'ランキング参照');
+    getMegaForms(name).forEach(form=>{
+      addCandidate(form, form, name, r.rank, 'メガ切替');
+    });
   });
   candidateCache=list;
 }
+function getMegaForms(baseName){
+  const key=String(baseName||'').trim();
+  const forms = (MEGA.baseToForms && MEGA.baseToForms[key]) || [];
+  if(forms.length) return forms.slice();
+  return (MEGA.rows||[]).filter(r=>r.baseName===key).map(r=>r.name).filter(Boolean);
+}
+function isMegaForm(name){return !!(MEGA.formToBase && MEGA.formToBase[String(name||'').trim()]);}
+function getBaseName(name){
+  const key=String(name||'').trim();
+  return (MEGA.formToBase && MEGA.formToBase[key]) || key;
+}
+function getMoveLearnKey(pokeName){return getBaseName(pokeName);}
 function bindSearch(side){
   const input=$(side+'-search'), box=$(side+'-suggestions');
   input.addEventListener('input',()=>showSuggestions(side));
@@ -358,33 +392,76 @@ function refreshSelectedFromRanking(){
 }
 function applyRankingPreset(side, withMoves){
   const s=state[side]; if(!s.name) return;
-  if(s.name==='メガリザードンX'){
+  const selectedName=s.lookupName || s.name;
+  const baseName=getBaseName(selectedName);
+  s.lookupName=selectedName;
+  s.rankingKey=s.rankingKey || baseName;
+  s.rankRow=getRankRow(s.rankingKey || baseName);
+  if(selectedName==='メガリザードンX'){
     const fixed=CHAR_X_SET;
-    s.lookupName=fixed.name; s.rankingKey=fixed.rankingKey; s.rankRow=getRankRow(fixed.rankingKey); s.item=fixed.item; s.ability=fixed.ability;
-    s.ev=clone(fixed.ev); s.nature=clone(fixed.nature); s.source='専用固定'; s.sourceDetail=fixed.note;
+    s.lookupName=fixed.name; s.rankingKey=fixed.rankingKey; s.rankRow=getRankRow(fixed.rankingKey);
+    s.item=preferredItemForSide(s, s.rankRow, fixed.item);
+    s.ability=preferredAbilityForSide(s, s.rankRow, fixed.ability);
+    s.ev=clone(fixed.ev); s.nature=clone(fixed.nature); s.source='専用初期値'; s.sourceDetail='メガリザードンX用の初期型を反映';
     if(withMoves) s.moves=fixed.moves.slice(0,4);
     return;
   }
-  if(s.name==='メガリザードンY'){
-    s.lookupName=CHAR_Y_SET.name; s.rankingKey=CHAR_Y_SET.rankingKey; s.rankRow=getRankRow(CHAR_Y_SET.rankingKey); s.item=CHAR_Y_SET.item; s.ability=CHAR_Y_SET.ability;
-  }
-  const row=s.rankRow || getRankRow(s.rankingKey || s.name);
+  const row=s.rankRow || getRankRow(s.rankingKey || baseName);
   if(row){
     const spread=parseSpread(firstText(row.spreads)); if(spread) s.ev=spread;
     const nature=parseNature(firstText(row.natures)); if(nature) s.nature=nature;
-    if(!s.item) s.item=parseLabel(firstText(row.items));
-    if(!s.ability) s.ability=parseLabel(firstText(row.abilities));
-    s.source=`ランキング #${row.rank || '-'}`; s.sourceDetail=[firstText(row.natures), firstText(row.spreads)].filter(Boolean).join(' / ');
+    s.item=preferredItemForSide(s, row, '');
+    s.ability=preferredAbilityForSide(s, row, '');
+    s.source=`ランキング #${row.rank || '-'}`;
+    s.sourceDetail=[isMegaForm(s.lookupName)?'メガ反映':'ランキング型', firstText(row.natures), firstText(row.spreads)].filter(Boolean).join(' / ');
     if(withMoves){
       const moves=rankingDamagingMoves(s);
       s.moves = moves.concat(learnableDamagingMoves(s.lookupName).map(m=>m.name)).filter(unique).slice(0,4);
       while(s.moves.length<4) s.moves.push('');
     }
   }else{
-    const abs=ABILITIES[s.lookupName] || ABILITIES[s.name] || [];
-    s.ability=s.ability || abs[0] || '';
+    s.item=preferredItemForSide(s, null, '');
+    s.ability=preferredAbilityForSide(s, null, '');
+    s.source=isMegaForm(s.lookupName)?'メガ反映':'手動選択';
+    s.sourceDetail='';
     if(withMoves){s.moves=learnableDamagingMoves(s.lookupName).slice(0,4).map(m=>m.name); while(s.moves.length<4)s.moves.push('');}
   }
+}
+function preferredAbilityForSide(s,row,fallback=''){
+  const list=(ABILITIES[s.lookupName] || ABILITIES[s.name] || []).slice();
+  const rowAbility=parseLabel(firstText(row?.abilities));
+  if(fallback && list.includes(fallback)) return fallback;
+  if(rowAbility && list.includes(rowAbility)) return rowAbility;
+  if(list.length) return list[0];
+  return fallback || rowAbility || '';
+}
+function preferredItemForSide(s,row,fallback=''){
+  if(isMegaForm(s.lookupName)) return getMegaStoneForForm(s.lookupName,row) || fallback || parseLabel(firstText(row?.items)) || '';
+  return parseLabel(firstText(row?.items)) || fallback || '';
+}
+function getMegaStoneForForm(formName,row){
+  const items=(row?.items||[]).map(parseLabel).filter(Boolean);
+  const form=String(formName||'');
+  if(!items.length) return '';
+  if(/[XＸ]$/.test(form)){
+    const hit=items.find(x=>/ナイト/.test(x) && /[XＸ]/.test(x));
+    if(hit) return hit;
+  }
+  if(/[YＹ]$/.test(form)){
+    const hit=items.find(x=>/ナイト/.test(x) && /[YＹ]/.test(x));
+    if(hit) return hit;
+  }
+  const base=getBaseName(form);
+  return items.find(x=>x.includes('ナイト') && (x.includes(base) || x.replace('ナイト','').length>=2)) || items.find(x=>x.includes('ナイト')) || '';
+}
+function switchMegaForm(side, targetName){
+  const s=state[side]; if(!s.name && !targetName) return;
+  const base=getBaseName(s.lookupName || s.name || targetName);
+  const next=targetName || base;
+  s.name=next; s.lookupName=next; s.rankingKey=base; s.rankRow=getRankRow(base);
+  $(side+'-search').value=next;
+  applyRankingPreset(side, side==='attacker');
+  renderAll();
 }
 function applyTopMoves(){
   const s=state.attacker; if(!s.name) return;
@@ -421,11 +498,29 @@ function canLearnMove(pokeName, moveName){
   return moves.some(m=>m.name===moveName);
 }
 function learnableDamagingMoves(pokeName){
-  const key=pokeName || ''; const row=POKEMON_MOVES[key] || POKEMON_MOVES[key.replace(/^メガ/,'')] || null;
+  const key=getMoveLearnKey(pokeName || '');
+  const row=POKEMON_MOVES[key] || POKEMON_MOVES[String(pokeName||'').trim()] || null;
   const arr=row && Array.isArray(row.moves) ? row.moves : [];
   const names=arr.filter(m=>isDamagingMoveData(m)).map(m=>m.name).filter(unique);
   return names.map(name=>getMove(name) || {name, category:'', type:'', power:''}).filter(m=>isDamagingMoveData(m));
 }
+function getAbilityByName(name){return abilityByName.get(String(name||'').trim()) || null;}
+const ABILITY_MOVE_LIST_CACHE={};
+function getAbilityMoveNameSet(abilityName){
+  if(ABILITY_MOVE_LIST_CACHE[abilityName]) return ABILITY_MOVE_LIST_CACHE[abilityName];
+  const ab=getAbilityByName(abilityName);
+  const set=new Set();
+  if(ab && ab.effect){
+    for(const match of String(ab.effect).matchAll(/『([^』]+)』/g)){
+      const token=(match[1]||'').trim();
+      if(!token || token.includes('タイプ') || ['ひんし','すなあらし'].includes(token)) continue;
+      set.add(token);
+    }
+  }
+  ABILITY_MOVE_LIST_CACHE[abilityName]=set;
+  return set;
+}
+function abilityHasListedMove(abilityName,moveName){return !!abilityName && !!moveName && getAbilityMoveNameSet(abilityName).has(moveName);}
 function getMove(name){return moveByName.get(String(name||'').trim()) || null;}
 function getPokemon(name){return pokeByName.get(String(name||'').trim()) || null;}
 function clone(x){return JSON.parse(JSON.stringify(x));}
@@ -445,10 +540,23 @@ function renderSides(){
   ['attacker','defender'].forEach(side=>{
     const s=state[side], p=getPokemon(s.lookupName || s.name);
     $(side+'-types').innerHTML = p ? [p.type1,p.type2].filter(Boolean).map(t=>`<span class="type-pill">${esc(t)}</span>`).join('') : '';
+    const megaRow=$(side+'-mega-row');
+    if(megaRow) megaRow.innerHTML = buildMegaButtons(side);
     $(side+'-note').innerHTML = esc(s.sourceDetail || s.source || '');
   });
+  document.querySelectorAll('[data-mega-side]').forEach(btn=>btn.addEventListener('click',()=>switchMegaForm(btn.dataset.megaSide, btn.dataset.megaTarget)));
   $('status-attacker').textContent=state.attacker.name || '未選択'; $('status-defender').textContent=state.defender.name || '未選択';
   $('status-moves').textContent=`${(state.attacker.moves||[]).filter(Boolean).length} / 4`;
+}
+function buildMegaButtons(side){
+  const s=state[side]; if(!s.name) return '';
+  const current=s.lookupName || s.name;
+  const base=getBaseName(current);
+  const forms=getMegaForms(base);
+  if(!forms.length) return '';
+  const buttons=[`<button class="chip ${current===base?'active':''}" type="button" data-mega-side="${esc(side)}" data-mega-target="${esc(base)}">通常</button>`]
+    .concat(forms.map(form=>`<button class="chip ${current===form?'active':''}" type="button" data-mega-side="${esc(side)}" data-mega-target="${esc(form)}">${esc(form.replace(/^メガ/, 'メガ'))}</button>`));
+  return buttons.join('');
 }
 function renderMoves(){
   const list=$('move-list'); const moves=state.attacker.moves || ['','','',''];
@@ -535,8 +643,8 @@ function renderResults(){
   $('pair-sub').textContent = `${state.season} / ${state.rule==='single'?'シングル':'ダブル'} / ${state.attacker.source || ''}`;
   if(!atkP || !defP){$('result-list').innerHTML='<div class="empty">ポケモンを選ぶと、4技のダメージを表示します。</div>'; $('speed-box').innerHTML='<div class="speed-num">--</div><div class="speed-mid">素早さ</div><div class="speed-num right">--</div>'; return;}
   const atkStats=calcStats(atkP,state.attacker), defStats=calcStats(defP,state.defender);
-  const atkSpeed=applyRank(atkStats.spe, state.attacker.rank?.spe || 0);
-  const defSpeed=applyRank(defStats.spe, state.defender.rank?.spe || 0);
+  const atkSpeed=calcSpeedValue(atkStats.spe, state.attacker);
+  const defSpeed=calcSpeedValue(defStats.spe, state.defender);
   const speedText=atkSpeed>defSpeed?'自分が上':(atkSpeed<defSpeed?'相手が上':'同速');
   $('speed-box').innerHTML=`<div class="speed-num">${atkSpeed}</div><div class="speed-mid">${esc(speedText)}</div><div class="speed-num right">${defSpeed}</div>`;
   const damages=(state.attacker.moves||[]).map((name,idx)=>calcMoveDamage(name, atkP, defP, atkStats, defStats, idx)).filter(Boolean);
@@ -555,6 +663,16 @@ function calcStats(poke, side){
     else stats[k]=Math.floor((Math.floor(((2*base+iv+Math.floor(evClassic/4))*lv)/100)+5) * (side.nature[k] || 1));
   });
   return stats;
+}
+function calcSpeedValue(baseSpeed, side){
+  let speed=applyRank(baseSpeed, side.rank?.spe || 0);
+  if(String(side.item||'').includes('こだわりスカーフ')) speed=Math.floor(speed*1.5);
+  if(side.ability==='ようりょくそ' && effectiveWeather()==='sunny') speed=Math.floor(speed*2);
+  if(side.ability==='すいすい' && effectiveWeather()==='rain') speed=Math.floor(speed*2);
+  if(side.ability==='すなかき' && effectiveWeather()==='sand') speed=Math.floor(speed*2);
+  if(side.ability==='ゆきかき' && effectiveWeather()==='snow') speed=Math.floor(speed*2);
+  if(side.ability==='かるわざ') speed=Math.floor(speed*2);
+  return speed;
 }
 function calcMoveDamage(moveName, atkP, defP, atkStats, defStats, idx){
   const name=String(moveName||'').trim(); if(!name) return null;
@@ -631,9 +749,13 @@ function calcQuickDamageScenarioWithCategory(moveName, move, atkP, defP, atkStat
     stab=1.5;
     notes.push(atkAb+': '+type+'タイプ化');
   }
-  let modifier=stab * eff * weatherMod(type) * itemMod(type, cat, isBodyPress, eff) * attackerAbilityMod(moveName, move, type, cat, atkAb, isBodyPress, eff, notes) * defenderAbilityMod(moveName, type, cat, defAb, eff, notes);
+  let modifier=stab * eff * weatherMod(type) * attackerItemMod(type, cat, isBodyPress, eff, atkP, notes) * attackerAbilityMod(moveName, move, type, cat, atkAb, isBodyPress, eff, notes) * defenderAbilityMod(moveName, type, cat, defAb, eff, notes) * defenderItemDamageMod(type, cat, eff, notes);
   const weatherDef=weatherDefenseMod(type, cat, defP);
   if(weatherDef.mult!==1){defStat=Math.floor(defStat*weatherDef.mult); notes.push(weatherDef.note);}
+  const defItemStat=defenderItemStatMod(cat, notes);
+  if(defItemStat!==1) defStat=Math.floor(defStat*defItemStat);
+  const atkItemStat=attackerItemStatMod(cat, isBodyPress, atkP, notes);
+  if(atkItemStat!==1) atkStat=Math.floor(atkStat*atkItemStat);
   const hits=parseHits(move.hits || '1');
   let min=0,max=0;
   const hitPowers=getHitPowers(moveName, effectivePower);
@@ -711,28 +833,34 @@ function applySkin(ab,type){
   return {type, powerMult:1};
 }
 function isAbilityImmune(defAb,type,moveName){
+  const data=getAbilityByName(defAb);
+  const immuneTypes=data&&data.immuneType ? (Array.isArray(data.immuneType)?data.immuneType:[data.immuneType]) : [];
+  if(immuneTypes.includes(type)) return true;
   if(defAb==='ふゆう' && type==='じめん') return true;
   if(['ちょすい','よびみず','かんそうはだ'].includes(defAb) && type==='みず') return true;
   if(defAb==='もらいび' && type==='ほのお') return true;
   if(defAb==='そうしょく' && type==='くさ') return true;
-  if(defAb==='でんきエンジン' && type==='でんき') return true;
-  if(defAb==='ひらいしん' && type==='でんき') return true;
+  if(['でんきエンジン','ひらいしん','ちくでん'].includes(defAb) && type==='でんき') return true;
   if(defAb==='ぼうだん' && /ボール|だん|はどうだん|かふんだんご/.test(moveName)) return true;
+  if(defAb==='ぼうおん' && abilityHasListedMove('ぼうおん',moveName)) return true;
   return false;
 }
 function attackerAbilityMod(moveName, move, type, cat, ab, isBodyPress, eff, notes){
   let mult=1;
-  if(ab==='かたいツメ' && move.contact===true){mult*=1.3; notes.push('かたいツメ');}
-  if(ab==='てつのこぶし' && /パンチ|拳/.test(moveName)){mult*=1.2; notes.push('てつのこぶし');}
-  if(ab==='すてみ' && /フレアドライブ|すてみタックル|ブレイブバード|ウッドハンマー|ボルテッカー|もろはのずつき|とびひざげり/.test(moveName)){mult*=1.2; notes.push('すてみ');}
-  if(ab==='がんじょうあご' && /かみ|キバ|くらいつく/.test(moveName)){mult*=1.5; notes.push('がんじょうあご');}
-  if(ab==='きれあじ' && /カッター|せいなるつるぎ|つじぎり|シェルブレード|リーフブレード/.test(moveName)){mult*=1.5; notes.push('きれあじ');}
-  if(ab==='メガランチャー' && /はどう|波動/.test(moveName)){mult*=1.5; notes.push('メガランチャー');}
-  if(ab==='パンクロック' && /音|ボイス|ばくおんぱ|オーバードライブ/.test(moveName)){mult*=1.3; notes.push('パンクロック');}
+  const listed=(abilityName)=>abilityHasListedMove(abilityName,moveName);
+  const contact = move.contact===true || String(move.contact).toUpperCase()==='TRUE';
+  if(ab==='かたいツメ' && contact){mult*=1.3; notes.push('かたいツメ');}
+  if(ab==='てつのこぶし' && (listed('てつのこぶし') || /パンチ|拳/.test(moveName))){mult*=1.2; notes.push('てつのこぶし');}
+  if(ab==='すてみ' && (listed('すてみ') || /フレアドライブ|すてみタックル|ブレイブバード|ウッドハンマー|ボルテッカー|もろはのずつき|とびひざげり/.test(moveName))){mult*=1.2; notes.push('すてみ');}
+  if(ab==='がんじょうあご' && (listed('がんじょうあご') || /かみ|キバ|くらいつく/.test(moveName))){mult*=1.5; notes.push('がんじょうあご');}
+  if(ab==='きれあじ' && (listed('きれあじ') || /カッター|せいなるつるぎ|つじぎり|シェルブレード|リーフブレード/.test(moveName))){mult*=1.5; notes.push('きれあじ');}
+  if(ab==='メガランチャー' && (listed('メガランチャー') || /はどう|波動/.test(moveName))){mult*=1.5; notes.push('メガランチャー');}
+  if(ab==='パンクロック' && (listed('パンクロック') || /音|ボイス|ばくおんぱ|オーバードライブ/.test(moveName))){mult*=1.3; notes.push('パンクロック');}
   if(ab==='いわはこび' && type==='いわ'){mult*=1.5; notes.push('いわはこび');}
   if(ab==='りゅうのあぎと' && type==='ドラゴン'){mult*=1.5; notes.push('りゅうのあぎと');}
   if(ab==='はがねつかい' && type==='はがね'){mult*=1.5; notes.push('はがねつかい');}
   if(ab==='トランジスタ' && type==='でんき'){mult*=1.3; notes.push('トランジスタ');}
+  if(ab==='すなのちから' && effectiveWeather()==='sand' && ['じめん','いわ','はがね'].includes(type)){mult*=1.3; notes.push('すなのちから');}
   if(ab==='サンパワー' && effectiveWeather()==='sunny' && cat==='特殊'){mult*=1.5; notes.push('サンパワー');}
   if(['ちからもち','ヨガパワー'].includes(ab) && cat==='物理' && !isBodyPress){mult*=2; notes.push(ab);}
   if(ab==='ごりむちゅう' && cat==='物理'){mult*=1.5; notes.push('ごりむちゅう');}
@@ -743,15 +871,40 @@ function attackerAbilityMod(moveName, move, type, cat, ab, isBodyPress, eff, not
     const typeMap={'もらいび':'ほのお','もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
     if(typeMap[ab]===type){mult*=1.5; notes.push(ab);}
   }
+  const data=getAbilityByName(ab);
+  if(data&&data.atkPowerUp){
+    const up=data.atkPowerUp;
+    const types=up.type?(Array.isArray(up.type)?up.type:[up.type]):[];
+    const typeOk=!types.length||types.includes(type);
+    if(typeOk){mult*=Number(up.mult||1); if(up.info) notes.push(up.info);}
+  }
   return mult;
 }
 function defenderAbilityMod(moveName,type,cat,ab,eff,notes){
   let mult=1;
   if(ab==='あついしぼう' && ['ほのお','こおり'].includes(type)){mult*=0.5; notes.push('あついしぼう');}
+  if(ab==='たいねつ' && type==='ほのお'){mult*=0.5; notes.push('たいねつ');}
   if(['フィルター','ハードロック'].includes(ab) && eff>=2){mult*=0.75; notes.push(ab);}
   if(['マルチスケイル','ファントムガード'].includes(ab)){mult*=0.5; notes.push(ab);}
-  if(ab==='パンクロック' && /音|ボイス|ばくおんぱ|オーバードライブ/.test(moveName)){mult*=0.5; notes.push('相手パンクロック');}
+  if(ab==='パンクロック' && (abilityHasListedMove('パンクロック',moveName) || /音|ボイス|ばくおんぱ|オーバードライブ/.test(moveName))){mult*=0.5; notes.push('相手パンクロック');}
   if(ab==='ファーコート' && cat==='物理'){mult*=0.5; notes.push('ファーコート');}
+  if(ab==='こおりのりんぷん' && cat==='特殊'){mult*=0.5; notes.push('こおりのりんぷん');}
+  if(ab==='もふもふ'){
+    const move=getMove(moveName);
+    const contact=move && (move.contact===true || String(move.contact).toUpperCase()==='TRUE');
+    if(contact){mult*=0.5; notes.push('もふもふ:接触半減');}
+    if(type==='ほのお'){mult*=2; notes.push('もふもふ:ほのお2倍');}
+  }
+  const data=getAbilityByName(ab);
+  if(data&&data.defDmgMult){
+    const arr=Array.isArray(data.defDmgMult)?data.defDmgMult:[data.defDmgMult];
+    arr.forEach(d=>{
+      const types=d&&d.type?(Array.isArray(d.type)?d.type:[d.type]):[];
+      const typeOk=!types.length||types.includes(type);
+      const categoryOk=!d?.category||d.category===cat;
+      if(typeOk&&categoryOk) mult*=Number(d.mult||1);
+    });
+  }
   return mult;
 }
 function weatherDefenseMod(type,cat,defP){
@@ -779,14 +932,44 @@ function effectiveWeather(){
   return '';
 }
 function weatherMod(type){const w=effectiveWeather(); if(w==='sunny'&&type==='ほのお') return 1.5; if(w==='sunny'&&type==='みず') return 0.5; if(w==='rain'&&type==='みず') return 1.5; if(w==='rain'&&type==='ほのお') return 0.5; return 1;}
-function itemMod(type, cat, isBodyPress=false, eff=1){
-  const item=state.attacker.item || '';
-  if(item.includes('こだわりハチマキ') && cat==='物理' && !isBodyPress) return 1.5;
-  if(item.includes('こだわりメガネ') && cat==='特殊') return 1.5;
-  if(item.includes('いのちのたま')) return 1.3;
-  if(item.includes('たつじんのおび') && eff>1) return 1.2;
-  if(item.includes('タイプ強化') || item.includes('プレート') || item.includes('ジュエル')) return 1.2;
-  if(item.includes('ふといホネ') && !isBodyPress) return 2;
+function attackerItemMod(type, cat, isBodyPress=false, eff=1, atkP=null, notes=[]){
+  const item=String(state.attacker.item || '');
+  if(!item) return 1;
+  if(item.includes('こだわりハチマキ') && cat==='物理' && !isBodyPress){notes.push('こだわりハチマキ'); return 1.5;}
+  if(item.includes('こだわりメガネ') && cat==='特殊'){notes.push('こだわりメガネ'); return 1.5;}
+  if(item.includes('いのちのたま')){notes.push('いのちのたま'); return 1.3;}
+  if(item.includes('たつじんのおび') && eff>1){notes.push('たつじんのおび'); return 1.2;}
+  if(item.includes('ちからのハチマキ') && cat==='物理'){notes.push('ちからのハチマキ'); return 1.1;}
+  if(item.includes('ものしりメガネ') && cat==='特殊'){notes.push('ものしりメガネ'); return 1.1;}
+  for(const [name,itemType] of Object.entries(TYPE_BOOST_ITEMS)){
+    if(item.includes(name) && itemType===type){notes.push(name); return 1.2;}
+  }
+  if(item.includes('タイプ強化') || item.includes('プレート')){notes.push('タイプ強化'); return 1.2;}
+  return 1;
+}
+function attackerItemStatMod(cat, isBodyPress=false, atkP=null, notes=[]){
+  const item=String(state.attacker.item || '');
+  const name=atkP?.name || state.attacker.lookupName || state.attacker.name || '';
+  if(item.includes('でんきだま') && name.includes('ピカチュウ')){notes.push('でんきだま'); return 2;}
+  if(item.includes('ふといホネ') && /カラカラ|ガラガラ/.test(name) && cat==='物理' && !isBodyPress){notes.push('ふといホネ'); return 2;}
+  return 1;
+}
+function defenderItemDamageMod(type, cat, eff=1, notes=[]){
+  const item=String(state.defender.item || '');
+  if(!item) return 1;
+  for(const [name,itemType] of Object.entries(RESIST_BERRIES)){
+    if(item.includes(name) && itemType===type && (name==='ホズのみ' || eff>1)){
+      notes.push(name+':半減');
+      return 0.5;
+    }
+  }
+  return 1;
+}
+function defenderItemStatMod(cat, notes=[]){
+  const item=String(state.defender.item || '');
+  if(item.includes('しんかのきせき')){notes.push('しんかのきせき'); return 1.5;}
+  if(item.includes('とつげきチョッキ') && cat==='特殊'){notes.push('とつげきチョッキ'); return 1.5;}
+  if(item.includes('メタルパウダー') && state.defender.name.includes('メタモン') && cat==='物理'){notes.push('メタルパウダー'); return 2;}
   return 1;
 }
 function koText(minPct,maxPct){
