@@ -293,6 +293,10 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
             <div class="move-inputs" id="move-inputs"></div>
             <div class="quick-list" id="known-move-chips"></div>
           </div>
+          <div class="field">
+            <div class="label">攻撃プリセット</div>
+            <div class="segment-grid" id="atk-preset-chips"></div>
+          </div>
           <details class="advanced" id="attacker-advanced">
             <summary>自分の詳細調整</summary>
             <div class="adv-grid" id="attacker-settings"></div>
@@ -423,14 +427,20 @@ const TYPE_EFF_TABLE = {
 };
 const EV_PRESETS = {
   'none':{name:'無振り', nature:'がんばりや', ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}},
-  'H252':{name:'H252', nature:'がんばりや', ev:{hp:252,atk:0,def:0,spa:0,spd:0,spe:0}},
-  'HB':{name:'HB', nature:'ずぶとい', ev:{hp:252,atk:0,def:252,spa:0,spd:4,spe:0}},
-  'HD':{name:'HD', nature:'おだやか', ev:{hp:252,atk:0,def:4,spa:0,spd:252,spe:0}},
-  'B252':{name:'B252', nature:'ずぶとい', ev:{hp:0,atk:0,def:252,spa:0,spd:4,spe:252}},
-  'D252':{name:'D252', nature:'おだやか', ev:{hp:252,atk:0,def:0,spa:0,spd:252,spe:4}},
-  'A252':{name:'A252', nature:'いじっぱり', ev:{hp:0,atk:252,def:0,spa:0,spd:4,spe:252}},
-  'C252':{name:'C252', nature:'ひかえめ', ev:{hp:0,atk:0,def:0,spa:252,spd:4,spe:252}},
-  'S252':{name:'S252', nature:'ようき', ev:{hp:0,atk:0,def:0,spa:0,spd:4,spe:252}}
+  'H32':{name:'H32', nature:'がんばりや', ev:{hp:32,atk:0,def:0,spa:0,spd:0,spe:0}},
+  'HB':{name:'HB32', nature:'ずぶとい', ev:{hp:32,atk:0,def:32,spa:0,spd:0,spe:0}},
+  'HD':{name:'HD32', nature:'おだやか', ev:{hp:32,atk:0,def:0,spa:0,spd:32,spe:0}},
+  'B32':{name:'B32', nature:'ずぶとい', ev:{hp:0,atk:0,def:32,spa:0,spd:0,spe:0}},
+  'D32':{name:'D32', nature:'おだやか', ev:{hp:0,atk:0,def:0,spa:0,spd:32,spe:0}},
+  'A32_LEGACY':{name:'A32', nature:'いじっぱり', ev:{hp:0,atk:32,def:0,spa:0,spd:0,spe:0}},
+  'C32_LEGACY':{name:'C32', nature:'ひかえめ', ev:{hp:0,atk:0,def:0,spa:32,spd:0,spe:0}},
+  'S32':{name:'S32', nature:'ようき', ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:32}}
+};
+const QUICK_ATK_PRESETS = {
+  'A32':{name:'A32', stat:'atk', value:32},
+  'A0':{name:'A無振り', stat:'atk', value:0},
+  'C32':{name:'C32', stat:'spa', value:32},
+  'C0':{name:'C無振り', stat:'spa', value:0}
 };
 const IMMUNE_AB = {'ふゆう':'じめん','どしょく':'じめん','ひらいしん':'でんき','ちくでん':'でんき','でんきエンジン':'でんき','よびみず':'みず','ちょすい':'みず','もらいび':'ほのお','そうしょく':'くさ','くさのけがわ':'くさ','かんそうはだ':'みず'};
 const SKIN_MAP = {'スカイスキン':'ひこう','フリーズスキン':'こおり','フェアリースキン':'フェアリー','エレキスキン':'でんき'};
@@ -1298,8 +1308,13 @@ function quickPickMove(index, name){
 function quickPickItem(role, name){ const slot=quickSlot(role); slot.item=name; quickHideSearchPanel(role+'-item-panel'); quickRenderAll(); }
 function quickPickRegistered(index){ const input=document.getElementById('registered-apply-input'); if(input) input.value=quickRegisteredLabel(registeredPokes[index], index); quickHideSearchPanel('registered-apply-panel'); }
 function quickRenderPresetChips(){
+  const atkWrap=document.getElementById('atk-preset-chips');
+  if(atkWrap){
+    const atk = quickState.attacker;
+    atkWrap.innerHTML=Object.entries(QUICK_ATK_PRESETS).map(([k,v])=>`<button type="button" class="segment-btn ${(atk.ev?.[v.stat]||0)===v.value?'active':''}" onclick="quickUseAtkPreset('${k}')">${escapeHtml(v.name)}</button>`).join('');
+  }
   const presetWrap=document.getElementById('def-preset-chips');
-  if(presetWrap){ presetWrap.innerHTML=Object.entries(EV_PRESETS).filter(([k])=>['none','H252','HB','HD','B252','D252'].includes(k)).map(([k,v])=>`<button type="button" class="segment-btn ${quickState.defender.preset===k?'active':''}" onclick="quickUseDefPreset('${k}')">${escapeHtml(v.name)}</button>`).join(''); }
+  if(presetWrap){ presetWrap.innerHTML=Object.entries(EV_PRESETS).filter(([k])=>['none','H32','HB','HD','B32','D32'].includes(k)).map(([k,v])=>`<button type="button" class="segment-btn ${quickState.defender.preset===k?'active':''}" onclick="quickUseDefPreset('${k}')">${escapeHtml(v.name)}</button>`).join(''); }
   const weatherWrap=document.getElementById('weather-chips');
   if(weatherWrap){ const arr=[['','なし'],['sunny','晴れ'],['rain','雨'],['snow','雪'],['sand','砂嵐']]; weatherWrap.innerHTML=arr.map(([k,v])=>`<button type="button" class="segment-btn ${quickState.weather===k?'active':''}" onclick="quickSetWeather('${k}')">${escapeHtml(v)}</button>`).join(''); }
 }
@@ -1501,6 +1516,13 @@ function quickAutoMoves(render=true){
   if(render){ quickSyncInputs(); quickRenderAll(); }
 }
 function quickClearMoves(){ quickState.moves = ['', '', '', '']; quickState.attacker.moves = quickState.moves.slice(0,4); quickSyncInputs(); quickRenderResults(); quickRenderSettings('attacker'); quickRenderKnownMoves(); quickUpdateStatus(); }
+function quickUseAtkPreset(key){
+  const preset = QUICK_ATK_PRESETS[key];
+  if(!preset) return;
+  const slot = quickState.attacker;
+  slot.ev[preset.stat] = capEvForMode(preset.value, slot.gameMode);
+  quickRenderAll();
+}
 function quickUseDefPreset(key){
   const preset = EV_PRESETS[key] || EV_PRESETS.none;
   const slot = quickState.defender;
