@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://poke-edge.pages.dev/</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/move.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -38,7 +38,7 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/pokemon.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -50,7 +50,7 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/season.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -68,7 +68,7 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/blog.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -141,6 +141,12 @@
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-battle-party-damage-20260510.html</loc>
     <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://poke-edge.pages.dev/articles/update-summary-quick-damage-season2-register-search-20260516.html</loc>
+    <lastmod>2026-05-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

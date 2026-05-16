@@ -1,6 +1,7 @@
 (function(){
-  var UPDATE_VERSION = '2026.05.10';
+  var UPDATE_VERSION = '2026.05.16';
   var ITEMS = [
+    {date:'2026.05.16', title:'クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新を行いました', href:'articles/update-summary-quick-damage-season2-register-search-20260516.html'},
     {date:'2026.05.10', title:'バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正を行いました', href:'articles/update-summary-battle-party-damage-20260510.html'},
     {date:'2026.05.06', title:'ポケモン登録・パーティ登録・ダメージ計算・バトルアナライザー・PRO関連の更新を行いました', href:'articles/update-summary-register-calc-analyzer-pro-20260506.html'},
     {date:'2026.05.03', title:'ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました', href:'articles/update-summary-calc-party-analyzer-fixes.html'},
