@@ -94,6 +94,8 @@ h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px;}
 .segment-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .segment-btn{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;cursor:pointer;}
 .segment-btn.active,.segment-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.1);}
+.type-select-grid{gap:5px;}
+.type-select-grid .segment-btn{padding:6px 9px;}
 .rank-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:10px;}
 .rank-box{border:1px solid var(--border);background:var(--panel2);border-radius:12px;padding:7px;display:grid;gap:4px;}
 .rank-box input{padding:7px;font-size:13px;text-align:center;}
@@ -448,6 +450,8 @@ const WB_MAP = {'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こ�
 const TYPE_BOOST_ABILITIES = {'りゅうのあぎと':['ドラゴン',1.5],'はがねつかい':['はがね',1.5],'いわはこび':['いわ',1.5],'トランジスタ':['でんき',1.3]};
 const LOW_HP_TYPE_ABILITIES = {'もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
 const EFFECT_LIST_POWER_ABILITIES = {'てつのこぶし':1.2,'すてみ':1.2,'がんじょうあご':1.5,'きれあじ':1.5,'メガランチャー':1.5,'パンクロック':1.3};
+const QUICK_TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
+const TYPE_CHANGE_ABILITIES = new Set(['へんげんじざい','へんげんじさい','リベロ']);
 
 
 function el(id){ return document.getElementById(id); }
@@ -989,8 +993,8 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const atkStats = calcFullStats(atkSlot);
   const defStats = calcFullStats(defSlot);
   if(!atkStats || !defStats) return null;
-  const defTypes = [defSlot.poke.type1, defSlot.poke.type2].filter(Boolean);
   const resolvedType = resolveMoveType(move, atkSlot.ability, weather);
+  const defTypes = quickEffectiveTypes(defSlot, '', 'defense');
   const powerInfo = resolveMovePower(move, atkSlot, defSlot, weather);
   let power = Math.max(0, powerInfo.power);
   if(!power) return null;
@@ -1001,11 +1005,12 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const defenseCategory = SPECIAL_DEFENSE_MOVES.has(move.name) || isBodyPress || rawCategory==='物理' ? '物理' : '特殊';
   const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability, move.name || '');
   const abilityPowerInfo = getAttackAbilityPowerInfo(atkSlot, move, resolvedType.type, rawCategory, eff);
-  const baseNotes = [...(resolvedType.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[])];
+  const baseNotes = [...(resolvedType.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[]), ...quickTypeChangeDamageNotes(atkSlot, defSlot, resolvedType.type)];
   if(eff === 0){
     return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'無効', score:0, eff:0, moveType:resolvedType.type, category:rawCategory, attackStatName:offenseCategory, defenseStatName:defenseCategory, notes:baseNotes};
   }
-  const stab = [atkSlot.poke.type1, atkSlot.poke.type2].filter(Boolean).includes(resolvedType.type) ? (atkSlot.ability==='てきおうりょく' ? 2 : 1.5) : 1;
+  const atkTypes = quickEffectiveTypes(atkSlot, resolvedType.type, 'attack');
+  const stab = atkTypes.includes(resolvedType.type) ? (atkSlot.ability==='てきおうりょく' ? 2 : 1.5) : 1;
   let attackStat = rawCategory==='物理' ? atkStats.atk : atkStats.spa;
   let attackRankSource = atkSlot;
   let attackRankStat = rawCategory==='物理' ? 'atk' : 'spa';
@@ -1097,6 +1102,27 @@ const QUICK_STAT_LABELS = {hp:'HP', atk:'攻撃', def:'防御', spa:'特攻', sp
 const QUICK_BATTLE_STATS = ['atk','def','spa','spd','spe'];
 const QUICK_ALL_STATS = ['hp','atk','def','spa','spd','spe'];
 function quickStatLabel(stat){ return QUICK_STAT_LABELS[stat] || stat; }
+function quickIsTypeChangeAbility(ability){ return TYPE_CHANGE_ABILITIES.has(String(ability || '').trim()); }
+function quickOriginalTypes(slot){ return slot?.poke ? [slot.poke.type1, slot.poke.type2].filter(Boolean) : []; }
+function quickEffectiveTypes(slot, moveTypeForAttack='', context='defense'){
+  const original = quickOriginalTypes(slot);
+  if(!slot?.poke || !quickIsTypeChangeAbility(slot.ability)) return original;
+  const selected = String(slot.typeOverride || '').trim();
+  if(context === 'attack' && moveTypeForAttack) return [moveTypeForAttack];
+  if(selected) return [selected];
+  return original;
+}
+function quickDisplayTypes(slot){ return quickEffectiveTypes(slot, '', 'display'); }
+function quickTypeChangeDamageNotes(atkSlot, defSlot, moveType){
+  const notes = [];
+  if(quickIsTypeChangeAbility(atkSlot?.ability) && moveType){
+    notes.push(`${atkSlot.ability}: ${moveType}タイプ化`);
+  }
+  if(quickIsTypeChangeAbility(defSlot?.ability) && defSlot?.typeOverride){
+    notes.push(`${defSlot.ability}: ${defSlot.typeOverride}単タイプ`);
+  }
+  return notes;
+}
 
 const quickState = {
   attacker: quickEmptySlot('attacker'),
@@ -1108,7 +1134,7 @@ const quickState = {
 };
 
 function quickEmptySlot(role){
-  return { role, pokeName:'', poke:null, lv:50, iv:31, nature:'がんばりや', natureMods:{atk:1,def:1,spa:1,spd:1,spe:1}, ability:'', item:'', gameMode:'champions', ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, rank:{atk:0,def:0,spa:0,spd:0,spe:0}, condition:quickDefaultCondition(), moves:['','','',''], preset:'none', rankingLabel:'' };
+  return { role, pokeName:'', poke:null, lv:50, iv:31, nature:'がんばりや', natureMods:{atk:1,def:1,spa:1,spd:1,spe:1}, ability:'', item:'', gameMode:'champions', ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, rank:{atk:0,def:0,spa:0,spd:0,spe:0}, typeOverride:'', condition:quickDefaultCondition(), moves:['','','',''], preset:'none', rankingLabel:'' };
 }
 function quickSlot(role){ return role === 'attacker' ? quickState.attacker : quickState.defender; }
 function quickOtherRole(role){ return role === 'attacker' ? 'defender' : 'attacker'; }
@@ -1477,6 +1503,7 @@ function quickSetPokemon(role, value, autoMoves=true, applyRanking=true){
   slot.pokeName = name;
   slot.poke = poke;
   slot.iv = 31;
+  slot.typeOverride = '';
   slot.condition = quickDefaultCondition();
   if(poke){
     quickEnsureAbility(role);
@@ -1541,7 +1568,7 @@ function quickSetField(role, field, value){
     slot.ev = quickNormalizeEVForSlot(slot, slot.ev);
   }
   else if(field === 'nature'){ slot.nature = PERSONALITIES[value] ? value : 'がんばりや'; slot.natureMods = quickNatureModsFromName(slot.nature); }
-  else if(field === 'ability') slot.ability = String(value||'').trim();
+  else if(field === 'ability'){ slot.ability = String(value||'').trim(); if(!quickIsTypeChangeAbility(slot.ability)) slot.typeOverride = ''; }
   else if(field === 'item') slot.item = String(value||'').trim();
   quickRenderAll();
 }
@@ -1579,7 +1606,16 @@ function quickRememberPokemon(name){
 function quickRenderRecent(){
   quickState.recent = quickSafeJson('pokeedge_move_recent', []);
 }
-function quickTypePills(slot){ return slot.poke ? getTypePills(slot.poke) : '<span class="badge">未設定</span>'; }
+function quickTypePills(slot){
+  if(!slot.poke) return '<span class="badge">未設定</span>';
+  const types = quickDisplayTypes(slot);
+  const html = types.map(t=>`<span class="type-pill tp-${escapeAttr(t)}">${escapeHtml(t)}</span>`).join('');
+  let changed = '';
+  if(quickIsTypeChangeAbility(slot.ability)){
+    changed = slot.typeOverride ? '<span class="badge">タイプ変化中</span>' : (slot.role === 'attacker' ? '<span class="badge">攻撃時は技タイプ</span>' : '');
+  }
+  return html + changed;
+}
 function quickSyncInputs(){
   const atk = document.getElementById('attacker-name'); if(atk) atk.value = quickState.attacker.pokeName || '';
   const def = document.getElementById('defender-name'); if(def) def.value = quickState.defender.pokeName || '';
@@ -1642,6 +1678,22 @@ function quickConditionControls(role, slot){
   }
   return `<div class="field" style="grid-column:1/-1"><div class="label">発動条件</div><div class="rank-grid">${parts.join('')}</div></div>`;
 }
+function quickTypeChangeControls(role, slot){
+  if(!slot?.poke || !quickIsTypeChangeAbility(slot.ability)) return '';
+  const current = String(slot.typeOverride || '').trim();
+  const resetLabel = role === 'attacker' ? '技タイプ' : '元タイプ';
+  const help = role === 'attacker'
+    ? '攻撃時は技タイプで計算します。受ける時の現在タイプを固定したい場合はタイプを選んでください。'
+    : '受ける時の現在タイプを選んでください。';
+  const buttons = [`<button type="button" class="segment-btn ${!current?'active':''}" onclick="quickSetTypeOverride('${role}','')">${resetLabel}</button>`]
+    .concat(QUICK_TYPES.map(type=>`<button type="button" class="segment-btn ${current===type?'active':''}" onclick="quickSetTypeOverride('${role}','${escapeAttr(type)}')">${escapeHtml(type)}</button>`));
+  return `<div class="field" style="grid-column:1/-1"><div class="label">${escapeHtml(slot.ability)}後のタイプ</div><div class="segment-grid type-select-grid">${buttons.join('')}</div><div class="ranking-note">${escapeHtml(help)}</div></div>`;
+}
+function quickSetTypeOverride(role, type){
+  const slot = quickSlot(role);
+  slot.typeOverride = String(type || '').trim();
+  quickRenderAll();
+}
 function quickRenderSettings(role){
   const slot = quickSlot(role);
   const settings = document.getElementById(role + '-settings');
@@ -1657,6 +1709,7 @@ function quickRenderSettings(role){
       <div class="field"><div class="label">レベル</div><input class="input" type="number" min="1" max="100" value="${slot.lv}" onchange="quickSetField('${role}','lv',this.value)"></div>
       <div class="field"><div class="label">ルール</div><div class="segment-grid">${modes.map(([v,l])=>`<button type="button" class="segment-btn ${slot.gameMode===v?'active':''}" onclick="quickSetField('${role}','mode','${v}')">${l}</button>`).join('')}</div></div>
       <div class="field"><div class="label">特性</div>${abilityHtml}</div>
+      ${quickTypeChangeControls(role, slot)}
       <div class="field"><div class="label">持ち物</div><div class="search-wrap"><input class="input" id="${role}-item-input" value="${escapeAttr(slot.item||'')}" placeholder="持ち物を検索" autocomplete="off"><div class="search-panel" id="${role}-item-panel"></div></div></div>
       <div class="field"><div class="label">実数値</div><div class="note">${quickStatsText(slot)}${slot.rankingLabel ? '<br>' + escapeHtml(slot.rankingLabel) + 'を反映' : ''}</div></div>
       <div class="field" style="grid-column:1/-1"><div class="label">性格補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><div class="segment-grid">${quickNatureModButtons(role, st, nat[st])}</div></div>`).join('')}</div></div>
