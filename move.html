@@ -436,14 +436,8 @@ const IMMUNE_AB = {'ふゆう':'じめん','どしょく':'じめん','ひらい
 const SKIN_MAP = {'スカイスキン':'ひこう','フリーズスキン':'こおり','フェアリースキン':'フェアリー','エレキスキン':'でんき'};
 const WB_MAP = {'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こおり'};
 const TYPE_BOOST_ABILITIES = {'りゅうのあぎと':['ドラゴン',1.5],'はがねつかい':['はがね',1.5],'いわはこび':['いわ',1.5],'トランジスタ':['でんき',1.3]};
-
-const QUICK_TRIGGER_ABILITIES = {'もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし','もらいび':'ほのお'};
-const QUICK_PARENTAL_BOND_SPREAD_MOVES = new Set([
-  'じしん','じならし','なみのり','だくりゅう','ねっぷう','ふんか','しおふき','いわなだれ','こごえるかぜ','マジカルシャイン',
-  'バークアウト','ほうでん','ヘドロウェーブ','こんげんのはどう','だんがいのつるぎ','ふぶき','ワイドフォース','マッドショット',
-  'かふんだんご','ハイパーボイス','むしのさざめき','はなふぶき','ぶんまわす','じばく','だいばくはつ'
-]);
-const QUICK_FAINTED_OPTIONS = [0,1,2];
+const LOW_HP_TYPE_ABILITIES = {'もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
+const EFFECT_LIST_POWER_ABILITIES = {'てつのこぶし':1.2,'すてみ':1.2,'がんじょうあご':1.5,'きれあじ':1.5,'メガランチャー':1.5,'パンクロック':1.3};
 
 
 function el(id){ return document.getElementById(id); }
@@ -889,109 +883,16 @@ function getTypeEff(moveType, defTypes, moveName=''){
 }
 function typeEffWithAbility(moveType, defTypes, ability, moveName=''){ if(ability && IMMUNE_AB[ability] === moveType) return 0; const ad = ability ? getAbilityData(ability) : null; if(ad && ad.immuneType && ad.immuneType === moveType) return 0; return getTypeEff(moveType, defTypes, moveName); }
 function getAuraModifier(moveType, atkAbility, defAbility){ const fairyAura = atkAbility==='フェアリーオーラ' || defAbility==='フェアリーオーラ'; const darkAura = atkAbility==='ダークオーラ' || defAbility==='ダークオーラ'; const auraBreak = atkAbility==='オーラブレイク' || defAbility==='オーラブレイク'; if(moveType==='フェアリー' && fairyAura) return auraBreak ? 3072/4096 : 5448/4096; if(moveType==='あく' && darkAura) return auraBreak ? 3072/4096 : 5448/4096; return 1; }
-
-const QUICK_ABILITY_MOVE_LIST_CACHE = {};
-function quickGetAbilityMoveNameSet(abilityName){
-  const key = String(abilityName || '').trim();
-  if(!key) return new Set();
-  if(QUICK_ABILITY_MOVE_LIST_CACHE[key]) return QUICK_ABILITY_MOVE_LIST_CACHE[key];
-  const ab = getAbilityData(key);
-  const set = new Set();
-  if(ab && ab.effect){
-    for(const match of String(ab.effect).matchAll(/『([^』]+)』/g)){
-      const token = String(match[1] || '').trim();
-      if(!token || token.includes('タイプ')) continue;
-      if(['ひんし','すなあらし'].includes(token)) continue;
-      if(moveByName.has(token)) set.add(token);
-    }
-  }
-  QUICK_ABILITY_MOVE_LIST_CACHE[key] = set;
-  return set;
-}
-function quickAbilityHasListedMove(abilityName, moveName){
-  if(!abilityName || !moveName) return false;
-  return quickGetAbilityMoveNameSet(abilityName).has(moveName);
-}
-function quickIsContactMove(move){
-  return !!(move && (move.contact === true || String(move.contact || '').toUpperCase() === 'TRUE'));
-}
-function quickIsParentalBondBlocked(move, hits){
-  if(!move) return false;
-  const name = String(move.name || '').trim();
-  const noteText = String(move.notes || move.effect || '');
-  if((hits && hits.max > 1) || noteText.includes('全体') || noteText.includes('複数')) return true;
-  return QUICK_PARENTAL_BOND_SPREAD_MOVES.has(name);
-}
-function quickFaintedCount(slot, key){
-  const status = slot && slot.battleStatus ? slot.battleStatus : {};
-  return clamp(parseInt(status[key] || 0, 10) || 0, 0, 2);
-}
-function quickAbilityPowerInfo(atkSlot, move, moveType, category){
-  const ability = String(atkSlot?.ability || '').trim();
-  const moveName = String(move?.name || '').trim();
-  const notes = [];
-  let mult = 1;
-  if(!ability) return {mult, notes};
-  if(TYPE_BOOST_ABILITIES[ability] && TYPE_BOOST_ABILITIES[ability][0] === moveType){
-    mult *= TYPE_BOOST_ABILITIES[ability][1];
-    notes.push(`${ability}: ${moveType}技×${TYPE_BOOST_ABILITIES[ability][1]}`);
-  }
-  if(ability === 'てつのこぶし' && quickAbilityHasListedMove('てつのこぶし', moveName)){
-    mult *= 1.2; notes.push('てつのこぶし: パンチ技×1.2');
-  }
-  if(ability === 'すてみ' && quickAbilityHasListedMove('すてみ', moveName)){
-    mult *= 1.2; notes.push('すてみ: 対象技×1.2');
-  }
-  if(ability === 'がんじょうあご' && quickAbilityHasListedMove('がんじょうあご', moveName)){
-    mult *= 1.5; notes.push('がんじょうあご: かみつき技×1.5');
-  }
-  if(ability === 'きれあじ' && quickAbilityHasListedMove('きれあじ', moveName)){
-    mult *= 1.5; notes.push('きれあじ: 切る技×1.5');
-  }
-  if(ability === 'メガランチャー' && quickAbilityHasListedMove('メガランチャー', moveName)){
-    mult *= 1.5; notes.push('メガランチャー: 波動技×1.5');
-  }
-  if(ability === 'パンクロック' && quickAbilityHasListedMove('パンクロック', moveName)){
-    mult *= 1.3; notes.push('パンクロック: 音技×1.3');
-  }
-  if(ability === 'かたいツメ' && quickIsContactMove(move)){
-    mult *= 1.3; notes.push('かたいツメ: 直接技×1.3');
-  }
-  if(ability === 'アナライズ'){
-    mult *= 1.3; notes.push('アナライズ: 技威力×1.3');
-  }
-  if(QUICK_TRIGGER_ABILITIES[ability] && QUICK_TRIGGER_ABILITIES[ability] === moveType && atkSlot?.battleStatus?.abilityActive){
-    mult *= 1.5; notes.push(`${ability}: 発動中 ${moveType}技×1.5`);
-  }
-  return {mult, notes};
-}
-function quickAbilityDamageInfo(atkSlot, moveType, eff){
-  const ability = String(atkSlot?.ability || '').trim();
-  const notes = [];
-  let mult = 1;
-  if(ability === 'そうだいしょう'){
-    const fainted = quickFaintedCount(atkSlot, 'supremeFainted');
-    const supremeMult = 1 + 0.1 * fainted;
-    mult *= supremeMult;
-    notes.push(`そうだいしょう: 味方ひんし${fainted}体→×${supremeMult.toFixed(1)}`);
-  }
-  if(ability === 'いろめがね' && eff < 1){
-    mult *= 2;
-    notes.push('いろめがね: いまひとつ×2');
-  }
-  return {mult, notes};
-}
-
 function getDisplayedCategory(move, atkStats, defStats){ if(move.name==='シェルアームズ'){ const physicalScore = Math.max(1, atkStats.atk) / Math.max(1, defStats.def); const specialScore = Math.max(1, atkStats.spa) / Math.max(1, defStats.spd); return physicalScore > specialScore ? '物理' : '特殊'; } return move.category; }
 function resolveMoveType(move, atkAbility, weather){ let type = move.type; let skin = 1; let notes = []; if(SKIN_MAP[atkAbility] && type==='ノーマル' && move.name!=='わるあがき'){ type = SKIN_MAP[atkAbility]; skin = 1.2; notes.push(`${atkAbility}で${type}化`); } if(move.name==='ウェザーボール' && weather && WB_MAP[weather]){ type = WB_MAP[weather]; notes.push(`ウェザーボール→${type}`); } return {type, skin, notes}; }
 function resolveMovePower(move, atkSlot, defSlot, weather){
   let power = Number(move.power || 0) || 0;
   const notes = [];
   if(move.name==='ウェザーボール' && weather && WB_MAP[weather]){ power = 100; }
-  if(move.name==='おはかまいり'){
-    const fainted = quickFaintedCount(atkSlot, 'lastRespectsFainted');
+  if(move.name === 'おはかまいり'){
+    const fainted = quickGetFaintedAllies(atkSlot);
     power = 50 + fainted * 50;
-    notes.push(`おはかまいり: 味方ひんし${fainted}体→威力${power}`);
+    notes.push(`おはかまいり: 味方ひんし${fainted}体で威力${power}`);
   }
   if(move.notes === '体重依存'){
     const atkW = Number(atkSlot.poke?.weight || 0) || 0;
@@ -1016,10 +917,61 @@ function resolveMovePower(move, atkSlot, defSlot, weather){
 function getAttackItemMultiplier(item, moveType, category, eff){ const text = normalizeItemText(item); const effect = getItemEffectText(item); if(!text) return 1; if(text.includes('こだわりハチマキ') && category==='物理') return 1.5; if(text.includes('こだわりメガネ') && category==='特殊') return 1.5; if(text.includes('いのちのたま')) return 1.3; if(text.includes('たつじんのおび') && eff > 1) return 1.2; if(effect.includes(moveType + 'タイプの技の威力が1.2倍') && eff > 0) return 1.2; if(text.includes('タイプ強化') && eff > 0) return 1.2; return 1; }
 function getDefenseItemMultiplier(item, moveType, eff){ const effect = getItemEffectText(item); if(!item || eff <= 1) return 1; if(effect.includes('効果バツグンの' + moveType + 'タイプの技') && effect.includes('半減')) return 0.5; return 1; }
 function getDefAbilityDmgMult(ability, moveType, eff){ if(!ability) return 1; let mult = 1; const ad = getAbilityData(ability); if(ad && ad.defDmgMult){ const arr = Array.isArray(ad.defDmgMult) ? ad.defDmgMult : [ad.defDmgMult]; arr.forEach(d=>{ if(!d.type || d.type===moveType) mult *= d.mult; }); } if(['フィルター','ハードロック'].includes(ability) && eff > 1) mult *= 0.75; if(ability==='あついしぼう' && (moveType==='ほのお' || moveType==='こおり')) mult *= 0.5; return mult; }
-function getAttackAbilityPowerMult(ability, moveType, category){ if(!ability) return 1; if(TYPE_BOOST_ABILITIES[ability] && TYPE_BOOST_ABILITIES[ability][0]===moveType) return TYPE_BOOST_ABILITIES[ability][1]; return 1; }
+function quickAbilityEffectText(ability){ const ad = getAbilityData(ability); return String(ad?.effect || ''); }
+function quickEffectTextHasMove(ability, moveName){ const effect = quickAbilityEffectText(ability); const name = String(moveName || '').trim(); return !!name && (effect.includes('『' + name + '』') || effect.includes(name)); }
+function getAttackAbilityPowerInfo(atkSlot, move, moveType, category, eff){
+  const ability = String(atkSlot?.ability || '').trim();
+  const moveName = String(move?.name || '').trim();
+  const condition = quickGetCondition(atkSlot || {});
+  const notes = [];
+  let mult = 1;
+  if(!ability) return {mult, notes};
+  if(TYPE_BOOST_ABILITIES[ability] && TYPE_BOOST_ABILITIES[ability][0] === moveType){
+    mult *= TYPE_BOOST_ABILITIES[ability][1];
+    notes.push(`${ability}: ${moveType}技強化`);
+  }
+  if(LOW_HP_TYPE_ABILITIES[ability] === moveType && condition.lowHp){
+    mult *= 1.5;
+    notes.push(`${ability}: HP1/3以下`);
+  }
+  if(ability === 'もらいび' && moveType === 'ほのお' && condition.flashFire){
+    mult *= 1.5;
+    notes.push('もらいび発動');
+  }
+  if(ability === 'そうだいしょう'){
+    const fainted = quickGetFaintedAllies(atkSlot);
+    if(fainted > 0){
+      const m = 1 + fainted * 0.1;
+      mult *= m;
+      notes.push(`そうだいしょう: 味方ひんし${fainted}体`);
+    }
+  }
+  if(ability === 'かたいツメ' && move?.contact === true){
+    mult *= 1.3;
+    notes.push('かたいツメ');
+  }
+  if(EFFECT_LIST_POWER_ABILITIES[ability] && quickEffectTextHasMove(ability, moveName)){
+    mult *= EFFECT_LIST_POWER_ABILITIES[ability];
+    notes.push(ability);
+  }
+  if(ability === 'いろめがね' && eff > 0 && eff < 1){
+    mult *= 2;
+    notes.push('いろめがね');
+  }
+  return {mult, notes};
+}
+function getAttackAbilityPowerMult(ability, moveType, category){
+  const info = getAttackAbilityPowerInfo({ability, condition:quickDefaultCondition()}, {name:'', type:moveType, category}, moveType, category, 1);
+  return info.mult;
+}
 function getAttackAbilityStatMult(ability, category, weather, moveType, isBodyPress){ if(!ability) return 1; if(['ちからもち','ヨガパワー'].includes(ability) && category==='物理' && !isBodyPress) return 2; if(ability==='サンパワー' && category==='特殊' && weather==='sunny') return 1.5; return 1; }
 function getWeatherMoveMult(weather, moveType){ if(weather==='sunny'){ if(moveType==='ほのお') return 1.5; if(moveType==='みず') return 0.5; } if(weather==='rain'){ if(moveType==='みず') return 1.5; if(moveType==='ほのお') return 0.5; } return 1; }
 function getWeatherDefenseMult(weather, defTypes, defenseCategory){ if(weather==='snow' && defTypes.includes('こおり') && defenseCategory==='物理') return 1.5; if(weather==='sand' && defTypes.includes('いわ') && defenseCategory==='特殊') return 1.5; return 1; }
+function getParentalBondInfo(atkSlot, move, hits){
+  if(String(atkSlot?.ability || '').trim() !== 'おやこあい') return {active:false, note:''};
+  if((hits?.max || 1) > 1 || (hits?.min || 1) > 1) return {active:false, note:'おやこあい: 連続技のため追加攻撃なし'};
+  return {active:true, note:'おやこあい: 2撃目25%'};
+}
 function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const move = moveByName.get(moveName);
   if(!move || !atkSlot.poke || !defSlot.poke) return null;
@@ -1038,13 +990,8 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const offenseCategory = isBodyPress ? 'ぼうぎょ' : (isFoulPlay ? 'こうげき' : (SPECIAL_DEFENSE_MOVES.has(move.name) ? '特殊' : rawCategory));
   const defenseCategory = SPECIAL_DEFENSE_MOVES.has(move.name) || isBodyPress || rawCategory==='物理' ? '物理' : '特殊';
   const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability, move.name || '');
-  const abilityPowerInfo = getAttackAbilityPowerInfo(atkSlot, move, resolvedType.type, rawCategory);
-  const abilityDmgInfo = getAttackAbilityDamageInfo(atkSlot, resolvedType.type, eff);
-  const hits = parseHits(move.hits || '1');
-  const parentalBlocked = atkSlot.ability === 'おやこあい' && quickIsParentalBondBlocked(move, hits);
-  const parentalActive = atkSlot.ability === 'おやこあい' && !parentalBlocked;
-  const parentalNotes = atkSlot.ability === 'おやこあい' ? [parentalActive ? 'おやこあい: 1撃目100% + 2撃目25%' : 'おやこあい: 追加攻撃なし'] : [];
-  const baseNotes = [...(resolvedType.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[]), ...(abilityDmgInfo.notes||[]), ...parentalNotes];
+  const abilityPowerInfo = getAttackAbilityPowerInfo(atkSlot, move, resolvedType.type, rawCategory, eff);
+  const baseNotes = [...(resolvedType.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[])];
   if(eff === 0){
     return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'無効', score:0, eff:0, moveType:resolvedType.type, category:rawCategory, attackStatName:offenseCategory, defenseStatName:defenseCategory, notes:baseNotes};
   }
@@ -1069,6 +1016,8 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const defItemMult = getDefenseItemMultiplier(defSlot.item, resolvedType.type, eff);
   const effectiveAttack = Math.max(1, Math.floor(attackStat * statMult));
   const effectiveDefense = Math.max(1, Math.floor(defenseStat));
+  const hits = parseHits(move.hits || '1');
+  const parentBond = getParentalBondInfo(atkSlot, move, hits);
   const level = atkSlot.lv;
   const knockOffState = move.name==='はたきおとす' ? getMoveKnockOffState(defSlot.item) : {hasItem:false, removable:false};
 
@@ -1080,18 +1029,16 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
       let dmg = Math.floor(base * stab);
       dmg = Math.floor(dmg * eff);
       dmg = Math.floor(dmg * itemMult);
-      dmg = Math.floor(dmg * abilityDmgInfo.mult);
       dmg = Math.floor(dmg * defDmgMult);
       dmg = Math.floor(dmg * defItemMult);
       dmg = Math.floor(dmg * weatherMoveMult);
       dmg = Math.floor(dmg * i / 100);
-      if(parentalActive) dmg += Math.floor(dmg * 0.25);
       rolls.push(dmg);
     }
     const singleMin = rolls[0];
     const singleMax = rolls[rolls.length - 1];
-    const totalMin = singleMin * hits.min;
-    const totalMax = singleMax * hits.max;
+    const totalMin = parentBond.active ? (singleMin + Math.floor(singleMin * 0.25)) : (singleMin * hits.min);
+    const totalMax = parentBond.active ? (singleMax + Math.floor(singleMax * 0.25)) : (singleMax * hits.max);
     const pctMin = Math.round(totalMin / defStats.hp * 1000) / 10;
     const pctMax = Math.round(totalMax / defStats.hp * 1000) / 10;
     const ko = getKOTag(totalMin, totalMax, defStats.hp);
@@ -1111,7 +1058,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
       attackStatName:offenseCategory,
       defenseStatName:defenseCategory,
       hits,
-      notes:[...baseNotes, ...extraNotes]
+      notes:[...baseNotes, ...(parentBond.note ? [parentBond.note] : []), ...extraNotes]
     };
   }
 
@@ -1150,9 +1097,8 @@ const quickState = {
   recent: []
 };
 
-function quickDefaultBattleStatus(){ return {abilityActive:false,lastRespectsFainted:0,supremeFainted:0}; }
 function quickEmptySlot(role){
-  return { role, pokeName:'', poke:null, lv:50, iv:31, nature:'がんばりや', natureMods:{atk:1,def:1,spa:1,spd:1,spe:1}, ability:'', item:'', gameMode:'champions', ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, rank:{atk:0,def:0,spa:0,spd:0,spe:0}, battleStatus:quickDefaultBattleStatus(), moves:['','','',''], preset:'none', rankingLabel:'' };
+  return { role, pokeName:'', poke:null, lv:50, iv:31, nature:'がんばりや', natureMods:{atk:1,def:1,spa:1,spd:1,spe:1}, ability:'', item:'', gameMode:'champions', ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, rank:{atk:0,def:0,spa:0,spd:0,spe:0}, condition:quickDefaultCondition(), moves:['','','',''], preset:'none', rankingLabel:'' };
 }
 function quickSlot(role){ return role === 'attacker' ? quickState.attacker : quickState.defender; }
 function quickOtherRole(role){ return role === 'attacker' ? 'defender' : 'attacker'; }
@@ -1360,7 +1306,31 @@ function quickRenderPresetChips(){
 function quickSetWeather(v){ quickState.weather=v||''; quickRenderAll(); }
 function quickStageMult(stage){ const s = Math.max(-6, Math.min(6, parseInt(stage||0,10)||0)); return s >= 0 ? (2+s)/2 : 2/(2-s); }
 function quickApplyStage(value, stage){ return Math.max(1, Math.floor(value * quickStageMult(stage))); }
+function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false}; }
+function quickNormalizeCondition(condition){
+  const src = condition && typeof condition === 'object' ? condition : {};
+  return {
+    faintedAllies: Math.max(0, Math.min(2, parseInt(src.faintedAllies || 0, 10) || 0)),
+    lowHp: !!src.lowHp,
+    flashFire: !!src.flashFire
+  };
+}
+function quickGetCondition(slot){
+  if(!slot.condition) slot.condition = quickDefaultCondition();
+  slot.condition = quickNormalizeCondition(slot.condition);
+  return slot.condition;
+}
+function quickGetFaintedAllies(slot){ return quickGetCondition(slot).faintedAllies; }
 function quickSetRank(role, stat, value){ const slot=quickSlot(role); if(!slot.rank) slot.rank={atk:0,def:0,spa:0,spd:0,spe:0}; slot.rank[stat]=Math.max(-6,Math.min(6,parseInt(value||0,10)||0)); quickRenderAll(); }
+function quickSetCondition(role, key, value){
+  const slot = quickSlot(role);
+  const condition = quickGetCondition(slot);
+  if(key === 'faintedAllies') condition.faintedAllies = Math.max(0, Math.min(2, parseInt(value || 0, 10) || 0));
+  if(key === 'lowHp') condition.lowHp = value === true || value === 'true' || value === 1 || value === '1';
+  if(key === 'flashFire') condition.flashFire = value === true || value === 'true' || value === 1 || value === '1';
+  slot.condition = condition;
+  quickRenderAll();
+}
 function quickSetNatureMod(role, stat, value){ const slot=quickSlot(role); if(!slot.natureMods) slot.natureMods=quickNatureModsFromName(slot.nature); slot.natureMods[stat]=Number(value)||1; slot.nature='カスタム'; quickRenderAll(); }
 function quickNatureModButtons(role, stat, current){ return [0.9,1,1.1].map(v=>`<button type="button" class="segment-btn ${Number(current||1)===v?'active':''}" onclick="quickSetNatureMod('${role}','${stat}',${v})">${v===1?'変化なし':v}</button>`).join(''); }
 async function quickLoadSources(){
@@ -1438,7 +1408,7 @@ function quickApplyRecordToRole(rec, role){
   slot.nature = PERSONALITIES[rec?.nature] ? rec.nature : 'がんばりや';
   slot.natureMods = quickNatureModsFromName(slot.nature);
   slot.rank = rec?.rank || {atk:0,def:0,spa:0,spd:0,spe:0};
-  slot.battleStatus = quickDefaultBattleStatus();
+  slot.condition = quickNormalizeCondition(rec?.condition || rec?.battleCondition || {});
   slot.ability = rec?.ability || '';
   slot.item = String(rec?.item || '').trim();
   slot.ev = quickNormalizeEVForSlot(slot, rec?.ev);
@@ -1489,11 +1459,10 @@ function quickSetPokemon(role, value, autoMoves=true, applyRanking=true){
   const slot = quickSlot(role);
   const name = String(value || '').trim();
   const poke = pokeByName.get(name) || null;
-  const previousName = String(slot.pokeName || '').trim();
   slot.pokeName = name;
   slot.poke = poke;
   slot.iv = 31;
-  if(previousName !== name) slot.battleStatus = quickDefaultBattleStatus();
+  slot.condition = quickDefaultCondition();
   if(poke){
     quickEnsureAbility(role);
     if(applyRanking) quickApplyRankingToSlot(role);
@@ -1508,8 +1477,8 @@ function quickSetPokemon(role, value, autoMoves=true, applyRanking=true){
 function quickSetMove(index, value){
   quickState.moves[index] = String(value || '').trim();
   quickState.attacker.moves = quickState.moves.slice(0,4);
-  quickRenderSettings('attacker');
   quickRenderResults();
+  quickRenderSettings('attacker');
   quickUpdateStatus();
 }
 function quickAutoMoves(render=true){
@@ -1531,7 +1500,7 @@ function quickAutoMoves(render=true){
   quickState.attacker.moves = quickState.moves.slice(0,4);
   if(render){ quickSyncInputs(); quickRenderAll(); }
 }
-function quickClearMoves(){ quickState.moves = ['', '', '', '']; quickState.attacker.moves = quickState.moves.slice(0,4); quickSyncInputs(); quickRenderSettings('attacker'); quickRenderResults(); quickRenderKnownMoves(); quickUpdateStatus(); }
+function quickClearMoves(){ quickState.moves = ['', '', '', '']; quickState.attacker.moves = quickState.moves.slice(0,4); quickSyncInputs(); quickRenderResults(); quickRenderSettings('attacker'); quickRenderKnownMoves(); quickUpdateStatus(); }
 function quickUseDefPreset(key){
   const preset = EV_PRESETS[key] || EV_PRESETS.none;
   const slot = quickState.defender;
@@ -1550,7 +1519,7 @@ function quickSetField(role, field, value){
     slot.ev = quickNormalizeEVForSlot(slot, slot.ev);
   }
   else if(field === 'nature'){ slot.nature = PERSONALITIES[value] ? value : 'がんばりや'; slot.natureMods = quickNatureModsFromName(slot.nature); }
-  else if(field === 'ability'){ slot.ability = String(value||'').trim(); if(!slot.battleStatus) slot.battleStatus = quickDefaultBattleStatus(); slot.battleStatus.abilityActive = false; }
+  else if(field === 'ability') slot.ability = String(value||'').trim();
   else if(field === 'item') slot.item = String(value||'').trim();
   quickRenderAll();
 }
@@ -1599,7 +1568,7 @@ function quickRenderMoveInputs(){
   wrap.innerHTML = [0,1,2,3].map(i=>`<div class="move-line ${quickState.activeMoveIndex===i?'active':''}"><div class="move-no">${i+1}</div><div class="search-wrap"><input class="input" id="move-${i}" placeholder="技${i+1}" value="${escapeAttr(quickState.moves[i]||'')}" autocomplete="off"><div class="search-panel" id="move-${i}-panel"></div></div></div>`).join('');
   [0,1,2,3].forEach(i=>{
     const input = document.getElementById('move-'+i);
-    if(input) input.addEventListener('input', e=>{ quickSetActiveMoveIndex(i); const v=e.target.value; quickState.moves[i]=v; quickState.attacker.moves=quickState.moves.slice(0,4); quickShowSearchPanel('move-'+i+'-panel', quickMoveSuggestions(v, i)); quickRenderSettings('attacker'); quickRenderResults(); quickUpdateStatus(); });
+    if(input) input.addEventListener('input', e=>{ quickSetActiveMoveIndex(i); const v=e.target.value; quickState.moves[i]=v; quickState.attacker.moves=quickState.moves.slice(0,4); quickShowSearchPanel('move-'+i+'-panel', quickMoveSuggestions(v, i)); quickRenderResults(); quickRenderSettings('attacker'); quickUpdateStatus(); });
     if(input) input.addEventListener('focus', e=>{ quickSetActiveMoveIndex(i); quickShowSearchPanel('move-'+i+'-panel', quickMoveSuggestions(e.target.value, i)); });
     if(input) input.addEventListener('click', ()=>quickSetActiveMoveIndex(i));
   });
@@ -1624,45 +1593,33 @@ function quickInsertMove(name){
   quickState.attacker.moves = quickState.moves.slice(0,4);
   quickSyncInputs();
   quickSetActiveMoveIndex(idx);
-  quickRenderSettings('attacker');
   quickRenderResults();
+  quickRenderSettings('attacker');
   quickRenderKnownMoves();
   quickUpdateStatus();
 }
 
-function quickHasMove(name){ return quickState.moves.some(m=>String(m||'').trim() === name); }
-function quickSetBattleStatus(role, key, value){
-  const slot = quickSlot(role);
-  if(!slot.battleStatus) slot.battleStatus = {abilityActive:false,lastRespectsFainted:0,supremeFainted:0};
-  if(key === 'abilityActive') slot.battleStatus[key] = !!value;
-  else slot.battleStatus[key] = clamp(parseInt(value || 0, 10) || 0, 0, 2);
-  quickRenderAll();
-}
-function quickFaintedButtons(role, key, current, labelFn){
-  return `<div class="segment-grid">${QUICK_FAINTED_OPTIONS.map(n=>`<button type="button" class="segment-btn ${Number(current)===n?'active':''}" onclick="quickSetBattleStatus('${role}','${key}',${n})">${escapeHtml(labelFn(n))}</button>`).join('')}</div>`;
-}
-function quickBattleStatusHtml(role, slot){
-  if(role !== 'attacker') return '';
-  const status = slot.battleStatus || {};
-  const parts = [];
+function quickConditionControls(role, slot){
+  if(role !== 'attacker' || !slot?.poke) return '';
+  const condition = quickGetCondition(slot);
   const ability = String(slot.ability || '').trim();
-  if(QUICK_TRIGGER_ABILITIES[ability]){
-    const type = QUICK_TRIGGER_ABILITIES[ability];
-    const offLabel = ability === 'もらいび' ? '未発動' : '通常';
-    const onLabel = ability === 'もらいび' ? '発動' : '発動中';
-    parts.push(`<div class="field"><div class="label">${escapeHtml(ability)}状態</div><div class="segment-grid"><button type="button" class="segment-btn ${!status.abilityActive?'active':''}" onclick="quickSetBattleStatus('${role}','abilityActive',false)">${offLabel}</button><button type="button" class="segment-btn ${status.abilityActive?'active':''}" onclick="quickSetBattleStatus('${role}','abilityActive',true)">${onLabel}（${escapeHtml(type)}×1.5）</button></div></div>`);
+  const hasLastRespects = quickState.moves.some(name=>String(name || '').trim() === 'おはかまいり');
+  const needsFainted = hasLastRespects || ability === 'そうだいしょう';
+  const needsLowHp = !!LOW_HP_TYPE_ABILITIES[ability];
+  const needsFlashFire = ability === 'もらいび';
+  if(!needsFainted && !needsLowHp && !needsFlashFire) return '';
+  const parts = [];
+  if(needsFainted){
+    parts.push(`<div class="rank-box"><div class="label">味方ひんし数</div><div class="segment-grid">${[0,1,2].map(n=>`<button type="button" class="segment-btn ${condition.faintedAllies===n?'active':''}" onclick="quickSetCondition('${role}','faintedAllies',${n})">${n}体</button>`).join('')}</div></div>`);
   }
-  if(ability === 'そうだいしょう'){
-    const cur = quickFaintedCount(slot, 'supremeFainted');
-    parts.push(`<div class="field"><div class="label">そうだいしょう</div>${quickFaintedButtons(role, 'supremeFainted', cur, n=>`${n}体 ×${(1+n*0.1).toFixed(1)}`)}</div>`);
+  if(needsLowHp){
+    parts.push(`<div class="rank-box"><div class="label">${escapeHtml(ability)}発動</div><div class="segment-grid"><button type="button" class="segment-btn ${!condition.lowHp?'active':''}" onclick="quickSetCondition('${role}','lowHp',false)">なし</button><button type="button" class="segment-btn ${condition.lowHp?'active':''}" onclick="quickSetCondition('${role}','lowHp',true)">HP1/3以下</button></div></div>`);
   }
-  if(quickHasMove('おはかまいり')){
-    const cur = quickFaintedCount(slot, 'lastRespectsFainted');
-    parts.push(`<div class="field"><div class="label">おはかまいり</div>${quickFaintedButtons(role, 'lastRespectsFainted', cur, n=>`${n}体 威力${50+n*50}`)}</div>`);
+  if(needsFlashFire){
+    parts.push(`<div class="rank-box"><div class="label">もらいび発動</div><div class="segment-grid"><button type="button" class="segment-btn ${!condition.flashFire?'active':''}" onclick="quickSetCondition('${role}','flashFire',false)">なし</button><button type="button" class="segment-btn ${condition.flashFire?'active':''}" onclick="quickSetCondition('${role}','flashFire',true)">発動</button></div></div>`);
   }
-  return parts.join('');
+  return `<div class="field" style="grid-column:1/-1"><div class="label">発動条件</div><div class="rank-grid">${parts.join('')}</div></div>`;
 }
-
 function quickRenderSettings(role){
   const slot = quickSlot(role);
   const settings = document.getElementById(role + '-settings');
@@ -1679,10 +1636,10 @@ function quickRenderSettings(role){
       <div class="field"><div class="label">ルール</div><div class="segment-grid">${modes.map(([v,l])=>`<button type="button" class="segment-btn ${slot.gameMode===v?'active':''}" onclick="quickSetField('${role}','mode','${v}')">${l}</button>`).join('')}</div></div>
       <div class="field"><div class="label">特性</div>${abilityHtml}</div>
       <div class="field"><div class="label">持ち物</div><div class="search-wrap"><input class="input" id="${role}-item-input" value="${escapeAttr(slot.item||'')}" placeholder="持ち物を検索" autocomplete="off"><div class="search-panel" id="${role}-item-panel"></div></div></div>
-      ${quickBattleStatusHtml(role, slot)}
       <div class="field"><div class="label">実数値</div><div class="note">${quickStatsText(slot)}${slot.rankingLabel ? '<br>' + escapeHtml(slot.rankingLabel) + 'を反映' : ''}</div></div>
       <div class="field" style="grid-column:1/-1"><div class="label">性格補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><div class="segment-grid">${quickNatureModButtons(role, st, nat[st])}</div></div>`).join('')}</div></div>
-      <div class="field" style="grid-column:1/-1"><div class="label">ランク補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><input class="input" type="number" min="-6" max="6" value="${slot.rank?.[st]||0}" onchange="quickSetRank('${role}','${st}',this.value)"></div>`).join('')}</div></div>`;
+      <div class="field" style="grid-column:1/-1"><div class="label">ランク補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><input class="input" type="number" min="-6" max="6" value="${slot.rank?.[st]||0}" onchange="quickSetRank('${role}','${st}',this.value)"></div>`).join('')}</div></div>
+      ${quickConditionControls(role, slot)}`;
     const itemInput = document.getElementById(role+'-item-input');
     if(itemInput){
       itemInput.addEventListener('input', e=>{ slot.item=e.target.value; quickShowSearchPanel(role+'-item-panel', quickItemSuggestions(e.target.value, role)); quickRenderResults(); });
