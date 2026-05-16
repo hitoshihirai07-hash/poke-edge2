@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PokeEdgeでできる8つの機能紹介 | PokeEdge</title>
-<meta name="description" content="PokeEdgeで使える8つの機能をまとめて紹介。ダメージ計算、技選択判定、パーティ管理、ポケモン登録、バトルアナライザー、使用可能ポケモン、素早さライン、アイテム一覧の使い分けを整理します。">
+<meta name="description" content="PokeEdgeで使える8つの機能をまとめて紹介。ダメージ計算、クイック技ダメージ、パーティ管理、ポケモン登録、バトルアナライザー、使用可能ポケモン、素早さライン、アイテム一覧の使い分けを整理します。">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="PokeEdgeでできる8つの機能紹介 | PokeEdge">
 <meta property="og:description" content="PokeEdgeで使える8つの機能を初心者向けに整理して紹介します。">
@@ -164,7 +164,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="../index.html">トップ</a>
     <a class="nav-btn" href="../calc.html">ダメージ計算</a>
     <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">技選択判定</a>
+    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
     <a class="nav-btn" href="../battle.html">バトル</a>
     <a class="nav-btn" href="../party.html">パーティ管理</a>
     <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
@@ -180,10 +180,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
-<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">技選択判定</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a></div></div></aside>
+<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a></div></div></aside>
 <nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
   <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">技判定</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
 
 
@@ -215,7 +215,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
     <div class="point-box">
       <div class="point-title">このページで紹介する8機能</div>
-      <p>ダメージ計算 / 技選択判定 / パーティ管理 / ポケモン登録 / バトルアナライザー / 使用可能ポケモン / 素早さライン / アイテム一覧</p>
+      <p>ダメージ計算 / クイック技ダメージ / パーティ管理 / ポケモン登録 / バトルアナライザー / 使用可能ポケモン / 素早さライン / アイテム一覧</p>
     </div>
 
     <h2>① ダメージ計算</h2>
@@ -231,17 +231,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <a class="feat-card-link" href="../calc.html">ダメージ計算を開く →</a>
     </div>
 
-    <h2>② 技選択判定</h2>
+    <h2>② クイック技ダメージ</h2>
     <div class="feat-card">
       <div class="feat-card-head">
         <span class="feat-card-icon">🎯</span>
-        <span class="feat-card-name">技選択判定</span>
+        <span class="feat-card-name">クイック技ダメージ</span>
       </div>
       <div class="feat-card-desc">
-        <p>複数の技をまとめて見比べて、どの技が通りやすいかを確認する機能です。相手6体に対して、押しやすい技や刺さりやすい範囲を見やすく整理できます。</p>
-        <p>「1匹に対して何を押すか」だけでなく、<strong>相手の並び全体にどの技が一貫しているか</strong>を確認したいときに便利です。</p>
+        <p>自分と相手を選び、4つの技のダメージをまとめて確認する機能です。ランキング型や登録データを反映できるので、入力を減らして素早く確認できます。</p>
+        <p><strong>4技の割合・確定数・相性を一気に見比べたいとき</strong>に便利です。1技を細かく詰める場合はダメージ計算ページと使い分けます。</p>
       </div>
-      <a class="feat-card-link red" href="../move.html">技選択判定を開く →</a>
+      <a class="feat-card-link red" href="../move.html">クイック技ダメージを開く →</a>
     </div>
 
     <h2>③ パーティ管理</h2>
@@ -328,7 +328,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
     <div class="note-box">
       <div class="note-title">おすすめの流れ</div>
-      <p>ポケモン登録 → パーティ管理 → ダメージ計算 → 技選択判定 → バトルアナライザー → 素早さライン、という順で触ると、機能どうしのつながりが見えやすくなります。</p>
+      <p>ポケモン登録 → パーティ管理 → ダメージ計算 → クイック技ダメージ → バトルアナライザー → 素早さライン、という順で触ると、機能どうしのつながりが見えやすくなります。</p>
     </div>
 
     <h2>まとめ</h2>
@@ -336,10 +336,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <p>PokeEdgeで現在使える機能は、次の8つです。</p>
 
     <ol>
-      <li><strong><a href="../calc.html">ダメージ計算</a></strong> — 技のダメージと確定数を確認する</li>
-      <li><strong><a href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">技選択判定</a>
-    <a class="nav-btn" href="../battle.html">バトル</a></strong> — 相手全体に通りやすい技を見比べる</li>
+      <li><strong><a href="../calc.html">ダメージ計算</a></strong> — 1技のダメージと確定数を詳しく確認する</li>
+      <li><strong><a href="../endure.html">耐久調整</a></strong> — 受けたい攻撃を基準に耐久を調整する</li>
+      <li><strong><a href="../move.html">クイック技ダメージ</a></strong> — 1対1で4技のダメージをまとめて確認する</li>
       <li><strong><a href="../party.html">パーティ管理</a></strong> — 6匹の並びを整理する</li>
       <li><strong><a href="../pokemon.html">ポケモン登録</a></strong> — 個体情報を保存して他ツールで使う</li>
       <li><strong><a href="../scope.html">バトルアナライザー</a></strong> — 選出と対戦中の判断をまとめて見る</li>

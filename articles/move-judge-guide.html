@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>技選択判定の使いこなし方 | PokeEdge</title>
-<meta name="description" content="PokeEdgeの技選択判定の使い方を解説。複数の技を比較して、対戦中にどの技を押すか迷ったときの考え方や活用のコツをわかりやすく紹介します。">
+<title>クイック技ダメージの使い方 | PokeEdge</title>
+<meta name="description" content="PokeEdgeのクイック技ダメージの使い方を解説。自分と相手を選び、4技のダメージ・確定数・相性をまとめて確認する流れを紹介します。">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="技選択判定の使いこなし方 | PokeEdge">
-<meta property="og:description" content="PokeEdgeの技選択判定の使い方を解説。複数の技を比較して、対戦中にどの技を押すか迷ったときの考え方や活用のコツをわかりやすく紹介します。">
+<meta property="og:title" content="クイック技ダメージの使い方 | PokeEdge">
+<meta property="og:description" content="PokeEdgeのクイック技ダメージの使い方を解説。自分と相手を選び、4技のダメージ・確定数・相性をまとめて確認する流れを紹介します。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://poke-edge.pages.dev/articles/move-judge-guide.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/articles/move-judge-guide.html">
@@ -151,7 +151,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="../index.html">トップ</a>
     <a class="nav-btn" href="../calc.html">ダメージ計算</a>
     <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">技選択判定</a>
+    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
     <a class="nav-btn" href="../battle.html">バトル</a>
     <a class="nav-btn" href="../party.html">パーティ管理</a>
     <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
@@ -170,10 +170,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   </button>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
-<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">技選択判定</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a></div></div></aside>
+<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a></div></div></aside>
 <nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
   <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">技判定</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
 
 
@@ -183,7 +183,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <span class="sep">›</span>
     <a href="../blog.html">記事一覧</a>
     <span class="sep">›</span>
-    <span>技選択判定の使いこなし方</span>
+    <span>クイック技ダメージの使い方</span>
   </div>
 
   <div class="article-header">
@@ -192,98 +192,38 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <span class="article-tag guide">ガイド</span>
       <span class="article-tag tool">ツール</span>
     </div>
-    <h1 class="article-h1">技選択判定の使いこなし方 — どの技を押すか迷ったときの考え方</h1>
-    <p class="article-lead">対戦中、「この場面ではどの技を押せばいいんだろう？」と迷ったことはありませんか。PokeEdgeの技選択判定は、自分のポケモンが持つ技を相手ごとにまとめて比較し、通りやすい技やダメージの傾向を確認しやすくする機能です。この記事では、技選択判定の基本的な使い方から、対戦で役立つ活用法までをわかりやすく紹介します。</p>
-  </div>
+    <h1 class="article-h1">クイック技ダメージの使い方 — 4技をまとめて確認する</h1>
+    <p class="article-lead">クイック技ダメージは、1対1の対面で4つの技のダメージをまとめて確認するページです。通常のダメージ計算より入力を軽くし、ランキング型や登録データを反映して、スマホでも素早く確認しやすい形にしています。</p>
 
-  <div class="article-body">
-    <h2>技選択判定ってなに？</h2>
-    <p>ポケモン対戦では、毎ターン4つの技の中からどれを選ぶかが勝敗に大きく関わります。ですが、タイプ相性やタイプ一致補正、持ち物の影響まで含めて、「どの技がいちばん通りやすいか」をその場で正確に判断するのは意外と大変です。</p>
-    <p>技選択判定は、そうした判断を助けてくれる機能です。自分のポケモンの情報を入力し、相手のポケモンを指定するだけで、複数の技をまとめて比較できます。</p>
-    <p>通常のダメージ計算ツールとの違いは、<strong>1つの技だけを見るのではなく、複数の技を並べて比べやすい</strong>ことです。さらに相手を最大6体まで登録できるので、目の前の相手だけでなく、交代先も含めた「全体的に通りやすい技」を見つけやすくなります。</p>
+    <h2>クイック技ダメージでできること</h2>
+    <p>自分のポケモン、相手のポケモン、4つの技を選ぶと、各技の割合・ダメージ範囲・確定数・相性をまとめて表示します。ポケモンや技、持ち物、ランク補正を変えると結果もすぐ更新されます。</p>
 
-    <h2>基本の使い方 — 3ステップで結果を確認</h2>
-    <p>技選択判定の操作はシンプルです。大きく分けて3つのステップで確認できます。</p>
+    <h2>基本の使い方</h2>
+    <ol>
+      <li>自分のポケモンを検索して選ぶ</li>
+      <li>相手のポケモンを検索して選ぶ</li>
+      <li>候補技4つ、または覚える技から確認したい技を選ぶ</li>
+      <li>必要に応じて持ち物・特性・努力値・ランク補正を調整する</li>
+    </ol>
 
-    <h3>ステップ1：自分のポケモンを選ぶ</h3>
-    <p>まず攻撃側の自分のポケモンを設定します。ポケモン名を検索して選択すると、種族値が自動で読み込まれます。</p>
-    <p>ここで便利なのが、事前にポケモン登録をしておくことです。登録済みのポケモンであれば、「登録済みポケモンから選択」のドロップダウンから選ぶだけで、性格・努力値・特性・持ち物・技がまとめて入力されます。毎回手で入れ直す手間を減らしやすいので、よく使うポケモンは先に登録しておくとスムーズです。</p>
+    <h2>ランキング型と登録データの使い分け</h2>
+    <p>ランキングにあるポケモンは、技・持ち物・努力値・性格補正をできるだけランキング型から反映します。自分で登録した型を使いたい場合は、ポケモン登録から攻撃側または防御側へ反映できます。</p>
 
-    <h3>ステップ2：相手のポケモンを登録する</h3>
-    <p>次に、防御側の相手ポケモンを設定します。ポケモン名を入力して選ぶだけでOKです。</p>
-    <p>技選択判定の特徴は、<strong>相手を最大6体まで追加できる</strong>ことです。「＋ 相手ポケモンを追加」ボタンを押せば、2体目、3体目と増やしていけます。対戦相手のパーティが見えている場面で使えば、相手全体に対してどの技が通りやすいかをまとめて確認できます。</p>
+    <h2>ダメージ計算との違い</h2>
+    <p>クイック技ダメージは、4技を一気に見比べるためのページです。1つの技を細かい条件まで詰めたい場合は、通常のダメージ計算ページを使うと確認しやすくなります。</p>
 
-    <h3>ステップ3：結果を確認する</h3>
-    <p>設定が終わると、自動的に計算結果が表示されます。技ごとの与ダメージやHP割合を見比べることで、「この技は目の前の相手に通りやすい」「この技は相手全体に安定して入りやすい」といった判断がしやすくなります。</p>
-
-    <div class="point-box">
-      <div class="point-title">ポイント</div>
-      <p>まずは1体対1体で使い方をつかみ、そのあと相手を複数登録していくと、表示の見方がかなりわかりやすくなります。</p>
-    </div>
-
-    <h2>使用する技の選択 — 「全技計算」と「手動選択」の使い分け</h2>
-    <p>技選択判定には、大きく分けて2つの使い方があります。</p>
-
-    <h3>全技からまとめて比較する</h3>
-    <p>技を1つも選択しない状態で計算すると、そのポケモンが使う候補になりそうな攻撃技をまとめて比較しやすくなります。</p>
-    <p>「このポケモンにどんな技を持たせるか迷っている」「仮想敵に対して通りがいい技を見たい」といった、パーティ構築の段階で便利です。</p>
-
-    <h3>手動で技を選択する</h3>
-    <p>技名を検索して手動で追加することもできます。「すでに採用する技は決まっていて、その中で今どれを押すべきか見たい」という場面では、こちらの使い方が実戦向きです。</p>
-    <p>登録済みポケモンから読み込んだ場合は、そのポケモンに設定してある技がそのまま反映されるので、対戦中の確認もしやすくなります。</p>
-
-    <div class="note-box">
-      <div class="note-title">補足</div>
-      <p>構築段階では「候補の技を広く比較する」、対戦中は「採用している技だけを比べる」と考えると使い分けしやすくなります。</p>
-    </div>
-
-    <h2>実践シナリオ：どんな場面で役立つ？</h2>
-
-    <h3>シナリオ1：対面で押す技を比較する</h3>
-    <p>たとえば、自分のガブリアスが相手のブリジュラスと対面した場面を考えます。じしん・げきりん・ほのおのキバ・がんせきふうじのように攻撃技を並べておけば、どの技がもっとも通りやすいかを比べやすくなります。</p>
-    <p>「なんとなくこの技かな」と感覚で押していた場面でも、実際のダメージを見ながら判断しやすくなるのが強みです。</p>
-
-    <h3>シナリオ2：交代を読んで通りのいい技を選ぶ</h3>
-    <p>対戦では、相手がそのまま居座るとは限りません。目の前の相手にはよく通る技でも、裏のポケモンにはほとんど入らない、ということはよくあります。</p>
-    <p>そんなときに相手パーティの候補を複数登録しておけば、「目の前に最大火力が出る技」だけでなく、「全体的に通りがいい技」も見つけやすくなります。交代を含めた判断をしたいときに役立ちます。</p>
-
-    <h3>シナリオ3：パーティ構築で技構成を決める</h3>
-    <p>新しいポケモンをパーティに入れるとき、「4つの技枠をどうするか」で悩むことは多いはずです。そんなときも、技選択判定で仮想敵を並べて比較すれば、技の通り方を見ながら構成を考えやすくなります。</p>
-    <p>たとえばゲンガーに「シャドーボール・ヘドロばくだん・きあいだま・こごえるかぜ」を入れるか、「こごえるかぜ」を「エナジーボール」に変えるかで迷っているなら、相手候補を入力して比べることで判断材料を増やせます。</p>
-
-    <h2>もっと効果的に使うためのコツ</h2>
-
-    <h3>コツ1：ポケモン登録と組み合わせる</h3>
-    <p>技選択判定を使いやすくするなら、事前のポケモン登録がかなり便利です。性格・努力値・特性・持ち物・技を登録しておけば、毎回の入力を省きやすくなります。</p>
-    <p>対戦前の確認や、何度も同じポケモンで比較するときに特に役立ちます。</p>
-
-    <h3>コツ2：ダメージ計算と使い分ける</h3>
-    <p>技選択判定は、「複数の技をまとめて比較したい」ときに向いています。一方で、「この技で確定何発か」「乱数がどのくらいか」を細かく見たいときは、通常のダメージ計算のほうが向いています。</p>
-    <p>使い分けの目安は次のとおりです。</p>
+    <h2>使いどころ</h2>
     <ul>
-      <li><strong>技選択判定</strong> → 複数の技・複数の相手をまとめて比べたいとき</li>
-      <li><strong>ダメージ計算</strong> → 特定の対面を細かく確認したいとき</li>
+      <li>対戦中に4技の通りをすぐ見たいとき</li>
+      <li>ランキング型をもとに大まかなダメージ感を確認したいとき</li>
+      <li>登録済みの型を使って、相手への打点を素早く比較したいとき</li>
     </ul>
-    <p>まず技選択判定で全体を見て、気になる対面だけダメージ計算で深掘りする流れにすると、かなり使いやすくなります。</p>
 
-    <h3>コツ3：天候やフィールドの設定を忘れない</h3>
-    <p>自分のパーティが晴れや雨を軸にしている場合は、天候やフィールドの設定を入れた状態で確認するのが大切です。ここがズレると、見えてくる技の優先順位も変わりやすくなります。</p>
-    <p>特に天候前提のパーティでは、設定の有無で結果の印象がかなり変わることがあります。</p>
-
-    <h2>まとめ</h2>
-    <p>技選択判定は、「どの技が通りやすいか」を感覚だけでなく、数字を見ながら判断しやすくしてくれるツールです。この記事のポイントをまとめると、次のとおりです。</p>
-    <ul>
-      <li>自分のポケモンと相手のポケモンを設定するだけで、複数の技を比較しやすい</li>
-      <li>相手を最大6体まで登録できるので、交代先も含めた判断に使いやすい</li>
-      <li>構築段階の技検討にも、対戦中の技選びにも使える</li>
-      <li>ポケモン登録と組み合わせると、入力の手間を減らしやすい</li>
-      <li>ダメージ計算と使い分けることで、全体比較と詳細確認の両方がしやすくなる</li>
-    </ul>
-    <p>まずは自分のよく使うポケモンで試してみてください。「なんとなく」で選んでいた技が、「こういう理由でこの技を押す」と整理しやすくなるだけでも、対戦中の判断はかなり安定しやすくなります。</p>
+    <p>本格的に6体全体の流れを管理したい場合はバトルアナライザー、1技を細かく詰めたい場合はダメージ計算、4技をすぐ比較したい場合はクイック技ダメージ、という使い分けがおすすめです。</p>
 
     <div class="article-cta">
-      <div class="article-cta-text">実際に技選択判定を開いて、よく使うポケモンで技の通り方を確認してみましょう。</div>
-      <a class="article-cta-btn" href="../move.html">技選択判定を開く</a>
+      <div class="article-cta-text">実際にクイック技ダメージを開いて、よく使うポケモンで4技のダメージを確認してみましょう。</div>
+      <a class="article-cta-btn" href="../move.html">クイック技ダメージを開く</a>
     </div>
   </div>
 

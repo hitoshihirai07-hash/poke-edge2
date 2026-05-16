@@ -1019,8 +1019,8 @@ input[type=file]{display:none;}
 let ADMIN_ANALYTICS_PERIOD = 'today';
 const ADMIN_EVENT_LABELS = {
   page_view:'ページ閲覧', login_seen:'ログイン利用者確認', calc_run:'ダメージ計算実行', calc_add_run:'合計ダメージ計算', calc_record_save:'計算履歴保存',
-  season_search:'使用可能ポケモン検索', season_type_filter:'タイプ絞り込み', season_detail_open:'詳細表示', move_check:'技選択判定',
-  scope_select_decide:'選出決定', scope_record:'対戦記録保存', scope_damage_tab:'技対面タブ表示', party_save:'パーティ保存', party_load:'パーティ読込', pokemon_save:'ポケモン登録保存', endure_run:'耐久調整実行', calc_run_click:'ダメージ計算クリック', move_check_click:'技判定クリック', party_save_click:'パーティ保存クリック', pokemon_save_click:'ポケモン登録クリック', scope_record_click:'対戦記録クリック', endure_run_click:'耐久調整クリック', admin_test:'管理画面テスト'
+  season_search:'使用可能ポケモン検索', season_type_filter:'タイプ絞り込み', season_detail_open:'詳細表示', move_check:'クイック技ダメージ',
+  scope_select_decide:'選出決定', scope_record:'対戦記録保存', scope_damage_tab:'技対面タブ表示', party_save:'パーティ保存', party_load:'パーティ読込', pokemon_save:'ポケモン登録保存', endure_run:'耐久調整実行', calc_run_click:'ダメージ計算クリック', move_check_click:'クイッククリック', party_save_click:'パーティ保存クリック', pokemon_save_click:'ポケモン登録クリック', scope_record_click:'対戦記録クリック', endure_run_click:'耐久調整クリック', admin_test:'管理画面テスト'
 };
 function setAnalyticsPeriod(period){
   ADMIN_ANALYTICS_PERIOD = period || 'today';
@@ -1066,7 +1066,7 @@ function adminNormalizeAnalyticsPage(page){
 function adminPageLabel(page){
   const normalized = adminNormalizeAnalyticsPage(page);
   const map = {
-    'index.html':'トップ','calc.html':'ダメージ計算','endure.html':'耐久調整','move.html':'技選択判定','party.html':'パーティ管理','pokemon.html':'ポケモン登録','items.html':'アイテム','scope.html':'バトルアナライザー','season.html':'使用可能ポケモン','speed.html':'素早さライン','stats.html':'旧ページ','blog.html':'記事一覧','policy.html':'サイト情報','admin.html':'管理画面','auth.html':'ログイン'
+    'index.html':'トップ','calc.html':'ダメージ計算','endure.html':'耐久調整','move.html':'クイック技ダメージ','party.html':'パーティ管理','pokemon.html':'ポケモン登録','items.html':'アイテム','scope.html':'バトルアナライザー','season.html':'使用可能ポケモン','speed.html':'素早さライン','stats.html':'旧ページ','blog.html':'記事一覧','policy.html':'サイト情報','admin.html':'管理画面','auth.html':'ログイン'
   };
   return (map[normalized] ? map[normalized] + ' / ' : '') + normalized;
 }
