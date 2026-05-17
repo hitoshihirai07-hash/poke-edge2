@@ -2631,8 +2631,9 @@ function setPartyRankingMode(mode){
   });
   if(selectedSlot>=0 && party[selectedSlot] && party[selectedSlot].poke) renderPeMoveQuick(party[selectedSlot].poke.name);
   updateCoverage();
-  renderPartyBuildCarte();
+  markPartyBuildCarteDirty();
 }
+
 
 // ===== スマホ用: パーティ管理タブ切り替え =====
 function switchPartyMobileTab(tab){
@@ -3490,13 +3491,60 @@ async function copyPartyBuildCarteText(){
     box.remove();
   }
 }
+let PARTY_BUILD_CARTE_DIRTY = true;
+let PARTY_BUILD_CARTE_LAST_SIG = '';
+let PARTY_BUILD_CARTE_TIMER = null;
+function isPartyBuildCarteVisible(){
+  const panel = document.querySelector('[data-party-workspace-panel="karte"]');
+  return !!(panel && panel.classList.contains('active'));
+}
+function getPartyBuildCarteSignature(members){
+  const src = Array.isArray(members) ? members : getPartyBuildMembers();
+  const parts = src.map(m=>{
+    const moves = (m.moves||[]).map(x=>x && (x.name||x)).filter(Boolean).join('/');
+    const ev = m.ev || {};
+    return [m?.poke?.name||'', m?.ability||'', m?.item||'', m?.nature||'', ev.hp||0, ev.atk||0, ev.def||0, ev.spa||0, ev.spd||0, ev.spe||0, moves].join('|');
+  });
+  let calcLen = 0;
+  try{
+    const raw = localStorage.getItem('pokeedge_calc_records_v1') || '[]';
+    const parsed = JSON.parse(raw);
+    calcLen = Array.isArray(parsed) ? parsed.length : 0;
+  }catch(_){ calcLen = 0; }
+  return [PARTY_RANKING_MODE, calcLen, parts.join('||')].join('@@');
+}
+function markPartyBuildCarteDirty(){
+  PARTY_BUILD_CARTE_DIRTY = true;
+  if(isPartyBuildCarteVisible()) schedulePartyBuildCarteRender();
+}
+function schedulePartyBuildCarteRender(){
+  clearTimeout(PARTY_BUILD_CARTE_TIMER);
+  PARTY_BUILD_CARTE_TIMER = setTimeout(()=>{
+    if(typeof requestIdleCallback === 'function'){
+      requestIdleCallback(()=>renderPartyBuildCarte(), {timeout:260});
+    }else{
+      renderPartyBuildCarte();
+    }
+  }, 80);
+}
 function renderPartyBuildCarte(){
   const root = document.getElementById('party-build-carte-root');
   if(!root) return;
+  if(!isPartyBuildCarteVisible()){
+    PARTY_BUILD_CARTE_DIRTY = true;
+    if(!root.innerHTML.trim()){
+      root.innerHTML = '<div class="build-empty">カルテタブを開くと、構築カルテと診断を表示します。</div>';
+    }
+    return;
+  }
   const members = getPartyBuildMembers();
+  const carteSig = getPartyBuildCarteSignature(members);
+  if(!PARTY_BUILD_CARTE_DIRTY && PARTY_BUILD_CARTE_LAST_SIG === carteSig) return;
   const modeLabel = PARTY_RANKING_MODE === 'double' ? 'ダブル' : 'シングル';
   if(!members.length){
     root.innerHTML = '<div class="build-empty">パーティを追加すると、構築カルテと診断を表示します。</div>';
+    PARTY_BUILD_CARTE_DIRTY = false;
+    PARTY_BUILD_CARTE_LAST_SIG = carteSig;
     return;
   }
   const attackTypes = getPartyBuildAttackTypes(members);
@@ -3554,6 +3602,8 @@ function renderPartyBuildCarte(){
     <div class="build-carte-section"><div class="build-carte-section-title">素早さライン</div><table class="build-mini-table"><thead><tr><th>ポケモン</th><th>実数値</th><th>基準</th></tr></thead><tbody>${speedHtml}</tbody></table></div>
     <div class="build-carte-section"><div class="build-carte-section-title">保存済みダメージメモ</div><table class="build-mini-table"><thead><tr><th>対面</th><th>技</th><th>ダメージ</th><th>判定</th></tr></thead><tbody>${calcHtml}</tbody></table></div>
   `;
+  PARTY_BUILD_CARTE_DIRTY = false;
+  PARTY_BUILD_CARTE_LAST_SIG = carteSig;
 }
 
 function renderPartyCompareRecordCard(title, stats){
@@ -3681,7 +3731,7 @@ function loadParty(i) {
 
 
 // renderPartyGrid は後方互換のために残す
-function renderPartyGrid() { renderPartySlotList(); renderPartyBuildCarte(); }
+function renderPartyGrid() { renderPartySlotList(); markPartyBuildCarteDirty(); }
 function updateCoverageNow() {
   const allTypes = PARTY_ALL_TYPES.slice();
 
@@ -3844,7 +3894,7 @@ function updateCoverageNow() {
   }
 
   renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCount);
-  renderPartyBuildCarte();
+  markPartyBuildCarteDirty();
 }
 
 function updateCoverage() {
@@ -4283,7 +4333,7 @@ window.onload = async () => {
   await loadGameData();
   initSeasonFilter();
   switchPartyWorkspace('recommend');
-  renderPartyBuildCarte();
+  markPartyBuildCarteDirty();
   document.querySelectorAll('[data-party-ranking-mode]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyRankingMode === PARTY_RANKING_MODE);
   });
