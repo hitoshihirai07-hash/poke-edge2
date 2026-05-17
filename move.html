@@ -141,6 +141,18 @@ details summary::-webkit-details-marker{display:none;}
 .empty{border:1px dashed var(--border2);background:var(--panel2);border-radius:18px;padding:18px;color:var(--text2);font-size:13px;line-height:1.7;text-align:center;}
 .note{font-size:11px;color:var(--text3);line-height:1.6;margin-top:8px;}
 .compact-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;}
+.combo-box{margin-top:12px;border:1px solid var(--border);background:var(--panel2);border-radius:18px;padding:12px;display:grid;gap:10px;}
+.combo-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.combo-title{font-size:13px;font-weight:900;}
+.combo-sub{font-size:11px;color:var(--text2);line-height:1.5;margin-top:3px;}
+.combo-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.combo-pick{border:1px solid var(--border);background:var(--panel);border-radius:14px;padding:9px;}
+.combo-pick-label{font-size:11px;color:var(--text2);font-weight:900;margin-bottom:6px;}
+.combo-result{border-top:1px dashed var(--border);padding-top:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;}
+.combo-main{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:900;color:var(--accent);}
+.combo-range{font-size:12px;color:var(--text2);margin-top:4px;}
+.combo-moves{font-size:12px;color:var(--text2);line-height:1.55;}
+@media(max-width:640px){.combo-picks{grid-template-columns:1fr}.combo-result{grid-template-columns:1fr}.combo-main{font-size:18px}.damage-card{grid-template-columns:1fr}.damage-main{text-align:left}}
 
 /* shared sidebar / mobile navigation */
 .side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40;}
@@ -351,6 +363,9 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
         <div class="result-list" id="result-list">
           <div class="empty">自分・相手・技を入れると、ここに4技の結果が出ます。</div>
         </div>
+        <div class="combo-box" id="combo-box">
+          <div class="empty">2つの技を選ぶと、合計ダメージが表示されます。</div>
+        </div>
         <div class="compact-tools">
           <button class="btn primary" type="button" onclick="quickAutoMoves()">候補技を入れる</button>
           <button class="btn" type="button" onclick="quickSwapSides()">攻守入替</button>
@@ -450,6 +465,58 @@ const WB_MAP = {'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こ�
 const TYPE_BOOST_ABILITIES = {'りゅうのあぎと':['ドラゴン',1.5],'はがねつかい':['はがね',1.5],'いわはこび':['いわ',1.5],'トランジスタ':['でんき',1.3]};
 const LOW_HP_TYPE_ABILITIES = {'もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
 const EFFECT_LIST_POWER_ABILITIES = {'てつのこぶし':1.2,'すてみ':1.2,'がんじょうあご':1.5,'きれあじ':1.5,'メガランチャー':1.5,'パンクロック':1.3};
+const HP_LOW_POWER_MOVES = new Set(['じたばた','きしかいせい']);
+const HP_HIGH_POWER_MOVES = new Set(['ふんか','しおふき','ドラゴンエナジー']);
+const TARGET_HP_POWER_MOVES = new Set(['にぎりつぶす','しぼりとる']);
+
+const QUICK_FORM_GROUPS = [
+  {display:'ギルガルド', default:'ギルガルド盾', forms:[{name:'ギルガルド盾', label:'盾'}, {name:'ギルガルド剣', label:'剣'}]},
+  {display:'イルカマン', default:'イルカマン（ナイーブ）', forms:[{name:'イルカマン（ナイーブ）', label:'ナイーブ'}, {name:'イルカマン（マイティ）', label:'マイティ'}]},
+  {display:'ヨワシ', default:'ヨワシ', forms:[{name:'ヨワシ', label:'たんどく'}, {name:'ヨワシ群', label:'群れ'}]},
+  {display:'コオリッポ', default:'コオリッポA', forms:[{name:'コオリッポA', label:'アイス'}, {name:'コオリッポＮ', label:'ナイス'}]}
+];
+function quickFormGroupForName(name){
+  const n = String(name || '').trim();
+  if(!n) return null;
+  return QUICK_FORM_GROUPS.find(g => g.display === n || g.forms.some(f => f.name === n)) || null;
+}
+function quickFormGroupDisplayName(name){
+  const group = quickFormGroupForName(name);
+  return group ? group.display : String(name || '').trim();
+}
+function quickFormLabel(name){
+  const group = quickFormGroupForName(name);
+  if(!group) return '';
+  const form = group.forms.find(f => f.name === name);
+  return form ? form.label : '';
+}
+function quickFormOptionsForName(name){
+  const group = quickFormGroupForName(name);
+  if(!group) return [];
+  return group.forms.filter(f => pokeByName.has(f.name) && quickIsAllowedPokemon(f.name));
+}
+function quickDefaultFormForDisplay(display){
+  const group = quickFormGroupForName(display);
+  if(!group) return String(display || '').trim();
+  const allowed = quickFormOptionsForName(group.display);
+  if(allowed.find(f => f.name === group.default)) return group.default;
+  return allowed[0]?.name || group.default;
+}
+function quickResolvePokemonName(value){
+  const raw = String(value || '').trim();
+  if(!raw) return '';
+  const group = quickFormGroupForName(raw);
+  if(group && group.display === raw) return quickDefaultFormForDisplay(group.display);
+  if(pokeByName.has(raw)) return raw;
+  if(group) return raw;
+  return '';
+}
+function quickDisplaySlotName(slot){
+  if(!slot || !slot.poke) return '未設定';
+  const display = quickFormGroupDisplayName(slot.poke.name);
+  const label = quickFormLabel(slot.poke.name);
+  return label ? `${display}（${label}）` : display;
+}
 
 
 function el(id){ return document.getElementById(id); }
@@ -502,7 +569,7 @@ function buildDataLists(){
   const moveList = el('move-datalist');
   const itemList = el('item-datalist');
   const availablePokes = getAvailablePokemonList();
-  pokeList.innerHTML = availablePokes.map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
+  pokeList.innerHTML = quickRankedPokemonList().map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
   moveList.innerHTML = moveIndex.filter(m=>m.category==='物理'||m.category==='特殊').map(m=>`<option value="${escapeAttr(m.name)}"></option>`).join('');
   itemList.innerHTML = BELONGINGS.map(item=>`<option value="${escapeAttr(getItemName(item))}"></option>`).join('');
 }
@@ -897,10 +964,47 @@ function typeEffWithAbility(moveType, defTypes, ability, moveName=''){ if(abilit
 function getAuraModifier(moveType, atkAbility, defAbility){ const fairyAura = atkAbility==='フェアリーオーラ' || defAbility==='フェアリーオーラ'; const darkAura = atkAbility==='ダークオーラ' || defAbility==='ダークオーラ'; const auraBreak = atkAbility==='オーラブレイク' || defAbility==='オーラブレイク'; if(moveType==='フェアリー' && fairyAura) return auraBreak ? 3072/4096 : 5448/4096; if(moveType==='あく' && darkAura) return auraBreak ? 3072/4096 : 5448/4096; return 1; }
 function getDisplayedCategory(move, atkStats, defStats){ if(move.name==='シェルアームズ'){ const physicalScore = Math.max(1, atkStats.atk) / Math.max(1, defStats.def); const specialScore = Math.max(1, atkStats.spa) / Math.max(1, defStats.spd); return physicalScore > specialScore ? '物理' : '特殊'; } return move.category; }
 function resolveMoveType(move, atkAbility, weather){ let type = move.type; let skin = 1; let notes = []; if(SKIN_MAP[atkAbility] && type==='ノーマル' && move.name!=='わるあがき'){ type = SKIN_MAP[atkAbility]; skin = 1.2; notes.push(`${atkAbility}で${type}化`); } if(move.name==='ウェザーボール' && weather && WB_MAP[weather]){ type = WB_MAP[weather]; notes.push(`ウェザーボール→${type}`); } return {type, skin, notes}; }
+
+function quickHasMoveInSet(setObj){
+  return quickState.moves.some(name=>setObj.has(String(name || '').trim()));
+}
+function quickHpLowPower(percent){
+  const p = Math.max(1, Math.min(100, parseInt(percent || 100, 10) || 100));
+  if(p <= 2) return 200;
+  if(p <= 8) return 150;
+  if(p <= 18) return 100;
+  if(p <= 33) return 80;
+  if(p <= 67) return 40;
+  return 20;
+}
+function quickHpHighPower(percent){
+  const p = Math.max(1, Math.min(100, parseInt(percent || 100, 10) || 100));
+  return Math.max(1, Math.floor(150 * p / 100));
+}
+function quickTargetHpPower(percent){
+  const p = Math.max(1, Math.min(100, parseInt(percent || 100, 10) || 100));
+  return Math.max(1, Math.floor(120 * p / 100));
+}
+
 function resolveMovePower(move, atkSlot, defSlot, weather){
   let power = Number(move.power || 0) || 0;
   const notes = [];
   if(move.name==='ウェザーボール' && weather && WB_MAP[weather]){ power = 100; }
+  if(HP_LOW_POWER_MOVES.has(move.name)){
+    const hpPercent = quickGetCondition(atkSlot).hpPercent;
+    power = quickHpLowPower(hpPercent);
+    notes.push(`${move.name}: 自分HP${hpPercent}%で威力${power}`);
+  }
+  if(HP_HIGH_POWER_MOVES.has(move.name)){
+    const hpPercent = quickGetCondition(atkSlot).hpPercent;
+    power = quickHpHighPower(hpPercent);
+    notes.push(`${move.name}: 自分HP${hpPercent}%で威力${power}`);
+  }
+  if(TARGET_HP_POWER_MOVES.has(move.name)){
+    const hpPercent = quickGetCondition(defSlot).hpPercent;
+    power = quickTargetHpPower(hpPercent);
+    notes.push(`${move.name}: 相手HP${hpPercent}%で威力${power}`);
+  }
   if(move.name === 'おはかまいり'){
     const fainted = quickGetFaintedAllies(atkSlot);
     power = 50 + fainted * 50;
@@ -1105,6 +1209,7 @@ const quickState = {
   defender: quickEmptySlot('defender'),
   moves: ['', '', '', ''],
   activeMoveIndex: 0,
+  combo: { first: 0, second: 1 },
   weather: '',
   recent: []
 };
@@ -1139,7 +1244,7 @@ function quickLoadPartiesLocal(){ return quickSafeJson('pokeedge_parties', []); 
 
 function quickCleanUsageName(v){ return String(v || '').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').trim(); }
 function quickRankingPercent(v){ const m = String(v || '').match(/\(([0-9.]+)%\)/); return m ? parseFloat(m[1]) : 0; }
-function quickRankingSortValue(name){ const row = RANKING_BY_NAME.get(name); return row ? (parseInt(row.rank,10)||9999) : 9999; }
+function quickRankingSortValue(name){ const row = quickRankRowForName ? quickRankRowForName(name) : RANKING_BY_NAME.get(name); return row ? (parseInt(row.rank,10)||9999) : 9999; }
 function quickMegaBaseName(name){ return String(MEGA_DATA?.formToBase?.[name] || '').trim(); }
 function quickBaseForMoveSource(name){ return quickMegaBaseName(name) || name; }
 function quickLatestSeasonList(){
@@ -1149,7 +1254,7 @@ function quickLatestSeasonList(){
   return list.map(n=>String(n||'').trim()).filter(Boolean);
 }
 function quickAllowedPokemonSet(){ const list = quickLatestSeasonList(); return list.length ? new Set(list) : null; }
-function quickIsAllowedPokemon(name){ const set = quickAllowedPokemonSet(); return !set || set.has(String(name||'').trim()); }
+function quickIsAllowedPokemon(name){ const set = quickAllowedPokemonSet(); if(!set) return true; const n=String(name||'').trim(); if(set.has(n)) return true; const group=quickFormGroupForName(n); return !!group && group.forms.some(f=>set.has(f.name)); }
 function quickMegaFormsForName(name){
   const current = String(name || '').trim();
   const base = quickMegaBaseName(current) || current;
@@ -1177,9 +1282,11 @@ function quickRankLookupName(name){
   const n = String(name || '').trim();
   if(!n) return '';
   if(n === 'メガリザードンX' || n === 'メガリザードンY') return 'リザードン';
+  const formDisplay = quickFormGroupDisplayName(n);
+  if(RANKING_BY_NAME.has(formDisplay)) return formDisplay;
   if(RANKING_BY_NAME.has(n)) return n;
   const base = quickMegaBaseName(n);
-  return base || n;
+  return base || formDisplay || n;
 }
 function quickRankRowForName(name){ const key = quickRankLookupName(name); return key ? (RANKING_BY_NAME.get(key) || null) : null; }
 function quickParseRankingNature(row){
@@ -1254,12 +1361,20 @@ function quickApplyRankingToSlot(role){
 }
 function quickRankedPokemonList(){
   const allowed = quickAllowedPokemonSet();
-  const isAllowed = p => !allowed || allowed.has(String(p?.name || '').trim());
-  const rankedNames = RANKING_ROWS.map(r=>String(r.name||r.siteName||'').trim()).filter(Boolean);
   const seen = new Set();
-  const ranked = rankedNames.map(n=>pokeByName.get(n)).filter(Boolean).filter(isAllowed).filter(p=>!seen.has(p.name) && seen.add(p.name));
-  const rest = pokeIndex.slice().filter(isAllowed).filter(p=>!seen.has(p.name)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja'));
-  return ranked.concat(rest);
+  const out = [];
+  const addChoice = (rawName)=>{
+    const display = quickFormGroupDisplayName(rawName);
+    if(!display || seen.has(display)) return;
+    const actual = quickResolvePokemonName(display) || rawName;
+    if(allowed && !quickIsAllowedPokemon(actual)) return;
+    if(!pokeByName.has(actual)) return;
+    seen.add(display);
+    out.push({name:display, actualName:actual, isFormGroup:!!quickFormGroupForName(display)});
+  };
+  RANKING_ROWS.map(r=>String(r.name||r.siteName||'').trim()).filter(Boolean).forEach(addChoice);
+  pokeIndex.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja')).forEach(p=>addChoice(p.name));
+  return out;
 }
 function quickShowSearchPanel(panelId, items){
   const panel = document.getElementById(panelId);
@@ -1273,7 +1388,8 @@ function quickFilterTextMatch(label, q){ const a=String(label||'').toLowerCase()
 function quickPokemonSuggestions(query, role){
   return quickRankedPokemonList().filter(p=>quickFilterTextMatch(p.name, query)).slice(0,18).map(p=>{
     const row = quickRankRowForName(p.name);
-    const meta = row ? `${row.rank}位` : (quickMegaBaseName(p.name) ? 'メガ' : '');
+    const group = quickFormGroupForName(p.name);
+    const meta = row ? `${row.rank}位` : (group ? 'フォルム選択' : (quickMegaBaseName(p.name) ? 'メガ' : ''));
     return {label:p.name, meta, onclick:`quickPickPokemon('${role}','${escapeAttr(p.name)}')`};
   });
 }
@@ -1299,7 +1415,7 @@ function quickRegisteredSuggestions(query){
   const q = String(query || '').trim();
   return registeredPokes.map((r,i)=>({rec:r, i, label:quickRegisteredLabel(r,i)})).filter(x=>quickFilterTextMatch(x.label,q)).slice(0,18).map(x=>({label:x.label, meta:'登録', onclick:`quickPickRegistered(${x.i})`}));
 }
-function quickPickPokemon(role, name){ const input=document.getElementById(role==='attacker'?'attacker-name':'defender-name'); if(input) input.value=name; quickHideSearchPanel(role==='attacker'?'attacker-name-panel':'defender-name-panel'); quickSetPokemon(role, name, true, true); }
+function quickPickPokemon(role, name){ const display=quickFormGroupDisplayName(name); const input=document.getElementById(role==='attacker'?'attacker-name':'defender-name'); if(input) input.value=display; quickHideSearchPanel(role==='attacker'?'attacker-name-panel':'defender-name-panel'); quickSetPokemon(role, display, true, true); }
 function quickPickMove(index, name){
   quickSetActiveMoveIndex(index);
   const input=document.getElementById('move-'+index);
@@ -1323,13 +1439,14 @@ function quickRenderPresetChips(){
 function quickSetWeather(v){ quickState.weather=v||''; quickRenderAll(); }
 function quickStageMult(stage){ const s = Math.max(-6, Math.min(6, parseInt(stage||0,10)||0)); return s >= 0 ? (2+s)/2 : 2/(2-s); }
 function quickApplyStage(value, stage){ return Math.max(1, Math.floor(value * quickStageMult(stage))); }
-function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false}; }
+function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false, hpPercent:100}; }
 function quickNormalizeCondition(condition){
   const src = condition && typeof condition === 'object' ? condition : {};
   return {
     faintedAllies: Math.max(0, Math.min(2, parseInt(src.faintedAllies || 0, 10) || 0)),
     lowHp: !!src.lowHp,
-    flashFire: !!src.flashFire
+    flashFire: !!src.flashFire,
+    hpPercent: Math.max(1, Math.min(100, parseInt(src.hpPercent || 100, 10) || 100))
   };
 }
 function quickGetCondition(slot){
@@ -1345,6 +1462,7 @@ function quickSetCondition(role, key, value){
   if(key === 'faintedAllies') condition.faintedAllies = Math.max(0, Math.min(2, parseInt(value || 0, 10) || 0));
   if(key === 'lowHp') condition.lowHp = value === true || value === 'true' || value === 1 || value === '1';
   if(key === 'flashFire') condition.flashFire = value === true || value === 'true' || value === 1 || value === '1';
+  if(key === 'hpPercent') condition.hpPercent = Math.max(1, Math.min(100, parseInt(value || 100, 10) || 100));
   slot.condition = condition;
   quickRenderAll();
 }
@@ -1369,7 +1487,7 @@ function quickBuildDataLists(){
   const moveList = document.getElementById('move-datalist');
   const itemList = document.getElementById('item-datalist');
   const regList = document.getElementById('registered-datalist');
-  if(pokeList) pokeList.innerHTML = pokeIndex.map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
+  if(pokeList) pokeList.innerHTML = quickRankedPokemonList().map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
   if(moveList) moveList.innerHTML = moveIndex.map(m=>`<option value="${escapeAttr(m.name)}"></option>`).join('');
   if(itemList) itemList.innerHTML = BELONGINGS.map(item=>`<option value="${escapeAttr(getItemName(item))}"></option>`).join('');
   if(regList) regList.innerHTML = registeredPokes.map((r,i)=>`<option value="${escapeAttr(quickRegisteredLabel(r,i))}"></option>`).join('');
@@ -1416,8 +1534,9 @@ function quickFindRegisteredFromInput(){
 function quickApplyRecordToRole(rec, role){
   const slot = quickSlot(role);
   const name = String(rec?.pokeName || rec?.name || '').trim();
-  const poke = pokeByName.get(name) || null;
-  slot.pokeName = poke ? poke.name : name;
+  const resolvedName = quickResolvePokemonName(name) || name;
+  const poke = pokeByName.get(resolvedName) || null;
+  slot.pokeName = poke ? quickFormGroupDisplayName(poke.name) : quickFormGroupDisplayName(name);
   slot.poke = poke;
   slot.lv = clamp(parseInt(rec?.lv || 50, 10) || 50, 1, 100);
   slot.iv = 31;
@@ -1474,16 +1593,17 @@ function quickEnsureAbility(role){
 }
 function quickSetPokemon(role, value, autoMoves=true, applyRanking=true){
   const slot = quickSlot(role);
-  const name = String(value || '').trim();
-  const poke = pokeByName.get(name) || null;
-  slot.pokeName = name;
+  const rawName = String(value || '').trim();
+  const resolvedName = quickResolvePokemonName(rawName);
+  const poke = resolvedName ? (pokeByName.get(resolvedName) || null) : null;
+  slot.pokeName = poke ? quickFormGroupDisplayName(poke.name) : quickFormGroupDisplayName(rawName);
   slot.poke = poke;
   slot.iv = 31;
   slot.condition = quickDefaultCondition();
   if(poke){
     quickEnsureAbility(role);
     if(applyRanking) quickApplyRankingToSlot(role);
-    quickRememberPokemon(poke.name);
+    quickRememberPokemon(slot.pokeName);
   } else {
     slot.ability = '';
     slot.rankingLabel = '';
@@ -1624,14 +1744,18 @@ function quickInsertMove(name){
 }
 
 function quickConditionControls(role, slot){
-  if(role !== 'attacker' || !slot?.poke) return '';
+  if(!slot?.poke) return '';
   const condition = quickGetCondition(slot);
   const ability = String(slot.ability || '').trim();
   const hasLastRespects = quickState.moves.some(name=>String(name || '').trim() === 'おはかまいり');
-  const needsFainted = hasLastRespects || ability === 'そうだいしょう';
-  const needsLowHp = !!LOW_HP_TYPE_ABILITIES[ability];
-  const needsFlashFire = ability === 'もらいび';
-  if(!needsFainted && !needsLowHp && !needsFlashFire) return '';
+  const hasSelfHpPower = quickHasMoveInSet(HP_LOW_POWER_MOVES) || quickHasMoveInSet(HP_HIGH_POWER_MOVES);
+  const hasTargetHpPower = quickHasMoveInSet(TARGET_HP_POWER_MOVES);
+  const needsFainted = role === 'attacker' && (hasLastRespects || ability === 'そうだいしょう');
+  const needsLowHp = role === 'attacker' && !!LOW_HP_TYPE_ABILITIES[ability];
+  const needsFlashFire = role === 'attacker' && ability === 'もらいび';
+  const needsSelfHp = role === 'attacker' && hasSelfHpPower;
+  const needsTargetHp = role === 'defender' && hasTargetHpPower;
+  if(!needsFainted && !needsLowHp && !needsFlashFire && !needsSelfHp && !needsTargetHp) return '';
   const parts = [];
   if(needsFainted){
     parts.push(`<div class="rank-box"><div class="label">味方ひんし数</div><div class="segment-grid">${[0,1,2].map(n=>`<button type="button" class="segment-btn ${condition.faintedAllies===n?'active':''}" onclick="quickSetCondition('${role}','faintedAllies',${n})">${n}体</button>`).join('')}</div></div>`);
@@ -1641,6 +1765,11 @@ function quickConditionControls(role, slot){
   }
   if(needsFlashFire){
     parts.push(`<div class="rank-box"><div class="label">もらいび発動</div><div class="segment-grid"><button type="button" class="segment-btn ${!condition.flashFire?'active':''}" onclick="quickSetCondition('${role}','flashFire',false)">なし</button><button type="button" class="segment-btn ${condition.flashFire?'active':''}" onclick="quickSetCondition('${role}','flashFire',true)">発動</button></div></div>`);
+  }
+  if(needsSelfHp || needsTargetHp){
+    const label = needsSelfHp ? '自分HP残量' : '相手HP残量';
+    const values = needsSelfHp ? [100,67,33,18,8,2] : [100,75,50,25,1];
+    parts.push(`<div class="rank-box"><div class="label">${label}</div><div class="segment-grid">${values.map(n=>`<button type="button" class="segment-btn ${condition.hpPercent===n?'active':''}" onclick="quickSetCondition('${role}','hpPercent',${n})">${n}%</button>`).join('')}</div></div>`);
   }
   return `<div class="field" style="grid-column:1/-1"><div class="label">発動条件</div><div class="rank-grid">${parts.join('')}</div></div>`;
 }
@@ -1698,13 +1827,30 @@ function quickRenderMegaControls(role){
   if(!wrap) return;
   const slot = quickSlot(role);
   if(!slot.poke){ wrap.innerHTML = ''; return; }
-  const data = quickMegaFormsForName(slot.poke.name);
-  if(!data.forms.length){ wrap.innerHTML = ''; return; }
   const current = slot.poke.name;
-  const choices = [];
-  if(pokeByName.has(data.base) && quickIsAllowedPokemon(data.base)) choices.push({name:data.base, label:'通常'});
-  data.forms.forEach(name=>choices.push({name, label:name.replace(/^メガ/,'メガ')}));
-  wrap.innerHTML = `<div class="mini-label">メガ進化</div><div class="segment-grid mega-grid">${choices.map(c=>`<button type="button" class="segment-btn ${current===c.name?'active':''}" onclick="quickSwitchMega('${role}','${escapeAttr(c.name)}')">${escapeHtml(c.label)}</button>`).join('')}</div>`;
+  const blocks = [];
+  const formOptions = quickFormOptionsForName(current);
+  if(formOptions.length > 1){
+    blocks.push(`<div class="mini-label">フォルム</div><div class="segment-grid mega-grid">${formOptions.map(f=>`<button type="button" class="segment-btn ${current===f.name?'active':''}" onclick="quickSwitchForm('${role}','${escapeAttr(f.name)}')">${escapeHtml(f.label)}</button>`).join('')}</div>`);
+  }
+  const data = quickMegaFormsForName(current);
+  if(data.forms.length){
+    const choices = [];
+    if(pokeByName.has(data.base) && quickIsAllowedPokemon(data.base)) choices.push({name:data.base, label:'通常'});
+    data.forms.forEach(name=>choices.push({name, label:name.replace(/^メガ/,'メガ')}));
+    blocks.push(`<div class="mini-label">メガ進化</div><div class="segment-grid mega-grid">${choices.map(c=>`<button type="button" class="segment-btn ${current===c.name?'active':''}" onclick="quickSwitchMega('${role}','${escapeAttr(c.name)}')">${escapeHtml(c.label)}</button>`).join('')}</div>`);
+  }
+  wrap.innerHTML = blocks.join('');
+}
+function quickSwitchForm(role, name){
+  const slot = quickSlot(role);
+  const poke = pokeByName.get(String(name || '').trim());
+  if(!poke) return;
+  slot.poke = poke;
+  slot.pokeName = quickFormGroupDisplayName(poke.name);
+  quickEnsureAbility(role);
+  quickRememberPokemon(slot.pokeName);
+  quickRenderAll();
 }
 function quickSwitchMega(role, name){
   quickSetPokemon(role, name, role === 'attacker', true);
@@ -1714,18 +1860,66 @@ function quickGetMoveResult(moveName){
 }
 function quickEffClass(eff){ if(eff === 0) return 'eff-zero'; if(eff > 1) return 'eff-good'; if(eff < 1) return 'eff-bad'; return ''; }
 function quickKoClass(ko){ if(String(ko).startsWith('確1') || String(ko).startsWith('乱1')) return 'k1'; if(String(ko).startsWith('確2') || String(ko).startsWith('乱2')) return 'k2'; return 'k3'; }
+
+function quickSetComboSlot(kind, index){
+  if(!quickState.combo) quickState.combo = {first:0, second:1};
+  quickState.combo[kind] = Math.max(0, Math.min(3, parseInt(index || 0, 10) || 0));
+  quickRenderCombo();
+}
+function quickRenderCombo(){
+  const box = document.getElementById('combo-box');
+  if(!box) return;
+  const atk = quickState.attacker;
+  const def = quickState.defender;
+  const combo = quickState.combo || {first:0, second:1};
+  const selector = (kind, label)=>`<div class="combo-pick"><div class="combo-pick-label">${label}</div><div class="segment-grid">${[0,1,2,3].map(i=>`<button type="button" class="segment-btn ${combo[kind]===i?'active':''}" onclick="quickSetComboSlot('${kind}',${i})">${i+1}</button>`).join('')}</div></div>`;
+  if(!atk.poke || !def.poke){
+    box.innerHTML = `<div class="combo-head"><div><div class="combo-title">2技合計</div><div class="combo-sub">自分と相手を選ぶと、技2つ分の合計を確認できます。</div></div></div><div class="combo-picks">${selector('first','1つ目')}${selector('second','2つ目')}</div>`;
+    return;
+  }
+  const first = quickComboMoveResult(combo.first);
+  const second = quickComboMoveResult(combo.second);
+  const valid = [first, second].filter(x=>x && x.result && !x.result.immune);
+  const blocked = [first, second].filter(x=>x && x.result && x.result.immune).map(x=>`${x.no}.${x.name}は無効`);
+  const missing = [first, second].filter(x=>!x || !x.result).map((_, idx)=>idx===0?'1つ目未計算':'2つ目未計算');
+  let body = '';
+  if(valid.length){
+    const totalMin = valid.reduce((sum,x)=>sum + x.result.min, 0);
+    const totalMax = valid.reduce((sum,x)=>sum + x.result.max, 0);
+    const hp = Math.max(1, calcFullStats(def)?.hp || 1);
+    const pctMin = Math.round(totalMin / hp * 1000) / 10;
+    const pctMax = Math.round(totalMax / hp * 1000) / 10;
+    const ko = getKOTag(totalMin, totalMax, hp);
+    const moveNames = [first, second].map(x=>x ? `${x.no}.${x.name}` : '未設定').join(' + ');
+    const note = blocked.concat(missing).filter(Boolean).join(' / ');
+    body = `<div class="combo-result"><div><div class="combo-moves">${escapeHtml(moveNames)}</div><div class="combo-range">${totalMin}〜${totalMax}ダメージ</div>${note ? `<div class="combo-sub">${escapeHtml(note)}</div>` : ''}</div><div><div class="combo-main">${pctMin}〜${pctMax}%</div><span class="ko ${quickKoClass(ko)}">${escapeHtml(ko)}</span></div></div>`;
+  } else {
+    const note = blocked.concat(missing).filter(Boolean).join(' / ') || '技を選択してください。';
+    body = `<div class="empty">${escapeHtml(note)}</div>`;
+  }
+  box.innerHTML = `<div class="combo-head"><div><div class="combo-title">2技合計</div><div class="combo-sub">技番号を2つ選ぶと、合計ダメージ数・合計％・判定を表示します。</div></div></div><div class="combo-picks">${selector('first','1つ目')}${selector('second','2つ目')}</div>${body}`;
+}
+function quickComboMoveResult(index){
+  const i = Math.max(0, Math.min(3, parseInt(index || 0, 10) || 0));
+  const name = String(quickState.moves[i] || '').trim();
+  if(!name) return null;
+  const result = quickGetMoveResult(name);
+  return {no:i+1, name, result};
+}
+
 function quickRenderResults(){
   const atk = quickState.attacker;
   const def = quickState.defender;
   const list = document.getElementById('result-list');
   const pairTitle = document.getElementById('pair-title');
   const pairSub = document.getElementById('pair-sub');
-  if(pairTitle) pairTitle.textContent = `${atk.poke?.name || '自分未設定'} → ${def.poke?.name || '相手未設定'}`;
+  if(pairTitle) pairTitle.textContent = `${quickDisplaySlotName(atk)} → ${quickDisplaySlotName(def)}`;
   if(pairSub) pairSub.textContent = `${atk.ability || '特性未設定'} / ${atk.item || '持ち物なし'} / 天候:${quickWeatherLabel(quickState.weather)}`;
   quickRenderSpeed();
-  if(!list) return;
+  if(!list){ quickRenderCombo(); return; }
   if(!atk.poke || !def.poke){
     list.innerHTML = '<div class="empty">自分と相手を選ぶと、4技のダメージが表示されます。</div>';
+    quickRenderCombo();
     return;
   }
   const rows = quickState.moves.map((name,i)=>{
@@ -1735,8 +1929,8 @@ function quickRenderResults(){
   });
   const bestScore = Math.max(0, ...rows.map(r=>r.result && !r.result.immune ? r.result.score : 0));
   list.innerHTML = rows.map(row=>quickDamageCard(row, bestScore)).join('');
+  quickRenderCombo();
 }
-
 function quickSpreadText(slot){
   const ev = slot?.ev || {};
   return `H${parseInt(ev.hp)||0} A${parseInt(ev.atk)||0} B${parseInt(ev.def)||0} C${parseInt(ev.spa)||0} D${parseInt(ev.spd)||0} S${parseInt(ev.spe)||0}`;
@@ -1886,8 +2080,8 @@ function quickUpdateStatus(){
   const atk = quickState.attacker, def = quickState.defender;
   const moveCount = quickState.moves.filter(Boolean).length;
   wrap.innerHTML = `
-    <div class="status-pill"><div class="status-label">自分</div><div class="status-value">${escapeHtml(atk.poke?.name || '未設定')}</div></div>
-    <div class="status-pill"><div class="status-label">相手</div><div class="status-value">${escapeHtml(def.poke?.name || '未設定')}</div></div>
+    <div class="status-pill"><div class="status-label">自分</div><div class="status-value">${escapeHtml(quickDisplaySlotName(atk))}</div></div>
+    <div class="status-pill"><div class="status-label">相手</div><div class="status-value">${escapeHtml(quickDisplaySlotName(def))}</div></div>
     <div class="status-pill"><div class="status-label">技</div><div class="status-value">${moveCount} / 4</div></div>
     <div class="status-pill"><div class="status-label">状態</div><div class="status-value">即時計算</div></div>`;
 }
@@ -1909,11 +2103,11 @@ function quickAttachEvents(){
   const atk = document.getElementById('attacker-name');
   const def = document.getElementById('defender-name');
   if(atk){
-    atk.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('attacker-name-panel', quickPokemonSuggestions(v,'attacker')); if(pokeByName.has(v)) quickSetPokemon('attacker', v, true, true); });
+    atk.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('attacker-name-panel', quickPokemonSuggestions(v,'attacker')); if(quickResolvePokemonName(v)) quickSetPokemon('attacker', v, true, true); });
     atk.addEventListener('focus', e=>quickShowSearchPanel('attacker-name-panel', quickPokemonSuggestions(e.target.value,'attacker')));
   }
   if(def){
-    def.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('defender-name-panel', quickPokemonSuggestions(v,'defender')); if(pokeByName.has(v)) quickSetPokemon('defender', v, false, true); });
+    def.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('defender-name-panel', quickPokemonSuggestions(v,'defender')); if(quickResolvePokemonName(v)) quickSetPokemon('defender', v, false, true); });
     def.addEventListener('focus', e=>quickShowSearchPanel('defender-name-panel', quickPokemonSuggestions(e.target.value,'defender')));
   }
   const regInput = document.getElementById('registered-apply-input');
