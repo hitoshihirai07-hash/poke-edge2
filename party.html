@@ -3436,11 +3436,77 @@ function getPartyBuildThreatRows(members){
     return {profile, concernScore:ev.concernScore, defenseValue:ev.defenseValue, offenseEff:ev.offenseEff, responders};
   }).sort((a,b)=>b.concernScore-a.concernScore).slice(0,8);
 }
+function calcPartyBuildStatsForPokemon(member, pokemonOverride){
+  const originalPoke = member && member.poke;
+  const cloned = Object.assign({}, member || {}, {poke: pokemonOverride || originalPoke});
+  return calcPartyBuildStats(cloned);
+}
+function normalizePartyBuildMegaText(value){
+  return String(value || '')
+    .normalize('NFKC')
+    .replace(/[\s　（）()・]/g,'')
+    .replace(/えいえんのはな/g,'えいえん')
+    .replace(/永遠の花/g,'えいえん')
+    .replace(/^メガ/,'');
+}
+function getPartyBuildItemRecord(itemName){
+  const name = String(itemName || '').trim();
+  if(!name) return null;
+  return (ITEMS_DATA || []).find(item=>String(item && item.name || '').trim() === name) || null;
+}
+function getPartyBuildMegaStoneBaseName(itemName){
+  const item = getPartyBuildItemRecord(itemName);
+  const effect = String(item && item.effect || '');
+  const m = effect.match(/(.+?)がバトル中メガシンカ可能になる/);
+  if(m && m[1]) return String(m[1]).trim();
+  return '';
+}
+function isPartyBuildChoiceScarf(itemName){
+  return String(itemName || '').trim() === 'こだわりスカーフ';
+}
+function getPartyBuildMegaSpeedForms(member){
+  const p = member && member.poke;
+  if(!p || !p.name) return [];
+  const itemName = String(member && member.item || '').trim();
+  const stoneBase = getPartyBuildMegaStoneBaseName(itemName);
+  if(!stoneBase) return [];
+  const baseName = getMegaBaseName(p.name) || p.name;
+  const normalizedBase = normalizePartyBuildMegaText(baseName);
+  const normalizedStoneBase = normalizePartyBuildMegaText(stoneBase);
+  if(normalizedBase && normalizedStoneBase && normalizedBase !== normalizedStoneBase && !normalizedBase.includes(normalizedStoneBase) && !normalizedStoneBase.includes(normalizedBase)) return [];
+  let forms = getMegaFormsForBase(baseName);
+  if(/X/.test(itemName)) forms = forms.filter(form=>/X/.test(String(form && form.name || '')));
+  if(/Y/.test(itemName)) forms = forms.filter(form=>/Y/.test(String(form && form.name || '')));
+  return forms.filter(form=>form && form.name);
+}
 function getPartyBuildSpeedRows(members){
-  return members.map(member=>{
+  const rows = [];
+  (members || []).forEach(member=>{
+    const p = member && member.poke;
+    if(!p) return;
     const stats = calcPartyBuildStats(member);
-    return {name:member.poke.name, spe:stats.spe, raw:Number(member.poke.spe)||0};
-  }).sort((a,b)=>b.spe-a.spe);
+    rows.push({name:p.name, spe:stats.spe, raw:Number(p.spe)||0, basis:`通常 / 種族値${Number(p.spe)||0}`, order:0});
+    if(isPartyBuildChoiceScarf(member.item)){
+      rows.push({
+        name:`${p.name}（スカーフ）`,
+        spe:Math.floor(stats.spe * 1.5),
+        raw:Number(p.spe)||0,
+        basis:`こだわりスカーフ / 通常${stats.spe}`,
+        order:1
+      });
+    }
+    getPartyBuildMegaSpeedForms(member).forEach(form=>{
+      const megaStats = calcPartyBuildStatsForPokemon(member, form);
+      rows.push({
+        name:`${form.name}（メガ後）`,
+        spe:megaStats.spe,
+        raw:Number(form.spe)||0,
+        basis:`${member.item || 'メガ進化'} / 種族値${Number(form.spe)||0}`,
+        order:2
+      });
+    });
+  });
+  return rows.sort((a,b)=>b.spe-a.spe || a.order-b.order || String(a.name).localeCompare(String(b.name),'ja'));
 }
 function getPartyBuildSavedCalcRows(members){
   const names = new Set();
@@ -3578,7 +3644,7 @@ function renderPartyBuildCarte(){
     const cls = r.defenseValue > 1.15 && r.offenseEff < 2 ? 'bad' : (r.defenseValue <= 1 || r.offenseEff >= 2 ? 'good' : 'mid');
     return `<tr><td>#${escapePartyHtml(r.profile.rank)} ${escapePartyHtml(r.profile.name)}</td><td><span class="build-pill ${cls}">重さ ${Math.round(r.concernScore*10)/10}</span></td><td>${escapePartyHtml(top)}</td></tr>`;
   }).join('') : '<tr><td colspan="3">ランキング参照データがありません。</td></tr>';
-  const speedHtml = speedRows.length ? speedRows.map(r=>`<tr><td>${escapePartyHtml(r.name)}</td><td>${r.spe}</td><td>種族値${r.raw}</td></tr>`).join('') : '<tr><td colspan="3">—</td></tr>';
+  const speedHtml = speedRows.length ? speedRows.map(r=>`<tr><td>${escapePartyHtml(r.name)}</td><td>${r.spe}</td><td>${escapePartyHtml(r.basis || ('種族値' + r.raw))}</td></tr>`).join('') : '<tr><td colspan="3">—</td></tr>';
   const calcHtml = savedCalcRows.length ? savedCalcRows.map(r=>{
     const a = r?.attacker?.displayName || r?.attacker?.name || '攻撃側';
     const d = r?.defender?.displayName || r?.defender?.name || '防御側';
