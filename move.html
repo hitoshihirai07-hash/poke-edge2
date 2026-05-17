@@ -467,6 +467,55 @@ const HP_LOW_POWER_MOVES = new Set(['じたばた','きしかいせい']);
 const HP_HIGH_POWER_MOVES = new Set(['ふんか','しおふき','ドラゴンエナジー']);
 const TARGET_HP_POWER_MOVES = new Set(['にぎりつぶす','しぼりとる']);
 
+const QUICK_FORM_GROUPS = [
+  {display:'ギルガルド', default:'ギルガルド盾', forms:[{name:'ギルガルド盾', label:'盾'}, {name:'ギルガルド剣', label:'剣'}]},
+  {display:'イルカマン', default:'イルカマン（ナイーブ）', forms:[{name:'イルカマン（ナイーブ）', label:'ナイーブ'}, {name:'イルカマン（マイティ）', label:'マイティ'}]},
+  {display:'ヨワシ', default:'ヨワシ', forms:[{name:'ヨワシ', label:'たんどく'}, {name:'ヨワシ群', label:'群れ'}]},
+  {display:'コオリッポ', default:'コオリッポA', forms:[{name:'コオリッポA', label:'アイス'}, {name:'コオリッポＮ', label:'ナイス'}]}
+];
+function quickFormGroupForName(name){
+  const n = String(name || '').trim();
+  if(!n) return null;
+  return QUICK_FORM_GROUPS.find(g => g.display === n || g.forms.some(f => f.name === n)) || null;
+}
+function quickFormGroupDisplayName(name){
+  const group = quickFormGroupForName(name);
+  return group ? group.display : String(name || '').trim();
+}
+function quickFormLabel(name){
+  const group = quickFormGroupForName(name);
+  if(!group) return '';
+  const form = group.forms.find(f => f.name === name);
+  return form ? form.label : '';
+}
+function quickFormOptionsForName(name){
+  const group = quickFormGroupForName(name);
+  if(!group) return [];
+  return group.forms.filter(f => pokeByName.has(f.name) && quickIsAllowedPokemon(f.name));
+}
+function quickDefaultFormForDisplay(display){
+  const group = quickFormGroupForName(display);
+  if(!group) return String(display || '').trim();
+  const allowed = quickFormOptionsForName(group.display);
+  if(allowed.find(f => f.name === group.default)) return group.default;
+  return allowed[0]?.name || group.default;
+}
+function quickResolvePokemonName(value){
+  const raw = String(value || '').trim();
+  if(!raw) return '';
+  const group = quickFormGroupForName(raw);
+  if(group && group.display === raw) return quickDefaultFormForDisplay(group.display);
+  if(pokeByName.has(raw)) return raw;
+  if(group) return raw;
+  return '';
+}
+function quickDisplaySlotName(slot){
+  if(!slot || !slot.poke) return '未設定';
+  const display = quickFormGroupDisplayName(slot.poke.name);
+  const label = quickFormLabel(slot.poke.name);
+  return label ? `${display}（${label}）` : display;
+}
+
 
 function el(id){ return document.getElementById(id); }
 function capEvForMode(v, mode){ const cap = mode==='champions' ? 32 : 252; const n = Math.max(0, parseInt(v || 0, 10) || 0); return Math.min(cap, n); }
@@ -518,7 +567,7 @@ function buildDataLists(){
   const moveList = el('move-datalist');
   const itemList = el('item-datalist');
   const availablePokes = getAvailablePokemonList();
-  pokeList.innerHTML = availablePokes.map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
+  pokeList.innerHTML = quickRankedPokemonList().map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
   moveList.innerHTML = moveIndex.filter(m=>m.category==='物理'||m.category==='特殊').map(m=>`<option value="${escapeAttr(m.name)}"></option>`).join('');
   itemList.innerHTML = BELONGINGS.map(item=>`<option value="${escapeAttr(getItemName(item))}"></option>`).join('');
 }
@@ -1193,7 +1242,7 @@ function quickLoadPartiesLocal(){ return quickSafeJson('pokeedge_parties', []); 
 
 function quickCleanUsageName(v){ return String(v || '').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').trim(); }
 function quickRankingPercent(v){ const m = String(v || '').match(/\(([0-9.]+)%\)/); return m ? parseFloat(m[1]) : 0; }
-function quickRankingSortValue(name){ const row = RANKING_BY_NAME.get(name); return row ? (parseInt(row.rank,10)||9999) : 9999; }
+function quickRankingSortValue(name){ const row = quickRankRowForName ? quickRankRowForName(name) : RANKING_BY_NAME.get(name); return row ? (parseInt(row.rank,10)||9999) : 9999; }
 function quickMegaBaseName(name){ return String(MEGA_DATA?.formToBase?.[name] || '').trim(); }
 function quickBaseForMoveSource(name){ return quickMegaBaseName(name) || name; }
 function quickLatestSeasonList(){
@@ -1203,7 +1252,7 @@ function quickLatestSeasonList(){
   return list.map(n=>String(n||'').trim()).filter(Boolean);
 }
 function quickAllowedPokemonSet(){ const list = quickLatestSeasonList(); return list.length ? new Set(list) : null; }
-function quickIsAllowedPokemon(name){ const set = quickAllowedPokemonSet(); return !set || set.has(String(name||'').trim()); }
+function quickIsAllowedPokemon(name){ const set = quickAllowedPokemonSet(); if(!set) return true; const n=String(name||'').trim(); if(set.has(n)) return true; const group=quickFormGroupForName(n); return !!group && group.forms.some(f=>set.has(f.name)); }
 function quickMegaFormsForName(name){
   const current = String(name || '').trim();
   const base = quickMegaBaseName(current) || current;
@@ -1231,9 +1280,11 @@ function quickRankLookupName(name){
   const n = String(name || '').trim();
   if(!n) return '';
   if(n === 'メガリザードンX' || n === 'メガリザードンY') return 'リザードン';
+  const formDisplay = quickFormGroupDisplayName(n);
+  if(RANKING_BY_NAME.has(formDisplay)) return formDisplay;
   if(RANKING_BY_NAME.has(n)) return n;
   const base = quickMegaBaseName(n);
-  return base || n;
+  return base || formDisplay || n;
 }
 function quickRankRowForName(name){ const key = quickRankLookupName(name); return key ? (RANKING_BY_NAME.get(key) || null) : null; }
 function quickParseRankingNature(row){
@@ -1308,12 +1359,20 @@ function quickApplyRankingToSlot(role){
 }
 function quickRankedPokemonList(){
   const allowed = quickAllowedPokemonSet();
-  const isAllowed = p => !allowed || allowed.has(String(p?.name || '').trim());
-  const rankedNames = RANKING_ROWS.map(r=>String(r.name||r.siteName||'').trim()).filter(Boolean);
   const seen = new Set();
-  const ranked = rankedNames.map(n=>pokeByName.get(n)).filter(Boolean).filter(isAllowed).filter(p=>!seen.has(p.name) && seen.add(p.name));
-  const rest = pokeIndex.slice().filter(isAllowed).filter(p=>!seen.has(p.name)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja'));
-  return ranked.concat(rest);
+  const out = [];
+  const addChoice = (rawName)=>{
+    const display = quickFormGroupDisplayName(rawName);
+    if(!display || seen.has(display)) return;
+    const actual = quickResolvePokemonName(display) || rawName;
+    if(allowed && !quickIsAllowedPokemon(actual)) return;
+    if(!pokeByName.has(actual)) return;
+    seen.add(display);
+    out.push({name:display, actualName:actual, isFormGroup:!!quickFormGroupForName(display)});
+  };
+  RANKING_ROWS.map(r=>String(r.name||r.siteName||'').trim()).filter(Boolean).forEach(addChoice);
+  pokeIndex.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'ja')).forEach(p=>addChoice(p.name));
+  return out;
 }
 function quickShowSearchPanel(panelId, items){
   const panel = document.getElementById(panelId);
@@ -1327,7 +1386,8 @@ function quickFilterTextMatch(label, q){ const a=String(label||'').toLowerCase()
 function quickPokemonSuggestions(query, role){
   return quickRankedPokemonList().filter(p=>quickFilterTextMatch(p.name, query)).slice(0,18).map(p=>{
     const row = quickRankRowForName(p.name);
-    const meta = row ? `${row.rank}位` : (quickMegaBaseName(p.name) ? 'メガ' : '');
+    const group = quickFormGroupForName(p.name);
+    const meta = row ? `${row.rank}位` : (group ? 'フォルム選択' : (quickMegaBaseName(p.name) ? 'メガ' : ''));
     return {label:p.name, meta, onclick:`quickPickPokemon('${role}','${escapeAttr(p.name)}')`};
   });
 }
@@ -1353,7 +1413,7 @@ function quickRegisteredSuggestions(query){
   const q = String(query || '').trim();
   return registeredPokes.map((r,i)=>({rec:r, i, label:quickRegisteredLabel(r,i)})).filter(x=>quickFilterTextMatch(x.label,q)).slice(0,18).map(x=>({label:x.label, meta:'登録', onclick:`quickPickRegistered(${x.i})`}));
 }
-function quickPickPokemon(role, name){ const input=document.getElementById(role==='attacker'?'attacker-name':'defender-name'); if(input) input.value=name; quickHideSearchPanel(role==='attacker'?'attacker-name-panel':'defender-name-panel'); quickSetPokemon(role, name, true, true); }
+function quickPickPokemon(role, name){ const display=quickFormGroupDisplayName(name); const input=document.getElementById(role==='attacker'?'attacker-name':'defender-name'); if(input) input.value=display; quickHideSearchPanel(role==='attacker'?'attacker-name-panel':'defender-name-panel'); quickSetPokemon(role, display, true, true); }
 function quickPickMove(index, name){
   quickSetActiveMoveIndex(index);
   const input=document.getElementById('move-'+index);
@@ -1425,7 +1485,7 @@ function quickBuildDataLists(){
   const moveList = document.getElementById('move-datalist');
   const itemList = document.getElementById('item-datalist');
   const regList = document.getElementById('registered-datalist');
-  if(pokeList) pokeList.innerHTML = pokeIndex.map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
+  if(pokeList) pokeList.innerHTML = quickRankedPokemonList().map(p=>`<option value="${escapeAttr(p.name)}"></option>`).join('');
   if(moveList) moveList.innerHTML = moveIndex.map(m=>`<option value="${escapeAttr(m.name)}"></option>`).join('');
   if(itemList) itemList.innerHTML = BELONGINGS.map(item=>`<option value="${escapeAttr(getItemName(item))}"></option>`).join('');
   if(regList) regList.innerHTML = registeredPokes.map((r,i)=>`<option value="${escapeAttr(quickRegisteredLabel(r,i))}"></option>`).join('');
@@ -1472,8 +1532,9 @@ function quickFindRegisteredFromInput(){
 function quickApplyRecordToRole(rec, role){
   const slot = quickSlot(role);
   const name = String(rec?.pokeName || rec?.name || '').trim();
-  const poke = pokeByName.get(name) || null;
-  slot.pokeName = poke ? poke.name : name;
+  const resolvedName = quickResolvePokemonName(name) || name;
+  const poke = pokeByName.get(resolvedName) || null;
+  slot.pokeName = poke ? quickFormGroupDisplayName(poke.name) : quickFormGroupDisplayName(name);
   slot.poke = poke;
   slot.lv = clamp(parseInt(rec?.lv || 50, 10) || 50, 1, 100);
   slot.iv = 31;
@@ -1530,16 +1591,17 @@ function quickEnsureAbility(role){
 }
 function quickSetPokemon(role, value, autoMoves=true, applyRanking=true){
   const slot = quickSlot(role);
-  const name = String(value || '').trim();
-  const poke = pokeByName.get(name) || null;
-  slot.pokeName = name;
+  const rawName = String(value || '').trim();
+  const resolvedName = quickResolvePokemonName(rawName);
+  const poke = resolvedName ? (pokeByName.get(resolvedName) || null) : null;
+  slot.pokeName = poke ? quickFormGroupDisplayName(poke.name) : quickFormGroupDisplayName(rawName);
   slot.poke = poke;
   slot.iv = 31;
   slot.condition = quickDefaultCondition();
   if(poke){
     quickEnsureAbility(role);
     if(applyRanking) quickApplyRankingToSlot(role);
-    quickRememberPokemon(poke.name);
+    quickRememberPokemon(slot.pokeName);
   } else {
     slot.ability = '';
     slot.rankingLabel = '';
@@ -1763,13 +1825,30 @@ function quickRenderMegaControls(role){
   if(!wrap) return;
   const slot = quickSlot(role);
   if(!slot.poke){ wrap.innerHTML = ''; return; }
-  const data = quickMegaFormsForName(slot.poke.name);
-  if(!data.forms.length){ wrap.innerHTML = ''; return; }
   const current = slot.poke.name;
-  const choices = [];
-  if(pokeByName.has(data.base) && quickIsAllowedPokemon(data.base)) choices.push({name:data.base, label:'通常'});
-  data.forms.forEach(name=>choices.push({name, label:name.replace(/^メガ/,'メガ')}));
-  wrap.innerHTML = `<div class="mini-label">メガ進化</div><div class="segment-grid mega-grid">${choices.map(c=>`<button type="button" class="segment-btn ${current===c.name?'active':''}" onclick="quickSwitchMega('${role}','${escapeAttr(c.name)}')">${escapeHtml(c.label)}</button>`).join('')}</div>`;
+  const blocks = [];
+  const formOptions = quickFormOptionsForName(current);
+  if(formOptions.length > 1){
+    blocks.push(`<div class="mini-label">フォルム</div><div class="segment-grid mega-grid">${formOptions.map(f=>`<button type="button" class="segment-btn ${current===f.name?'active':''}" onclick="quickSwitchForm('${role}','${escapeAttr(f.name)}')">${escapeHtml(f.label)}</button>`).join('')}</div>`);
+  }
+  const data = quickMegaFormsForName(current);
+  if(data.forms.length){
+    const choices = [];
+    if(pokeByName.has(data.base) && quickIsAllowedPokemon(data.base)) choices.push({name:data.base, label:'通常'});
+    data.forms.forEach(name=>choices.push({name, label:name.replace(/^メガ/,'メガ')}));
+    blocks.push(`<div class="mini-label">メガ進化</div><div class="segment-grid mega-grid">${choices.map(c=>`<button type="button" class="segment-btn ${current===c.name?'active':''}" onclick="quickSwitchMega('${role}','${escapeAttr(c.name)}')">${escapeHtml(c.label)}</button>`).join('')}</div>`);
+  }
+  wrap.innerHTML = blocks.join('');
+}
+function quickSwitchForm(role, name){
+  const slot = quickSlot(role);
+  const poke = pokeByName.get(String(name || '').trim());
+  if(!poke) return;
+  slot.poke = poke;
+  slot.pokeName = quickFormGroupDisplayName(poke.name);
+  quickEnsureAbility(role);
+  quickRememberPokemon(slot.pokeName);
+  quickRenderAll();
 }
 function quickSwitchMega(role, name){
   quickSetPokemon(role, name, role === 'attacker', true);
@@ -1832,7 +1911,7 @@ function quickRenderResults(){
   const list = document.getElementById('result-list');
   const pairTitle = document.getElementById('pair-title');
   const pairSub = document.getElementById('pair-sub');
-  if(pairTitle) pairTitle.textContent = `${atk.poke?.name || '自分未設定'} → ${def.poke?.name || '相手未設定'}`;
+  if(pairTitle) pairTitle.textContent = `${quickDisplaySlotName(atk)} → ${quickDisplaySlotName(def)}`;
   if(pairSub) pairSub.textContent = `${atk.ability || '特性未設定'} / ${atk.item || '持ち物なし'} / 天候:${quickWeatherLabel(quickState.weather)}`;
   quickRenderSpeed();
   if(!list){ quickRenderCombo(); return; }
@@ -1887,8 +1966,8 @@ function quickUpdateStatus(){
   const atk = quickState.attacker, def = quickState.defender;
   const moveCount = quickState.moves.filter(Boolean).length;
   wrap.innerHTML = `
-    <div class="status-pill"><div class="status-label">自分</div><div class="status-value">${escapeHtml(atk.poke?.name || '未設定')}</div></div>
-    <div class="status-pill"><div class="status-label">相手</div><div class="status-value">${escapeHtml(def.poke?.name || '未設定')}</div></div>
+    <div class="status-pill"><div class="status-label">自分</div><div class="status-value">${escapeHtml(quickDisplaySlotName(atk))}</div></div>
+    <div class="status-pill"><div class="status-label">相手</div><div class="status-value">${escapeHtml(quickDisplaySlotName(def))}</div></div>
     <div class="status-pill"><div class="status-label">技</div><div class="status-value">${moveCount} / 4</div></div>
     <div class="status-pill"><div class="status-label">状態</div><div class="status-value">即時計算</div></div>`;
 }
@@ -1910,11 +1989,11 @@ function quickAttachEvents(){
   const atk = document.getElementById('attacker-name');
   const def = document.getElementById('defender-name');
   if(atk){
-    atk.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('attacker-name-panel', quickPokemonSuggestions(v,'attacker')); if(pokeByName.has(v)) quickSetPokemon('attacker', v, true, true); });
+    atk.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('attacker-name-panel', quickPokemonSuggestions(v,'attacker')); if(quickResolvePokemonName(v)) quickSetPokemon('attacker', v, true, true); });
     atk.addEventListener('focus', e=>quickShowSearchPanel('attacker-name-panel', quickPokemonSuggestions(e.target.value,'attacker')));
   }
   if(def){
-    def.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('defender-name-panel', quickPokemonSuggestions(v,'defender')); if(pokeByName.has(v)) quickSetPokemon('defender', v, false, true); });
+    def.addEventListener('input', e=>{ const v=e.target.value; quickShowSearchPanel('defender-name-panel', quickPokemonSuggestions(v,'defender')); if(quickResolvePokemonName(v)) quickSetPokemon('defender', v, false, true); });
     def.addEventListener('focus', e=>quickShowSearchPanel('defender-name-panel', quickPokemonSuggestions(e.target.value,'defender')));
   }
   const regInput = document.getElementById('registered-apply-input');
