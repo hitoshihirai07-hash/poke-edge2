@@ -1242,7 +1242,12 @@ function quickCloseNav(){
 function quickSafeJson(key, fallback){ try{ return JSON.parse(localStorage.getItem(key) || ''); }catch(_e){ return fallback; } }
 function quickLoadPartiesLocal(){ return quickSafeJson('pokeedge_parties', []); }
 
-function quickCleanUsageName(v){ return String(v || '').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').trim(); }
+function quickNormalizeLookupText(value){
+  return String(value || '').replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)).trim();
+}
+function quickCleanUsageName(v){
+  return quickNormalizeLookupText(String(v || '').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').trim());
+}
 function quickRankingPercent(v){ const m = String(v || '').match(/\(([0-9.]+)%\)/); return m ? parseFloat(m[1]) : 0; }
 function quickRankingSortValue(name){ const row = quickRankRowForName ? quickRankRowForName(name) : RANKING_BY_NAME.get(name); return row ? (parseInt(row.rank,10)||9999) : 9999; }
 function quickMegaBaseName(name){ return String(MEGA_DATA?.formToBase?.[name] || '').trim(); }
@@ -1384,7 +1389,7 @@ function quickShowSearchPanel(panelId, items){
   panel.classList.add('open');
 }
 function quickHideSearchPanel(panelId){ const p=document.getElementById(panelId); if(p){ p.classList.remove('open'); p.innerHTML=''; } }
-function quickFilterTextMatch(label, q){ const a=String(label||'').toLowerCase(); const b=String(q||'').trim().toLowerCase(); return !b || a.includes(b); }
+function quickFilterTextMatch(label, q){ const a=quickNormalizeLookupText(label).toLowerCase(); const b=quickNormalizeLookupText(q).toLowerCase(); return !b || a.includes(b); }
 function quickPokemonSuggestions(query, role){
   return quickRankedPokemonList().filter(p=>quickFilterTextMatch(p.name, query)).slice(0,18).map(p=>{
     const row = quickRankRowForName(p.name);
