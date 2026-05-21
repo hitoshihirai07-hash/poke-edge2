@@ -367,7 +367,27 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .build-diagnosis-tag.good{border-color:rgba(0,255,150,.35);color:var(--green);background:rgba(0,255,150,.07);}
 .build-diagnosis-tag.warn{border-color:rgba(255,200,0,.35);color:var(--accent3);background:rgba(255,200,0,.08);}
 .build-diagnosis-tag.bad{border-color:rgba(255,90,90,.35);color:var(--accent2);background:rgba(255,90,90,.07);}
-@media(max-width:760px){.build-carte-grid,.build-member-grid,.build-diagnosis-grid{grid-template-columns:1fr;}.build-diagnosis-field.full{grid-column:auto;}.build-carte-card{padding:11px 12px;}.build-mini-table{font-size:9px;}.build-diagnosis-panel{padding:11px 12px;}.build-diagnosis-table{min-width:640px;font-size:9px;}}
+.build-diagnosis-panel-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;list-style:none;}
+.build-diagnosis-panel-summary::-webkit-details-marker{display:none;}
+.build-diagnosis-panel-summary::after{content:'入力欄を開く';font-size:9px;color:var(--accent);border:1px solid var(--border2);border-radius:999px;padding:4px 8px;background:var(--panel);white-space:nowrap;}
+.build-diagnosis-panel[open] .build-diagnosis-panel-summary::after{content:'入力欄を閉じる';}
+.build-diagnosis-settings-body{margin-top:10px;}
+.build-diagnosis-compact-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 4px;}
+.build-diagnosis-compact-card{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:9px 10px;min-width:0;}
+.build-diagnosis-compact-label{font-size:9px;color:var(--text2);font-weight:800;letter-spacing:1.3px;margin-bottom:5px;}
+.build-diagnosis-compact-main{font-size:11px;color:var(--text);font-weight:800;line-height:1.55;word-break:break-word;}
+.build-diagnosis-compact-sub{font-size:9px;color:var(--text2);line-height:1.6;margin-top:4px;}
+.build-diagnosis-section-stack{display:grid;gap:8px;margin-top:10px;}
+.build-diagnosis-detail{background:var(--bg2);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.build-diagnosis-detail>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;cursor:pointer;padding:10px 12px;font-size:11px;font-weight:800;color:var(--text);letter-spacing:1px;}
+.build-diagnosis-detail>summary::-webkit-details-marker{display:none;}
+.build-diagnosis-detail>summary::after{content:'開く';font-size:9px;color:var(--accent);border:1px solid var(--border2);border-radius:999px;padding:3px 8px;background:var(--panel);white-space:nowrap;}
+.build-diagnosis-detail[open]>summary{border-bottom:1px solid var(--border);color:var(--accent);}
+.build-diagnosis-detail[open]>summary::after{content:'閉じる';}
+.build-diagnosis-detail-body{padding:10px 12px 12px;}
+.build-diagnosis-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+@media(max-width:960px){.build-diagnosis-compact-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:760px){.build-carte-grid,.build-member-grid,.build-diagnosis-grid{grid-template-columns:1fr;}.build-diagnosis-field.full{grid-column:auto;}.build-carte-card{padding:11px 12px;}.build-mini-table{font-size:9px;}.build-diagnosis-panel{padding:11px 12px;}.build-diagnosis-table{min-width:640px;font-size:9px;}.build-diagnosis-compact-grid{grid-template-columns:1fr;}.build-diagnosis-panel-summary::after,.build-diagnosis-detail>summary::after{font-size:8px;padding:3px 7px;}}
 .party-recommend-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
 .party-ranking-mode{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .party-ranking-mode-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);padding:8px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:1px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all 0.18s;}
@@ -998,41 +1018,47 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <button type="button" class="build-carte-btn" onclick="copyPartyBuildCarteText()">メモ用にコピー</button>
             </div>
           </div>
-          <div class="build-diagnosis-panel">
-            <div class="build-diagnosis-panel-title">サイト内診断条件</div>
-            <div class="build-diagnosis-panel-note">ここに基本選出・勝ち筋・苦手相手を入れると、下の診断結果に反映します。技変更ありきではなく、まず今の6体と技の採用意図を読んで診断します。</div>
-            <div class="build-diagnosis-grid">
-              <div class="build-diagnosis-field">
-                <label for="party-diagnosis-rule">対象ルール / 想定環境</label>
-                <textarea id="party-diagnosis-rule" class="build-diagnosis-input" rows="1" placeholder="例: Regulation M-A / シングル / 現在のランキング上位" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+          <details class="build-diagnosis-panel">
+            <summary class="build-diagnosis-panel-summary">
+              <span>
+                <span class="build-diagnosis-panel-title">サイト内診断条件</span>
+                <span class="build-diagnosis-panel-note" style="display:block;margin:4px 0 0;">基本選出・勝ち筋・苦手相手を入れると診断に反映します。</span>
+              </span>
+            </summary>
+            <div class="build-diagnosis-settings-body">
+              <div class="build-diagnosis-grid">
+                <div class="build-diagnosis-field">
+                  <label for="party-diagnosis-rule">対象ルール / 想定環境</label>
+                  <textarea id="party-diagnosis-rule" class="build-diagnosis-input" rows="1" placeholder="例: Regulation M-A / シングル / 現在のランキング上位" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+                </div>
+                <div class="build-diagnosis-field">
+                  <label for="party-diagnosis-basic">基本選出</label>
+                  <textarea id="party-diagnosis-basic" class="build-diagnosis-input" rows="1" placeholder="例: カメックス、ホルード、ガブリアス" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+                </div>
+                <div class="build-diagnosis-field">
+                  <label for="party-diagnosis-second">第2選出</label>
+                  <textarea id="party-diagnosis-second" class="build-diagnosis-input" rows="1" placeholder="例: ミミロップ、ヤドキングG、ガブリアス" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+                </div>
+                <div class="build-diagnosis-field">
+                  <label for="party-diagnosis-pressure">相手に見せたい圧力</label>
+                  <textarea id="party-diagnosis-pressure" class="build-diagnosis-input" rows="1" placeholder="例: 先制技・高速打点・フェアリーへの毒打点" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+                </div>
+                <div class="build-diagnosis-field">
+                  <label for="party-diagnosis-win">実際に通したい勝ち筋</label>
+                  <textarea id="party-diagnosis-win" class="build-diagnosis-input" rows="1" placeholder="例: 対面処理から終盤にガブリアスを通す" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+                </div>
+                <div class="build-diagnosis-field full">
+                  <label for="party-diagnosis-hard">苦手な相手 / 意識している仮想敵</label>
+                  <textarea id="party-diagnosis-hard" class="build-diagnosis-input" rows="2" placeholder="例: フラエッテ、アシレーヌ、積み展開、受け寄り など" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+                </div>
               </div>
-              <div class="build-diagnosis-field">
-                <label for="party-diagnosis-basic">基本選出</label>
-                <textarea id="party-diagnosis-basic" class="build-diagnosis-input" rows="1" placeholder="例: カメックス、ホルード、ガブリアス" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
-              </div>
-              <div class="build-diagnosis-field">
-                <label for="party-diagnosis-second">第2選出</label>
-                <textarea id="party-diagnosis-second" class="build-diagnosis-input" rows="1" placeholder="例: ミミロップ、ヤドキングG、ガブリアス" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
-              </div>
-              <div class="build-diagnosis-field">
-                <label for="party-diagnosis-pressure">相手に見せたい圧力</label>
-                <textarea id="party-diagnosis-pressure" class="build-diagnosis-input" rows="1" placeholder="例: 先制技・高速打点・フェアリーへの毒打点" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
-              </div>
-              <div class="build-diagnosis-field">
-                <label for="party-diagnosis-win">実際に通したい勝ち筋</label>
-                <textarea id="party-diagnosis-win" class="build-diagnosis-input" rows="1" placeholder="例: 対面処理から終盤にガブリアスを通す" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
-              </div>
-              <div class="build-diagnosis-field full">
-                <label for="party-diagnosis-hard">苦手な相手 / 意識している仮想敵</label>
-                <textarea id="party-diagnosis-hard" class="build-diagnosis-input" rows="2" placeholder="例: フラエッテ、アシレーヌ、積み展開、受け寄り など" oninput="savePartyDiagnosisSettings();markPartyBuildCarteDirty();"></textarea>
+              <label class="build-diagnosis-check"><input id="party-diagnosis-keep-moves" type="checkbox" checked onchange="savePartyDiagnosisSettings();markPartyBuildCarteDirty();">技変更なしを優先して診断する</label>
+              <div class="build-diagnosis-actions">
+                <button type="button" class="build-carte-btn" onclick="savePartyDiagnosisSettings();renderPartyBuildCarte();">サイト内診断を更新</button>
+                <button type="button" class="build-carte-btn" onclick="copyPartyBuildDiagnosisText()">診断結果をコピー</button>
               </div>
             </div>
-            <label class="build-diagnosis-check"><input id="party-diagnosis-keep-moves" type="checkbox" checked onchange="savePartyDiagnosisSettings();markPartyBuildCarteDirty();">技変更なしを優先して診断する</label>
-            <div class="build-diagnosis-actions">
-              <button type="button" class="build-carte-btn" onclick="savePartyDiagnosisSettings();renderPartyBuildCarte();">サイト内診断を更新</button>
-              <button type="button" class="build-carte-btn" onclick="copyPartyBuildDiagnosisText()">診断結果をコピー</button>
-            </div>
-          </div>
+          </details>
           <div id="party-build-carte-root"></div>
         </div>
 
@@ -3918,16 +3944,40 @@ function buildPartyDiagnosisHtml(members, settings, context){
   if(context.attackCovered < 10) improveC.push('打点範囲が不足する場合のみ、同じ役割を持てる別ポケモンへの入れ替えを検討します。');
   if(weakRows.length >= 3) improveC.push('弱点が3タイプ以上で重なる場合のみ、耐性枠の再設計を検討します。');
   if(!improveC.length) improveC.push('現時点では構造変更より、選出ルートと仮想敵処理の固定を優先した方がよいです。');
+  const firstConcern = concerns[0] || '大きな重なりは少なめです。詳細は下の項目で確認できます。';
+  const firstGood = goodPoints[0] || '選出ルートの固定が最優先です。';
+  const detail = (title, body, open=false)=>`<details class="build-diagnosis-detail" ${open ? 'open' : ''}><summary>${title}</summary><div class="build-diagnosis-detail-body">${body}</div></details>`;
   return `
-    <div class="build-carte-section"><div class="build-carte-section-title">サイト内診断：結論</div><div class="build-diagnosis-summary">対象: ${escapePartyHtml(rule)}<br>${conclusion.join('<br>')}</div><div class="build-pill-row" style="margin-top:10px;">${legalityHtml}</div></div>
-    <div class="build-carte-section"><div class="build-carte-section-title">主勝ち筋 / 選出評価</div>${describePartyDiagnosisSelection('基本選出', basicNames, members)}<div style="height:8px;"></div>${describePartyDiagnosisSelection('第2選出', secondNames, members)}${settings.pressure ? `<div class="build-diagnosis-subtitle">相手に見せたい圧力</div><div class="build-diagnosis-summary">${escapePartyHtml(settings.pressure)}</div>` : ''}</div>
-    <div class="build-carte-section"><div class="build-carte-section-title">6体の役割表</div>${roleTable}</div>
-    <div class="build-carte-section"><div class="build-carte-section-title">技構成の採用意図推定</div>${moveTable}</div>
-    <div class="build-carte-section"><div class="build-carte-section-title">仮想敵処理ルート</div>${routeTable}</div>
-    <div class="build-carte-section"><div class="build-carte-section-title">良い点</div><ul class="build-diagnosis-list">${goodPoints.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul></div>
-    <div class="build-carte-section"><div class="build-carte-section-title">気になる点 / 負け筋</div><div class="build-diagnosis-subtitle">気になる点</div><ul class="build-diagnosis-list">${concerns.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul><div class="build-diagnosis-subtitle">選出ミスで起きる負け筋</div><ul class="build-diagnosis-list">${losePatterns.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul></div>
-    <div class="build-carte-section"><div class="build-carte-section-title">改善案</div><div class="build-diagnosis-subtitle">A. 変更なし運用案</div><ul class="build-diagnosis-list">${improveA.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul><div class="build-diagnosis-subtitle">B. 最小変更案</div><ul class="build-diagnosis-list">${improveB.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul><div class="build-diagnosis-subtitle">C. 構造変更案</div><ul class="build-diagnosis-list">${improveC.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul></div>
-    <div class="build-carte-section"><div class="build-carte-section-title">最終結論</div><div class="build-diagnosis-summary">この診断では、技を一般論で入れ替えるより、現在の技で誰を処理するかを先に固定します。特にダメージ・素早さ・乱数はサイト内のダメージ計算で検算が必要です。</div></div>
+    <div class="build-carte-section">
+      <div class="build-carte-section-title">サイト内診断：要点</div>
+      <div class="build-diagnosis-summary">対象: ${escapePartyHtml(rule)}<br>${conclusion[0] || ''}</div>
+      <div class="build-diagnosis-compact-grid">
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">勝ち筋</div><div class="build-diagnosis-compact-main">${escapePartyHtml(mainWin)}</div><div class="build-diagnosis-compact-sub">まずここから逆算</div></div>
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">注意相手</div><div class="build-diagnosis-compact-main">${escapePartyHtml(topThreats.length ? topThreats.map(r=>r.profile.name).join(' / ') : '未検出')}</div><div class="build-diagnosis-compact-sub">処理担当を固定</div></div>
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">技方針</div><div class="build-diagnosis-compact-main">${settings.keepMoves ? '変更なし優先' : '変更も確認'}</div><div class="build-diagnosis-compact-sub">採用意図を先に読む</div></div>
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">最初に見る点</div><div class="build-diagnosis-compact-main">${escapePartyHtml(firstConcern)}</div><div class="build-diagnosis-compact-sub">詳しくは下を開く</div></div>
+      </div>
+      <div class="build-pill-row" style="margin-top:10px;">${legalityHtml}</div>
+    </div>
+    <div class="build-carte-section">
+      <div class="build-carte-section-title">主勝ち筋 / 選出評価</div>
+      <div class="build-diagnosis-compact-grid">
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">基本選出</div><div class="build-diagnosis-compact-main">${escapePartyHtml(basicNames.length ? basicNames.join(' / ') : '未入力')}</div><div class="build-diagnosis-compact-sub">${escapePartyHtml(settings.basic ? 'この3体の処理範囲を優先' : '入力すると診断精度UP')}</div></div>
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">第2選出</div><div class="build-diagnosis-compact-main">${escapePartyHtml(secondNames.length ? secondNames.join(' / ') : '未入力')}</div><div class="build-diagnosis-compact-sub">${escapePartyHtml(settings.second ? '基本選出が通らない時用' : '入力すると分岐を整理')}</div></div>
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">見せたい圧力</div><div class="build-diagnosis-compact-main">${escapePartyHtml(settings.pressure || (priorityUsers.length ? `先制技: ${priorityUsers.join(' / ')}` : firstGood))}</div><div class="build-diagnosis-compact-sub">相手の選出を歪ませる枠</div></div>
+        <div class="build-diagnosis-compact-card"><div class="build-diagnosis-compact-label">苦手・仮想敵</div><div class="build-diagnosis-compact-main">${escapePartyHtml(settings.hard || '未入力')}</div><div class="build-diagnosis-compact-sub">入力すると処理表に反映</div></div>
+      </div>
+    </div>
+    <div class="build-diagnosis-section-stack">
+      ${detail('選出ごとの処理範囲', `${describePartyDiagnosisSelection('基本選出', basicNames, members)}<div style="height:8px;"></div>${describePartyDiagnosisSelection('第2選出', secondNames, members)}${settings.pressure ? `<div class="build-diagnosis-subtitle">相手に見せたい圧力</div><div class="build-diagnosis-summary">${escapePartyHtml(settings.pressure)}</div>` : ''}`)}
+      ${detail('6体の役割表', roleTable)}
+      ${detail('技構成の採用意図推定', moveTable)}
+      ${detail('仮想敵処理ルート', routeTable)}
+      ${detail('良い点', `<ul class="build-diagnosis-list">${goodPoints.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul>`)}
+      ${detail('気になる点 / 負け筋', `<div class="build-diagnosis-subtitle">気になる点</div><ul class="build-diagnosis-list">${concerns.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul><div class="build-diagnosis-subtitle">選出ミスで起きる負け筋</div><ul class="build-diagnosis-list">${losePatterns.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul>`)}
+      ${detail('改善案', `<div class="build-diagnosis-subtitle">A. 変更なし運用案</div><ul class="build-diagnosis-list">${improveA.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul><div class="build-diagnosis-subtitle">B. 最小変更案</div><ul class="build-diagnosis-list">${improveB.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul><div class="build-diagnosis-subtitle">C. 構造変更案</div><ul class="build-diagnosis-list">${improveC.map(x=>`<li>${escapePartyHtml(x)}</li>`).join('')}</ul>`)}
+      ${detail('最終結論', '<div class="build-diagnosis-summary">この診断では、技を一般論で入れ替えるより、現在の技で誰を処理するかを先に固定します。特にダメージ・素早さ・乱数はサイト内のダメージ計算で検算が必要です。</div>')}
+    </div>
   `;
 }
 function buildPartyDiagnosisText(){
