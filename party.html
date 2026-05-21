@@ -673,11 +673,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   body.party-mobile-tab-edit .party-mid-grid > div:first-child{display:block;}
   body.party-mobile-tab-add .party-mid-grid{display:block;}
   body.party-mobile-tab-add .party-workspace{display:block;}
-  body.party-mobile-tab-add .party-workspace-panel[data-party-workspace-panel="add"]{display:block;}
-  body.party-mobile-tab-recommend .party-mid-grid{display:block;}
-  body.party-mobile-tab-recommend .party-workspace{display:block;}
-  body.party-mobile-tab-recommend .party-workspace-panel[data-party-workspace-panel="recommend"]{display:block;}
-
+  body.party-mobile-tab-add .party-workspace-tabs{display:flex;}
+  body.party-mobile-tab-add .party-workspace-panel[data-party-workspace-panel="add"].active,
+  body.party-mobile-tab-add .party-workspace-panel[data-party-workspace-panel="recommend"].active{display:block;}
   body.party-mobile-tab-karte .party-workspace{display:block;}
   body.party-mobile-tab-karte .party-workspace-panel[data-party-workspace-panel="karte"]{display:block;}
   body.party-mobile-tab-coverage .party-mid-grid{display:block;}
@@ -763,7 +761,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <button type="button" class="mobile-party-tab-btn active" data-party-mobile-tab="six" onclick="switchPartyMobileTab('six')">6体</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="edit" onclick="switchPartyMobileTab('edit')">編集</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="add" onclick="switchPartyMobileTab('add')">追加</button>
-      <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="recommend" onclick="switchPartyMobileTab('recommend')">おすすめ</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="coverage" onclick="switchPartyMobileTab('coverage')">相性</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="karte" onclick="switchPartyMobileTab('karte')">カルテ</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="compare" onclick="switchPartyMobileTab('compare')">比較</button>
@@ -799,7 +796,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <div class="party-mode-switch" aria-label="作業モード切り替え">
       <span class="party-mode-switch-label">作業モード</span>
       <button type="button" class="party-mode-btn active" data-party-mode="edit" onclick="switchPartyMode('edit')">登録・編集</button>
-      <button type="button" class="party-mode-btn" data-party-mode="analyze" onclick="switchPartyMode('analyze')">おすすめ・診断</button>
+      <button type="button" class="party-mode-btn" data-party-mode="analyze" onclick="switchPartyMode('analyze')">診断・分析</button>
       <span class="party-mode-note" id="party-mode-note">まずは6体の登録と保存だけに集中できます。</span>
     </div>
 
@@ -941,15 +938,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
       <div class="party-workspace">
         <div class="party-workspace-tabs" aria-label="PC用表示切替">
-          <button type="button" class="party-workspace-tab-btn active party-analysis-only" data-party-workspace-tab="recommend" onclick="switchPartyWorkspace('recommend')">おすすめ</button>
-          <button type="button" class="party-workspace-tab-btn party-edit-only" data-party-workspace-tab="add" onclick="switchPartyWorkspace('add')">追加</button>
+          <button type="button" class="party-workspace-tab-btn active party-edit-only" data-party-workspace-tab="add" onclick="switchPartyWorkspace('add')">追加</button>
+          <button type="button" class="party-workspace-tab-btn party-edit-only" data-party-workspace-tab="recommend" onclick="switchPartyWorkspace('recommend')">おすすめ</button>
           <button type="button" class="party-workspace-tab-btn party-analysis-only" data-party-workspace-tab="coverage" onclick="switchPartyWorkspace('coverage')">相性</button>
           <button type="button" class="party-workspace-tab-btn party-analysis-only" data-party-workspace-tab="karte" onclick="switchPartyWorkspace('karte')">構築カルテ</button>
           <button type="button" class="party-workspace-tab-btn party-analysis-only" data-party-workspace-tab="compare" onclick="switchPartyWorkspace('compare')">比較</button>
         </div>
 
-        <div class="party-workspace-panel active party-analysis-only" data-party-workspace-panel="recommend">
-          <div class="sec">おすすめ表示</div>
+        <div class="party-workspace-panel party-edit-only" data-party-workspace-panel="recommend">
+          <div class="sec">追加おすすめ</div>
           <div class="party-recommend-toolbar">
             <div class="party-ranking-mode">
               <span style="font-size:10px;color:var(--text2);letter-spacing:2px;">参照ランキング</span>
@@ -971,12 +968,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
               <div id="party-ranking-meta" class="party-ranking-meta"></div>
             </div>
           </div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:10px;line-height:1.8;">ランキング上位20匹の代表型を参照して、今の構築で重い相手と、殴り返しやすい候補を総合・対物理・対特殊で出します。</div>
+          <div style="font-size:10px;color:var(--text2);margin-bottom:10px;line-height:1.8;">追加候補として、ランキング上位20匹の代表型を参照し、今の構築で重い相手と殴り返しやすい候補を出します。</div>
           <div id="party-recommend-summary" class="recommend-summary-grid"></div>
           <div id="party-recommend-list" class="recommend-group-wrap"></div>
         </div>
 
-        <div class="party-workspace-panel party-edit-only" data-party-workspace-panel="add">
+        <div class="party-workspace-panel active party-edit-only" data-party-workspace-panel="add">
           <div class="add-section party-side-panel">
             <div class="add-section-title">登録済みから選ぶ</div>
             <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
@@ -2754,7 +2751,8 @@ function isPartyHeavyWorkspace(tab){
   return ['recommend','coverage','karte','compare'].includes(tab || PARTY_WORKSPACE_TAB);
 }
 function shouldRunPartyHeavyAnalysis(){
-  return isPartyAnalyzeMode() && isPartyHeavyWorkspace(PARTY_WORKSPACE_TAB);
+  if(PARTY_WORKSPACE_TAB === 'recommend') return true;
+  return isPartyAnalyzeMode() && ['coverage','karte','compare'].includes(PARTY_WORKSPACE_TAB);
 }
 function switchPartyMode(mode){
   const safe = mode === 'analyze' ? 'analyze' : 'edit';
@@ -2766,13 +2764,17 @@ function switchPartyMode(mode){
     btn.classList.toggle('active', btn.dataset.partyMode === safe);
   });
   const note = document.getElementById('party-mode-note');
-  if(note) note.textContent = safe === 'edit' ? 'まずは6体の登録と保存だけに集中できます。' : 'おすすめ・相性・構築カルテだけをまとめて確認します。';
-  switchPartyWorkspace(safe === 'edit' ? 'add' : (isPartyHeavyWorkspace(PARTY_WORKSPACE_TAB) ? PARTY_WORKSPACE_TAB : 'recommend'));
+  if(note) note.textContent = safe === 'edit' ? '追加とおすすめを同じ場所で確認できます。' : '相性・構築カルテ・比較をまとめて確認します。';
+  if(safe === 'edit'){
+    switchPartyWorkspace(['add','recommend'].includes(PARTY_WORKSPACE_TAB) ? PARTY_WORKSPACE_TAB : 'add');
+  } else {
+    switchPartyWorkspace(['coverage','karte','compare'].includes(PARTY_WORKSPACE_TAB) ? PARTY_WORKSPACE_TAB : 'coverage');
+  }
 }
 function switchPartyWorkspace(tab){
-  let safe = ['recommend','add','coverage','karte','compare'].includes(tab) ? tab : (isPartyAnalyzeMode() ? 'recommend' : 'add');
-  if(!isPartyAnalyzeMode() && safe !== 'add') safe = 'add';
-  if(isPartyAnalyzeMode() && safe === 'add') safe = 'recommend';
+  let safe = ['recommend','add','coverage','karte','compare'].includes(tab) ? tab : (isPartyAnalyzeMode() ? 'coverage' : 'add');
+  if(!isPartyAnalyzeMode() && !['add','recommend'].includes(safe)) safe = 'add';
+  if(isPartyAnalyzeMode() && !['coverage','karte','compare'].includes(safe)) safe = 'coverage';
   PARTY_WORKSPACE_TAB = safe;
   document.querySelectorAll('[data-party-workspace-tab]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyWorkspaceTab === safe);
@@ -2800,16 +2802,15 @@ async function setPartyRankingMode(mode){
 
 // ===== スマホ用: パーティ管理タブ切り替え =====
 function switchPartyMobileTab(tab){
-  const safe = ['six','edit','add','recommend','coverage','karte','compare'].includes(tab) ? tab : 'six';
+  const safe = ['six','edit','add','coverage','karte','compare'].includes(tab) ? tab : 'six';
   document.body.classList.remove('party-mobile-tab-six','party-mobile-tab-edit','party-mobile-tab-add','party-mobile-tab-recommend','party-mobile-tab-coverage','party-mobile-tab-karte','party-mobile-tab-compare');
   document.body.classList.add('party-mobile-tab-'+safe);
   document.querySelectorAll('[data-party-mobile-tab]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyMobileTab === safe);
   });
   if(['six','edit','add'].includes(safe)) switchPartyMode('edit');
-  if(['recommend','coverage','karte','compare'].includes(safe)) switchPartyMode('analyze');
-  if(safe === 'add') switchPartyWorkspace('add');
-  if(safe === 'recommend') switchPartyWorkspace('recommend');
+  if(['coverage','karte','compare'].includes(safe)) switchPartyMode('analyze');
+  if(safe === 'add') switchPartyWorkspace(['add','recommend'].includes(PARTY_WORKSPACE_TAB) ? PARTY_WORKSPACE_TAB : 'add');
   if(safe === 'coverage') switchPartyWorkspace('coverage');
   if(safe === 'karte') switchPartyWorkspace('karte');
   if(safe === 'compare') switchPartyWorkspace('compare');
