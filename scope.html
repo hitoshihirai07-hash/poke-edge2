@@ -123,6 +123,40 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .rec-rank.r1{color:var(--accent3);}
 .rec-poke{font-size:11px;font-weight:700;}
 .rec-score{font-size:10px;color:var(--text2);margin-left:auto;font-family:'JetBrains Mono',monospace;}
+.rec-detail{flex-basis:100%;margin-left:36px;font-size:9px;color:var(--text2);line-height:1.5;margin-top:3px;}
+
+/* 90秒選出コーチ */
+.scope-coach-badge{display:inline-flex;align-items:center;margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid var(--border2);font-size:9px;color:var(--accent3);background:rgba(255,200,0,0.08);letter-spacing:.8px;}
+.selection-coach-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:10px 0;}
+.selection-coach-step{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:9px;min-height:98px;}
+.selection-coach-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent3);margin-bottom:4px;}
+.selection-coach-label{font-size:10px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.selection-coach-text{font-size:10px;color:var(--text2);line-height:1.55;}
+.selection-coach-main{display:grid;grid-template-columns:1.1fr .9fr;gap:10px;margin-top:8px;}
+.selection-coach-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px;}
+.selection-coach-panel-title{font-size:11px;font-weight:800;color:var(--accent);margin-bottom:7px;letter-spacing:.6px;}
+.selection-coach-team{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.selection-coach-chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border2);background:rgba(0,200,240,.06);border-radius:999px;padding:4px 8px;font-size:10px;font-weight:700;color:var(--text);}
+.selection-coach-row{display:grid;grid-template-columns:88px 1fr;gap:8px;font-size:10px;line-height:1.55;border-top:1px solid var(--border);padding-top:6px;margin-top:6px;}
+.selection-coach-row b{color:var(--text);font-size:10px;}
+.selection-coach-row span{color:var(--text2);}
+.selection-coach-meter{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;}
+.selection-coach-meter-card{border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:10px;padding:8px;}
+.selection-coach-meter-label{font-size:9px;color:var(--text2);margin-bottom:3px;}
+.selection-coach-meter-value{font-size:14px;font-weight:900;}
+.selection-coach-meter-value.low,.selection-coach-meter-value.high{color:var(--green);}
+.selection-coach-meter-value.mid{color:var(--accent3);}
+.selection-coach-meter-value.danger{color:var(--accent2);}
+.selection-coach-warn{font-size:10px;line-height:1.6;color:var(--text2);}
+.selection-coach-warn b{color:var(--accent2);}
+.selection-coach-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.selection-coach-btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:999px;padding:7px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+.selection-coach-btn.primary{border-color:var(--accent);background:rgba(0,200,240,.12);color:var(--accent);}
+@media(max-width:900px){
+  .selection-coach-grid{grid-template-columns:1fr;}
+  .selection-coach-main{grid-template-columns:1fr;}
+  .selection-coach-row{grid-template-columns:76px 1fr;}
+}
 
 /* 脅威分析 */
 .threat-card{background:var(--bg2);border:1px solid var(--border);padding:10px;margin-bottom:6px;}
@@ -663,22 +697,31 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
   .lead-pick-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
   .lead-btn{min-height:34px;font-size:10px;padding:5px;}
   .act-btn{width:100%;min-height:42px;border-radius:12px;}
-  .scope-mobile-analysis-tabs{display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:0 0 8px;}
+  .scope-mobile-analysis-tabs{display:none;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:0 0 8px;}
   body.scope-mobile-select-analysis .scope-mobile-analysis-tabs{display:grid;}
   .scope-mobile-analysis-btn,.scope-mobile-damage-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:12px;padding:9px 6px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;}
+  body.scope-mobile-analysis-coach .scope-mobile-analysis-btn[data-scope-analysis="coach"],
   body.scope-mobile-analysis-rec .scope-mobile-analysis-btn[data-scope-analysis="rec"],
   body.scope-mobile-analysis-threat .scope-mobile-analysis-btn[data-scope-analysis="threat"],
   body.scope-mobile-analysis-matrix .scope-mobile-analysis-btn[data-scope-analysis="matrix"],
   body.scope-mobile-analysis-pro .scope-mobile-analysis-btn[data-scope-analysis="pro"]{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,0.10);}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-coach #matrix-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-coach #rec-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-coach #threat-card,
+  body.scope-mobile-select-analysis.scope-mobile-analysis-coach #pro-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-rec #selection-coach-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-rec #matrix-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-rec #threat-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-rec #pro-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-threat #selection-coach-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-threat #matrix-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-threat #rec-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-threat #pro-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #selection-coach-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #rec-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #threat-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-matrix #pro-card{display:none!important;}
+  body.scope-mobile-select-analysis.scope-mobile-analysis-pro #selection-coach-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-pro #rec-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-pro #threat-card,
   body.scope-mobile-select-analysis.scope-mobile-analysis-pro #matrix-card{display:none!important;}
@@ -801,6 +844,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <button type="button" class="scope-mobile-select-btn" data-scope-select="analysis" onclick="showScopeMobileSelect('analysis')">分析</button>
     </div>
     <div class="scope-mobile-analysis-tabs" aria-label="スマホ用分析表示切り替え">
+      <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="coach" onclick="showScopeMobileAnalysis('coach')">90秒</button>
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="rec" onclick="showScopeMobileAnalysis('rec')">推奨</button>
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="threat" onclick="showScopeMobileAnalysis('threat')">脅威</button>
       <button type="button" class="scope-mobile-analysis-btn" data-scope-analysis="matrix" onclick="showScopeMobileAnalysis('matrix')">対面</button>
@@ -858,6 +902,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
       <div class="card-title yellow">全対面マトリクス</div>
       <div class="note">各セルはダメージ%の差分（自分→相手の最大ダメ% − 相手→自分の最大ダメ%）でざっくり有利不利を判定。タップで詳細。</div>
       <div class="matrix-wrap" id="matrix-wrap"></div>
+    </div>
+
+    <!-- 90秒選出コーチ -->
+    <div class="card scope-analysis-card" id="selection-coach-card" style="display:none;">
+      <div class="card-title yellow">90秒選出コーチ <span class="scope-coach-badge">Reg M-A / シングル</span></div>
+      <div class="note">見せ合い90秒で「相手の主勝ち筋 → メガ着地局面 → 推奨3体 → 負け筋 → 初手」を順に固定します。</div>
+      <div id="selection-coach-result"></div>
     </div>
 
     <!-- 推奨選出 -->
@@ -2440,8 +2491,8 @@ function showScopeMobileSelect(mode){
   });
 }
 function showScopeMobileAnalysis(mode){
-  mode = ['rec','threat','matrix','pro'].includes(mode) ? mode : 'rec';
-  document.body.classList.remove('scope-mobile-analysis-rec','scope-mobile-analysis-threat','scope-mobile-analysis-matrix','scope-mobile-analysis-pro');
+  mode = ['coach','rec','threat','matrix','pro'].includes(mode) ? mode : 'coach';
+  document.body.classList.remove('scope-mobile-analysis-coach','scope-mobile-analysis-rec','scope-mobile-analysis-threat','scope-mobile-analysis-matrix','scope-mobile-analysis-pro');
   document.body.classList.add('scope-mobile-analysis-'+mode);
   document.querySelectorAll('.scope-mobile-analysis-btn').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.scopeAnalysis===mode);
@@ -2490,7 +2541,7 @@ function showPhase(n){
     if(mtab) mtab.classList.toggle('active',i===n);
   });
   renderScopeMobileState(n);
-  if(n===1 && !document.body.classList.contains('scope-mobile-analysis-rec') && !document.body.classList.contains('scope-mobile-analysis-threat') && !document.body.classList.contains('scope-mobile-analysis-matrix') && !document.body.classList.contains('scope-mobile-analysis-pro')) showScopeMobileAnalysis('rec');
+  if(n===1 && !document.body.classList.contains('scope-mobile-analysis-coach') && !document.body.classList.contains('scope-mobile-analysis-rec') && !document.body.classList.contains('scope-mobile-analysis-threat') && !document.body.classList.contains('scope-mobile-analysis-matrix') && !document.body.classList.contains('scope-mobile-analysis-pro')) showScopeMobileAnalysis('coach');
   if(n===2){
     renderBattlePhase();
     if(typeof renderScopeFieldBoard === 'function') renderScopeFieldBoard();
@@ -2846,6 +2897,8 @@ function setOppPreset(idx, presetKey){ setSlotPreset('opp', idx, presetKey); }
 // ===== 自動分析 =====
 function autoAnalyze(){
   if(!myParty.length || !oppParty.length){
+    const coachCard = document.getElementById('selection-coach-card');
+    if(coachCard) coachCard.style.display='none';
     document.getElementById('matrix-card').style.display='none';
     document.getElementById('rec-card').style.display='none';
     document.getElementById('threat-card').style.display='none';
@@ -2853,6 +2906,7 @@ function autoAnalyze(){
     if(proCard) proCard.style.display='none';
     return;
   }
+  renderSelection90Coach();
   renderMatrix();
   renderRecommendation();
   renderThreatAnalysis();
@@ -2892,6 +2946,269 @@ function getCombinations(arr, k){
   return [...withFirst,...withoutFirst];
 }
 
+// ===== 90秒選出コーチ =====
+const SCOPE_SELECTION_PRIORITY_MOVES = new Set(['しんそく','ふいうち','であいがしら','かげうち','バレットパンチ','こおりのつぶて','アクアジェット','マッハパンチ','ねこだまし','でんこうせっか']);
+const SCOPE_SELECTION_SPEED_MOVES = new Set(['おいかぜ','トリックルーム','でんじは','こごえるかぜ','エレキネット','ねばねばネット','こうそくいどう','りゅうのまい','ちょうのまい','からをやぶる','ロックカット','ニトロチャージ']);
+const SCOPE_SELECTION_PIVOT_MOVES = new Set(['とんぼがえり','ボルトチェンジ','クイックターン','すてゼリフ','バトンタッチ']);
+const SCOPE_SELECTION_SETUP_MOVES = new Set(['つるぎのまい','わるだくみ','りゅうのまい','めいそう','ビルドアップ','てっぺき','こうそくいどう','ちょうのまい','からをやぶる','のろい','みがわり']);
+const SCOPE_SELECTION_RECOVERY_MOVES = new Set(['じこさいせい','なまける','はねやすめ','つきのひかり','あさのひざし','こうごうせい','ちからをすいとる','ねむる','やどりぎのタネ']);
+const SCOPE_SELECTION_HAZARD_MOVES = new Set(['ステルスロック','まきびし','どくびし','ねばねばネット']);
+
+function isScopeSelectionMegaSlot(slot){
+  if(!slot || !slot.poke) return false;
+  if(slot.megaFormName) return true;
+  if(slot.item && String(slot.item).includes('ナイト')) return true;
+  return isScopeMegaCandidateName(slot.poke.name);
+}
+function getScopeSelectionSlotMoves(slot){
+  return Array.isArray(slot && slot.moves) ? slot.moves.filter(Boolean) : [];
+}
+function hasScopeSelectionMove(slot, setObj){
+  return getScopeSelectionSlotMoves(slot).some(m=>setObj.has(m && m.name));
+}
+function getScopeSelectionRoleTags(slot){
+  const tags = new Set();
+  if(!slot) return tags;
+  const stats = slot.stats || {};
+  const moves = getScopeSelectionSlotMoves(slot);
+  if((stats.spe || 0) >= 135) tags.add('高速');
+  if(((stats.hp || 0) + Math.max(stats.def || 0, stats.spd || 0)) >= 260) tags.add('クッション');
+  if(hasScopeSelectionMove(slot, SCOPE_SELECTION_PRIORITY_MOVES)) tags.add('先制技');
+  if(hasScopeSelectionMove(slot, SCOPE_SELECTION_SPEED_MOVES)) tags.add('S操作');
+  if(hasScopeSelectionMove(slot, SCOPE_SELECTION_PIVOT_MOVES)) tags.add('対面操作');
+  if(hasScopeSelectionMove(slot, SCOPE_SELECTION_SETUP_MOVES)) tags.add('積み/崩し');
+  if(hasScopeSelectionMove(slot, SCOPE_SELECTION_RECOVERY_MOVES)) tags.add('回復');
+  if(hasScopeSelectionMove(slot, SCOPE_SELECTION_HAZARD_MOVES)) tags.add('削り');
+  if(isScopeSelectionMegaSlot(slot)) tags.add('メガ候補');
+  return tags;
+}
+function getScopeSelectionOpponentPlan(party){
+  const slots = (party || []).filter(Boolean);
+  let fast = 0, bulky = 0, speed = 0, pivot = 0, setup = 0, recovery = 0, priority = 0, mega = 0, hazard = 0;
+  slots.forEach(slot=>{
+    const stats = slot.stats || {};
+    if((stats.spe || 0) >= 135) fast++;
+    if(((stats.hp || 0) + Math.max(stats.def || 0, stats.spd || 0)) >= 260) bulky++;
+    if(hasScopeSelectionMove(slot, SCOPE_SELECTION_SPEED_MOVES)) speed++;
+    if(hasScopeSelectionMove(slot, SCOPE_SELECTION_PIVOT_MOVES)) pivot++;
+    if(hasScopeSelectionMove(slot, SCOPE_SELECTION_SETUP_MOVES)) setup++;
+    if(hasScopeSelectionMove(slot, SCOPE_SELECTION_RECOVERY_MOVES)) recovery++;
+    if(hasScopeSelectionMove(slot, SCOPE_SELECTION_PRIORITY_MOVES)) priority++;
+    if(hasScopeSelectionMove(slot, SCOPE_SELECTION_HAZARD_MOVES)) hazard++;
+    if(isScopeSelectionMegaSlot(slot)) mega++;
+  });
+  let label = '攻め構築';
+  let detail = '高速・高火力で先に数的有利を取る形を優先して見ます。';
+  if(speed >= 2 || (speed >= 1 && fast >= 2)){
+    label = 'S操作構築';
+    detail = '追い風・トリル・麻痺・加速系の確認を優先。S操作ターンを枯らす前提で選出します。';
+  } else if(bulky >= 3 && (recovery >= 1 || hazard >= 1)){
+    label = '受け/高耐久構築';
+    detail = 'メガ単体で崩すより、削りと第2崩し軸を同時に出す方針です。';
+  } else if(mega >= 1 && (setup >= 1 || fast >= 2)){
+    label = 'メガエース構築';
+    detail = '相手メガ候補の着地を止める処理枠を優先します。こちらのメガ着地は急ぎません。';
+  } else if(pivot >= 2 || bulky >= 2){
+    label = 'サイクル構築';
+    detail = '相手のクッションを先に削り、メガ後の一貫を中盤に作ります。';
+  }
+  const flags = [];
+  if(mega) flags.push('メガ候補' + mega + '体');
+  if(priority) flags.push('先制技警戒');
+  if(speed) flags.push('S操作警戒');
+  if(pivot) flags.push('対面操作');
+  return {label, detail, fast, bulky, speed, pivot, setup, recovery, priority, mega, hazard, flags};
+}
+function scoreSelectionCoachCombo(team, party, foeParty){
+  let score = 0;
+  const reports = [];
+  (foeParty || []).forEach(foe=>{
+    let bestScore = -999, bestIdx = null, bestMu = null;
+    team.forEach(mi=>{
+      const my = party[mi];
+      if(!my || !foe) return;
+      const mu = evaluateMatchup(my, foe);
+      if(mu.score > bestScore){ bestScore = mu.score; bestIdx = mi; bestMu = mu; }
+    });
+    reports.push({foe, bestScore, bestIdx, bestMu});
+    score += bestScore;
+  });
+  const tags = new Set();
+  team.forEach(mi=>getScopeSelectionRoleTags(party[mi]).forEach(tag=>tags.add(tag)));
+  if(tags.has('クッション')) score += 12;
+  if(tags.has('高速')) score += 10;
+  if(tags.has('先制技')) score += 10;
+  if(tags.has('S操作')) score += 10;
+  if(tags.has('削り')) score += 8;
+  if(tags.has('積み/崩し')) score += 8;
+  const typeCount = new Set(team.flatMap(mi=>[party[mi].poke.type1, party[mi].poke.type2].filter(Boolean))).size;
+  score += typeCount * 2;
+  if(team.filter(mi=>isScopeSelectionMegaSlot(party[mi])).length > 1) score -= 240;
+  return {team:team.slice(), score, reports};
+}
+function getSelectionCoachRankings(){
+  if(myParty.length < 3) return [];
+  const indices = myParty.map((_,i)=>i);
+  const combos = getCombinations(indices, Math.min(3, myParty.length));
+  const valid = combos.filter(team=>!hasMegaSelectionConflict(team));
+  const source = valid.length ? valid : combos;
+  return source.map(team=>scoreSelectionCoachCombo(team, myParty, oppParty)).sort((a,b)=>b.score-a.score).slice(0,3);
+}
+function getSelectionCoachTeamNames(team){
+  return (team || []).map(i=>myParty[i]).filter(Boolean).map(slot=>getScopeSlotDisplayName(slot));
+}
+function getSelectionCoachLead(team){
+  const oppProjected = oppParty && oppParty.length ? oppParty : [];
+  const leads = typeof getScopeLeadRanking === 'function' ? getScopeLeadRanking(team, myParty, oppProjected).slice(0,1) : [];
+  if(leads.length && leads[0].slot) return {idx:leads[0].idx, slot:leads[0].slot};
+  const idx = (team || [])[0];
+  return {idx, slot:myParty[idx]};
+}
+function getSelectionCoachSupportAndFinish(team, leadIdx){
+  const rest = (team || []).filter(i=>i!==leadIdx);
+  if(!rest.length) return {support:null, finisher:null};
+  const megaIdx = rest.find(i=>isScopeSelectionMegaSlot(myParty[i]));
+  const supportIdx = rest.find(i=>{
+    const tags = getScopeSelectionRoleTags(myParty[i]);
+    return tags.has('クッション') || tags.has('対面操作') || tags.has('S操作') || tags.has('削り');
+  });
+  const finisherIdx = megaIdx !== undefined ? megaIdx : rest.find(i=>{
+    const tags = getScopeSelectionRoleTags(myParty[i]);
+    return tags.has('高速') || tags.has('先制技') || tags.has('積み/崩し');
+  });
+  return {
+    support: myParty[supportIdx !== undefined ? supportIdx : rest[0]],
+    finisher: myParty[finisherIdx !== undefined ? finisherIdx : rest[rest.length - 1]]
+  };
+}
+function getSelectionCoachMegaEvaluation(best){
+  const team = best && best.team || [];
+  const selectedMegaIdx = team.find(i=>isScopeSelectionMegaSlot(myParty[i]));
+  const allMegaIdx = myParty.map((slot,i)=>isScopeSelectionMegaSlot(slot) ? i : null).filter(i=>i!==null);
+  if(selectedMegaIdx === undefined){
+    return {
+      classification: allMegaIdx.length ? '偽装・非メガ型' : '非メガ軸',
+      landing: allMegaIdx.length ? 'メガ不選出プラン' : 'メガなし',
+      text: allMegaIdx.length ? 'この試合はメガ候補を見せ札にし、第2軸で勝つ選出です。' : 'メガに依存せず、対面処理と詰めを優先します。',
+      slot: null
+    };
+  }
+  const megaSlot = myParty[selectedMegaIdx];
+  const reports = (oppParty || []).map(opp=>evaluateMatchup(megaSlot, opp));
+  const favorable = reports.filter(mu=>mu.score >= 10).length;
+  const speedEdge = reports.filter(mu=>mu.faster).length;
+  const supportCount = team.filter(i=>{
+    if(i===selectedMegaIdx) return false;
+    const tags = getScopeSelectionRoleTags(myParty[i]);
+    return tags.has('クッション') || tags.has('対面操作') || tags.has('S操作') || tags.has('削り');
+  }).length;
+  let landing = '中盤メガ着地';
+  let text = '削りと情報を取ってから、対面有利を作った局面でメガ状態で動かします。';
+  if(favorable >= Math.max(3, Math.ceil(oppParty.length * 0.55)) && speedEdge >= Math.ceil(oppParty.length * 0.45) && supportCount >= 1){
+    landing = '初手メガ着地も可';
+    text = '相手のスカーフ・先制技だけ確認できれば、早めの着地でも圧をかけられます。';
+  } else if(favorable <= 1 || speedEdge <= 1){
+    landing = '終盤寄りメガ着地';
+    text = '序盤にメガ個体を削らせず、相手の止め枠を削ってから詰めに使います。';
+  }
+  return {classification:'即時メガ型', landing, text, slot:megaSlot};
+}
+function getSelectionCoachDependence(best){
+  const team = best && best.team || [];
+  const selectedHasMega = team.some(i=>isScopeSelectionMegaSlot(myParty[i]));
+  if(!selectedHasMega) return {mega:'低', megaCls:'low', self:'高', selfCls:'high', text:'メガ不選出でも勝ち筋を作る選出です。'};
+  const nonMega = team.filter(i=>!isScopeSelectionMegaSlot(myParty[i]));
+  let covered = 0;
+  (oppParty || []).forEach(opp=>{
+    const bestNonMega = Math.max(-999, ...nonMega.map(i=>evaluateMatchup(myParty[i], opp).score));
+    if(bestNonMega >= 10) covered++;
+  });
+  const ratio = covered / Math.max(1, oppParty.length || 1);
+  if(ratio >= 0.5) return {mega:'中', megaCls:'mid', self:'中', selfCls:'mid', text:'メガが主軸ですが、非メガ側にも処理範囲があります。'};
+  if(ratio >= 0.25) return {mega:'高', megaCls:'danger', self:'低', selfCls:'danger', text:'メガが止まると火力や詰めが細くなります。削り役を雑に失わないでください。'};
+  return {mega:'危険', megaCls:'danger', self:'低', selfCls:'danger', text:'メガが止まると即負けに近い選出です。相手の止め枠が重い場合は別案も確認してください。'};
+}
+function getSelectionCoachDangerText(best, oppPlan){
+  const danger = [];
+  if(oppPlan.speed) danger.push('S操作でメガ着地後に上を取られる展開');
+  if(oppPlan.priority) danger.push('削れたメガ個体を先制技で拾われる展開');
+  if(oppPlan.recovery || oppPlan.bulky >= 3) danger.push('高耐久にメガが止められ、非メガ火力が足りない展開');
+  const bad = best && best.reports ? best.reports.filter(r=>r.bestScore < 0).sort((a,b)=>a.bestScore-b.bestScore)[0] : null;
+  if(bad) danger.push(getScopeSlotDisplayName(bad.foe) + ' への明確な処理が遅れる展開');
+  if(!danger.length) danger.push('初手で情報を取れず、メガ着地局面だけが先行する展開');
+  return danger.slice(0,2).join(' / ');
+}
+function renderSelection90Coach(){
+  const card = document.getElementById('selection-coach-card');
+  const resultEl = document.getElementById('selection-coach-result');
+  if(!card || !resultEl) return;
+  if(myParty.length < 3 || !oppParty.length){
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  const rankings = getSelectionCoachRankings();
+  const best = rankings[0];
+  if(!best){
+    resultEl.innerHTML = '<div class="damage-empty-note">自分3体以上・相手1体以上を入力すると、90秒選出方針を表示します。</div>';
+    return;
+  }
+  const oppPlan = getScopeSelectionOpponentPlan(oppParty);
+  const mega = getSelectionCoachMegaEvaluation(best);
+  const dep = getSelectionCoachDependence(best);
+  const lead = getSelectionCoachLead(best.team);
+  const sf = getSelectionCoachSupportAndFinish(best.team, lead.idx);
+  const teamNames = getSelectionCoachTeamNames(best.team);
+  const leadName = lead.slot ? getScopeSlotDisplayName(lead.slot) : teamNames[0];
+  const supportName = sf.support ? getScopeSlotDisplayName(sf.support) : '—';
+  const finishName = sf.finisher ? getScopeSlotDisplayName(sf.finisher) : '—';
+  const dangerText = getSelectionCoachDangerText(best, oppPlan);
+  const teamHtml = teamNames.map(n=>'<span class="selection-coach-chip">'+escapeHtml(n)+'</span>').join('');
+  const flags = oppPlan.flags.length ? ' / ' + oppPlan.flags.map(escapeHtml).join(' / ') : '';
+  const megaName = mega.slot ? getScopeSlotDisplayName(mega.slot) : '';
+  resultEl.innerHTML =
+    '<div class="selection-coach-grid">' +
+      '<div class="selection-coach-step"><div class="selection-coach-time">0-15s</div><div class="selection-coach-label">相手の主勝ち筋</div><div class="selection-coach-text">' + escapeHtml(oppPlan.label) + '<br>' + escapeHtml(oppPlan.detail + flags) + '</div></div>' +
+      '<div class="selection-coach-step"><div class="selection-coach-time">15-35s</div><div class="selection-coach-label">メガ選出判断</div><div class="selection-coach-text">' + escapeHtml(mega.classification) + '<br>' + escapeHtml((megaName ? megaName + '：' : '') + mega.text) + '</div></div>' +
+      '<div class="selection-coach-step"><div class="selection-coach-time">35-55s</div><div class="selection-coach-label">基本選出3体</div><div class="selection-coach-text">' + teamHtml + '<br>先発・中継・詰めの役割を分けます。</div></div>' +
+      '<div class="selection-coach-step"><div class="selection-coach-time">55-75s</div><div class="selection-coach-label">負け筋確認</div><div class="selection-coach-text"><b style="color:var(--accent2);">注意</b><br>' + escapeHtml(dangerText) + '</div></div>' +
+      '<div class="selection-coach-step"><div class="selection-coach-time">75-90s</div><div class="selection-coach-label">最終固定</div><div class="selection-coach-text">初手：' + escapeHtml(leadName) + '<br>メガ着地：' + escapeHtml(mega.landing) + '</div></div>' +
+    '</div>' +
+    '<div class="selection-coach-main">' +
+      '<div class="selection-coach-panel">' +
+        '<div class="selection-coach-panel-title">選出プラン</div>' +
+        '<div class="selection-coach-team">' + teamHtml + '</div>' +
+        '<div class="selection-coach-row"><b>先発</b><span>' + escapeHtml(leadName) + '：情報取り・対面処理を優先。</span></div>' +
+        '<div class="selection-coach-row"><b>中継</b><span>' + escapeHtml(supportName) + '：削り、クッション、S対策でメガ着地前を作る。</span></div>' +
+        '<div class="selection-coach-row"><b>詰め</b><span>' + escapeHtml(finishName) + '：メガが通る試合の主勝ち筋、または第2勝ち筋。</span></div>' +
+        '<div class="selection-coach-row"><b>着地局面</b><span>' + escapeHtml(mega.landing) + '。' + escapeHtml(mega.text) + '</span></div>' +
+        '<div class="selection-coach-actions"><button type="button" class="selection-coach-btn primary" onclick="applySelection([' + best.team.join(',') + '])">この3体を反映</button></div>' +
+      '</div>' +
+      '<div class="selection-coach-panel">' +
+        '<div class="selection-coach-panel-title">メガ依存度 / 非メガ自立性</div>' +
+        '<div class="selection-coach-meter">' +
+          '<div class="selection-coach-meter-card"><div class="selection-coach-meter-label">メガ依存度</div><div class="selection-coach-meter-value ' + dep.megaCls + '">' + escapeHtml(dep.mega) + '</div></div>' +
+          '<div class="selection-coach-meter-card"><div class="selection-coach-meter-label">非メガ自立性</div><div class="selection-coach-meter-value ' + dep.selfCls + '">' + escapeHtml(dep.self) + '</div></div>' +
+        '</div>' +
+        '<div class="selection-coach-row"><b>評価</b><span>' + escapeHtml(dep.text) + '</span></div>' +
+        '<div class="selection-coach-row"><b>メガ運用</b><span>' + escapeHtml(mega.classification) + '。場に出したら基本は即メガ状態で動かす前提です。</span></div>' +
+        '<div class="selection-coach-warn" style="margin-top:8px;"><b>確認</b> メガが通らない試合では、先発と中継で相手の止め枠を削るか、メガ不選出の第2軸へ切り替えてください。</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function getSelectionCoachRoleLine(team){
+  if(!team || !team.length) return '';
+  const tmpBest = {team:team, reports:[]};
+  const lead = getSelectionCoachLead(team);
+  const sf = getSelectionCoachSupportAndFinish(team, lead.idx);
+  const mega = getSelectionCoachMegaEvaluation(tmpBest);
+  const leadName = lead.slot ? getScopeSlotDisplayName(lead.slot) : '—';
+  const supportName = sf.support ? getScopeSlotDisplayName(sf.support) : '—';
+  const finishName = sf.finisher ? getScopeSlotDisplayName(sf.finisher) : '—';
+  return '先発 ' + leadName + ' / 中継 ' + supportName + ' / 詰め ' + finishName + ' / ' + mega.landing;
+}
+
 function renderRecommendation(){
   if(myParty.length<3){document.getElementById('rec-card').style.display='none';return;}
   document.getElementById('rec-card').style.display='block';
@@ -2924,11 +3241,13 @@ function renderRecommendation(){
 
   const megaNote = megaConflictCount ? '<div class="note" style="margin-bottom:8px;">メガ候補が複数入る組み合わせは推奨から外しています。</div>' : '';
   document.getElementById('rec-list').innerHTML = megaNote + scored.map((s,i)=>{
-    const names = s.team.map(mi=>myParty[mi].poke.name);
+    const names = s.team.map(mi=>getScopeSlotDisplayName(myParty[mi]));
+    const roleLine = typeof getSelectionCoachRoleLine === 'function' ? getSelectionCoachRoleLine(s.team) : '';
     return '<div class="rec-team" onclick="applySelection(['+s.team.join(',')+'])">'+
       '<div class="rec-rank '+(i===0?'r1':'')+'">'+(i+1)+'</div>'+
-      '<div>'+names.map(n=>'<span class="rec-poke">'+n+'</span>').join(' + ')+'</div>'+
+      '<div>'+names.map(n=>'<span class="rec-poke">'+escapeHtml(n)+'</span>').join(' + ')+'</div>'+
       '<div class="rec-score">'+Math.round(s.score)+'pt</div>'+
+      (roleLine ? '<div class="rec-detail">'+escapeHtml(roleLine)+'</div>' : '')+
     '</div>';
   }).join('');
 }
@@ -4953,7 +5272,7 @@ window.onload=async()=>{
 
 window.addEventListener('DOMContentLoaded', function(){
   showScopeMobileSelect('my');
-  showScopeMobileAnalysis('rec');
+  showScopeMobileAnalysis('coach');
   showScopeMobileDamage('my');
   renderScopeMobileState(getCalcPhaseFromHash());
 });
