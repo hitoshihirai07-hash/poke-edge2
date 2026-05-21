@@ -309,6 +309,19 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:4p
 .party-workspace-tab-btn.active{border-color:var(--accent);background:rgba(0,200,240,0.12);color:var(--accent);}
 .party-workspace-panel{display:none;}
 .party-workspace-panel.active{display:block;}
+.party-mode-switch{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 14px;padding:10px;background:rgba(15,20,35,.72);border:1px solid var(--border);border-radius:16px;}
+.party-mode-switch-label{font-size:10px;color:var(--text2);letter-spacing:2px;font-weight:800;margin-right:2px;}
+.party-mode-btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text2);border-radius:999px;padding:9px 14px;font-size:11px;font-weight:800;font-family:'Noto Sans JP',sans-serif;letter-spacing:1px;cursor:pointer;transition:all .18s;}
+.party-mode-btn:hover{border-color:var(--accent);color:var(--accent);}
+.party-mode-btn.active{border-color:var(--accent);background:rgba(0,200,240,.12);color:var(--accent);}
+.party-mode-note{font-size:10px;color:var(--text2);line-height:1.7;margin-left:auto;}
+body.party-view-edit .party-analysis-only{display:none!important;}
+body.party-view-analyze .party-edit-only{display:none!important;}
+body.party-view-analyze .party-top-grid{grid-template-columns:1fr;}
+body.party-view-analyze .party-mid-grid{grid-template-columns:1fr;}
+body.party-view-analyze .party-workspace{min-height:0;}
+.party-light-status{border:1px dashed var(--border2);background:var(--bg2);border-radius:14px;padding:12px 14px;font-size:11px;color:var(--text2);line-height:1.8;}
+@media(max-width:760px){.party-mode-switch{position:sticky;top:94px;z-index:66;margin:8px 0 10px;}.party-mode-note{width:100%;margin-left:0;}.party-mode-btn{flex:1;min-width:120px;}}
 .party-workspace .cov-wrap,.party-workspace .add-section{margin-top:0;border-radius:16px;}
 .party-workspace .add-section{padding:0;border:none;background:transparent;}
 .party-workspace .add-section-title{margin-bottom:10px;}
@@ -629,7 +642,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   .layout{padding:12px 10px 94px;}
   .main-content{width:100%;}
   .mobile-party-tabs{
-    position:sticky;top:52px;z-index:80;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
+    position:sticky;top:52px;z-index:80;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
     background:rgba(7,9,15,.96);backdrop-filter:blur(18px);border:1px solid var(--border);
     border-radius:16px;padding:8px;margin:0 0 10px;box-shadow:0 10px 28px rgba(0,0,0,.18);
   }
@@ -661,6 +674,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   body.party-mobile-tab-add .party-mid-grid{display:block;}
   body.party-mobile-tab-add .party-workspace{display:block;}
   body.party-mobile-tab-add .party-workspace-panel[data-party-workspace-panel="add"]{display:block;}
+  body.party-mobile-tab-recommend .party-mid-grid{display:block;}
+  body.party-mobile-tab-recommend .party-workspace{display:block;}
+  body.party-mobile-tab-recommend .party-workspace-panel[data-party-workspace-panel="recommend"]{display:block;}
 
   body.party-mobile-tab-karte .party-workspace{display:block;}
   body.party-mobile-tab-karte .party-workspace-panel[data-party-workspace-panel="karte"]{display:block;}
@@ -747,6 +763,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <button type="button" class="mobile-party-tab-btn active" data-party-mobile-tab="six" onclick="switchPartyMobileTab('six')">6体</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="edit" onclick="switchPartyMobileTab('edit')">編集</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="add" onclick="switchPartyMobileTab('add')">追加</button>
+      <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="recommend" onclick="switchPartyMobileTab('recommend')">おすすめ</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="coverage" onclick="switchPartyMobileTab('coverage')">相性</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="karte" onclick="switchPartyMobileTab('karte')">カルテ</button>
       <button type="button" class="mobile-party-tab-btn" data-party-mobile-tab="compare" onclick="switchPartyMobileTab('compare')">比較</button>
@@ -779,6 +796,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     </div>
     <div id="party-export-size-status" style="font-size:10px;color:var(--text2);margin:-4px 0 12px;line-height:1.6;">現在の保存比率: 16:9</div>
 
+    <div class="party-mode-switch" aria-label="作業モード切り替え">
+      <span class="party-mode-switch-label">作業モード</span>
+      <button type="button" class="party-mode-btn active" data-party-mode="edit" onclick="switchPartyMode('edit')">登録・編集</button>
+      <button type="button" class="party-mode-btn" data-party-mode="analyze" onclick="switchPartyMode('analyze')">おすすめ・診断</button>
+      <span class="party-mode-note" id="party-mode-note">まずは6体の登録と保存だけに集中できます。</span>
+    </div>
+
     <div class="party-top-grid">
       <div class="party-section-box">
         <div class="sec">パーティ登録</div>
@@ -786,7 +810,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div style="margin-top:8px;font-size:10px;color:var(--text2);">合計努力値: <span id="party-ev-summary" style="color:var(--text3);">—</span></div>
       </div>
 
-      <div class="saved-parties-section" id="saved-parties-section">
+      <div class="saved-parties-section party-edit-only" id="saved-parties-section">
         <div class="saved-parties-head">
           <div>
             <div class="saved-parties-title">保存場所関連</div>
@@ -799,7 +823,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     </div>
 
     <div class="party-mid-grid">
-      <div>
+      <div class="party-edit-column party-edit-only">
         <div id="party-editor-empty" style="display:none;background:var(--bg2);border:1px dashed var(--border2);padding:20px;text-align:center;font-size:11px;color:var(--text2);">
           スロットを選択して技・努力値を編集
         </div>
@@ -917,14 +941,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
       <div class="party-workspace">
         <div class="party-workspace-tabs" aria-label="PC用表示切替">
-          <button type="button" class="party-workspace-tab-btn active" data-party-workspace-tab="recommend" onclick="switchPartyWorkspace('recommend')">おすすめ</button>
-          <button type="button" class="party-workspace-tab-btn" data-party-workspace-tab="add" onclick="switchPartyWorkspace('add')">追加</button>
-          <button type="button" class="party-workspace-tab-btn" data-party-workspace-tab="coverage" onclick="switchPartyWorkspace('coverage')">相性</button>
-          <button type="button" class="party-workspace-tab-btn" data-party-workspace-tab="karte" onclick="switchPartyWorkspace('karte')">構築カルテ</button>
-          <button type="button" class="party-workspace-tab-btn" data-party-workspace-tab="compare" onclick="switchPartyWorkspace('compare')">比較</button>
+          <button type="button" class="party-workspace-tab-btn active party-analysis-only" data-party-workspace-tab="recommend" onclick="switchPartyWorkspace('recommend')">おすすめ</button>
+          <button type="button" class="party-workspace-tab-btn party-edit-only" data-party-workspace-tab="add" onclick="switchPartyWorkspace('add')">追加</button>
+          <button type="button" class="party-workspace-tab-btn party-analysis-only" data-party-workspace-tab="coverage" onclick="switchPartyWorkspace('coverage')">相性</button>
+          <button type="button" class="party-workspace-tab-btn party-analysis-only" data-party-workspace-tab="karte" onclick="switchPartyWorkspace('karte')">構築カルテ</button>
+          <button type="button" class="party-workspace-tab-btn party-analysis-only" data-party-workspace-tab="compare" onclick="switchPartyWorkspace('compare')">比較</button>
         </div>
 
-        <div class="party-workspace-panel active" data-party-workspace-panel="recommend">
+        <div class="party-workspace-panel active party-analysis-only" data-party-workspace-panel="recommend">
           <div class="sec">おすすめ表示</div>
           <div class="party-recommend-toolbar">
             <div class="party-ranking-mode">
@@ -952,7 +976,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div id="party-recommend-list" class="recommend-group-wrap"></div>
         </div>
 
-        <div class="party-workspace-panel" data-party-workspace-panel="add">
+        <div class="party-workspace-panel party-edit-only" data-party-workspace-panel="add">
           <div class="add-section party-side-panel">
             <div class="add-section-title">登録済みから選ぶ</div>
             <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);">
@@ -990,7 +1014,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           </div>
         </div>
 
-        <div class="party-workspace-panel" data-party-workspace-panel="coverage">
+        <div class="party-workspace-panel party-analysis-only" data-party-workspace-panel="coverage">
           <div class="party-coverage-grid">
             <div class="cov-wrap">
               <div class="sec">環境上位20への通り</div>
@@ -1007,7 +1031,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         </div>
 
 
-        <div class="party-workspace-panel" data-party-workspace-panel="karte">
+        <div class="party-workspace-panel party-analysis-only" data-party-workspace-panel="karte">
           <div class="build-carte-head">
             <div>
               <div class="build-carte-title">構築カルテ / 診断</div>
@@ -1062,7 +1086,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div id="party-build-carte-root"></div>
         </div>
 
-        <div class="party-workspace-panel" data-party-workspace-panel="compare">
+        <div class="party-workspace-panel party-analysis-only" data-party-workspace-panel="compare">
           <div class="sec">構築バージョン比較</div>
           <div class="party-compare-controls">
             <div class="party-compare-field">
@@ -1157,7 +1181,9 @@ const PARTY_DRAFT_KEY = 'pokeedge_party_draft_v1';
 let _partyCoverageTimer = null;
 let _partyDraftTimer = null;
 let PARTY_EDITOR_QUICK_MOVES = [];
-let PARTY_WORKSPACE_TAB = 'recommend';
+let PARTY_WORKSPACE_TAB = 'add';
+let PARTY_VIEW_MODE = localStorage.getItem('pokeedge_party_view_mode') === 'analyze' ? 'analyze' : 'edit';
+let _partyAnalysisDirty = true;
 let CURRENT_PARTY_SOURCE = null;
 let PARTY_COMPARE_SAVED = [];
 let _dataLoaded  = false;
@@ -1178,19 +1204,31 @@ async function ensurePokemonMovesLoaded(){
   return _pokemonMovesPromise;
 }
 
-function normalizeRankingPayload(payload, battleType){
+function normalizeRankingPayload(payload, battleType, seasonLabel){
   const rows = payload && Array.isArray(payload.rows) ? payload.rows : [];
   const updatedAt = payload && payload.updatedAt ? String(payload.updatedAt) : '';
-  return {battleType, updatedAt, rows};
+  return {battleType, seasonLabel:String(seasonLabel||''), updatedAt, rows};
 }
 function getPartyStoredSeasonLabel(){
   if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.getStored === 'function') return pokeEdgeRankingSeason.getStored() || '';
   return '';
 }
+function getLatestPartySeasonLabel(){
+  const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons : [];
+  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.sortLabels === 'function'){
+    return (window.pokeEdgeRankingSeason.sortLabels(labels, true)[0] || '').trim();
+  }
+  return labels.slice().sort((a,b)=>{
+    const an = Number((String(a).match(/\d+/)||['0'])[0]);
+    const bn = Number((String(b).match(/\d+/)||['0'])[0]);
+    return bn - an || String(b).localeCompare(String(a),'ja');
+  })[0] || '';
+}
 function resolvePartySeasonLabel(preferred){
   const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons : [];
-  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.resolve === 'function') return pokeEdgeRankingSeason.resolve(labels, preferred || ACTIVE_RANKING_SEASON || getPartyStoredSeasonLabel());
-  return String(preferred || ACTIVE_RANKING_SEASON || labels[0] || '').trim();
+  const want = String(preferred || '').trim();
+  if(want && labels.includes(want)) return want;
+  return getLatestPartySeasonLabel() || String(labels[0] || '').trim() || 'S1';
 }
 function getPartyRankingFilePath(mode, seasonLabel){
   const base = mode === 'double' ? 'season_ranking_double' : 'season_ranking_single';
@@ -1200,20 +1238,26 @@ function getPartyRankingFilePath(mode, seasonLabel){
   const num = m ? parseInt(m[1], 10) : 0;
   return num && num !== 1 ? `${base}_s${num}.json` : `${base}.json`;
 }
-async function reloadPartyRankingData(preferred){
+async function reloadPartyRankingData(preferred, mode){
   const seasonLabel = resolvePartySeasonLabel(preferred);
   ACTIVE_RANKING_SEASON = seasonLabel;
-  if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function' && seasonLabel) pokeEdgeRankingSeason.setStored(seasonLabel);
-  const [rankingSingle, rankingDouble] = await Promise.all([
-    fetchDataJson(getPartyRankingFilePath('single', seasonLabel), {rows:[], updatedAt:''}),
-    fetchDataJson(getPartyRankingFilePath('double', seasonLabel), {rows:[], updatedAt:''})
-  ]);
-  PARTY_RANKING_DATA = {
-    single: normalizeRankingPayload(rankingSingle, 'single'),
-    double: normalizeRankingPayload(rankingDouble, 'double')
-  };
+  const safeMode = mode === 'double' ? 'double' : 'single';
+  const ranking = await fetchDataJson(getPartyRankingFilePath(safeMode, seasonLabel), {rows:[], updatedAt:''});
+  PARTY_RANKING_DATA = Object.assign({
+    single: PARTY_RANKING_DATA.single || {rows:[], updatedAt:''},
+    double: PARTY_RANKING_DATA.double || {rows:[], updatedAt:''}
+  }, {
+    [safeMode]: normalizeRankingPayload(ranking, safeMode, seasonLabel)
+  });
   if(selectedSlot>=0 && party[selectedSlot] && party[selectedSlot].poke) renderPeMoveQuick(party[selectedSlot].poke.name);
   updateCoverage();
+}
+async function ensurePartyRankingModeData(mode){
+  const safeMode = mode === 'double' ? 'double' : 'single';
+  const dataset = PARTY_RANKING_DATA[safeMode];
+  if(dataset && Array.isArray(dataset.rows) && dataset.rows.length && dataset.seasonLabel === ACTIVE_RANKING_SEASON) return dataset;
+  await reloadPartyRankingData(ACTIVE_RANKING_SEASON || getLatestPartySeasonLabel(), safeMode);
+  return PARTY_RANKING_DATA[safeMode] || {rows:[], updatedAt:''};
 }
 function normalizeMoveLookupName(name){
   return String(name||'').replace(/[\s　]+/g,'').trim();
@@ -1440,8 +1484,8 @@ async function loadGameData() {
     moveIndex    = MOVES_DATA.map((m,i)=>Object.assign({_i:i},m));
     MOVE_LOOKUP  = Object.fromEntries(moveIndex.map(m=>[normalizeMoveLookupName(m.name), m]));
     MEGA_DATA = normalizeMegaRelations(megaData);
-    ACTIVE_RANKING_SEASON = resolvePartySeasonLabel(getPartyStoredSeasonLabel());
-    await reloadPartyRankingData(ACTIVE_RANKING_SEASON);
+    ACTIVE_RANKING_SEASON = getLatestPartySeasonLabel();
+    await reloadPartyRankingData(ACTIVE_RANKING_SEASON, PARTY_RANKING_MODE);
     _dataLoaded  = true;
   } catch(e) {
     console.error('データ読み込みエラー:', e);
@@ -2703,8 +2747,32 @@ let party = []; // 最大6匹（null不使用）
 let selectedSlot = -1;
 
 
+function isPartyAnalyzeMode(){
+  return PARTY_VIEW_MODE === 'analyze' || document.body.classList.contains('party-view-analyze');
+}
+function isPartyHeavyWorkspace(tab){
+  return ['recommend','coverage','karte','compare'].includes(tab || PARTY_WORKSPACE_TAB);
+}
+function shouldRunPartyHeavyAnalysis(){
+  return isPartyAnalyzeMode() && isPartyHeavyWorkspace(PARTY_WORKSPACE_TAB);
+}
+function switchPartyMode(mode){
+  const safe = mode === 'analyze' ? 'analyze' : 'edit';
+  PARTY_VIEW_MODE = safe;
+  try{ localStorage.setItem('pokeedge_party_view_mode', safe); }catch(_){}
+  document.body.classList.toggle('party-view-edit', safe === 'edit');
+  document.body.classList.toggle('party-view-analyze', safe === 'analyze');
+  document.querySelectorAll('[data-party-mode]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.partyMode === safe);
+  });
+  const note = document.getElementById('party-mode-note');
+  if(note) note.textContent = safe === 'edit' ? 'まずは6体の登録と保存だけに集中できます。' : 'おすすめ・相性・構築カルテだけをまとめて確認します。';
+  switchPartyWorkspace(safe === 'edit' ? 'add' : (isPartyHeavyWorkspace(PARTY_WORKSPACE_TAB) ? PARTY_WORKSPACE_TAB : 'recommend'));
+}
 function switchPartyWorkspace(tab){
-  const safe = ['recommend','add','coverage','karte','compare'].includes(tab) ? tab : 'recommend';
+  let safe = ['recommend','add','coverage','karte','compare'].includes(tab) ? tab : (isPartyAnalyzeMode() ? 'recommend' : 'add');
+  if(!isPartyAnalyzeMode() && safe !== 'add') safe = 'add';
+  if(isPartyAnalyzeMode() && safe === 'add') safe = 'recommend';
   PARTY_WORKSPACE_TAB = safe;
   document.querySelectorAll('[data-party-workspace-tab]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyWorkspaceTab === safe);
@@ -2712,16 +2780,18 @@ function switchPartyWorkspace(tab){
   document.querySelectorAll('[data-party-workspace-panel]').forEach(panel=>{
     panel.classList.toggle('active', panel.dataset.partyWorkspacePanel === safe);
   });
+  if(shouldRunPartyHeavyAnalysis()) updateCoverage();
   if(safe === 'karte') renderPartyBuildCarte();
   if(safe === 'compare') renderPartyVersionCompare();
 }
-function setPartyRankingMode(mode){
+async function setPartyRankingMode(mode){
   const safe = mode === 'double' ? 'double' : 'single';
   PARTY_RANKING_MODE = safe;
   localStorage.setItem('pokeedge_party_ranking_mode', safe);
   document.querySelectorAll('[data-party-ranking-mode]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyRankingMode === safe);
   });
+  await ensurePartyRankingModeData(safe);
   if(selectedSlot>=0 && party[selectedSlot] && party[selectedSlot].poke) renderPeMoveQuick(party[selectedSlot].poke.name);
   updateCoverage();
   markPartyBuildCarteDirty();
@@ -2730,13 +2800,16 @@ function setPartyRankingMode(mode){
 
 // ===== スマホ用: パーティ管理タブ切り替え =====
 function switchPartyMobileTab(tab){
-  const safe = ['six','edit','add','coverage','karte','compare'].includes(tab) ? tab : 'six';
-  document.body.classList.remove('party-mobile-tab-six','party-mobile-tab-edit','party-mobile-tab-add','party-mobile-tab-coverage','party-mobile-tab-karte','party-mobile-tab-compare');
+  const safe = ['six','edit','add','recommend','coverage','karte','compare'].includes(tab) ? tab : 'six';
+  document.body.classList.remove('party-mobile-tab-six','party-mobile-tab-edit','party-mobile-tab-add','party-mobile-tab-recommend','party-mobile-tab-coverage','party-mobile-tab-karte','party-mobile-tab-compare');
   document.body.classList.add('party-mobile-tab-'+safe);
   document.querySelectorAll('[data-party-mobile-tab]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.partyMobileTab === safe);
   });
+  if(['six','edit','add'].includes(safe)) switchPartyMode('edit');
+  if(['recommend','coverage','karte','compare'].includes(safe)) switchPartyMode('analyze');
   if(safe === 'add') switchPartyWorkspace('add');
+  if(safe === 'recommend') switchPartyWorkspace('recommend');
   if(safe === 'coverage') switchPartyWorkspace('coverage');
   if(safe === 'karte') switchPartyWorkspace('karte');
   if(safe === 'compare') switchPartyWorkspace('compare');
@@ -4127,7 +4200,7 @@ function renderPartyBuildCarte(){
   root.innerHTML = `
     <div class="build-carte-grid">
       <div class="build-carte-card"><div class="build-carte-card-title">構築状態</div><div class="build-carte-card-main">${members.length}/6体 / メガ候補 ${megaCount}体</div><div class="build-carte-card-sub">現在の保存名: ${escapePartyHtml(document.getElementById('party-save-name')?.value || '新規パーティ')}</div></div>
-      <div class="build-carte-card"><div class="build-carte-card-title">参照環境</div><div class="build-carte-card-main">${escapePartyHtml(modeLabel)} 上位20</div><div class="build-carte-card-sub">ランキング表示の切替と連動します。</div></div>
+      <div class="build-carte-card"><div class="build-carte-card-title">参照環境</div><div class="build-carte-card-main">${escapePartyHtml(ACTIVE_RANKING_SEASON || '最新')} / ${escapePartyHtml(modeLabel)} 上位20</div><div class="build-carte-card-sub">保存値ではなく最新シーズンを初期参照します。</div></div>
       <div class="build-carte-card"><div class="build-carte-card-title">攻撃範囲</div><div class="build-carte-card-main">${attackCovered}/18タイプに打点</div><div class="build-carte-card-sub">登録技ベース。技未設定の枠は反映しません。</div></div>
       <div class="build-carte-card"><div class="build-carte-card-title">技カテゴリ</div><div class="build-carte-card-main">物理${physicalMoves} / 特殊${specialMoves}</div><div class="build-carte-card-sub">変化技はカウント外。偏り確認用です。</div></div>
     </div>
@@ -4436,7 +4509,12 @@ function updateCoverageNow() {
 
 function updateCoverage() {
   clearTimeout(_partyCoverageTimer);
-  _partyCoverageTimer = setTimeout(updateCoverageNow, 40);
+  if(!shouldRunPartyHeavyAnalysis()){
+    _partyAnalysisDirty = true;
+    return;
+  }
+  _partyAnalysisDirty = false;
+  _partyCoverageTimer = setTimeout(updateCoverageNow, 80);
 }
 
 function getThreatCandidateAttackTypes(memberOrCandidate) {
@@ -4744,7 +4822,7 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
   const megaTarget = PARTY_MEGA_TARGET;
   const megaRemain = Math.max(0, megaTarget - currentMegaCount);
   if(metaEl){
-    metaEl.innerHTML = `上位20参照 / <span style="color:var(--accent3);">${modeLabel}</span>${dataset.updatedAt ? ` / 更新 ${escapePartyHtml(dataset.updatedAt)}` : ''} / メガ枠 ${currentMegaCount}/${megaTarget}`;
+    metaEl.innerHTML = `最新${escapePartyHtml(ACTIVE_RANKING_SEASON || '')} 上位20参照 / <span style="color:var(--accent3);">${modeLabel}</span>${dataset.updatedAt ? ` / 更新 ${escapePartyHtml(dataset.updatedAt)}` : ''} / メガ枠 ${currentMegaCount}/${megaTarget}`;
   }
 
   if(!members.length) {
@@ -4869,7 +4947,7 @@ window.onload = async () => {
   await initAuth();
   await loadGameData();
   initSeasonFilter();
-  switchPartyWorkspace('recommend');
+  switchPartyMode(PARTY_VIEW_MODE);
   loadPartyDiagnosisSettingsToForm();
   markPartyBuildCarteDirty();
   document.querySelectorAll('[data-party-ranking-mode]').forEach(btn=>{
@@ -4910,7 +4988,17 @@ setupIfExists('atk2-search','atk2-drop');
 if(el('pe-move-search')) setupPeMoveSearch();
 
 // パーティ管理
-if(el('party-slot-list')){ switchPartyMobileTab('six'); syncPartySaveControls(); renderPartySlotList(); renderRegPokeList(); renderSavedPartyListFast(); renderSavedPartyList(); if(!restorePartyDraft()) renderPartySlotList(); }
+if(el('party-slot-list')){
+  switchPartyMobileTab('six');
+  syncPartySaveControls();
+  renderPartySlotList();
+  renderRegPokeList();
+  renderSavedPartyListFast();
+  const loadSavedPartiesLater = ()=>renderSavedPartyList();
+  if(window.requestIdleCallback) requestIdleCallback(loadSavedPartiesLater, {timeout:2000});
+  else setTimeout(loadSavedPartiesLater, 600);
+  if(!restorePartyDraft()) renderPartySlotList();
+}
 
 // ダメージ計算スライダー（要素が存在するページのみ）
 ['atk-lv','def-lv'].forEach(id=>{
@@ -5267,7 +5355,7 @@ const TYPE_COLORS = {
 window.exportPartyImage = exportPartyImage;
 setupPartyExportSizeSwitch();
 
-window.addEventListener('pokeedge:season-change', function(ev){ const season = ev?.detail?.season || ''; const sel = document.getElementById('global-season-filter'); if(season && sel && Array.from(sel.options).some(opt=>opt.value===season)){ sel.value = season; reloadPartyRankingData(season); renderRegPokeList(document.getElementById('party-reg-search')?.value||''); } });
+window.addEventListener('pokeedge:season-change', function(ev){ const season = ev?.detail?.season || ''; const sel = document.getElementById('global-season-filter'); if(season && sel && Array.from(sel.options).some(opt=>opt.value===season)){ sel.value = season; reloadPartyRankingData(season, PARTY_RANKING_MODE); renderRegPokeList(document.getElementById('party-reg-search')?.value||''); } });
 
 document.addEventListener('DOMContentLoaded',()=>{ renderRegPokeList(); renderPartySlotList(); });
 };
@@ -5285,8 +5373,7 @@ function getSeasonFilteredPokes() {
 }
 function onSeasonFilterChange() {
   const season = document.getElementById('global-season-filter')?.value || '';
-  if(season && window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.setStored === 'function') pokeEdgeRankingSeason.setStored(season);
-  reloadPartyRankingData(season || getPartyStoredSeasonLabel());
+  reloadPartyRankingData(season || getLatestPartySeasonLabel(), PARTY_RANKING_MODE);
   document.querySelectorAll('input.search-input').forEach(inp => {
     inp.dispatchEvent(new Event('input'));
   });
@@ -5304,7 +5391,7 @@ function initSeasonFilter() {
       opt.textContent = s + '（' + (SEASON_DATA[s]||[]).length + '件）';
       sel.appendChild(opt);
     });
-    const preferred = resolvePartySeasonLabel(getPartyStoredSeasonLabel());
+    const preferred = getLatestPartySeasonLabel();
     if(preferred) sel.value = preferred;
   }
 }
