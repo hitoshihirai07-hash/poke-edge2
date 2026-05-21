@@ -1248,9 +1248,22 @@ const TYPE_CHART = {
   'はがね':{こおり:2,いわ:2,フェアリー:2,ほのお:.5,みず:.5,でんき:.5,はがね:.5},
   'フェアリー':{かくとう:2,ドラゴン:2,あく:2,ほのお:.5,どく:.5,はがね:.5}
 };
-function typeEff(atkType, defTypes){
+function scopeAbilityLetsNormalFightingHitGhost(abilityName){
+  return ['きもったま','しんがん'].includes(String(abilityName||'').trim());
+}
+function scopeIsNormalOrFightingType(moveType){
+  return ['ノーマル','かくとう','格闘'].includes(String(moveType||'').trim());
+}
+function typeEff(atkType, defTypes, moveName='', attackerAbility=''){
   let e=1;
-  defTypes.forEach(dt=>{e *= (TYPE_CHART[atkType]||{})[dt] ?? 1;});
+  const chart = TYPE_CHART[atkType] || {};
+  const isFreezeDry = String(moveName||'').trim() === 'フリーズドライ';
+  const ignoreGhostImmunity = scopeAbilityLetsNormalFightingHitGhost(attackerAbility) && scopeIsNormalOrFightingType(atkType);
+  defTypes.forEach(dt=>{
+    if(ignoreGhostImmunity && dt === 'ゴースト') return;
+    if(isFreezeDry && dt === 'みず'){ e *= 2; return; }
+    e *= chart[dt] ?? 1;
+  });
   return e;
 }
 function typeHTML(p){
@@ -2097,11 +2110,14 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
     const WB_MAP = {sunny:'ほのお', rain:'みず', sand:'いわ', snow:'こおり'};
     if(WB_MAP[weather]){ mtype = WB_MAP[weather]; power = 100; }
   }
-  const baseEff = typeEff(mtype, defTypes);
+  const baseEff = typeEff(mtype, defTypes, moveName, atkSlot.ability || '');
   const adjustedMove = Object.assign({}, move, {type:mtype, power});
   const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, effectiveDefHpPct);
   const fieldAdjust = getScopeFieldDamageAdjustments(context, atkSlot, adjustedMove, defSlot, mtype);
   let detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power).concat(fieldAdjust.notes, hpInfo.notes);
+  if(scopeAbilityLetsNormalFightingHitGhost(atkSlot.ability) && scopeIsNormalOrFightingType(mtype) && defTypes.includes('ゴースト')){
+    detailNotes.push((atkSlot.ability || '特性') + ': ゴースト無効を通常相性化');
+  }
   if(adjust.eff===0){
     return {min:0,max:0,label:'無効'+(adjust.nullifyReason?'('+adjust.nullifyReason+')':''),cls:'mu-null', detailNotes};
   }

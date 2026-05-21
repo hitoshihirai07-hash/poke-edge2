@@ -2063,11 +2063,19 @@ const TYPE_EFF = {
   'ノーマル':{'いわ':0.5,'はがね':0.5,'ゴースト':0},
 };
 
-function getTypeEff(movetype, defTypes, moveName='') {
+function partyAbilityLetsNormalFightingHitGhost(abilityName){
+  return ['きもったま','しんがん'].includes(String(abilityName||'').trim());
+}
+function partyIsNormalOrFightingType(moveType){
+  return ['ノーマル','かくとう','格闘'].includes(String(moveType||'').trim());
+}
+function getTypeEff(movetype, defTypes, moveName='', attackerAbility='') {
   let e = 1;
   const chart = TYPE_EFF[movetype] || {};
   const isFreezeDry = String(moveName||'').trim() === 'フリーズドライ';
+  const ignoreGhostImmunity = partyAbilityLetsNormalFightingHitGhost(attackerAbility) && partyIsNormalOrFightingType(movetype);
   defTypes.forEach(t => {
+    if(ignoreGhostImmunity && t === 'ゴースト') return;
     if(isFreezeDry && t === 'みず') {
       e *= 2;
       return;
@@ -2282,7 +2290,7 @@ function calcDamage() {
   // タイプ相性（防御側）
   const defPoke  = window._defBase;
   const defTypes = defPoke ? [defPoke.type1, defPoke.type2].filter(Boolean) : [];
-  const eff      = getTypeEff(mtype, defTypes);
+  const eff      = getTypeEff(mtype, defTypes, '', document.getElementById('atk-ability')?.value || '');
 
   // STAB（タイプ一致補正）: 技タイプ(漢字) → ポケモンタイプ(ひらがな/カタカナ) 変換して照合
   const MOVE_TYPE_TO_POKE = {
@@ -2449,12 +2457,12 @@ const MOVE_TYPE_TO_POKE2 = {
   'ドラゴン':'ドラゴン','フェアリー':'フェアリー'
 };
 
-function calcOneDamage(atkStats, atkBase, defStats, defBase, lv, mtype, mcat, mhits, mpower, itemKey) {
+function calcOneDamage(atkStats, atkBase, defStats, defBase, lv, mtype, mcat, mhits, mpower, itemKey, attackerAbility='') {
   const atkStat = mcat==='物理' ? atkStats.atk : atkStats.spa;
   const defStat = mcat==='物理' ? defStats.def  : defStats.spd;
   const hp      = defStats.hp;
   const defTypes = defBase ? [defBase.type1, defBase.type2].filter(Boolean) : [];
-  const eff      = getTypeEff(mtype, defTypes);
+  const eff      = getTypeEff(mtype, defTypes, '', attackerAbility);
   const atkTypes = atkBase ? [atkBase.type1, atkBase.type2].filter(Boolean) : [];
   const stab     = atkTypes.includes(MOVE_TYPE_TO_POKE2[mtype]||mtype) ? 1.5 : 1;
   let itemMult = 1;
@@ -3424,7 +3432,7 @@ function getPartyBuildThreatRows(members){
     const ev = evaluateThreatAgainstCurrentParty(profile, members);
     const responders = members.map(member=>{
       const defenseValue = getWeightedDefenseValue(member, profile);
-      const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), profile.threatTypes);
+      const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), profile.threatTypes, member.ability || '');
       let score = 0;
       if(attackEff >= 4) score += 3;
       else if(attackEff >= 2) score += 2;
@@ -3849,7 +3857,7 @@ function updateCoverageNow() {
         const responders = coverageMembers.map(member=>{
           if(!member || !member.poke) return null;
           const defenseValue = getWeightedDefenseValue(member, profile);
-          const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), profile.threatTypes);
+          const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), profile.threatTypes, member.ability || '');
           const speed = Number(member.poke && member.poke.spe || 0);
           const threatSpeed = Number(profile.threatPokemon && profile.threatPokemon.spe || 0);
           let score = attackEff >= 4 ? 3.6 : attackEff >= 2 ? 2.7 : attackEff > 1 ? 1.4 : attackEff === 1 ? 0.5 : 0;
@@ -4100,14 +4108,14 @@ function getWeightedDefenseValue(subject, threatProfile){
   const bulkFactor = Math.max(0, Math.min(0.42, (bulk - 80) / 140));
   return Math.max(0, bestEff - bulkFactor);
 }
-function getWeightedAttackEff(attackTypes, threatTypes){
+function getWeightedAttackEff(attackTypes, threatTypes, attackerAbility=''){
   if(!threatTypes || !threatTypes.length || !attackTypes || !attackTypes.length) return 1;
   let best = 0;
   attackTypes.forEach(entry=>{
     const rawType = typeof entry === 'string' ? entry : (entry && entry.type);
     const moveName = typeof entry === 'string' ? '' : String(entry && entry.name || '').trim();
     const moveType = POKE_TYPE_TO_MOVE_TYPE[rawType] || rawType;
-    const eff = getTypeEff(moveType, threatTypes, moveName);
+    const eff = getTypeEff(moveType, threatTypes, moveName, attackerAbility);
     if(eff > best) best = eff;
   });
   return best;
@@ -4121,7 +4129,7 @@ function evaluateThreatAgainstCurrentParty(threatProfile, members){
     if(!member || !member.poke) return;
     const defenseValue = getWeightedDefenseValue(member, threatProfile);
     if(defenseValue < bestDefenseValue) bestDefenseValue = defenseValue;
-    const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), threatProfile.threatTypes);
+    const attackEff = getWeightedAttackEff(getThreatCandidateAttackTypes(member), threatProfile.threatTypes, member.ability || '');
     if(attackEff > bestOffenseEff) bestOffenseEff = attackEff;
   });
   const defenseConcern = bestDefenseValue >= 1.35 ? 1.8 : bestDefenseValue >= 1.05 ? 1.25 : bestDefenseValue >= 0.8 ? 0.8 : bestDefenseValue >= 0.55 ? 0.45 : 0.15;
