@@ -46,6 +46,8 @@ const state = {
   moves: [],
   byName: new Map(),
   moveByName: new Map(),
+  megaByBase: new Map(),
+  baseByMega: new Map(),
   ranking: new Map(),
   partySamples: [],
   savedParties: [],
@@ -60,17 +62,19 @@ const state = {
 init();
 
 async function init(){
-  const [pokemon, ranking, partyList, moves] = await Promise.all([
+  const [pokemon, ranking, partyList, moves, megaData] = await Promise.all([
     fetchJson("pokemon.json", []),
     fetchJson("season_ranking_single.json", {rows: []}),
     fetchJson("party_list.json", {parties: []}),
-    fetchJson("moves.json", [])
+    fetchJson("moves.json", []),
+    fetchJson("mega.json", {rows: [], baseToForms: {}, formToBase: {}})
   ]);
   state.pokemon = pokemon.filter(p => p && p.name).map(p => ({...p, types: [p.type1, p.type2].filter(Boolean)}));
   state.moves = moves.filter(m => m && m.name);
   state.pokemon.forEach(p => state.byName.set(p.name, p));
   state.moves.forEach(m => state.moveByName.set(m.name, m));
   (ranking.rows || []).forEach(r => state.ranking.set(displayName(r.name || r.siteName), r));
+  buildMegaMaps(megaData);
   state.partySamples = partyList.parties || [];
   state.savedParties = buildSavedPartyOptions(partyList);
   bind();
@@ -122,6 +126,28 @@ async function fetchJson(path, fallback){
     $("status").textContent = "JSONを読めません。ローカルサーバー上で開いてください。";
     return fallback;
   }
+}
+
+function buildMegaMaps(megaData){
+  state.megaByBase = new Map();
+  state.baseByMega = new Map();
+
+  Object.entries(megaData.baseToForms || {}).forEach(([baseName, forms]) => {
+    const list = (Array.isArray(forms) ? forms : []).filter(name => state.byName.has(name));
+    if(list.length) state.megaByBase.set(baseName, list);
+  });
+
+  Object.entries(megaData.formToBase || {}).forEach(([formName, baseName]) => {
+    if(state.byName.has(formName)) state.baseByMega.set(formName, baseName);
+  });
+
+  (megaData.rows || []).forEach(row => {
+    if(!row?.name || !row?.baseName || !state.byName.has(row.name)) return;
+    const list = state.megaByBase.get(row.baseName) || [];
+    if(!list.includes(row.name)) list.push(row.name);
+    state.megaByBase.set(row.baseName, list);
+    state.baseByMega.set(row.name, row.baseName);
+  });
 }
 
 function renderAll(){
@@ -228,20 +254,38 @@ function memberToPokemon(member){
   const name = memberName(member);
   const base = state.byName.get(name);
   if(!base) return null;
-  return {
-    ...base,
-    types: [base.type1, base.type2].filter(Boolean),
-    build: {
-      nature: member.nature || "がんばりや",
-      item: member.item || "",
-      ability: member.ability || "",
-      ev: member.ev || {},
-      moves: (member.moves || []).map(move => typeof move === "string" ? move : move?.name).filter(Boolean).slice(0,4),
-      lv: member.lv || 50,
-      iv: member.iv || 31,
-      gameMode: member.gameMode || "champions"
-    }
+  const build = {
+    nature: member.nature || "がんばりや",
+    item: member.item || "",
+    ability: member.ability || "",
+    ev: member.ev || {},
+    moves: (member.moves || []).map(move => typeof move === "string" ? move : move?.name).filter(Boolean).slice(0,4),
+    lv: member.lv || 50,
+    iv: member.iv || 31,
+    gameMode: member.gameMode || "champions",
+    originalName: base.name
   };
+  const maybeMega = megaFormFromItem(base.name, build.item);
+  const target = maybeMega ? state.byName.get(maybeMega) || base : base;
+  return {
+    ...target,
+    types: [target.type1, target.type2].filter(Boolean),
+    build
+  };
+}
+
+function megaFormFromItem(baseName, itemName){
+  const item = String(itemName || "");
+  if(!item || !item.includes("ナイト")) return "";
+  const forms = state.megaByBase.get(baseName) || [];
+  if(!forms.length) return "";
+  if(forms.length === 1) return forms[0];
+  const normalizedItem = item.replace(/ナイト/g, "");
+  return forms.find(form => form.includes("X") && item.includes("X"))
+    || forms.find(form => form.includes("Y") && item.includes("Y"))
+    || forms.find(form => form.includes("Z") && item.includes("Z"))
+    || forms.find(form => form.replace(/^メガ/,"").includes(normalizedItem))
+    || forms[0];
 }
 
 function memberName(member){
@@ -254,10 +298,12 @@ function renderSlots(side){
   box.innerHTML = party.map((p, i) => `
     <div class="slot ${p ? "filled" : ""}" data-side="${side}" data-index="${i}">
       ${p ? monHtml(p) : `<div class="slot-name">${i + 1}枠</div><div class="slot-meta">未設定</div>`}
+      ${p ? megaControlsHtml(p, side, i) : ""}
     </div>
   `).join("");
   box.querySelectorAll(".slot").forEach(el => {
-    el.addEventListener("click", () => {
+    el.addEventListener("click", (event) => {
+      if(event.target.closest("button")) return;
       const s = el.dataset.side;
       const i = Number(el.dataset.index);
       if(state[s][i]){
@@ -265,6 +311,14 @@ function renderSlots(side){
         if(s === "opponent") state.leadName = "";
         renderAll();
       }
+    });
+  });
+  box.querySelectorAll("button[data-mega-form]").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const side = btn.dataset.side;
+      const index = Number(btn.dataset.index);
+      switchMega(side, index, btn.dataset.megaForm);
     });
   });
 }
@@ -305,6 +359,38 @@ function addPokemon(side, name){
     return;
   }
   state[side][idx] = p;
+}
+
+function megaControlsHtml(pokemon, side, index){
+  const baseName = state.baseByMega.get(pokemon.name) || pokemon.name;
+  const forms = state.megaByBase.get(baseName) || [];
+  if(!forms.length) return "";
+  const options = [baseName, ...forms].filter(name => state.byName.has(name));
+  return `<div class="types">${options.map(name => `
+    <button class="btn" style="padding:3px 6px;font-size:10px;${name === pokemon.name ? "border-color:var(--accent3);color:var(--accent3)" : ""}" data-side="${side}" data-index="${index}" data-mega-form="${escapeAttr(name)}">${escapeHtml(name === baseName ? "通常" : name.replace(/^メガ/,"M"))}</button>
+  `).join("")}</div>`;
+}
+
+function switchMega(side, index, targetName){
+  const current = state[side]?.[index];
+  const target = state.byName.get(targetName);
+  if(!current || !target) return;
+  state[side][index] = {
+    ...target,
+    types: [target.type1, target.type2].filter(Boolean),
+    build: current.build ? {
+      ...current.build,
+      megaBaseName: state.baseByMega.get(target.name) || target.name,
+      originalName: current.build.originalName || state.baseByMega.get(current.name) || current.name
+    } : undefined
+  };
+  if(side === "opponent"){
+    if(state.leadName === current.name) state.leadName = target.name;
+    if(state.secondName === current.name) state.secondName = target.name;
+  }
+  state.predictions = null;
+  renderAll();
+  $("status").textContent = `${current.name} → ${target.name} に切り替えました`;
 }
 
 function runPredict(){
