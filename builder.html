@@ -140,6 +140,26 @@ h1{margin:0 0 10px;font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spa
 .detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;}
 .detail-title{font-size:22px;font-weight:900;}
 .close-btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:999px;width:34px;height:34px;cursor:pointer;}
+
+.edit-btn{border:1px solid var(--border2);background:rgba(0,200,240,.08);color:var(--accent);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.edit-btn:hover{background:rgba(0,200,240,.14);}
+.editor-section{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-top:10px;}
+.editor-title{font-size:12px;color:var(--accent);font-weight:900;letter-spacing:1px;margin:0 0 8px;}
+.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.editor-grid.full{grid-template-columns:1fr;}
+.editor-field label{display:block;font-size:10px;color:var(--text2);margin:0 0 5px;letter-spacing:1px;}
+.editor-field input,.editor-field select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:9px 10px;font-size:13px;outline:none;}
+.editor-field input:focus,.editor-field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.10)}
+.move-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ev-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.recommend-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px;}
+.recommend-chip{border:1px solid rgba(0,200,240,.35);background:rgba(0,200,240,.08);color:var(--accent);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer;}
+.recommend-chip:hover{background:rgba(0,200,240,.15);}
+.recommend-chip.warn{border-color:rgba(255,200,0,.45);background:rgba(255,200,0,.10);color:var(--accent3);}
+.current-build-note{font-size:11px;color:var(--text2);line-height:1.7;margin-top:8px;}
+@media(max-width:768px){.editor-grid,.move-grid{grid-template-columns:1fr}.ev-grid{grid-template-columns:repeat(3,1fr)}.edit-btn{padding:6px 9px}.slot.filled{align-items:flex-start}}
+@media(max-width:420px){.ev-grid{grid-template-columns:repeat(2,1fr)}}
+
 .toast{position:fixed;left:14px;right:14px;bottom:14px;z-index:250;display:none;border:1px solid var(--accent);background:rgba(0,200,240,.15);color:var(--text);border-radius:16px;padding:12px 14px;font-size:13px;line-height:1.7;box-shadow:0 16px 36px rgba(0,0,0,.28);}
 .toast.show{display:block;}
 footer{border-top:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:26px;}
@@ -270,8 +290,12 @@ const TYPE_EFF = {
   'はがね': {'ほのお':0.5,'みず':0.5,'でんき':0.5,'こおり':2,'いわ':2,'はがね':0.5,'フェアリー':2},
   'フェアリー': {'ほのお':0.5,'かくとう':2,'どく':0.5,'ドラゴン':2,'あく':2,'はがね':0.5}
 };
-const LS_DRAFT_KEY = 'pokeedge_builder_assist_draft_v1';
+const LS_DRAFT_KEY = 'pokeedge_builder_assist_draft_v2';
+const OLD_LS_DRAFT_KEY = 'pokeedge_builder_assist_draft_v1';
 const PARTY_IMPORT_KEY = 'pokeedge_party_reference_transfer';
+const EV_KEYS = ['hp','atk','def','spa','spd','spe'];
+const EV_LABELS = {hp:'H',atk:'A',def:'B',spa:'C',spd:'D',spe:'S'};
+const COMMON_NATURES = ['がんばりや','いじっぱり','ようき','ひかえめ','おくびょう','わんぱく','ずぶとい','しんちょう','おだやか','ゆうかん','れいせい','なまいき','むじゃき','せっかち','おっとり','うっかりや','やんちゃ','さみしがり'];
 let POKEMON_DATA = [];
 let MOVES_DATA = [];
 let SEASON_DATA = {seasons:[]};
@@ -286,16 +310,18 @@ let ACTIVE_SEASON = '';
 let _toastTimer = null;
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function normalizeKey(s){return String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[\s　・･ー－–—]/g,'').toLowerCase().trim();}
+function jsArg(s){return esc(JSON.stringify(String(s??'')));}
+function normalizeKey(s){return String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[Ａ-Ｚａ-ｚ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[\s　・･ー－–—]/g,'').toLowerCase().trim();}
 function normalizeMoveDisplay(s){return String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).trim();}
 function fetchJson(path, fallback){return fetch(path, DATA_FETCH_OPTIONS).then(r=>r.ok?r.json():Promise.reject(new Error(path))).catch(()=>fallback);}
-function parseUsageEntry(entry){const raw=String(entry||'').trim();const m=raw.match(/^(.*?)(?:\s*\(([-\d.]+)%\))?$/);return {name:normalizeMoveDisplay(m?m[1]:raw), percent:m&&m[2]!=null?Number(m[2]):0};}
+function parseUsageEntry(entry){const raw=String(entry||'').trim();const m=raw.match(/^(.*?)(?:\s*\(([-\d.]+)%\))?$/);return {name:normalizeMoveDisplay(m?m[1]:raw), percent:m&&m[2]!=null?Number(m[2]):0, raw};}
+function normalizeNatureName(raw){return String(raw||'').replace(/[A-ZＨＡＢＣＤＳ][↑↓].*$/,'').replace(/[\s　]*[A-ZＨＡＢＣＤＳ]?[↑↓].*$/,'').trim() || 'がんばりや';}
 function getTypes(p){return [p?.type1,p?.type2].filter(Boolean);}
 function typeHtml(p){return getTypes(p).map(t=>`<span class="type-pill">${esc(t)}</span>`).join('');}
 function effect(moveType, defTypes){return (defTypes||[]).filter(Boolean).reduce((m,t)=>m*((TYPE_EFF[moveType]&&TYPE_EFF[moveType][t]!==undefined)?TYPE_EFF[moveType][t]:1),1);}
 function defenseAgainst(p, atkType){return effect(atkType, getTypes(p));}
-function isDamagingMove(m){return m && m.category && m.category !== '変化' && Number(m.power || 0) > 0 && m.type;}
-function getMoveMeta(name){return MOVE_MAP[normalizeKey(name)] || null;}
+function isDamagingMove(m){return m && m.category && m.category !== '変化' && (Number(m.power || 0) > 0 || /くさむすび|けたぐり|ヒートスタンプ|ヘビーボンバー/.test(String(m.name||''))) && m.type;}
+function getMoveMeta(name){const label=normalizeMoveDisplay(name);const found=MOVE_MAP[normalizeKey(label)] || null;if(found) return found;return {name:label,type:'',category:'',power:0,accuracy:'',pp:'',description:''};}
 function familyName(name){const raw=String(name||'').trim();return MEGA_DATA.formToBase?.[raw] || raw.replace(/^メガ/,'').replace(/[XYZ]$/,'') || raw;}
 function isMegaName(name){const raw=String(name||'').trim();return !!(MEGA_DATA.formToBase?.[raw] || /^メガ/.test(raw));}
 function hasMegaSelected(){return SELECTED.some(m=>isMegaName(m.pokemon.name) || /ナイト$/.test(String(m.item||'')));}
@@ -320,34 +346,76 @@ function getKnownMoveEntries(name){
   else if(raw && Array.isArray(raw.moves)) records.push(...raw.moves);
   return records;
 }
-function getTopMoves(name, limit=4){
+function makeMoveOption(name, percent=0){
+  const label=normalizeMoveDisplay(name);
+  if(!label) return null;
+  const known=getKnownMoveEntries('').find(m=>normalizeKey(m.name)===normalizeKey(label));
+  const meta=getMoveMeta(label) || known || {name:label};
+  return {name:label,type:meta.type||'',category:meta.category||'',power:Number(meta.power||0)||0,accuracy:meta.accuracy||'',pp:meta.pp||'',description:meta.description||meta.effect||'',percent:Number(percent||0)||0};
+}
+function getMoveOptions(name, limit=80){
   const row=rankingRowFor(name);
   const out=[];
   const seen=new Set();
-  function addByName(moveName, percent=0){
+  function add(moveName, percent=0){
     const label=normalizeMoveDisplay(moveName);
-    if(!label || seen.has(normalizeKey(label))) return;
-    const meta=getMoveMeta(label) || getKnownMoveEntries(name).find(m=>normalizeKey(m.name)===normalizeKey(label));
-    if(!meta) return;
-    const mv={name:label,type:meta.type||'',category:meta.category||'',power:Number(meta.power||0)||0,percent:Number(percent||0)||0};
-    if(!isDamagingMove(mv)) return;
-    seen.add(normalizeKey(label));
-    out.push(mv);
+    const key=normalizeKey(label);
+    if(!label || seen.has(key)) return;
+    const meta=getMoveMeta(label) || getKnownMoveEntries(name).find(m=>normalizeKey(m.name)===key) || {name:label};
+    seen.add(key);
+    out.push({name:label,type:meta.type||'',category:meta.category||'',power:Number(meta.power||0)||0,accuracy:meta.accuracy||'',pp:meta.pp||'',description:meta.description||meta.effect||'',percent:Number(percent||0)||0,recommended:percent>0});
   }
-  (Array.isArray(row?.moves)?row.moves:[]).forEach(v=>{const e=parseUsageEntry(v);addByName(e.name,e.percent);});
-  getKnownMoveEntries(name).forEach(m=>addByName(m.name,0));
+  (Array.isArray(row?.moves)?row.moves:[]).forEach(v=>{const e=parseUsageEntry(v);add(e.name,e.percent);});
+  getKnownMoveEntries(name).forEach(m=>add(m.name,0));
   return out.slice(0,limit);
 }
-function getTopItems(name, limit=3){const row=rankingRowFor(name);return (Array.isArray(row?.items)?row.items:[]).map(parseUsageEntry).filter(x=>x.name).slice(0,limit);}
-function getTopAbility(name){const row=rankingRowFor(name);const e=(Array.isArray(row?.abilities)?row.abilities:[]).map(parseUsageEntry).find(x=>x.name);return e?.name || '';}
-function getTopNature(name){const row=rankingRowFor(name);const e=(Array.isArray(row?.natures)?row.natures:[]).map(parseUsageEntry).find(x=>x.name);return normalizeNatureName(e?.name || 'がんばりや');}
-function normalizeNatureName(raw){return String(raw||'').replace(/[A-ZＨＡＢＣＤＳ][↑↓].*$/,'').replace(/[\s　]*[A-ZＨＡＢＣＤＳ]?[↑↓].*$/,'').trim() || 'がんばりや';}
-function getTopSpread(name){
-  const row=rankingRowFor(name);const raw=(Array.isArray(row?.spreads)?row.spreads:[])[0] || '';
-  const m=String(raw).match(/(\d+)\-(\d+)\-(\d+)\-(\d+)\-(\d+)\-(\d+)/);
-  if(!m) return {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
-  return {hp:+m[1],atk:+m[2],def:+m[3],spa:+m[4],spd:+m[5],spe:+m[6]};
+function getRecommendedMoveSet(name){
+  const opts=getMoveOptions(name,80);
+  const damaging=opts.filter(isDamagingMove);
+  const status=opts.filter(m=>!isDamagingMove(m));
+  const mixed=[];
+  opts.forEach(m=>{ if(mixed.length<4 && !mixed.some(x=>normalizeKey(x.name)===normalizeKey(m.name))) mixed.push(m); });
+  if(!damaging.some(m=>mixed.some(x=>normalizeKey(x.name)===normalizeKey(m.name)))){
+    damaging.slice(0,1).forEach(m=>{ if(mixed.length<4) mixed.push(m); });
+  }
+  return mixed.slice(0,4).map(m=>m.name);
 }
+function getTopMoves(name, limit=4){return getMoveOptions(name,80).filter(isDamagingMove).slice(0,limit);}
+function getTopItems(name, limit=8){
+  const row=rankingRowFor(name);
+  const items=(Array.isArray(row?.items)?row.items:[]).map(parseUsageEntry).filter(x=>x.name);
+  if(isMegaName(name) && !items.some(i=>/ナイト$/.test(i.name))) items.unshift({name:`${familyName(name)}ナイト`,percent:0});
+  return items.slice(0,limit);
+}
+function getItemOptions(name){
+  const opts=[];const seen=new Set();
+  getTopItems(name,12).forEach(i=>{const k=normalizeKey(i.name);if(!seen.has(k)){seen.add(k);opts.push(i);}});
+  if(isMegaName(name)){const megaItem=`${familyName(name)}ナイト`;const k=normalizeKey(megaItem);if(!seen.has(k)){seen.add(k);opts.unshift({name:megaItem,percent:0});}}
+  return opts;
+}
+function getTopAbility(name){const row=rankingRowFor(name);const e=(Array.isArray(row?.abilities)?row.abilities:[]).map(parseUsageEntry).find(x=>x.name);return e?.name || '';}
+function getAbilityOptions(name){return (Array.isArray(rankingRowFor(name)?.abilities)?rankingRowFor(name).abilities:[]).map(parseUsageEntry).filter(x=>x.name).slice(0,8);}
+function getTopNature(name){const row=rankingRowFor(name);const e=(Array.isArray(row?.natures)?row.natures:[]).map(parseUsageEntry).find(x=>x.name);return normalizeNatureName(e?.name || 'がんばりや');}
+function getNatureOptions(name){
+  const seen=new Set();const out=[];
+  (Array.isArray(rankingRowFor(name)?.natures)?rankingRowFor(name).natures:[]).forEach(v=>{const e=parseUsageEntry(v);const n=normalizeNatureName(e.name);if(n&&!seen.has(n)){seen.add(n);out.push({name:n,percent:e.percent});}});
+  COMMON_NATURES.forEach(n=>{if(!seen.has(n)){seen.add(n);out.push({name:n,percent:0});}});
+  return out;
+}
+function parseSpreadEntry(raw){
+  const s=String(raw||'').trim();
+  const m=s.match(/(\d+)\-(\d+)\-(\d+)\-(\d+)\-(\d+)\-(\d+)(?:\(([-\d.]+)%\))?/);
+  if(!m) return null;
+  return {ev:{hp:+m[1],atk:+m[2],def:+m[3],spa:+m[4],spd:+m[5],spe:+m[6]},percent:m[7]?Number(m[7]):0,label:`H${m[1]}-A${m[2]}-B${m[3]}-C${m[4]}-D${m[5]}-S${m[6]}${m[7]?` (${m[7]}%)`:''}`};
+}
+function getSpreadOptions(name){return (Array.isArray(rankingRowFor(name)?.spreads)?rankingRowFor(name).spreads:[]).map(parseSpreadEntry).filter(Boolean).slice(0,12);}
+function getTopSpread(name){return getSpreadOptions(name)[0]?.ev || {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};}
+function makeDefaultMember(p, ev=null){
+  const item=(ev?.items?.[0]?.name) || getItemOptions(p.name)[0]?.name || (isMegaName(p.name) ? `${familyName(p.name)}ナイト` : '');
+  return {pokemon:p,moves:getRecommendedMoveSet(p.name),item,ability:getTopAbility(p.name),nature:getTopNature(p.name),ev:getTopSpread(p.name),score:Number(ev?.score||0)};
+}
+function memberMoveMetas(member){return (Array.isArray(member?.moves)?member.moves:[]).map(getMoveMeta).filter(m=>m&&m.name);}
+function memberDamagingMoves(member){return memberMoveMetas(member).filter(isDamagingMove);}
 function teamDefenseProfile(members){
   const profile={};TYPES.forEach(t=>profile[t]={weak:0,resist:0,immune:0,neutral:0});
   members.forEach(m=>{TYPES.forEach(t=>{const e=defenseAgainst(m.pokemon,t);if(e===0)profile[t].immune++;else if(e>1)profile[t].weak++;else if(e<1)profile[t].resist++;else profile[t].neutral++;});});
@@ -355,37 +423,32 @@ function teamDefenseProfile(members){
 }
 function teamAttackTypes(members){
   const set=new Set();let physical=0,special=0;
-  members.forEach(m=>getTopMoves(m.pokemon.name,4).forEach(mv=>{set.add(mv.type);if(mv.category==='物理')physical++;if(mv.category==='特殊')special++;}));
+  members.forEach(m=>memberDamagingMoves(m).forEach(mv=>{if(mv.type)set.add(mv.type);if(mv.category==='物理')physical++;if(mv.category==='特殊')special++;}));
   return {set,physical,special};
 }
 function topThreats(limit=24){return (RANKING.rows||[]).slice(0,limit).map(r=>findPokemon(String(r.siteName||r.name||'').trim())).filter(Boolean);}
-function teamHasSuperEffective(threat){return SELECTED.some(m=>getTopMoves(m.pokemon.name,6).some(mv=>effect(mv.type,getTypes(threat))>=2));}
-function candidateHitsThreat(p, threat){return getTopMoves(p.name,6).some(mv=>effect(mv.type,getTypes(threat))>=2);}
+function teamHasSuperEffective(threat){return SELECTED.some(m=>memberDamagingMoves(m).some(mv=>effect(mv.type,getTypes(threat))>=2));}
+function candidateHitsThreat(p, threat){return getTopMoves(p.name,8).some(mv=>effect(mv.type,getTypes(threat))>=2);}
 function evaluateCandidate(p){
   const selected=SELECTED.slice();
   const profile=teamDefenseProfile(selected);
   const atk=teamAttackTypes(selected);
   const row=rankingRowFor(p.name);
   const rank=rankingRank(p.name);
-  const moves=getTopMoves(p.name,6);
-  const items=getTopItems(p.name,3);
+  const moves=getTopMoves(p.name,8);
+  const items=getTopItems(p.name,5);
   let score=0;
   const reasons=[];
   const risks=[];
   if(row){const rscore=Math.max(8,44-Math.min(rank,160)*0.22);score+=rscore;reasons.push(`ランキング${rank}位の採用実績を参照`);} else {score+=5;reasons.push('使用可能ポケモンから候補化');}
-  const candidateDef=TYPES.map(t=>({type:t,eff:defenseAgainst(p,t)}));
-  const covered=[];
-  const risky=[];
-  candidateDef.forEach(x=>{
+  TYPES.map(t=>({type:t,eff:defenseAgainst(p,t)})).forEach(x=>{
     const state=profile[x.type];
     if(!selected.length) return;
-    if(state.weak>0 && x.eff===0){score+=10+state.weak*5;covered.push(`${x.type}無効`);}
-    else if(state.weak>0 && x.eff<1){score+=7+state.weak*4;covered.push(`${x.type}半減`);}
-    if(state.weak>=2 && x.eff>1){score-=10+state.weak*3;risky.push(`${x.type}弱点追加`);}
-    else if(state.weak>=1 && x.eff>1 && selected.length>=3){score-=4;risky.push(`${x.type}弱点も被る`);}
+    if(state.weak>0 && x.eff===0){score+=10+state.weak*5;reasons.push(`${x.type}を無効にして弱点被りを緩和`);}
+    else if(state.weak>0 && x.eff<1){score+=7+state.weak*4;reasons.push(`${x.type}を半減できる`);}
+    if(state.weak>=2 && x.eff>1){score-=10+state.weak*3;risks.push(`${x.type}弱点がさらに重なる`);}
+    else if(state.weak>=1 && x.eff>1 && selected.length>=3){score-=4;risks.push(`${x.type}弱点も被る`);}
   });
-  if(covered.length) reasons.push(`選択済み全体で重い技を受けやすい：${covered.slice(0,3).join(' / ')}`);
-  if(risky.length) risks.push(`弱点被り注意：${risky.slice(0,3).join(' / ')}`);
   const moveTypes=Array.from(new Set(moves.map(m=>m.type).filter(Boolean)));
   const newTypes=moveTypes.filter(t=>!atk.set.has(t));
   score += newTypes.length*3;
@@ -395,11 +458,11 @@ function evaluateCandidate(p){
   if(selected.length){
     if(atk.physical===0 && phys){score+=8;reasons.push('物理打点を追加できる');}
     if(atk.special===0 && spec){score+=8;reasons.push('特殊打点を追加できる');}
-    if(atk.physical>=atk.special+4 && spec){score+=5;reasons.push('特殊寄りの役割を足せる');}
-    if(atk.special>=atk.physical+4 && phys){score+=5;reasons.push('物理寄りの役割を足せる');}
+    if(atk.physical>=atk.special+4 && spec){score+=5;reasons.push('特殊打点で偏りを補正');}
+    if(atk.special>=atk.physical+4 && phys){score+=5;reasons.push('物理打点で偏りを補正');}
   }
   const heavy=topThreats(20).filter(t=>!teamHasSuperEffective(t) && candidateHitsThreat(p,t)).slice(0,4);
-  if(heavy.length){score+=heavy.length*7;reasons.push(`現在の構築で打点不足になりやすい相手に打点：${heavy.map(t=>t.name).join(' / ')}`);}
+  if(heavy.length){score+=heavy.length*7;reasons.push(`現在の技構成で打点不足の相手に打点：${heavy.map(t=>t.name).join(' / ')}`);}
   const fastSelected=selected.filter(m=>Number(m.pokemon.spe||0)>=100).length;
   if(selected.length && fastSelected===0 && Number(p.spe||0)>=100){score+=8;reasons.push('素早さ100以上の高速枠を追加');}
   else if(selected.length && Number(p.spe||0)>=95){score+=3;reasons.push('素早さラインを上げやすい');}
@@ -408,27 +471,25 @@ function evaluateCandidate(p){
   if(isMegaName(p.name) && hasMegaSelected()){score-=18;risks.push('メガ枠が重複する可能性');}
   const itemName=items[0]?.name || (isMegaName(p.name) ? `${familyName(p.name)}ナイト` : '');
   if(itemName && SELECTED.some(m=>m.item && m.item===itemName)){score-=5;risks.push(`持ち物候補「${itemName}」が重複`);}
-  if(!moves.length){score-=12;risks.push('技候補が少ないため手動確認推奨');}
+  if(!moves.length){score-=12;risks.push('攻撃技候補が少ないため手動確認推奨');}
   const safeScore=Math.max(0,Math.min(99,Math.round(score)));
-  if(!reasons.length) reasons.push('構築全体の候補として確認できます');
-  return {pokemon:p,score:safeScore,reasons:reasons.slice(0,5),risks:risks.slice(0,3),moves:moves.slice(0,4),items,rank:rank<9999?rank:null,ability:getTopAbility(p.name),nature:getTopNature(p.name),ev:getTopSpread(p.name)};
+  const uniqueReasons=[];reasons.forEach(r=>{if(uniqueReasons.length<5 && !uniqueReasons.includes(r))uniqueReasons.push(r);});
+  if(!uniqueReasons.length) uniqueReasons.push('構築全体の候補として確認できます');
+  return {pokemon:p,score:safeScore,reasons:uniqueReasons,risks:risks.slice(0,3),moves:getMoveOptions(p.name,80).slice(0,6),damageMoves:moves.slice(0,4),items,rank:rank<9999?rank:null,ability:getTopAbility(p.name),nature:getTopNature(p.name),ev:getTopSpread(p.name)};
 }
-function createMemberFromEvaluation(ev){
-  const item=ev.items[0]?.name || (isMegaName(ev.pokemon.name) ? `${familyName(ev.pokemon.name)}ナイト` : '');
-  return {pokemon:ev.pokemon, moves:ev.moves.map(m=>m.name).slice(0,4), item, ability:ev.ability||'', nature:ev.nature||'がんばりや', ev:ev.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, score:ev.score};
-}
-function addPokemonByName(name){
+function addPokemonByName(name, openEditor=true){
   if(SELECTED.length>=6){toast('パーティは6匹までです。');return;}
   const p=findPokemon(name);
   if(!p){toast('ポケモンが見つかりませんでした。');return;}
   if(SELECTED.some(m=>familyName(m.pokemon.name)===familyName(p.name))){toast('同じ系統のポケモンはすでに入っています。');return;}
   const ev=evaluateCandidate(p);
-  SELECTED.push(createMemberFromEvaluation(ev));
+  SELECTED.push(makeDefaultMember(p,ev));
   document.getElementById('pokemon-search').value='';
   closeSuggest();
   saveDraft();
   renderAll();
-  toast(`${p.name} を追加しました。`);
+  toast(`${p.name} を追加しました。技・持ち物・性格・努力値を確認できます。`);
+  if(openEditor) setTimeout(()=>openMemberEditor(SELECTED.length-1),80);
 }
 function removeSlot(i){SELECTED.splice(i,1);saveDraft();renderAll();}
 function undoLast(){if(!SELECTED.length){toast('戻すポケモンがありません。');return;}const last=SELECTED.pop();saveDraft();renderAll();toast(`${last.pokemon.name} を外しました。`);}
@@ -438,7 +499,8 @@ function renderSlots(){
   el.innerHTML=Array.from({length:6},(_,i)=>{
     const m=SELECTED[i];
     if(!m) return `<div class="slot"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-empty">未選択</div></div></div>`;
-    return `<div class="slot filled"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-name">${esc(m.pokemon.name)}</div><div class="slot-meta">${typeHtml(m.pokemon)}${m.item?`<span class="type-pill">${esc(m.item)}</span>`:''}</div></div><button class="remove-btn" type="button" onclick="removeSlot(${i})">×</button></div>`;
+    const moveText=(m.moves||[]).filter(Boolean).slice(0,4).join(' / ') || '技未設定';
+    return `<div class="slot filled"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-name">${esc(m.pokemon.name)}</div><div class="slot-meta">${typeHtml(m.pokemon)}${m.item?`<span class="type-pill">${esc(m.item)}</span>`:''}<span class="type-pill">${esc(m.nature||'性格未設定')}</span></div><div class="current-build-note">${esc(moveText)}</div></div><button class="edit-btn" type="button" onclick="openMemberEditor(${i})">型編集</button><button class="remove-btn" type="button" onclick="removeSlot(${i})">×</button></div>`;
   }).join('');
 }
 function renderSummary(){
@@ -458,22 +520,22 @@ function renderSummary(){
   if(!SELECTED.length){report.innerHTML='';return;}
   const weakText=(weakRows.length?weakRows.slice(0,5).map(x=>`${x.type}：弱点${x.weak} / 半減${x.res} / 無効${x.imm}`).join('<br>'):'大きく弱点が集中しているタイプは少なめです。');
   const attackText=Array.from(atk.set).slice(0,12).join(' / ') || '攻撃技候補がまだ少ないです。';
-  report.innerHTML=`<div class="report-block"><div class="report-title">防御相性の見え方</div><div class="report-line">${weakText}</div></div><div class="report-block"><div class="report-title">攻撃範囲の見え方</div><div class="report-line">${esc(attackText)}</div></div>`;
+  report.innerHTML=`<div class="report-block"><div class="report-title">防御相性の見え方</div><div class="report-line">${weakText}</div></div><div class="report-block"><div class="report-title">現在の技で見た攻撃範囲</div><div class="report-line">${esc(attackText)}</div></div>`;
 }
 function renderCandidateCard(ev){
   const p=ev.pokemon;
-  const moveTags=ev.moves.length?ev.moves.map(m=>`<span class="tag">${esc(m.name)}</span>`).join(''):'<span class="tag">技候補少なめ</span>';
-  const itemTags=ev.items.length?ev.items.map(i=>`<span class="tag">${esc(i.name)}</span>`).join(''):'';
+  const moveTags=ev.damageMoves.length?ev.damageMoves.map(m=>`<span class="tag">${esc(m.name)}</span>`).join(''):'<span class="tag">攻撃技候補少なめ</span>';
+  const itemTags=ev.items.length?ev.items.slice(0,3).map(i=>`<span class="tag">${esc(i.name)}</span>`).join(''):'';
   const risk=ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:'';
-  return `<article class="candidate-card"><div class="card-head"><div class="score-ring">${ev.score}</div><div><div class="card-name">${esc(p.name)}</div><div class="slot-meta">${typeHtml(p)}</div><div class="card-sub">${ev.rank?`ランキング${ev.rank}位 / `:''}S${Number(p.spe||0)} / 選択済み全体で判定</div></div></div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${risk}<div class="card-tags">${moveTags}${itemTags}</div><div class="card-actions"><button class="btn primary" type="button" onclick="addPokemonByName('${esc(p.name)}')">追加</button><button class="btn" type="button" onclick="openDetail('${esc(p.name)}')">詳細</button></div></article>`;
+  return `<article class="candidate-card"><div class="card-head"><div class="score-ring">${ev.score}</div><div><div class="card-name">${esc(p.name)}</div><div class="slot-meta">${typeHtml(p)}</div><div class="card-sub">${ev.rank?`ランキング${ev.rank}位 / `:''}S${Number(p.spe||0)} / 現在の型込みで判定</div></div></div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${risk}<div class="card-tags">${moveTags}${itemTags}</div><div class="card-actions"><button class="btn primary" type="button" onclick="addPokemonByName(${jsArg(p.name)})">追加して型編集</button><button class="btn" type="button" onclick="openDetail(${jsArg(p.name)})">詳細</button></div></article>`;
 }
 function renderCandidates(){
   const title=document.getElementById('candidate-title');
   const note=document.getElementById('candidate-note');
   title.textContent=SELECTED.length?`${SELECTED.length+1}匹目候補`:'1匹目候補';
-  note.textContent=SELECTED.length?'現在選んでいる全ポケモンとの相性補完をまとめて評価しています。':'まずは使いたい1匹を検索で指定するか、ランキング上位から選んでください。';
+  note.textContent=SELECTED.length?'現在選んでいる全ポケモンの技・持ち物・性格・努力値を反映して、次候補を再評価しています。':'まずは使いたい1匹を検索で指定するか、ランキング上位から選んでください。追加後におすすめ型を選べます。';
   const el=document.getElementById('candidate-list');
-  if(SELECTED.length>=6){el.innerHTML='<div class="empty">6匹そろいました。party.htmlへ送って、持ち物・技・努力値を細かく調整してください。</div>';return;}
+  if(SELECTED.length>=6){el.innerHTML='<div class="empty">6匹そろいました。各ポケモンの「型編集」で技・持ち物・性格・努力値を調整してからparty.htmlへ送れます。</div>';return;}
   const pool=getCandidatePool();
   const evaluated=pool.map(evaluateCandidate).sort((a,b)=>b.score-a.score || (a.rank||9999)-(b.rank||9999)).slice(0,10);
   if(!evaluated.length){el.innerHTML='<div class="empty">候補が見つかりませんでした。シーズンやルールを切り替えて確認してください。</div>';return;}
@@ -485,25 +547,72 @@ function renderSearchSuggest(q){
   const pool=getCandidatePool();
   const list=pool.filter(p=>!query || normalizeKey(p.name).includes(query)).sort((a,b)=>rankingRank(a.name)-rankingRank(b.name) || a.name.localeCompare(b.name,'ja')).slice(0,40);
   if(!list.length){el.innerHTML='<div class="suggest-item"><span class="suggest-name">見つかりません</span></div>';el.classList.add('show');return;}
-  el.innerHTML=list.map(p=>`<div class="suggest-item" onclick="addPokemonByName('${esc(p.name)}')"><span class="suggest-name">${esc(p.name)}</span>${typeHtml(p)}<span class="suggest-rank">${rankingRank(p.name)<9999?'#'+rankingRank(p.name):'使用可能'}</span></div>`).join('');
+  el.innerHTML=list.map(p=>`<div class="suggest-item" onclick="addPokemonByName(${jsArg(p.name)})"><span class="suggest-name">${esc(p.name)}</span>${typeHtml(p)}<span class="suggest-rank">${rankingRank(p.name)<9999?'#'+rankingRank(p.name):'使用可能'}</span></div>`).join('');
   el.classList.add('show');
 }
 function closeSuggest(){document.getElementById('search-suggest')?.classList.remove('show');}
 function openDetail(name){
   const ev=evaluateCandidate(findPokemon(name));
   const card=document.getElementById('detail-card');
-  const moves=ev.moves.length?ev.moves.map(m=>`<div class="report-line">${esc(m.name)}：${esc(m.type)} / ${esc(m.category)} / 威力${esc(m.power)}</div>`).join(''):'<div class="report-line">技候補が少ないため手動確認してください。</div>';
+  const moves=ev.moves.length?ev.moves.map(m=>`<div class="report-line">${esc(m.name)}：${esc(m.type||'-')} / ${esc(m.category||'-')} / ${m.power?`威力${esc(m.power)}`:'変化または特殊威力'}${m.percent?` / ${esc(m.percent)}%`:''}</div>`).join(''):'<div class="report-line">技候補が少ないため手動確認してください。</div>';
   const items=ev.items.length?ev.items.map(i=>`<span class="tag">${esc(i.name)}${i.percent?` ${esc(i.percent)}%`:''}</span>`).join(''):'<span class="tag">候補なし</span>';
-  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(ev.pokemon.name)}</div><div class="slot-meta">${typeHtml(ev.pokemon)}${ev.rank?`<span class="type-pill">ランキング${ev.rank}位</span>`:''}<span class="type-pill">相性スコア ${ev.score}</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="report-block"><div class="report-title">構築全体との相性</div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</div><div class="team-report"><div class="report-block"><div class="report-title">技候補</div>${moves}</div><div class="report-block"><div class="report-title">持ち物候補</div><div class="card-tags">${items}</div><div class="report-title" style="margin-top:12px;">型候補</div><div class="report-line">性格：${esc(ev.nature)}<br>特性：${esc(ev.ability||'候補なし')}<br>努力値：H${ev.ev.hp}-A${ev.ev.atk}-B${ev.ev.def}-C${ev.ev.spa}-D${ev.ev.spd}-S${ev.ev.spe}</div></div></div><div style="margin-top:12px;display:flex;gap:8px;"><button class="btn primary" type="button" onclick="addPokemonByName('${esc(ev.pokemon.name)}');closeDetail();">このポケモンを追加</button><button class="btn" type="button" onclick="closeDetail()">閉じる</button></div>`;
+  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(ev.pokemon.name)}</div><div class="slot-meta">${typeHtml(ev.pokemon)}${ev.rank?`<span class="type-pill">ランキング${ev.rank}位</span>`:''}<span class="type-pill">相性スコア ${ev.score}</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="report-block"><div class="report-title">構築全体との相性</div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</div><div class="team-report"><div class="report-block"><div class="report-title">おすすめ技候補</div>${moves}</div><div class="report-block"><div class="report-title">おすすめ持ち物候補</div><div class="card-tags">${items}</div><div class="report-title" style="margin-top:12px;">おすすめ型</div><div class="report-line">性格：${esc(ev.nature)}<br>特性：${esc(ev.ability||'候補なし')}<br>努力値：H${ev.ev.hp}-A${ev.ev.atk}-B${ev.ev.def}-C${ev.ev.spa}-D${ev.ev.spd}-S${ev.ev.spe}</div></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn primary" type="button" onclick="addPokemonByName(${jsArg(ev.pokemon.name)});closeDetail();">追加して型編集</button><button class="btn" type="button" onclick="closeDetail()">閉じる</button></div>`;
   document.getElementById('detail-modal').classList.add('show');
 }
 function closeDetail(){document.getElementById('detail-modal').classList.remove('show');}
+function optionHtml(value,label,selected){return `<option value="${esc(value)}" ${String(value)===String(selected)?'selected':''}>${esc(label)}</option>`;}
+function moveSelectHtml(member,index,slot){
+  const opts=getMoveOptions(member.pokemon.name,120);
+  const selected=(member.moves||[])[slot]||'';
+  const rows=[optionHtml('',`技${slot+1}を選択`,selected)];
+  opts.forEach(m=>rows.push(optionHtml(m.name,`${m.name}${m.percent?` (${m.percent}%)`:''}${m.type?` / ${m.type}`:''}${m.category?` / ${m.category}`:''}`,selected)));
+  return `<div class="editor-field"><label>技${slot+1}</label><select onchange="updateMemberMove(${index},${slot},this.value)">${rows.join('')}</select></div>`;
+}
+function openMemberEditor(index){
+  const member=SELECTED[index];
+  if(!member){toast('編集するポケモンが見つかりません。');return;}
+  const card=document.getElementById('detail-card');
+  const itemOptions=getItemOptions(member.pokemon.name);
+  const natureOptions=getNatureOptions(member.pokemon.name);
+  const abilityOptions=getAbilityOptions(member.pokemon.name);
+  const spreadOptions=getSpreadOptions(member.pokemon.name);
+  const itemSelect=[optionHtml('', '持ち物なし/未設定', member.item), ...itemOptions.map(i=>optionHtml(i.name,`${i.name}${i.percent?` (${i.percent}%)`:''}`,member.item))].join('');
+  const natureSelect=natureOptions.map(n=>optionHtml(n.name,`${n.name}${n.percent?` (${n.percent}%)`:''}`,member.nature)).join('');
+  const abilitySelect=[optionHtml('', '特性未設定', member.ability), ...abilityOptions.map(a=>optionHtml(a.name,`${a.name}${a.percent?` (${a.percent}%)`:''}`,member.ability))].join('');
+  const spreadSelect=[optionHtml('', '努力値をおすすめから選択', ''), ...spreadOptions.map((s,i)=>optionHtml(String(i),s.label,''))].join('');
+  const moves=Array.from({length:4},(_,i)=>moveSelectHtml(member,index,i)).join('');
+  const evInputs=EV_KEYS.map(k=>`<div class="editor-field"><label>${EV_LABELS[k]}</label><input type="number" min="0" max="32" step="1" value="${Number(member.ev?.[k]||0)}" oninput="updateMemberEv(${index},${jsArg(k)},this.value)"></div>`).join('');
+  const recommendedMoves=getRecommendedMoveSet(member.pokemon.name).join(' / ') || '候補なし';
+  const topItem=itemOptions[0]?.name || '';
+  const topNature=getTopNature(member.pokemon.name);
+  const topAbility=getTopAbility(member.pokemon.name);
+  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(index+1)}匹目：${esc(member.pokemon.name)} 型編集</div><div class="slot-meta">${typeHtml(member.pokemon)}<span class="type-pill">変更後すぐ次候補へ反映</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="editor-section"><div class="editor-title">おすすめを反映</div><div class="recommend-row"><button class="recommend-chip" type="button" onclick="applyRecommendedSet(${index})">おすすめ一括反映</button><button class="recommend-chip" type="button" onclick="applyRecommendedMoves(${index})">おすすめ技セット</button><button class="recommend-chip" type="button" onclick="applyRecommendedItem(${index})">おすすめ持ち物</button><button class="recommend-chip" type="button" onclick="applyRecommendedNature(${index})">おすすめ性格</button><button class="recommend-chip" type="button" onclick="applyRecommendedSpread(${index})">おすすめ努力値</button></div><div class="current-build-note">おすすめ技：${esc(recommendedMoves)}${topItem?` / 持ち物：${esc(topItem)}`:''}${topNature?` / 性格：${esc(topNature)}`:''}${topAbility?` / 特性：${esc(topAbility)}`:''}</div></div><div class="editor-section"><div class="editor-title">技</div><div class="move-grid">${moves}</div></div><div class="editor-section"><div class="editor-title">持ち物・性格・特性</div><div class="editor-grid"><div class="editor-field"><label>持ち物</label><select onchange="updateMemberField(${index},'item',this.value)">${itemSelect}</select></div><div class="editor-field"><label>性格</label><select onchange="updateMemberField(${index},'nature',this.value)">${natureSelect}</select></div><div class="editor-field"><label>特性</label><select onchange="updateMemberField(${index},'ability',this.value)">${abilitySelect}</select></div><div class="editor-field"><label>おすすめ努力値一覧</label><select onchange="applySpreadByOption(${index},this.value);this.value='';">${spreadSelect}</select></div></div></div><div class="editor-section"><div class="editor-title">努力値（チャンピオンズP）</div><div class="ev-grid">${evInputs}</div><div class="current-build-note">0〜32Pで入力。変更した内容で、次に入れるポケモン候補を再評価します。</div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn primary" onclick="closeDetail();renderAll();">この型で次候補を見る</button><button class="btn" onclick="closeDetail()">閉じる</button></div>`;
+  document.getElementById('detail-modal').classList.add('show');
+}
+function normalizeMemberMoves(member){member.moves=(Array.isArray(member.moves)?member.moves:[]).map(v=>String(v||'').trim()).filter(Boolean).slice(0,4);while(member.moves.length<4) member.moves.push('');}
+function afterMemberEdit(message){saveDraft();renderAll();if(message)toast(message);}
+function updateMemberMove(index,slot,value){const m=SELECTED[index];if(!m)return;normalizeMemberMoves(m);m.moves[slot]=String(value||'').trim();afterMemberEdit('技を更新しました。次候補にも反映しています。');}
+function updateMemberField(index,field,value){const m=SELECTED[index];if(!m)return;if(['item','nature','ability'].includes(field))m[field]=String(value||'').trim();afterMemberEdit(`${field==='item'?'持ち物':field==='nature'?'性格':'特性'}を更新しました。`);}
+function updateMemberEv(index,key,value){const m=SELECTED[index];if(!m)return;if(!m.ev)m.ev={hp:0,atk:0,def:0,spa:0,spd:0,spe:0};m.ev[key]=Math.max(0,Math.min(32,Number(value||0)||0));afterMemberEdit('努力値を更新しました。');}
+function applyRecommendedMoves(index){const m=SELECTED[index];if(!m)return;m.moves=getRecommendedMoveSet(m.pokemon.name);afterMemberEdit('おすすめ技セットを反映しました。');openMemberEditor(index);}
+function applyRecommendedItem(index){const m=SELECTED[index];if(!m)return;m.item=getItemOptions(m.pokemon.name)[0]?.name || (isMegaName(m.pokemon.name)?`${familyName(m.pokemon.name)}ナイト`:m.item||'');afterMemberEdit('おすすめ持ち物を反映しました。');openMemberEditor(index);}
+function applyRecommendedNature(index){const m=SELECTED[index];if(!m)return;m.nature=getTopNature(m.pokemon.name);afterMemberEdit('おすすめ性格を反映しました。');openMemberEditor(index);}
+function applyRecommendedAbility(index){const m=SELECTED[index];if(!m)return;m.ability=getTopAbility(m.pokemon.name);afterMemberEdit('おすすめ特性を反映しました。');openMemberEditor(index);}
+function applyRecommendedSpread(index){const m=SELECTED[index];if(!m)return;m.ev=Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0},getTopSpread(m.pokemon.name));afterMemberEdit('おすすめ努力値を反映しました。');openMemberEditor(index);}
+function applyRecommendedSet(index){const m=SELECTED[index];if(!m)return;m.moves=getRecommendedMoveSet(m.pokemon.name);m.item=getItemOptions(m.pokemon.name)[0]?.name || m.item;m.nature=getTopNature(m.pokemon.name);m.ability=getTopAbility(m.pokemon.name);m.ev=Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0},getTopSpread(m.pokemon.name));afterMemberEdit('おすすめ型を一括反映しました。');openMemberEditor(index);}
+function applySpreadByOption(index,opt){const m=SELECTED[index];if(!m||opt==='')return;const spread=getSpreadOptions(m.pokemon.name)[Number(opt)];if(spread){m.ev=Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0},spread.ev);afterMemberEdit('選んだおすすめ努力値を反映しました。');openMemberEditor(index);}}
 function renderAll(){renderSlots();renderSummary();renderCandidates();}
-function saveDraft(){try{localStorage.setItem(LS_DRAFT_KEY,JSON.stringify({season:ACTIVE_SEASON,mode:BATTLE_MODE,selected:SELECTED.map(m=>({pokemon:m.pokemon.name,moves:m.moves,item:m.item,ability:m.ability,nature:m.nature,ev:m.ev,score:m.score}))}));}catch(e){}}
-function restoreDraft(){try{const data=JSON.parse(localStorage.getItem(LS_DRAFT_KEY)||'null');if(!data)return;SELECTED=(Array.isArray(data.selected)?data.selected:[]).map(m=>{const p=findPokemon(m.pokemon);return p?{pokemon:p,moves:Array.isArray(m.moves)?m.moves:[],item:m.item||'',ability:m.ability||'',nature:m.nature||'がんばりや',ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},score:Number(m.score||0)}:null;}).filter(Boolean).slice(0,6);}catch(e){}}
+function saveDraft(){try{localStorage.setItem(LS_DRAFT_KEY,JSON.stringify({season:ACTIVE_SEASON,mode:BATTLE_MODE,selected:SELECTED.map(m=>({pokemon:m.pokemon.name,moves:(Array.isArray(m.moves)?m.moves:[]).filter(Boolean),item:m.item,ability:m.ability,nature:m.nature,ev:m.ev,score:m.score}))}));}catch(e){}}
+function restoreDraft(){
+  try{
+    const raw=localStorage.getItem(LS_DRAFT_KEY)||localStorage.getItem(OLD_LS_DRAFT_KEY)||'null';
+    const data=JSON.parse(raw);if(!data)return;
+    SELECTED=(Array.isArray(data.selected)?data.selected:[]).map(m=>{const p=findPokemon(m.pokemon);return p?{pokemon:p,moves:Array.isArray(m.moves)?m.moves.filter(Boolean).slice(0,4):getRecommendedMoveSet(p.name),item:m.item||'',ability:m.ability||'',nature:m.nature||'がんばりや',ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},score:Number(m.score||0)}:null;}).filter(Boolean).slice(0,6);
+  }catch(e){}
+}
 function sendToParty(){
   if(SELECTED.length<6){toast('6匹そろえてからparty.htmlへ送れます。');return;}
-  const payload={source:'builder_assist',name:`${ACTIVE_SEASON || ''} 構築アシスト`.trim(),season:ACTIVE_SEASON,battleType:BATTLE_MODE,members:SELECTED.map(m=>({pokemon:m.pokemon.name,moves:m.moves,item:m.item,nature:m.nature,ability:m.ability,ev:m.ev}))};
+  const payload={source:'builder_assist',name:`${ACTIVE_SEASON || ''} 構築アシスト`.trim(),season:ACTIVE_SEASON,battleType:BATTLE_MODE,members:SELECTED.map(m=>({pokemon:m.pokemon.name,moves:(m.moves||[]).filter(Boolean),item:m.item,nature:m.nature,ability:m.ability,ev:m.ev}))};
   try{localStorage.setItem(PARTY_IMPORT_KEY,JSON.stringify(payload));location.href='party.html?from=builder_assist';}catch(e){toast('party.htmlへの受け渡しに失敗しました。');}
 }
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
