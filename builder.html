@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>構築アシスト | PokeEdge</title>
+<meta name="description" content="ランクマッチで使えるポケモンから、選択済み全体との相性補完を見ながら6匹の構築候補を作成するPokeEdgeの構築アシスト機能です。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="構築アシスト | PokeEdge">
+<meta property="og:description" content="選択済み全体との相性を見ながら、ランクマッチ用の6匹候補を作成。完成した構築はパーティ管理へ送れます。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/builder.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/builder.html">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script src="usage-tracker.js"></script>
+<script src="ranking-season-helper.js"></script>
+<script>
+(function(){
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<script>
+(function(){
+  var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel':'#0f1423','--panel2':'#151d31','--border':'#1a2540','--border2':'#243356','--accent':'#00c8f0','--accent2':'#ff3060','--accent3':'#ffc800','--green':'#00e676','--text':'#d8e8ff','--text2':'#8ca2bd','--text3':'#b7c8dd'};
+  var light={'--bg':'#e8f4f8','--bg2':'#d0e8f0','--panel':'#f4fbff','--panel2':'#ffffff','--border':'#90c8e0','--border2':'#60a8cc','--accent':'#0066aa','--accent2':'#cc1040','--accent3':'#cc7700','--green':'#007744','--text':'#051828','--text2':'#2a5070','--text3':'#0a3050'};
+  var t=localStorage.getItem('pokeedge_theme')||'dark';
+  var vars=t==='light'?light:dark;
+  var root=document.documentElement.style;
+  for(var k in vars)root.setProperty(k,vars[k]);
+})();
+</script>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--bg2:#0b0e1a;--panel:#0f1423;--panel2:#151d31;--border:#1a2540;--border2:#243356;--accent:#00c8f0;--accent2:#ff3060;--accent3:#ffc800;--green:#00e676;--text:#d8e8ff;--text2:#8ca2bd;--text3:#b7c8dd;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at top left,rgba(0,200,240,.10),transparent 32rem),var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;padding-top:54px;}
+a{color:inherit}
+button,input,select{font-family:'Noto Sans JP',sans-serif;}
+header{position:fixed;top:0;left:0;right:0;height:54px;background:rgba(7,9,15,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;z-index:100;gap:10px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--text);cursor:pointer;white-space:nowrap;}
+.logo em{font-style:normal;color:var(--accent)}
+.header-sep{height:22px;width:1px;background:var(--border2);}
+.header-sub{font-size:12px;color:var(--text2);letter-spacing:2px;white-space:nowrap;}
+.header-nav{display:flex;gap:3px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;cursor:pointer;font-size:11px;letter-spacing:1px;transition:all .18s;text-decoration:none;display:inline-block;white-space:nowrap;flex-shrink:0;}
+.nav-btn:hover,.nav-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.07)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;margin-left:auto;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);transition:all .3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:98;}
+.nav-overlay.show{display:block;}
+.side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
+.side-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.side-title{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:10px}
+.side-links{display:grid;gap:8px}
+.side-link{display:block;text-decoration:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text);font-size:13px;transition:all .18s}
+.side-link:hover,.side-link.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.08);font-weight:700}
+.mobile-tool-nav{display:none;}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 18px 54px;}
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:16px;margin-bottom:16px;align-items:stretch;}
+.hero-card,.panel{background:linear-gradient(180deg,rgba(255,255,255,.035),transparent),var(--panel);border:1px solid var(--border);border-radius:22px;padding:18px;box-shadow:0 12px 34px rgba(0,0,0,.16);}
+.kicker{font-size:11px;letter-spacing:3px;color:var(--accent);font-weight:800;margin-bottom:8px;}
+h1{margin:0 0 10px;font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:5px;line-height:1;color:var(--text);}
+.hero-desc{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
+.hero-desc strong{color:var(--accent3)}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:999px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .18s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,var(--accent),#4edcff);color:#00131e;border-color:transparent;}
+.btn.warn{background:rgba(255,48,96,.12);border-color:rgba(255,48,96,.35);color:#ff9ab0;}
+.btn.green{background:rgba(0,230,118,.12);border-color:rgba(0,230,118,.35);color:var(--green);}
+.mini-stat{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;height:100%;}
+.mini-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:13px;}
+.mini-label{font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:7px;}
+.mini-value{font-size:18px;font-weight:800;color:var(--text);}
+.toolbar{display:grid;grid-template-columns:180px 180px minmax(220px,1fr);gap:10px;align-items:end;margin-bottom:14px;}
+.field label{display:block;font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 0 5px;}
+.field input,.field select{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:14px;padding:11px 12px;font-size:14px;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,240,.11)}
+.mode-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mode-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:14px;padding:11px 10px;font-size:13px;font-weight:800;cursor:pointer;}
+.mode-btn.active{border-color:var(--accent);background:rgba(0,200,240,.13);color:var(--accent);}
+.builder-grid{display:grid;grid-template-columns:330px minmax(0,1fr);gap:16px;align-items:start;}
+.slot-panel{position:sticky;top:70px;}
+.slot-list{display:grid;gap:8px;margin-top:12px;}
+.slot{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:11px;display:flex;gap:10px;align-items:center;min-height:66px;}
+.slot.filled{border-color:rgba(0,200,240,.32);background:linear-gradient(90deg,rgba(0,200,240,.08),transparent),var(--bg2);}
+.slot-no{font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--accent);width:26px;text-align:center;}
+.slot-main{min-width:0;flex:1;}
+.slot-name{font-weight:800;color:var(--text);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.slot-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.slot-empty{color:var(--text2);font-size:12px;}
+.remove-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;}
+.type-pill{display:inline-flex;align-items:center;border:1px solid var(--border2);border-radius:999px;padding:2px 7px;font-size:10px;color:var(--text3);background:rgba(255,255,255,.03);}
+.sec-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.sec-title h2{margin:0;font-size:16px;letter-spacing:1px;}
+.sec-note{font-size:11px;color:var(--text2);line-height:1.7;margin:0 0 12px;}
+.search-wrap{position:relative;}
+.suggest{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel2);border:1px solid var(--border2);border-radius:16px;max-height:320px;overflow:auto;z-index:60;display:none;box-shadow:0 18px 36px rgba(0,0,0,.35);}
+.suggest.show{display:block;}
+.suggest-item{padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:8px;}
+.suggest-item:hover{background:rgba(0,200,240,.10)}
+.suggest-item:last-child{border-bottom:none;}
+.suggest-name{font-size:13px;font-weight:800;flex:1;}
+.suggest-rank{font-size:10px;color:var(--accent3);}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px;}
+.summary-box{background:var(--bg2);border:1px solid var(--border);border-radius:15px;padding:10px;}
+.summary-label{font-size:10px;color:var(--text2);margin-bottom:5px;}
+.summary-value{font-size:15px;font-weight:800;color:var(--text);line-height:1.4;}
+.candidates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.candidate-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:260px;}
+.candidate-card:hover{border-color:var(--accent);}
+.card-head{display:flex;gap:10px;align-items:flex-start;}
+.score-ring{min-width:48px;height:48px;border-radius:16px;background:rgba(0,200,240,.11);border:1px solid rgba(0,200,240,.35);display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--accent);}
+.card-name{font-size:18px;font-weight:900;color:var(--text);line-height:1.2;}
+.card-sub{font-size:10px;color:var(--text2);margin-top:4px;}
+.reason-list{display:grid;gap:6px;margin:0;padding:0;list-style:none;}
+.reason-list li{font-size:12px;color:var(--text3);line-height:1.6;padding-left:18px;position:relative;}
+.reason-list li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:800;}
+.risk-list li::before{content:'!';color:var(--accent2);}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.tag{font-size:10px;color:var(--text2);border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:999px;padding:3px 7px;}
+.card-actions{display:flex;gap:8px;margin-top:auto;}
+.card-actions .btn{flex:1;padding:9px 10px;font-size:12px;}
+.empty{border:1px dashed var(--border2);border-radius:18px;padding:18px;color:var(--text2);font-size:13px;line-height:1.9;background:rgba(255,255,255,.02);}
+.team-report{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+.report-block{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px;}
+.report-title{font-size:12px;color:var(--accent);font-weight:800;margin-bottom:8px;letter-spacing:1px;}
+.report-line{font-size:12px;color:var(--text3);line-height:1.8;}
+.detail-modal{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.detail-modal.show{display:flex;}
+.detail-card{width:min(720px,100%);max-height:min(720px,92vh);overflow:auto;background:var(--panel);border:1px solid var(--border2);border-radius:22px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.45);}
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.detail-title{font-size:22px;font-weight:900;}
+.close-btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:999px;width:34px;height:34px;cursor:pointer;}
+.toast{position:fixed;left:14px;right:14px;bottom:14px;z-index:250;display:none;border:1px solid var(--accent);background:rgba(0,200,240,.15);color:var(--text);border-radius:16px;padding:12px 14px;font-size:13px;line-height:1.7;box-shadow:0 16px 36px rgba(0,0,0,.28);}
+.toast.show{display:block;}
+footer{border-top:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:26px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
+.footer-text{font-size:10px;color:var(--text2);line-height:1.6;}
+[data-theme="light"] body{background:linear-gradient(180deg,#f1f8fc 0%,#e8f4f8 100%);}
+[data-theme="light"] header{background:rgba(248,251,254,.96);}
+[data-theme="light"] .side-card,[data-theme="light"] .panel,[data-theme="light"] .hero-card,[data-theme="light"] .detail-card{background:rgba(255,255,255,.96);border-color:#a9c4d8;box-shadow:0 8px 24px rgba(63,86,107,.08);}
+[data-theme="light"] .side-link,[data-theme="light"] .mini-box,[data-theme="light"] .slot,[data-theme="light"] .candidate-card,[data-theme="light"] .summary-box,[data-theme="light"] .report-block,[data-theme="light"] .field input,[data-theme="light"] .field select,[data-theme="light"] .mode-btn{background:#f8fbfe;border-color:#a9c4d8;color:#102132;}
+@media(min-width:1241px){body{padding-right:290px}.wrap{max-width:1120px}}
+@media(max-width:1240px){.side-dock{display:none}body{padding-right:0}}
+@media(max-width:900px){.hero,.builder-grid,.team-report{grid-template-columns:1fr}.slot-panel{position:static}.toolbar{grid-template-columns:1fr 1fr}.field.search-field{grid-column:1 / -1}.candidates{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){body{padding-top:54px}.header-nav{display:none;position:fixed;top:54px;right:0;width:230px;height:calc(100vh - 54px);background:rgba(7,9,15,.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px)}.header-nav.open{display:flex}.nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left}.hamburger{display:flex}.mobile-tool-nav{display:block;position:sticky;top:54px;z-index:72;background:rgba(7,9,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);padding:8px 10px}.mobile-tool-nav-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 2px 6px;line-height:1}.mobile-tool-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 2px}.mobile-tool-scroll::-webkit-scrollbar{display:none}.mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap}.mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);font-weight:700}.wrap{padding:14px 10px 42px}.hero-card,.panel{border-radius:18px;padding:14px}h1{font-size:34px}.toolbar{grid-template-columns:1fr}.mini-stat{grid-template-columns:1fr 1fr}.slot-list{grid-template-columns:repeat(2,1fr);gap:7px}.slot{min-height:74px;padding:9px}.slot-no{font-size:17px;width:20px}.slot-name{font-size:12px}.slot-meta{display:none}.summary-grid{grid-template-columns:1fr 1fr}.card-head{align-items:center}.card-name{font-size:17px}.candidate-card{min-height:auto}.hero-actions .btn{flex:1}.header-sub{display:none}}
+@media(max-width:420px){.slot-list{grid-template-columns:1fr}.mini-stat,.summary-grid{grid-template-columns:1fr}.card-actions{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="location.href='index.html'">Poke<em>Edge</em></div>
+  <div class="header-sep"></div>
+  <div class="header-sub">構築アシスト</div>
+  <div class="header-nav" id="main-nav">
+    <a class="nav-btn" href="index.html">TOP</a>
+    <a class="nav-btn" href="calc.html">ダメージ計算</a>
+    <a class="nav-btn" href="endure.html">耐久調整</a>
+    <a class="nav-btn" href="move.html">クイック技ダメージ</a>
+    <a class="nav-btn" href="battle.html">バトル</a>
+    <a class="nav-btn active" href="builder.html">構築アシスト</a>
+    <a class="nav-btn" href="party.html">パーティ管理</a>
+    <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
+    <a class="nav-btn" href="scope.html">アナライザー</a>
+    <a class="nav-btn" href="season.html">使用可能</a>
+    <a class="nav-btn" href="speed.html">素早さ</a>
+    <a class="nav-btn" href="blog.html">記事</a>
+    <a class="nav-btn" href="policy.html">サイト情報</a>
+  </div>
+  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+</header>
+<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">クイック技ダメージ</a><a class="side-link" href="battle.html">バトルシミュレーション</a><a class="side-link active" href="builder.html">構築アシスト</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link" href="scope.html">バトルアナライザー</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a></div></div></aside>
+<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動"><div class="mobile-tool-nav-title">ツール移動</div><div class="mobile-tool-scroll"><a class="mobile-tool-link" href="index.html">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link active" href="builder.html" aria-current="page">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div></nav>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-card">
+      <div class="kicker">RANK MATCH BUILD ASSIST</div>
+      <h1>構築アシスト</h1>
+      <p class="hero-desc">使いたいポケモンを1匹ずつ選び、<strong>選択済み全ポケモンとの相性補完</strong>を見ながら次の候補を出します。タイプだけではなく、攻撃範囲・物理特殊・素早さ・メガ枠・ランキング上位への打点をまとめて判断します。</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#candidate-panel">候補を見る</a>
+        <button class="btn" type="button" onclick="undoLast()">1つ戻す</button>
+        <button class="btn warn" type="button" onclick="resetBuild()">リセット</button>
+      </div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-box"><div class="mini-label">現在の人数</div><div class="mini-value" id="stat-count">0 / 6</div></div>
+      <div class="mini-box"><div class="mini-label">参照シーズン</div><div class="mini-value" id="stat-season">読込中</div></div>
+      <div class="mini-box"><div class="mini-label">候補元</div><div class="mini-value" id="stat-pool">-</div></div>
+      <div class="mini-box"><div class="mini-label">判定軸</div><div class="mini-value">全体補完</div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar">
+      <div class="field">
+        <label>ルール</label>
+        <div class="mode-buttons"><button class="mode-btn active" id="mode-single" type="button" onclick="setBattleMode('single')">シングル</button><button class="mode-btn" id="mode-double" type="button" onclick="setBattleMode('double')">ダブル</button></div>
+      </div>
+      <div class="field">
+        <label>シーズン</label>
+        <select id="season-select" onchange="changeSeason(this.value)"></select>
+      </div>
+      <div class="field search-field">
+        <label>使いたいポケモンを追加</label>
+        <div class="search-wrap"><input id="pokemon-search" type="text" placeholder="ポケモン名を入力..." autocomplete="off" oninput="renderSearchSuggest(this.value)" onfocus="renderSearchSuggest(this.value)"><div class="suggest" id="search-suggest"></div></div>
+      </div>
+    </div>
+    <p class="sec-note">候補は毎回、今選んでいる全員をまとめて見ます。直前の1匹だけで判断しないため、6匹目ほど「構築全体の穴埋め」寄りの候補になります。</p>
+  </section>
+
+  <div class="builder-grid">
+    <section class="panel slot-panel">
+      <div class="sec-title"><h2>現在の構築</h2><button class="btn green" type="button" onclick="sendToParty()">party.htmlへ送る</button></div>
+      <div id="slot-list" class="slot-list"></div>
+      <div class="summary-grid">
+        <div class="summary-box"><div class="summary-label">物理/特殊</div><div class="summary-value" id="sum-category">-</div></div>
+        <div class="summary-box"><div class="summary-label">高速枠</div><div class="summary-value" id="sum-speed">-</div></div>
+        <div class="summary-box"><div class="summary-label">メガ枠</div><div class="summary-value" id="sum-mega">-</div></div>
+        <div class="summary-box"><div class="summary-label">弱点被り</div><div class="summary-value" id="sum-weak">-</div></div>
+      </div>
+      <div class="team-report" id="team-report"></div>
+    </section>
+
+    <section class="panel" id="candidate-panel">
+      <div class="sec-title"><h2 id="candidate-title">次に入れる候補</h2><button class="btn" type="button" onclick="renderCandidates()">候補を更新</button></div>
+      <p class="sec-note" id="candidate-note">1匹目は検索から選ぶか、ランキング上位候補から選んでください。</p>
+      <div id="candidate-list" class="candidates"></div>
+    </section>
+  </div>
+</main>
+
+<div class="detail-modal" id="detail-modal" onclick="if(event.target===this)closeDetail()"><div class="detail-card" id="detail-card"></div></div>
+<div class="toast" id="toast"></div>
+<footer><div class="footer-logo">PokeEdge</div><div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>構築アシストは判断材料の整理用です。最終判断は手動で調整してください。</div><div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div></footer>
+
+<script>
+const DATA_FETCH_OPTIONS = {cache:'no-cache'};
+const TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
+const TYPE_EFF = {
+  'ノーマル': {'いわ':0.5,'ゴースト':0,'はがね':0.5},
+  'ほのお': {'ほのお':0.5,'みず':0.5,'くさ':2,'こおり':2,'むし':2,'いわ':0.5,'ドラゴン':0.5,'はがね':2},
+  'みず': {'ほのお':2,'みず':0.5,'くさ':0.5,'じめん':2,'いわ':2,'ドラゴン':0.5},
+  'でんき': {'みず':2,'でんき':0.5,'くさ':0.5,'じめん':0,'ひこう':2,'ドラゴン':0.5},
+  'くさ': {'ほのお':0.5,'みず':2,'くさ':0.5,'どく':0.5,'じめん':2,'ひこう':0.5,'むし':0.5,'いわ':2,'ドラゴン':0.5,'はがね':0.5},
+  'こおり': {'ほのお':0.5,'みず':0.5,'くさ':2,'こおり':0.5,'じめん':2,'ひこう':2,'ドラゴン':2,'はがね':0.5},
+  'かくとう': {'ノーマル':2,'こおり':2,'どく':0.5,'ひこう':0.5,'エスパー':0.5,'むし':0.5,'いわ':2,'ゴースト':0,'あく':2,'はがね':2,'フェアリー':0.5},
+  'どく': {'くさ':2,'どく':0.5,'じめん':0.5,'いわ':0.5,'ゴースト':0.5,'はがね':0,'フェアリー':2},
+  'じめん': {'ほのお':2,'でんき':2,'くさ':0.5,'どく':2,'ひこう':0,'むし':0.5,'いわ':2,'はがね':2},
+  'ひこう': {'でんき':0.5,'くさ':2,'かくとう':2,'むし':2,'いわ':0.5,'はがね':0.5},
+  'エスパー': {'かくとう':2,'どく':2,'エスパー':0.5,'あく':0,'はがね':0.5},
+  'むし': {'ほのお':0.5,'くさ':2,'かくとう':0.5,'どく':0.5,'ひこう':0.5,'エスパー':2,'ゴースト':0.5,'あく':2,'はがね':0.5,'フェアリー':0.5},
+  'いわ': {'ほのお':2,'こおり':2,'かくとう':0.5,'じめん':0.5,'ひこう':2,'むし':2,'はがね':0.5},
+  'ゴースト': {'ノーマル':0,'エスパー':2,'ゴースト':2,'あく':0.5},
+  'ドラゴン': {'ドラゴン':2,'はがね':0.5,'フェアリー':0},
+  'あく': {'かくとう':0.5,'エスパー':2,'ゴースト':2,'あく':0.5,'フェアリー':0.5},
+  'はがね': {'ほのお':0.5,'みず':0.5,'でんき':0.5,'こおり':2,'いわ':2,'はがね':0.5,'フェアリー':2},
+  'フェアリー': {'ほのお':0.5,'かくとう':2,'どく':0.5,'ドラゴン':2,'あく':2,'はがね':0.5}
+};
+const LS_DRAFT_KEY = 'pokeedge_builder_assist_draft_v1';
+const PARTY_IMPORT_KEY = 'pokeedge_party_reference_transfer';
+let POKEMON_DATA = [];
+let MOVES_DATA = [];
+let SEASON_DATA = {seasons:[]};
+let POKEMON_MOVES = {};
+let MEGA_DATA = {rows:[],baseToForms:{},formToBase:{}};
+let RANKING = {rows:[],updatedAt:''};
+let MOVE_MAP = {};
+let POKE_MAP = {};
+let SELECTED = [];
+let BATTLE_MODE = localStorage.getItem('pokeedge_builder_battle_mode') || 'single';
+let ACTIVE_SEASON = '';
+let _toastTimer = null;
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function normalizeKey(s){return String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[\s　・･ー－–—]/g,'').toLowerCase().trim();}
+function normalizeMoveDisplay(s){return String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).trim();}
+function fetchJson(path, fallback){return fetch(path, DATA_FETCH_OPTIONS).then(r=>r.ok?r.json():Promise.reject(new Error(path))).catch(()=>fallback);}
+function parseUsageEntry(entry){const raw=String(entry||'').trim();const m=raw.match(/^(.*?)(?:\s*\(([-\d.]+)%\))?$/);return {name:normalizeMoveDisplay(m?m[1]:raw), percent:m&&m[2]!=null?Number(m[2]):0};}
+function getTypes(p){return [p?.type1,p?.type2].filter(Boolean);}
+function typeHtml(p){return getTypes(p).map(t=>`<span class="type-pill">${esc(t)}</span>`).join('');}
+function effect(moveType, defTypes){return (defTypes||[]).filter(Boolean).reduce((m,t)=>m*((TYPE_EFF[moveType]&&TYPE_EFF[moveType][t]!==undefined)?TYPE_EFF[moveType][t]:1),1);}
+function defenseAgainst(p, atkType){return effect(atkType, getTypes(p));}
+function isDamagingMove(m){return m && m.category && m.category !== '変化' && Number(m.power || 0) > 0 && m.type;}
+function getMoveMeta(name){return MOVE_MAP[normalizeKey(name)] || null;}
+function familyName(name){const raw=String(name||'').trim();return MEGA_DATA.formToBase?.[raw] || raw.replace(/^メガ/,'').replace(/[XYZ]$/,'') || raw;}
+function isMegaName(name){const raw=String(name||'').trim();return !!(MEGA_DATA.formToBase?.[raw] || /^メガ/.test(raw));}
+function hasMegaSelected(){return SELECTED.some(m=>isMegaName(m.pokemon.name) || /ナイト$/.test(String(m.item||'')));}
+function findPokemon(name){const direct=POKE_MAP[String(name||'').trim()] || POKE_MAP[normalizeMoveDisplay(name)];if(direct)return direct;const key=normalizeKey(name);return POKEMON_DATA.find(p=>normalizeKey(p.name)===key) || null;}
+function rankingRowFor(name){const fam=familyName(name);return (RANKING.rows||[]).find(r=>String(r.siteName||r.name||'').trim()===name || String(r.name||'').trim()===name || familyName(String(r.siteName||r.name||''))===fam) || null;}
+function rankingRank(name){const row=rankingRowFor(name);return row ? Number(row.rank||9999) : 9999;}
+function getAllowedNames(){const list=Array.isArray(SEASON_DATA[ACTIVE_SEASON]) ? SEASON_DATA[ACTIVE_SEASON] : [];return new Set(list.map(v=>String(v).trim()).filter(Boolean));}
+function getCandidatePool(){
+  const allowed=getAllowedNames();
+  const selectedFamilies=new Set(SELECTED.map(m=>familyName(m.pokemon.name)));
+  const rankingNames=(RANKING.rows||[]).map(r=>String(r.siteName||r.name||'').trim()).filter(Boolean);
+  const names=[];
+  rankingNames.forEach(n=>{ if(allowed.has(n) && !selectedFamilies.has(familyName(n))) names.push(n); });
+  Array.from(allowed).forEach(n=>{ if(!selectedFamilies.has(familyName(n))) names.push(n); });
+  return Array.from(new Set(names)).map(n=>findPokemon(n)).filter(Boolean);
+}
+function getKnownMoveEntries(name){
+  const fam=familyName(name);
+  const records=[];
+  const raw=POKEMON_MOVES[name] || POKEMON_MOVES[fam] || null;
+  if(Array.isArray(raw)) raw.forEach(rec=>records.push(...(Array.isArray(rec.moves)?rec.moves:[])));
+  else if(raw && Array.isArray(raw.moves)) records.push(...raw.moves);
+  return records;
+}
+function getTopMoves(name, limit=4){
+  const row=rankingRowFor(name);
+  const out=[];
+  const seen=new Set();
+  function addByName(moveName, percent=0){
+    const label=normalizeMoveDisplay(moveName);
+    if(!label || seen.has(normalizeKey(label))) return;
+    const meta=getMoveMeta(label) || getKnownMoveEntries(name).find(m=>normalizeKey(m.name)===normalizeKey(label));
+    if(!meta) return;
+    const mv={name:label,type:meta.type||'',category:meta.category||'',power:Number(meta.power||0)||0,percent:Number(percent||0)||0};
+    if(!isDamagingMove(mv)) return;
+    seen.add(normalizeKey(label));
+    out.push(mv);
+  }
+  (Array.isArray(row?.moves)?row.moves:[]).forEach(v=>{const e=parseUsageEntry(v);addByName(e.name,e.percent);});
+  getKnownMoveEntries(name).forEach(m=>addByName(m.name,0));
+  return out.slice(0,limit);
+}
+function getTopItems(name, limit=3){const row=rankingRowFor(name);return (Array.isArray(row?.items)?row.items:[]).map(parseUsageEntry).filter(x=>x.name).slice(0,limit);}
+function getTopAbility(name){const row=rankingRowFor(name);const e=(Array.isArray(row?.abilities)?row.abilities:[]).map(parseUsageEntry).find(x=>x.name);return e?.name || '';}
+function getTopNature(name){const row=rankingRowFor(name);const e=(Array.isArray(row?.natures)?row.natures:[]).map(parseUsageEntry).find(x=>x.name);return normalizeNatureName(e?.name || 'がんばりや');}
+function normalizeNatureName(raw){return String(raw||'').replace(/[A-ZＨＡＢＣＤＳ][↑↓].*$/,'').replace(/[\s　]*[A-ZＨＡＢＣＤＳ]?[↑↓].*$/,'').trim() || 'がんばりや';}
+function getTopSpread(name){
+  const row=rankingRowFor(name);const raw=(Array.isArray(row?.spreads)?row.spreads:[])[0] || '';
+  const m=String(raw).match(/(\d+)\-(\d+)\-(\d+)\-(\d+)\-(\d+)\-(\d+)/);
+  if(!m) return {hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+  return {hp:+m[1],atk:+m[2],def:+m[3],spa:+m[4],spd:+m[5],spe:+m[6]};
+}
+function teamDefenseProfile(members){
+  const profile={};TYPES.forEach(t=>profile[t]={weak:0,resist:0,immune:0,neutral:0});
+  members.forEach(m=>{TYPES.forEach(t=>{const e=defenseAgainst(m.pokemon,t);if(e===0)profile[t].immune++;else if(e>1)profile[t].weak++;else if(e<1)profile[t].resist++;else profile[t].neutral++;});});
+  return profile;
+}
+function teamAttackTypes(members){
+  const set=new Set();let physical=0,special=0;
+  members.forEach(m=>getTopMoves(m.pokemon.name,4).forEach(mv=>{set.add(mv.type);if(mv.category==='物理')physical++;if(mv.category==='特殊')special++;}));
+  return {set,physical,special};
+}
+function topThreats(limit=24){return (RANKING.rows||[]).slice(0,limit).map(r=>findPokemon(String(r.siteName||r.name||'').trim())).filter(Boolean);}
+function teamHasSuperEffective(threat){return SELECTED.some(m=>getTopMoves(m.pokemon.name,6).some(mv=>effect(mv.type,getTypes(threat))>=2));}
+function candidateHitsThreat(p, threat){return getTopMoves(p.name,6).some(mv=>effect(mv.type,getTypes(threat))>=2);}
+function evaluateCandidate(p){
+  const selected=SELECTED.slice();
+  const profile=teamDefenseProfile(selected);
+  const atk=teamAttackTypes(selected);
+  const row=rankingRowFor(p.name);
+  const rank=rankingRank(p.name);
+  const moves=getTopMoves(p.name,6);
+  const items=getTopItems(p.name,3);
+  let score=0;
+  const reasons=[];
+  const risks=[];
+  if(row){const rscore=Math.max(8,44-Math.min(rank,160)*0.22);score+=rscore;reasons.push(`ランキング${rank}位の採用実績を参照`);} else {score+=5;reasons.push('使用可能ポケモンから候補化');}
+  const candidateDef=TYPES.map(t=>({type:t,eff:defenseAgainst(p,t)}));
+  const covered=[];
+  const risky=[];
+  candidateDef.forEach(x=>{
+    const state=profile[x.type];
+    if(!selected.length) return;
+    if(state.weak>0 && x.eff===0){score+=10+state.weak*5;covered.push(`${x.type}無効`);}
+    else if(state.weak>0 && x.eff<1){score+=7+state.weak*4;covered.push(`${x.type}半減`);}
+    if(state.weak>=2 && x.eff>1){score-=10+state.weak*3;risky.push(`${x.type}弱点追加`);}
+    else if(state.weak>=1 && x.eff>1 && selected.length>=3){score-=4;risky.push(`${x.type}弱点も被る`);}
+  });
+  if(covered.length) reasons.push(`選択済み全体で重い技を受けやすい：${covered.slice(0,3).join(' / ')}`);
+  if(risky.length) risks.push(`弱点被り注意：${risky.slice(0,3).join(' / ')}`);
+  const moveTypes=Array.from(new Set(moves.map(m=>m.type).filter(Boolean)));
+  const newTypes=moveTypes.filter(t=>!atk.set.has(t));
+  score += newTypes.length*3;
+  if(newTypes.length) reasons.push(`攻撃範囲を追加：${newTypes.slice(0,4).join(' / ')}`);
+  const phys=moves.some(m=>m.category==='物理');
+  const spec=moves.some(m=>m.category==='特殊');
+  if(selected.length){
+    if(atk.physical===0 && phys){score+=8;reasons.push('物理打点を追加できる');}
+    if(atk.special===0 && spec){score+=8;reasons.push('特殊打点を追加できる');}
+    if(atk.physical>=atk.special+4 && spec){score+=5;reasons.push('特殊寄りの役割を足せる');}
+    if(atk.special>=atk.physical+4 && phys){score+=5;reasons.push('物理寄りの役割を足せる');}
+  }
+  const heavy=topThreats(20).filter(t=>!teamHasSuperEffective(t) && candidateHitsThreat(p,t)).slice(0,4);
+  if(heavy.length){score+=heavy.length*7;reasons.push(`現在の構築で打点不足になりやすい相手に打点：${heavy.map(t=>t.name).join(' / ')}`);}
+  const fastSelected=selected.filter(m=>Number(m.pokemon.spe||0)>=100).length;
+  if(selected.length && fastSelected===0 && Number(p.spe||0)>=100){score+=8;reasons.push('素早さ100以上の高速枠を追加');}
+  else if(selected.length && Number(p.spe||0)>=95){score+=3;reasons.push('素早さラインを上げやすい');}
+  const sameTypeCount=selected.filter(m=>getTypes(m.pokemon).some(t=>getTypes(p).includes(t))).length;
+  if(sameTypeCount>=2){score-=7;risks.push('タイプ役割がやや重複');}
+  if(isMegaName(p.name) && hasMegaSelected()){score-=18;risks.push('メガ枠が重複する可能性');}
+  const itemName=items[0]?.name || (isMegaName(p.name) ? `${familyName(p.name)}ナイト` : '');
+  if(itemName && SELECTED.some(m=>m.item && m.item===itemName)){score-=5;risks.push(`持ち物候補「${itemName}」が重複`);}
+  if(!moves.length){score-=12;risks.push('技候補が少ないため手動確認推奨');}
+  const safeScore=Math.max(0,Math.min(99,Math.round(score)));
+  if(!reasons.length) reasons.push('構築全体の候補として確認できます');
+  return {pokemon:p,score:safeScore,reasons:reasons.slice(0,5),risks:risks.slice(0,3),moves:moves.slice(0,4),items,rank:rank<9999?rank:null,ability:getTopAbility(p.name),nature:getTopNature(p.name),ev:getTopSpread(p.name)};
+}
+function createMemberFromEvaluation(ev){
+  const item=ev.items[0]?.name || (isMegaName(ev.pokemon.name) ? `${familyName(ev.pokemon.name)}ナイト` : '');
+  return {pokemon:ev.pokemon, moves:ev.moves.map(m=>m.name).slice(0,4), item, ability:ev.ability||'', nature:ev.nature||'がんばりや', ev:ev.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}, score:ev.score};
+}
+function addPokemonByName(name){
+  if(SELECTED.length>=6){toast('パーティは6匹までです。');return;}
+  const p=findPokemon(name);
+  if(!p){toast('ポケモンが見つかりませんでした。');return;}
+  if(SELECTED.some(m=>familyName(m.pokemon.name)===familyName(p.name))){toast('同じ系統のポケモンはすでに入っています。');return;}
+  const ev=evaluateCandidate(p);
+  SELECTED.push(createMemberFromEvaluation(ev));
+  document.getElementById('pokemon-search').value='';
+  closeSuggest();
+  saveDraft();
+  renderAll();
+  toast(`${p.name} を追加しました。`);
+}
+function removeSlot(i){SELECTED.splice(i,1);saveDraft();renderAll();}
+function undoLast(){if(!SELECTED.length){toast('戻すポケモンがありません。');return;}const last=SELECTED.pop();saveDraft();renderAll();toast(`${last.pokemon.name} を外しました。`);}
+function resetBuild(){if(SELECTED.length && !confirm('現在の構築をリセットしますか？'))return;SELECTED=[];saveDraft();renderAll();}
+function renderSlots(){
+  const el=document.getElementById('slot-list');
+  el.innerHTML=Array.from({length:6},(_,i)=>{
+    const m=SELECTED[i];
+    if(!m) return `<div class="slot"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-empty">未選択</div></div></div>`;
+    return `<div class="slot filled"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-name">${esc(m.pokemon.name)}</div><div class="slot-meta">${typeHtml(m.pokemon)}${m.item?`<span class="type-pill">${esc(m.item)}</span>`:''}</div></div><button class="remove-btn" type="button" onclick="removeSlot(${i})">×</button></div>`;
+  }).join('');
+}
+function renderSummary(){
+  document.getElementById('stat-count').textContent=`${SELECTED.length} / 6`;
+  document.getElementById('stat-season').textContent=ACTIVE_SEASON||'-';
+  document.getElementById('stat-pool').textContent=`${getCandidatePool().length}匹`;
+  const atk=teamAttackTypes(SELECTED);
+  document.getElementById('sum-category').textContent=SELECTED.length?`物理${atk.physical} / 特殊${atk.special}`:'-';
+  const fast=SELECTED.filter(m=>Number(m.pokemon.spe||0)>=100).length;
+  document.getElementById('sum-speed').textContent=SELECTED.length?`${fast}匹`:'-';
+  const mega=SELECTED.filter(m=>isMegaName(m.pokemon.name) || /ナイト$/.test(String(m.item||''))).length;
+  document.getElementById('sum-mega').textContent=SELECTED.length?`${mega}枠`:'-';
+  const prof=teamDefenseProfile(SELECTED);
+  const weakRows=TYPES.map(t=>({type:t,weak:prof[t].weak,res:prof[t].resist,imm:prof[t].immune})).filter(x=>x.weak>=2).sort((a,b)=>b.weak-a.weak);
+  document.getElementById('sum-weak').textContent=SELECTED.length?(weakRows[0]?`${weakRows[0].type} ${weakRows[0].weak}匹`:'大きな集中なし'):'-';
+  const report=document.getElementById('team-report');
+  if(!SELECTED.length){report.innerHTML='';return;}
+  const weakText=(weakRows.length?weakRows.slice(0,5).map(x=>`${x.type}：弱点${x.weak} / 半減${x.res} / 無効${x.imm}`).join('<br>'):'大きく弱点が集中しているタイプは少なめです。');
+  const attackText=Array.from(atk.set).slice(0,12).join(' / ') || '攻撃技候補がまだ少ないです。';
+  report.innerHTML=`<div class="report-block"><div class="report-title">防御相性の見え方</div><div class="report-line">${weakText}</div></div><div class="report-block"><div class="report-title">攻撃範囲の見え方</div><div class="report-line">${esc(attackText)}</div></div>`;
+}
+function renderCandidateCard(ev){
+  const p=ev.pokemon;
+  const moveTags=ev.moves.length?ev.moves.map(m=>`<span class="tag">${esc(m.name)}</span>`).join(''):'<span class="tag">技候補少なめ</span>';
+  const itemTags=ev.items.length?ev.items.map(i=>`<span class="tag">${esc(i.name)}</span>`).join(''):'';
+  const risk=ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:'';
+  return `<article class="candidate-card"><div class="card-head"><div class="score-ring">${ev.score}</div><div><div class="card-name">${esc(p.name)}</div><div class="slot-meta">${typeHtml(p)}</div><div class="card-sub">${ev.rank?`ランキング${ev.rank}位 / `:''}S${Number(p.spe||0)} / 選択済み全体で判定</div></div></div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${risk}<div class="card-tags">${moveTags}${itemTags}</div><div class="card-actions"><button class="btn primary" type="button" onclick="addPokemonByName('${esc(p.name)}')">追加</button><button class="btn" type="button" onclick="openDetail('${esc(p.name)}')">詳細</button></div></article>`;
+}
+function renderCandidates(){
+  const title=document.getElementById('candidate-title');
+  const note=document.getElementById('candidate-note');
+  title.textContent=SELECTED.length?`${SELECTED.length+1}匹目候補`:'1匹目候補';
+  note.textContent=SELECTED.length?'現在選んでいる全ポケモンとの相性補完をまとめて評価しています。':'まずは使いたい1匹を検索で指定するか、ランキング上位から選んでください。';
+  const el=document.getElementById('candidate-list');
+  if(SELECTED.length>=6){el.innerHTML='<div class="empty">6匹そろいました。party.htmlへ送って、持ち物・技・努力値を細かく調整してください。</div>';return;}
+  const pool=getCandidatePool();
+  const evaluated=pool.map(evaluateCandidate).sort((a,b)=>b.score-a.score || (a.rank||9999)-(b.rank||9999)).slice(0,10);
+  if(!evaluated.length){el.innerHTML='<div class="empty">候補が見つかりませんでした。シーズンやルールを切り替えて確認してください。</div>';return;}
+  el.innerHTML=evaluated.map(renderCandidateCard).join('');
+}
+function renderSearchSuggest(q){
+  const el=document.getElementById('search-suggest');
+  const query=normalizeKey(q);
+  const pool=getCandidatePool();
+  const list=pool.filter(p=>!query || normalizeKey(p.name).includes(query)).sort((a,b)=>rankingRank(a.name)-rankingRank(b.name) || a.name.localeCompare(b.name,'ja')).slice(0,40);
+  if(!list.length){el.innerHTML='<div class="suggest-item"><span class="suggest-name">見つかりません</span></div>';el.classList.add('show');return;}
+  el.innerHTML=list.map(p=>`<div class="suggest-item" onclick="addPokemonByName('${esc(p.name)}')"><span class="suggest-name">${esc(p.name)}</span>${typeHtml(p)}<span class="suggest-rank">${rankingRank(p.name)<9999?'#'+rankingRank(p.name):'使用可能'}</span></div>`).join('');
+  el.classList.add('show');
+}
+function closeSuggest(){document.getElementById('search-suggest')?.classList.remove('show');}
+function openDetail(name){
+  const ev=evaluateCandidate(findPokemon(name));
+  const card=document.getElementById('detail-card');
+  const moves=ev.moves.length?ev.moves.map(m=>`<div class="report-line">${esc(m.name)}：${esc(m.type)} / ${esc(m.category)} / 威力${esc(m.power)}</div>`).join(''):'<div class="report-line">技候補が少ないため手動確認してください。</div>';
+  const items=ev.items.length?ev.items.map(i=>`<span class="tag">${esc(i.name)}${i.percent?` ${esc(i.percent)}%`:''}</span>`).join(''):'<span class="tag">候補なし</span>';
+  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(ev.pokemon.name)}</div><div class="slot-meta">${typeHtml(ev.pokemon)}${ev.rank?`<span class="type-pill">ランキング${ev.rank}位</span>`:''}<span class="type-pill">相性スコア ${ev.score}</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="report-block"><div class="report-title">構築全体との相性</div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</div><div class="team-report"><div class="report-block"><div class="report-title">技候補</div>${moves}</div><div class="report-block"><div class="report-title">持ち物候補</div><div class="card-tags">${items}</div><div class="report-title" style="margin-top:12px;">型候補</div><div class="report-line">性格：${esc(ev.nature)}<br>特性：${esc(ev.ability||'候補なし')}<br>努力値：H${ev.ev.hp}-A${ev.ev.atk}-B${ev.ev.def}-C${ev.ev.spa}-D${ev.ev.spd}-S${ev.ev.spe}</div></div></div><div style="margin-top:12px;display:flex;gap:8px;"><button class="btn primary" type="button" onclick="addPokemonByName('${esc(ev.pokemon.name)}');closeDetail();">このポケモンを追加</button><button class="btn" type="button" onclick="closeDetail()">閉じる</button></div>`;
+  document.getElementById('detail-modal').classList.add('show');
+}
+function closeDetail(){document.getElementById('detail-modal').classList.remove('show');}
+function renderAll(){renderSlots();renderSummary();renderCandidates();}
+function saveDraft(){try{localStorage.setItem(LS_DRAFT_KEY,JSON.stringify({season:ACTIVE_SEASON,mode:BATTLE_MODE,selected:SELECTED.map(m=>({pokemon:m.pokemon.name,moves:m.moves,item:m.item,ability:m.ability,nature:m.nature,ev:m.ev,score:m.score}))}));}catch(e){}}
+function restoreDraft(){try{const data=JSON.parse(localStorage.getItem(LS_DRAFT_KEY)||'null');if(!data)return;SELECTED=(Array.isArray(data.selected)?data.selected:[]).map(m=>{const p=findPokemon(m.pokemon);return p?{pokemon:p,moves:Array.isArray(m.moves)?m.moves:[],item:m.item||'',ability:m.ability||'',nature:m.nature||'がんばりや',ev:m.ev||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},score:Number(m.score||0)}:null;}).filter(Boolean).slice(0,6);}catch(e){}}
+function sendToParty(){
+  if(SELECTED.length<6){toast('6匹そろえてからparty.htmlへ送れます。');return;}
+  const payload={source:'builder_assist',name:`${ACTIVE_SEASON || ''} 構築アシスト`.trim(),season:ACTIVE_SEASON,battleType:BATTLE_MODE,members:SELECTED.map(m=>({pokemon:m.pokemon.name,moves:m.moves,item:m.item,nature:m.nature,ability:m.ability,ev:m.ev}))};
+  try{localStorage.setItem(PARTY_IMPORT_KEY,JSON.stringify(payload));location.href='party.html?from=builder_assist';}catch(e){toast('party.htmlへの受け渡しに失敗しました。');}
+}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
+async function setBattleMode(mode){BATTLE_MODE=mode==='double'?'double':'single';localStorage.setItem('pokeedge_builder_battle_mode',BATTLE_MODE);document.getElementById('mode-single').classList.toggle('active',BATTLE_MODE==='single');document.getElementById('mode-double').classList.toggle('active',BATTLE_MODE==='double');await reloadRanking();renderAll();saveDraft();}
+async function changeSeason(label){ACTIVE_SEASON=String(label||'').trim();if(window.pokeEdgeRankingSeason) window.pokeEdgeRankingSeason.setStored(ACTIVE_SEASON);await reloadRanking();renderAll();saveDraft();}
+function getRankingFilePath(mode,season){const base=mode==='double'?'season_ranking_double':'season_ranking_single';if(window.pokeEdgeRankingSeason && typeof window.pokeEdgeRankingSeason.file==='function')return window.pokeEdgeRankingSeason.file(base,season);const n=(String(season).match(/\d+/)||['1'])[0];return Number(n)>1?`${base}_s${n}.json`:`${base}.json`;}
+async function reloadRanking(){RANKING=await fetchJson(getRankingFilePath(BATTLE_MODE,ACTIVE_SEASON),{rows:[],updatedAt:''});}
+async function init(){
+  [POKEMON_DATA,MOVES_DATA,SEASON_DATA,POKEMON_MOVES,MEGA_DATA]=await Promise.all([fetchJson('pokemon.json',[]),fetchJson('moves.json',[]),fetchJson('season.json',{seasons:[]}),fetchJson('pokemon_moves.json',{pokemon:{}}),fetchJson('mega.json',{rows:[],baseToForms:{},formToBase:{}})]);
+  POKEMON_MOVES=POKEMON_MOVES && POKEMON_MOVES.pokemon ? POKEMON_MOVES.pokemon : {};
+  POKE_MAP={};POKEMON_DATA.forEach(p=>{POKE_MAP[p.name]=p;POKE_MAP[normalizeMoveDisplay(p.name)]=p;});
+  MOVE_MAP={};MOVES_DATA.forEach(m=>{MOVE_MAP[normalizeKey(m.name)]=m;});
+  const labels=Array.isArray(SEASON_DATA.seasons)?SEASON_DATA.seasons:[];
+  const sorted=window.pokeEdgeRankingSeason?window.pokeEdgeRankingSeason.sortLabels(labels,true):labels.slice().sort().reverse();
+  ACTIVE_SEASON=sorted[0] || 'S1';
+  const sel=document.getElementById('season-select');
+  sel.innerHTML=sorted.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  sel.value=ACTIVE_SEASON;
+  document.getElementById('mode-single').classList.toggle('active',BATTLE_MODE==='single');
+  document.getElementById('mode-double').classList.toggle('active',BATTLE_MODE==='double');
+  await reloadRanking();
+  restoreDraft();
+  renderAll();
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))closeSuggest();});
+function toggleTheme(){var root=document.documentElement;var current=root.getAttribute('data-theme')||'dark';var next=current==='dark'?'light':'dark';localStorage.setItem('pokeedge_theme',next);location.reload();}
+function updateThemeBtn(){var btn=document.getElementById('theme-btn');if(!btn)return;var t=localStorage.getItem('pokeedge_theme')||'dark';btn.textContent=t==='dark'?'🌙':'☀️';}
+function toggleNav(){var nav=document.getElementById('main-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.toggle('open');hb.classList.toggle('open');ov.classList.toggle('show');}
+function closeNav(){var nav=document.getElementById('main-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
+document.addEventListener('DOMContentLoaded',()=>{updateThemeBtn();init();document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{if(window.innerWidth<=768)closeNav();}));});
+</script>
+</body>
+</html>
