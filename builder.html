@@ -313,6 +313,59 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function jsArg(s){return esc(JSON.stringify(String(s??'')));}
 function normalizeKey(s){return String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[Ａ-Ｚａ-ｚ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[\s　・･ー－–—]/g,'').toLowerCase().trim();}
 function normalizeMoveDisplay(s){return String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).trim();}
+const SPECIAL_FORM_GROUPS = {
+  'ギルガルド': {forms:['ギルガルド盾','ギルガルド剣'], preferred:'ギルガルド盾', aliases:['ギルガルド','ギルガルド盾','ギルガルド剣','シールド','ブレード','盾','剣']},
+  'イルカマン': {forms:['イルカマン（ナイーブ）','イルカマン（マイティ）'], preferred:'イルカマン（ナイーブ）', aliases:['イルカマン','イルカマン（ナイーブ）','イルカマン（マイティ）','ナイーブ','マイティ']}
+};
+function getSpecialFormBaseName(name){
+  const raw=String(name||'').trim();
+  if(SPECIAL_FORM_GROUPS[raw]) return raw;
+  if(/^ギルガルド/.test(raw)) return 'ギルガルド';
+  if(/^イルカマン/.test(raw)) return 'イルカマン';
+  for(const base in SPECIAL_FORM_GROUPS){ if((SPECIAL_FORM_GROUPS[base].forms||[]).includes(raw)) return base; }
+  return '';
+}
+function getMegaBaseName(name){
+  const raw=String(name||'').trim();
+  if(!raw) return '';
+  if(MEGA_DATA.formToBase && MEGA_DATA.formToBase[raw]) return MEGA_DATA.formToBase[raw];
+  const row=(MEGA_DATA.rows||[]).find(r=>String(r.name||'').trim()===raw);
+  return String(row?.baseName||'').trim();
+}
+function getMegaFormNames(baseName){
+  const raw=String(baseName||'').trim();
+  const list=MEGA_DATA.baseToForms?.[raw] || [];
+  if(Array.isArray(list)) return list.map(v=>String(v).trim()).filter(Boolean);
+  return (MEGA_DATA.rows||[]).filter(r=>String(r.baseName||'').trim()===raw).map(r=>String(r.name||'').trim()).filter(Boolean);
+}
+function normalizeCandidateName(name){
+  const raw=String(name||'').trim();
+  const special=getSpecialFormBaseName(raw);
+  if(special) return special;
+  const megaBase=getMegaBaseName(raw);
+  return megaBase || raw;
+}
+function getRepresentativeName(name){
+  const display=normalizeCandidateName(name);
+  const cfg=SPECIAL_FORM_GROUPS[display];
+  return cfg?.preferred || display;
+}
+function displayPokemonName(name){return normalizeCandidateName(typeof name==='string'?name:name?.name);}
+function getCandidateLookupNames(name){
+  const display=normalizeCandidateName(name);
+  const names=new Set([String(name||'').trim(),display,getRepresentativeName(display)]);
+  const cfg=SPECIAL_FORM_GROUPS[display];
+  if(cfg) (cfg.forms||[]).forEach(v=>names.add(v));
+  getMegaFormNames(display).forEach(v=>names.add(v));
+  return Array.from(names).filter(Boolean);
+}
+function candidateSearchText(p){
+  const display=displayPokemonName(p);
+  const names=getCandidateLookupNames(p?.name||display);
+  const cfg=SPECIAL_FORM_GROUPS[display];
+  if(cfg) (cfg.aliases||[]).forEach(v=>names.push(v));
+  return [display,p?.name||'',...names].join(' ');
+}
 function fetchJson(path, fallback){return fetch(path, DATA_FETCH_OPTIONS).then(r=>r.ok?r.json():Promise.reject(new Error(path))).catch(()=>fallback);}
 function parseUsageEntry(entry){const raw=String(entry||'').trim();const m=raw.match(/^(.*?)(?:\s*\(([-\d.]+)%\))?$/);return {name:normalizeMoveDisplay(m?m[1]:raw), percent:m&&m[2]!=null?Number(m[2]):0, raw};}
 function normalizeNatureName(raw){return String(raw||'').replace(/[A-ZＨＡＢＣＤＳ][↑↓].*$/,'').replace(/[\s　]*[A-ZＨＡＢＣＤＳ]?[↑↓].*$/,'').trim() || 'がんばりや';}
@@ -322,21 +375,50 @@ function effect(moveType, defTypes){return (defTypes||[]).filter(Boolean).reduce
 function defenseAgainst(p, atkType){return effect(atkType, getTypes(p));}
 function isDamagingMove(m){return m && m.category && m.category !== '変化' && (Number(m.power || 0) > 0 || /くさむすび|けたぐり|ヒートスタンプ|ヘビーボンバー/.test(String(m.name||''))) && m.type;}
 function getMoveMeta(name){const label=normalizeMoveDisplay(name);const found=MOVE_MAP[normalizeKey(label)] || null;if(found) return found;return {name:label,type:'',category:'',power:0,accuracy:'',pp:'',description:''};}
-function familyName(name){const raw=String(name||'').trim();return MEGA_DATA.formToBase?.[raw] || raw.replace(/^メガ/,'').replace(/[XYZ]$/,'') || raw;}
-function isMegaName(name){const raw=String(name||'').trim();return !!(MEGA_DATA.formToBase?.[raw] || /^メガ/.test(raw));}
+function familyName(name){return normalizeCandidateName(name);}
+function isMegaName(name){return !!getMegaBaseName(name);}
 function hasMegaSelected(){return SELECTED.some(m=>isMegaName(m.pokemon.name) || /ナイト$/.test(String(m.item||'')));}
-function findPokemon(name){const direct=POKE_MAP[String(name||'').trim()] || POKE_MAP[normalizeMoveDisplay(name)];if(direct)return direct;const key=normalizeKey(name);return POKEMON_DATA.find(p=>normalizeKey(p.name)===key) || null;}
-function rankingRowFor(name){const fam=familyName(name);return (RANKING.rows||[]).find(r=>String(r.siteName||r.name||'').trim()===name || String(r.name||'').trim()===name || familyName(String(r.siteName||r.name||''))===fam) || null;}
+function findPokemon(name){
+  const raw=String(name||'').trim();
+  const representative=getRepresentativeName(raw);
+  const direct=POKE_MAP[raw] || POKE_MAP[normalizeMoveDisplay(raw)] || POKE_MAP[representative] || POKE_MAP[normalizeMoveDisplay(representative)];
+  if(direct)return direct;
+  const key=normalizeKey(representative || raw);
+  return POKEMON_DATA.find(p=>normalizeKey(p.name)===key) || null;
+}
+function rankingRowFor(name){
+  const fam=familyName(name);
+  return (RANKING.rows||[]).find(r=>{
+    const rn=String(r.siteName||r.name||'').trim();
+    const rawName=String(r.name||'').trim();
+    return rn===name || rawName===name || familyName(rn)===fam || familyName(rawName)===fam;
+  }) || null;
+}
 function rankingRank(name){const row=rankingRowFor(name);return row ? Number(row.rank||9999) : 9999;}
 function getAllowedNames(){const list=Array.isArray(SEASON_DATA[ACTIVE_SEASON]) ? SEASON_DATA[ACTIVE_SEASON] : [];return new Set(list.map(v=>String(v).trim()).filter(Boolean));}
+function isAllowedCandidateName(name){
+  const allowed=getAllowedNames();
+  return getCandidateLookupNames(name).some(n=>allowed.has(n));
+}
 function getCandidatePool(){
   const allowed=getAllowedNames();
   const selectedFamilies=new Set(SELECTED.map(m=>familyName(m.pokemon.name)));
   const rankingNames=(RANKING.rows||[]).map(r=>String(r.siteName||r.name||'').trim()).filter(Boolean);
-  const names=[];
-  rankingNames.forEach(n=>{ if(allowed.has(n) && !selectedFamilies.has(familyName(n))) names.push(n); });
-  Array.from(allowed).forEach(n=>{ if(!selectedFamilies.has(familyName(n))) names.push(n); });
-  return Array.from(new Set(names)).map(n=>findPokemon(n)).filter(Boolean);
+  const out=[];
+  const seen=new Set();
+  function add(raw){
+    const display=normalizeCandidateName(raw);
+    const fam=familyName(display);
+    if(!display || selectedFamilies.has(fam) || seen.has(fam)) return;
+    if(!isAllowedCandidateName(raw) && !isAllowedCandidateName(display)) return;
+    const p=findPokemon(display) || findPokemon(raw);
+    if(!p) return;
+    seen.add(fam);
+    out.push(p);
+  }
+  rankingNames.forEach(add);
+  Array.from(allowed).forEach(add);
+  return out;
 }
 function getKnownMoveEntries(name){
   const fam=familyName(name);
@@ -488,11 +570,11 @@ function addPokemonByName(name, openEditor=true){
   closeSuggest();
   saveDraft();
   renderAll();
-  toast(`${p.name} を追加しました。技・持ち物・性格・努力値を確認できます。`);
+  toast(`${displayPokemonName(p)} を追加しました。技・持ち物・性格・努力値を確認できます。`);
   if(openEditor) setTimeout(()=>openMemberEditor(SELECTED.length-1),80);
 }
 function removeSlot(i){SELECTED.splice(i,1);saveDraft();renderAll();}
-function undoLast(){if(!SELECTED.length){toast('戻すポケモンがありません。');return;}const last=SELECTED.pop();saveDraft();renderAll();toast(`${last.pokemon.name} を外しました。`);}
+function undoLast(){if(!SELECTED.length){toast('戻すポケモンがありません。');return;}const last=SELECTED.pop();saveDraft();renderAll();toast(`${displayPokemonName(last.pokemon)} を外しました。`);}
 function resetBuild(){if(SELECTED.length && !confirm('現在の構築をリセットしますか？'))return;SELECTED=[];saveDraft();renderAll();}
 function renderSlots(){
   const el=document.getElementById('slot-list');
@@ -500,7 +582,7 @@ function renderSlots(){
     const m=SELECTED[i];
     if(!m) return `<div class="slot"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-empty">未選択</div></div></div>`;
     const moveText=(m.moves||[]).filter(Boolean).slice(0,4).join(' / ') || '技未設定';
-    return `<div class="slot filled"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-name">${esc(m.pokemon.name)}</div><div class="slot-meta">${typeHtml(m.pokemon)}${m.item?`<span class="type-pill">${esc(m.item)}</span>`:''}<span class="type-pill">${esc(m.nature||'性格未設定')}</span></div><div class="current-build-note">${esc(moveText)}</div></div><button class="edit-btn" type="button" onclick="openMemberEditor(${i})">型編集</button><button class="remove-btn" type="button" onclick="removeSlot(${i})">×</button></div>`;
+    return `<div class="slot filled"><div class="slot-no">${i+1}</div><div class="slot-main"><div class="slot-name">${esc(displayPokemonName(m.pokemon))}</div><div class="slot-meta">${typeHtml(m.pokemon)}${m.item?`<span class="type-pill">${esc(m.item)}</span>`:''}<span class="type-pill">${esc(m.nature||'性格未設定')}</span></div><div class="current-build-note">${esc(moveText)}</div></div><button class="edit-btn" type="button" onclick="openMemberEditor(${i})">型編集</button><button class="remove-btn" type="button" onclick="removeSlot(${i})">×</button></div>`;
   }).join('');
 }
 function renderSummary(){
@@ -524,16 +606,17 @@ function renderSummary(){
 }
 function renderCandidateCard(ev){
   const p=ev.pokemon;
+  const label=displayPokemonName(p);
   const moveTags=ev.damageMoves.length?ev.damageMoves.map(m=>`<span class="tag">${esc(m.name)}</span>`).join(''):'<span class="tag">攻撃技候補少なめ</span>';
   const itemTags=ev.items.length?ev.items.slice(0,3).map(i=>`<span class="tag">${esc(i.name)}</span>`).join(''):'';
   const risk=ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:'';
-  return `<article class="candidate-card"><div class="card-head"><div class="score-ring">${ev.score}</div><div><div class="card-name">${esc(p.name)}</div><div class="slot-meta">${typeHtml(p)}</div><div class="card-sub">${ev.rank?`ランキング${ev.rank}位 / `:''}S${Number(p.spe||0)} / 現在の型込みで判定</div></div></div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${risk}<div class="card-tags">${moveTags}${itemTags}</div><div class="card-actions"><button class="btn primary" type="button" onclick="addPokemonByName(${jsArg(p.name)})">追加して型編集</button><button class="btn" type="button" onclick="openDetail(${jsArg(p.name)})">詳細</button></div></article>`;
+  return `<article class="candidate-card"><div class="card-head"><div class="score-ring">${ev.score}</div><div><div class="card-name">${esc(label)}</div><div class="slot-meta">${typeHtml(p)}</div><div class="card-sub">${ev.rank?`ランキング${ev.rank}位 / `:''}S${Number(p.spe||0)} / メガは進化前名で表示 / 現在の型込みで判定</div></div></div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${risk}<div class="card-tags">${moveTags}${itemTags}</div><div class="card-actions"><button class="btn primary" type="button" onclick="addPokemonByName(${jsArg(label)})">追加して型編集</button><button class="btn" type="button" onclick="openDetail(${jsArg(label)})">詳細</button></div></article>`;
 }
 function renderCandidates(){
   const title=document.getElementById('candidate-title');
   const note=document.getElementById('candidate-note');
   title.textContent=SELECTED.length?`${SELECTED.length+1}匹目候補`:'1匹目候補';
-  note.textContent=SELECTED.length?'現在選んでいる全ポケモンの技・持ち物・性格・努力値を反映して、次候補を再評価しています。':'まずは使いたい1匹を検索で指定するか、ランキング上位から選んでください。追加後におすすめ型を選べます。';
+  note.textContent=SELECTED.length?'現在選んでいる全ポケモンの技・持ち物・性格・努力値を反映して、次候補を再評価しています。':'まずは使いたい1匹を検索で指定するか、ランキング上位から選んでください。候補はメガ前の名前、ギルガルド/イルカマンは統一名で表示します。追加後におすすめ型を選べます。';
   const el=document.getElementById('candidate-list');
   if(SELECTED.length>=6){el.innerHTML='<div class="empty">6匹そろいました。各ポケモンの「型編集」で技・持ち物・性格・努力値を調整してからparty.htmlへ送れます。</div>';return;}
   const pool=getCandidatePool();
@@ -545,18 +628,21 @@ function renderSearchSuggest(q){
   const el=document.getElementById('search-suggest');
   const query=normalizeKey(q);
   const pool=getCandidatePool();
-  const list=pool.filter(p=>!query || normalizeKey(p.name).includes(query)).sort((a,b)=>rankingRank(a.name)-rankingRank(b.name) || a.name.localeCompare(b.name,'ja')).slice(0,40);
+  const list=pool.filter(p=>!query || normalizeKey(candidateSearchText(p)).includes(query)).sort((a,b)=>rankingRank(a.name)-rankingRank(b.name) || displayPokemonName(a).localeCompare(displayPokemonName(b),'ja')).slice(0,40);
   if(!list.length){el.innerHTML='<div class="suggest-item"><span class="suggest-name">見つかりません</span></div>';el.classList.add('show');return;}
-  el.innerHTML=list.map(p=>`<div class="suggest-item" onclick="addPokemonByName(${jsArg(p.name)})"><span class="suggest-name">${esc(p.name)}</span>${typeHtml(p)}<span class="suggest-rank">${rankingRank(p.name)<9999?'#'+rankingRank(p.name):'使用可能'}</span></div>`).join('');
+  el.innerHTML=list.map(p=>{const label=displayPokemonName(p);return `<div class="suggest-item" onclick="addPokemonByName(${jsArg(label)})"><span class="suggest-name">${esc(label)}</span>${typeHtml(p)}<span class="suggest-rank">${rankingRank(p.name)<9999?'#'+rankingRank(p.name):'使用可能'}</span></div>`;}).join('');
   el.classList.add('show');
 }
 function closeSuggest(){document.getElementById('search-suggest')?.classList.remove('show');}
 function openDetail(name){
-  const ev=evaluateCandidate(findPokemon(name));
+  const p=findPokemon(name);
+  if(!p){toast('ポケモンが見つかりませんでした。');return;}
+  const ev=evaluateCandidate(p);
+  const label=displayPokemonName(ev.pokemon);
   const card=document.getElementById('detail-card');
   const moves=ev.moves.length?ev.moves.map(m=>`<div class="report-line">${esc(m.name)}：${esc(m.type||'-')} / ${esc(m.category||'-')} / ${m.power?`威力${esc(m.power)}`:'変化または特殊威力'}${m.percent?` / ${esc(m.percent)}%`:''}</div>`).join(''):'<div class="report-line">技候補が少ないため手動確認してください。</div>';
   const items=ev.items.length?ev.items.map(i=>`<span class="tag">${esc(i.name)}${i.percent?` ${esc(i.percent)}%`:''}</span>`).join(''):'<span class="tag">候補なし</span>';
-  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(ev.pokemon.name)}</div><div class="slot-meta">${typeHtml(ev.pokemon)}${ev.rank?`<span class="type-pill">ランキング${ev.rank}位</span>`:''}<span class="type-pill">相性スコア ${ev.score}</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="report-block"><div class="report-title">構築全体との相性</div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</div><div class="team-report"><div class="report-block"><div class="report-title">おすすめ技候補</div>${moves}</div><div class="report-block"><div class="report-title">おすすめ持ち物候補</div><div class="card-tags">${items}</div><div class="report-title" style="margin-top:12px;">おすすめ型</div><div class="report-line">性格：${esc(ev.nature)}<br>特性：${esc(ev.ability||'候補なし')}<br>努力値：H${ev.ev.hp}-A${ev.ev.atk}-B${ev.ev.def}-C${ev.ev.spa}-D${ev.ev.spd}-S${ev.ev.spe}</div></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn primary" type="button" onclick="addPokemonByName(${jsArg(ev.pokemon.name)});closeDetail();">追加して型編集</button><button class="btn" type="button" onclick="closeDetail()">閉じる</button></div>`;
+  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(label)}</div><div class="slot-meta">${typeHtml(ev.pokemon)}${ev.rank?`<span class="type-pill">ランキング${ev.rank}位</span>`:''}<span class="type-pill">相性スコア ${ev.score}</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="report-block"><div class="report-title">構築全体との相性</div><ul class="reason-list">${ev.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${ev.risks.length?`<ul class="reason-list risk-list">${ev.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</div><div class="team-report"><div class="report-block"><div class="report-title">おすすめ技候補</div>${moves}</div><div class="report-block"><div class="report-title">おすすめ持ち物候補</div><div class="card-tags">${items}</div><div class="report-title" style="margin-top:12px;">おすすめ型</div><div class="report-line">性格：${esc(ev.nature)}<br>特性：${esc(ev.ability||'候補なし')}<br>努力値：H${ev.ev.hp}-A${ev.ev.atk}-B${ev.ev.def}-C${ev.ev.spa}-D${ev.ev.spd}-S${ev.ev.spe}</div></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn primary" type="button" onclick="addPokemonByName(${jsArg(label)});closeDetail();">追加して型編集</button><button class="btn" type="button" onclick="closeDetail()">閉じる</button></div>`;
   document.getElementById('detail-modal').classList.add('show');
 }
 function closeDetail(){document.getElementById('detail-modal').classList.remove('show');}
@@ -586,7 +672,7 @@ function openMemberEditor(index){
   const topItem=itemOptions[0]?.name || '';
   const topNature=getTopNature(member.pokemon.name);
   const topAbility=getTopAbility(member.pokemon.name);
-  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(index+1)}匹目：${esc(member.pokemon.name)} 型編集</div><div class="slot-meta">${typeHtml(member.pokemon)}<span class="type-pill">変更後すぐ次候補へ反映</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="editor-section"><div class="editor-title">おすすめを反映</div><div class="recommend-row"><button class="recommend-chip" type="button" onclick="applyRecommendedSet(${index})">おすすめ一括反映</button><button class="recommend-chip" type="button" onclick="applyRecommendedMoves(${index})">おすすめ技セット</button><button class="recommend-chip" type="button" onclick="applyRecommendedItem(${index})">おすすめ持ち物</button><button class="recommend-chip" type="button" onclick="applyRecommendedNature(${index})">おすすめ性格</button><button class="recommend-chip" type="button" onclick="applyRecommendedSpread(${index})">おすすめ努力値</button></div><div class="current-build-note">おすすめ技：${esc(recommendedMoves)}${topItem?` / 持ち物：${esc(topItem)}`:''}${topNature?` / 性格：${esc(topNature)}`:''}${topAbility?` / 特性：${esc(topAbility)}`:''}</div></div><div class="editor-section"><div class="editor-title">技</div><div class="move-grid">${moves}</div></div><div class="editor-section"><div class="editor-title">持ち物・性格・特性</div><div class="editor-grid"><div class="editor-field"><label>持ち物</label><select onchange="updateMemberField(${index},'item',this.value)">${itemSelect}</select></div><div class="editor-field"><label>性格</label><select onchange="updateMemberField(${index},'nature',this.value)">${natureSelect}</select></div><div class="editor-field"><label>特性</label><select onchange="updateMemberField(${index},'ability',this.value)">${abilitySelect}</select></div><div class="editor-field"><label>おすすめ努力値一覧</label><select onchange="applySpreadByOption(${index},this.value);this.value='';">${spreadSelect}</select></div></div></div><div class="editor-section"><div class="editor-title">努力値（チャンピオンズP）</div><div class="ev-grid">${evInputs}</div><div class="current-build-note">0〜32Pで入力。変更した内容で、次に入れるポケモン候補を再評価します。</div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn primary" onclick="closeDetail();renderAll();">この型で次候補を見る</button><button class="btn" onclick="closeDetail()">閉じる</button></div>`;
+  card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(index+1)}匹目：${esc(displayPokemonName(member.pokemon))} 型編集</div><div class="slot-meta">${typeHtml(member.pokemon)}<span class="type-pill">変更後すぐ次候補へ反映</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="editor-section"><div class="editor-title">おすすめを反映</div><div class="recommend-row"><button class="recommend-chip" type="button" onclick="applyRecommendedSet(${index})">おすすめ一括反映</button><button class="recommend-chip" type="button" onclick="applyRecommendedMoves(${index})">おすすめ技セット</button><button class="recommend-chip" type="button" onclick="applyRecommendedItem(${index})">おすすめ持ち物</button><button class="recommend-chip" type="button" onclick="applyRecommendedNature(${index})">おすすめ性格</button><button class="recommend-chip" type="button" onclick="applyRecommendedSpread(${index})">おすすめ努力値</button></div><div class="current-build-note">おすすめ技：${esc(recommendedMoves)}${topItem?` / 持ち物：${esc(topItem)}`:''}${topNature?` / 性格：${esc(topNature)}`:''}${topAbility?` / 特性：${esc(topAbility)}`:''}</div></div><div class="editor-section"><div class="editor-title">技</div><div class="move-grid">${moves}</div></div><div class="editor-section"><div class="editor-title">持ち物・性格・特性</div><div class="editor-grid"><div class="editor-field"><label>持ち物</label><select onchange="updateMemberField(${index},'item',this.value)">${itemSelect}</select></div><div class="editor-field"><label>性格</label><select onchange="updateMemberField(${index},'nature',this.value)">${natureSelect}</select></div><div class="editor-field"><label>特性</label><select onchange="updateMemberField(${index},'ability',this.value)">${abilitySelect}</select></div><div class="editor-field"><label>おすすめ努力値一覧</label><select onchange="applySpreadByOption(${index},this.value);this.value='';">${spreadSelect}</select></div></div></div><div class="editor-section"><div class="editor-title">努力値（チャンピオンズP）</div><div class="ev-grid">${evInputs}</div><div class="current-build-note">0〜32Pで入力。変更した内容で、次に入れるポケモン候補を再評価します。</div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn primary" onclick="closeDetail();renderAll();">この型で次候補を見る</button><button class="btn" onclick="closeDetail()">閉じる</button></div>`;
   document.getElementById('detail-modal').classList.add('show');
 }
 function normalizeMemberMoves(member){member.moves=(Array.isArray(member.moves)?member.moves:[]).map(v=>String(v||'').trim()).filter(Boolean).slice(0,4);while(member.moves.length<4) member.moves.push('');}
@@ -624,6 +710,10 @@ async function init(){
   [POKEMON_DATA,MOVES_DATA,SEASON_DATA,POKEMON_MOVES,MEGA_DATA]=await Promise.all([fetchJson('pokemon.json',[]),fetchJson('moves.json',[]),fetchJson('season.json',{seasons:[]}),fetchJson('pokemon_moves.json',{pokemon:{}}),fetchJson('mega.json',{rows:[],baseToForms:{},formToBase:{}})]);
   POKEMON_MOVES=POKEMON_MOVES && POKEMON_MOVES.pokemon ? POKEMON_MOVES.pokemon : {};
   POKE_MAP={};POKEMON_DATA.forEach(p=>{POKE_MAP[p.name]=p;POKE_MAP[normalizeMoveDisplay(p.name)]=p;});
+  Object.entries(SPECIAL_FORM_GROUPS).forEach(([base,cfg])=>{
+    const rep=POKEMON_DATA.find(p=>p.name===cfg.preferred) || (cfg.forms||[]).map(n=>POKEMON_DATA.find(p=>p.name===n)).find(Boolean);
+    if(rep){POKE_MAP[base]=rep;POKE_MAP[normalizeMoveDisplay(base)]=rep;}
+  });
   MOVE_MAP={};MOVES_DATA.forEach(m=>{MOVE_MAP[normalizeKey(m.name)]=m;});
   const labels=Array.isArray(SEASON_DATA.seasons)?SEASON_DATA.seasons:[];
   const sorted=window.pokeEdgeRankingSeason?window.pokeEdgeRankingSeason.sortLabels(labels,true):labels.slice().sort().reverse();
