@@ -29,43 +29,69 @@ const ROLE_MOVES = {
   support: ["あくび","おにび","ちょうはつ","アンコール","リフレクター","ひかりのかべ","このゆびとまれ"]
 };
 
+const NATURES = {
+  "がんばりや":{atk:1,def:1,spa:1,spd:1,spe:1}, "すなお":{atk:1,def:1,spa:1,spd:1,spe:1}, "てれや":{atk:1,def:1,spa:1,spd:1,spe:1}, "きまぐれ":{atk:1,def:1,spa:1,spd:1,spe:1}, "まじめ":{atk:1,def:1,spa:1,spd:1,spe:1},
+  "さみしがり":{atk:1.1,def:.9,spa:1,spd:1,spe:1}, "いじっぱり":{atk:1.1,def:1,spa:.9,spd:1,spe:1}, "やんちゃ":{atk:1.1,def:1,spa:1,spd:.9,spe:1}, "ゆうかん":{atk:1.1,def:1,spa:1,spd:1,spe:.9},
+  "ずぶとい":{atk:.9,def:1.1,spa:1,spd:1,spe:1}, "わんぱく":{atk:1,def:1.1,spa:.9,spd:1,spe:1}, "のうてんき":{atk:1,def:1.1,spa:1,spd:.9,spe:1}, "のんき":{atk:1,def:1.1,spa:1,spd:1,spe:.9},
+  "ひかえめ":{atk:.9,def:1,spa:1.1,spd:1,spe:1}, "おっとり":{atk:1,def:.9,spa:1.1,spd:1,spe:1}, "うっかりや":{atk:1,def:1,spa:1.1,spd:.9,spe:1}, "れいせい":{atk:1,def:1,spa:1.1,spd:1,spe:.9},
+  "おだやか":{atk:.9,def:1,spa:1,spd:1.1,spe:1}, "おとなしい":{atk:1,def:1,spa:.9,spd:1.1,spe:1}, "しんちょう":{atk:1,def:1,spa:.9,spd:1.1,spe:1}, "なまいき":{atk:1,def:1,spa:1,spd:1.1,spe:.9},
+  "おくびょう":{atk:1,def:1,spa:1,spd:.9,spe:1.1}, "せっかち":{atk:1,def:.9,spa:1,spd:1,spe:1.1}, "ようき":{atk:1,def:1,spa:.9,spd:1,spe:1.1}, "むじゃき":{atk:1,def:1,spa:1,spd:.9,spe:1.1}
+};
+
 const $ = (id) => document.getElementById(id);
+const PARTY_DRAFT_KEY = "pokeedge_party_draft_v1";
+const PARTY_LIST_KEY = "pokeedge_parties";
 const state = {
   pokemon: [],
+  moves: [],
   byName: new Map(),
+  moveByName: new Map(),
   ranking: new Map(),
   partySamples: [],
+  savedParties: [],
   player: Array(6).fill(null),
   opponent: Array(6).fill(null),
   activeSide: "player",
   leadName: "",
+  secondName: "",
   predictions: null
 };
 
 init();
 
 async function init(){
-  const [pokemon, ranking, partyList] = await Promise.all([
+  const [pokemon, ranking, partyList, moves] = await Promise.all([
     fetchJson("pokemon.json", []),
     fetchJson("season_ranking_single.json", {rows: []}),
-    fetchJson("party_list.json", {parties: []})
+    fetchJson("party_list.json", {parties: []}),
+    fetchJson("moves.json", [])
   ]);
   state.pokemon = pokemon.filter(p => p && p.name).map(p => ({...p, types: [p.type1, p.type2].filter(Boolean)}));
+  state.moves = moves.filter(m => m && m.name);
   state.pokemon.forEach(p => state.byName.set(p.name, p));
+  state.moves.forEach(m => state.moveByName.set(m.name, m));
   (ranking.rows || []).forEach(r => state.ranking.set(displayName(r.name || r.siteName), r));
   state.partySamples = partyList.parties || [];
+  state.savedParties = buildSavedPartyOptions(partyList);
   bind();
   renderAll();
-  $("status").textContent = `読込完了: ${state.pokemon.length}匹 / ランキング${state.ranking.size}件`;
+  renderSavedPartySelect();
+  $("status").textContent = `読込完了: ${state.pokemon.length}匹 / ランキング${state.ranking.size}件 / パーティ${state.savedParties.length}件`;
 }
 
 function bind(){
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
   $("playerSearch").addEventListener("input", () => renderSuggest("player"));
   $("opponentSearch").addEventListener("input", () => renderSuggest("opponent"));
   $("playerClear").addEventListener("click", () => { state.player = Array(6).fill(null); renderAll(); });
-  $("opponentClear").addEventListener("click", () => { state.opponent = Array(6).fill(null); state.leadName = ""; state.predictions = null; renderAll(); });
+  $("opponentClear").addEventListener("click", () => { state.opponent = Array(6).fill(null); state.leadName = ""; state.secondName = ""; state.predictions = null; renderAll(); });
   $("runPredict").addEventListener("click", runPredict);
   $("loadSample").addEventListener("click", loadSample);
+  $("loadSavedParty").addEventListener("click", loadSelectedSavedParty);
+  $("loadPartyDraft").addEventListener("click", loadPartyDraft);
+  $("runDamage").addEventListener("click", renderDamageResults);
+  $("damagePlayerSelect").addEventListener("change", renderDamageResults);
+  $("damageOpponentSelect").addEventListener("change", renderDamageResults);
   $("savePlayer").addEventListener("click", () => {
     localStorage.setItem("selection_predictor_player", JSON.stringify(state.player.map(p => p?.name || "")));
     $("status").textContent = "自分6匹を保存しました";
@@ -75,6 +101,16 @@ function bind(){
     state.player = Array(6).fill(null).map((_, i) => state.byName.get(names[i]) || null);
     renderAll();
   });
+}
+
+function switchTab(tab){
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+  $("predictTab").classList.toggle("active", tab === "predict");
+  $("damageTab").classList.toggle("active", tab === "damage");
+  if(tab === "damage") {
+    renderDamageSelectors();
+    renderDamageResults();
+  }
 }
 
 async function fetchJson(path, fallback){
@@ -95,6 +131,121 @@ function renderAll(){
   renderSuggest("opponent");
   renderLeadPicker();
   renderResults();
+  renderDamageSelectors();
+}
+
+function buildSavedPartyOptions(partyList){
+  const local = safeJson(localStorage.getItem(PARTY_LIST_KEY), []);
+  const draft = safeJson(localStorage.getItem(PARTY_DRAFT_KEY), null);
+  const draftRecord = draft && Array.isArray(draft.members) && draft.members.length ? [{
+    id: "party-html-draft",
+    name: draft.saveName ? `編集中: ${draft.saveName}` : "編集中: party.html",
+    data: {members: draft.members},
+    draft: true
+  }] : [];
+  const presets = (partyList.parties || []).map((party, index) => ({
+    id: `preset-${party.id || party.no || index}`,
+    name: party.name || `サンプルパーティ ${party.no || index + 1}`,
+    data: {
+      members: (party.members || []).map(member => ({
+        pokeName: member.pokemon || member.pokeName || member.name || "",
+        nature: member.nature || "がんばりや",
+        item: member.item || "",
+        ability: member.ability || "",
+        ev: member.ev || {},
+        moves: (member.moves || []).map(move => typeof move === "string" ? {name: move} : move),
+        lv: member.lv || 50,
+        iv: member.iv || 31,
+        gameMode: member.gameMode || "champions"
+      })).filter(member => member.pokeName)
+    },
+    preset: true
+  }));
+  return [...draftRecord, ...normalizePartyRecords(local), ...presets].filter(record => partyMembers(record).length);
+}
+
+function normalizePartyRecords(records){
+  return (Array.isArray(records) ? records : []).map((record, index) => {
+    const data = record?.data || record || {};
+    return {
+      id: record?.id || `local-${index}`,
+      name: record?.name || data.name || `保存パーティ ${index + 1}`,
+      data
+    };
+  });
+}
+
+function partyMembers(record){
+  const data = record?.data || record || {};
+  return Array.isArray(data.members) ? data.members : [];
+}
+
+function renderSavedPartySelect(){
+  const select = $("savedPartySelect");
+  if(!select) return;
+  select.innerHTML = `<option value="">保存パーティを選択</option>` + state.savedParties.map((record, index) => {
+    const names = partyMembers(record).map(memberName).filter(Boolean).slice(0,6).join(" / ");
+    return `<option value="${index}">${escapeHtml(record.name)}｜${escapeHtml(names)}</option>`;
+  }).join("");
+}
+
+function loadSelectedSavedParty(){
+  const index = Number($("savedPartySelect").value);
+  const record = state.savedParties[index];
+  if(!record){
+    $("status").textContent = "読み込むパーティを選んでください";
+    return;
+  }
+  const members = partyMembers(record).map(memberToPokemon).filter(Boolean).slice(0,6);
+  if(members.length !== 6){
+    $("status").textContent = "このパーティは6匹読み込めません";
+    return;
+  }
+  state.player = members;
+  state.predictions = null;
+  renderAll();
+  $("status").textContent = `「${record.name}」を自分側に読み込みました`;
+}
+
+function loadPartyDraft(){
+  const draft = safeJson(localStorage.getItem(PARTY_DRAFT_KEY), null);
+  if(!draft || !Array.isArray(draft.members) || !draft.members.length){
+    $("status").textContent = "party.htmlの編集中パーティが見つかりません。party.htmlで一度編集/保存してください。";
+    return;
+  }
+  const members = draft.members.map(memberToPokemon).filter(Boolean).slice(0,6);
+  if(members.length !== 6){
+    $("status").textContent = `party.html編集中パーティを${members.length}匹だけ読み込みました。6匹揃っていません。`;
+  } else {
+    $("status").textContent = `party.html編集中の「${draft.saveName || "パーティ"}」を読み込みました`;
+  }
+  state.player = Array(6).fill(null).map((_, i) => members[i] || null);
+  state.predictions = null;
+  renderAll();
+}
+
+function memberToPokemon(member){
+  const name = memberName(member);
+  const base = state.byName.get(name);
+  if(!base) return null;
+  return {
+    ...base,
+    types: [base.type1, base.type2].filter(Boolean),
+    build: {
+      nature: member.nature || "がんばりや",
+      item: member.item || "",
+      ability: member.ability || "",
+      ev: member.ev || {},
+      moves: (member.moves || []).map(move => typeof move === "string" ? move : move?.name).filter(Boolean).slice(0,4),
+      lv: member.lv || 50,
+      iv: member.iv || 31,
+      gameMode: member.gameMode || "champions"
+    }
+  };
+}
+
+function memberName(member){
+  return displayName(member?.pokeName || member?.pokemon || member?.name || "");
 }
 
 function renderSlots(side){
@@ -223,13 +374,26 @@ function renderLeadPicker(){
       <div class="mini-label">初手</div>
       ${monHtml(p)}
     </button>
-  `).join("");
+  `).join("") + (state.leadName ? opponent.filter(p => p.name !== state.leadName).map(p => `
+    <button class="lead-btn ${state.secondName === p.name ? "active" : ""}" data-second="${escapeAttr(p.name)}">
+      <div class="mini-label">2匹目</div>
+      ${monHtml(p)}
+    </button>
+  `).join("") : "");
   box.querySelectorAll(".lead-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      state.leadName = btn.dataset.name;
+      if(btn.dataset.name){
+        state.leadName = btn.dataset.name;
+        state.secondName = "";
+      }
+      if(btn.dataset.second){
+        state.secondName = btn.dataset.second;
+      }
       if(!state.predictions) runPredict();
       renderLeadPicker();
       renderAfterLead();
+      renderDamageSelectors();
+      renderDamageResults();
     });
   });
 }
@@ -238,6 +402,117 @@ function renderResults(){
   renderComboList("opponentPredictions", state.predictions?.opponentCombos || [], "相手選出候補");
   renderComboList("playerRecommendations", state.predictions?.playerCombos || [], "自分の候補");
   renderAfterLead();
+  renderDamageSelectors();
+}
+
+function renderDamageSelectors(){
+  const playerSelect = $("damagePlayerSelect");
+  const opponentSelect = $("damageOpponentSelect");
+  if(!playerSelect || !opponentSelect) return;
+  const playerRows = state.predictions?.playerCombos || [];
+  const opponentRows = damageOpponentRows();
+  playerSelect.innerHTML = playerRows.length
+    ? playerRows.slice(0,8).map((row,i)=>`<option value="${i}">自分候補${i+1}: ${row.mons.map(m=>m.name).join(" / ")}</option>`).join("")
+    : `<option value="">自分推奨選出なし</option>`;
+  opponentSelect.innerHTML = opponentRows.length
+    ? opponentRows.slice(0,8).map((row,i)=>`<option value="${i}">相手候補${i+1}: ${row.mons.map(m=>m.name).join(" / ")}</option>`).join("")
+    : `<option value="">相手予想なし</option>`;
+}
+
+function damageOpponentRows(){
+  const opponent = compact(state.opponent);
+  const lead = opponent.find(p => p.name === state.leadName);
+  const second = opponent.find(p => p.name === state.secondName);
+  if(lead && second){
+    const rest = opponent.filter(p => p.name !== lead.name && p.name !== second.name);
+    return rest.map(p => ({mons:[lead, second, p], score: scoreLastOne(p, lead, second, rest, compact(state.player)).score})).sort((a,b)=>b.score-a.score);
+  }
+  if(lead){
+    const rest = opponent.filter(p => p.name !== lead.name);
+    return comboIndexes(rest.length,2).map(idxs => ({mons:[lead, ...idxs.map(i=>rest[i])], score: scoreBackTwo(idxs.map(i=>rest[i]), lead, rest, compact(state.player)).score})).sort((a,b)=>b.score-a.score);
+  }
+  return state.predictions?.opponentCombos || [];
+}
+
+function renderDamageResults(){
+  const box = $("damageResults");
+  if(!box) return;
+  const playerRows = state.predictions?.playerCombos || [];
+  const opponentRows = damageOpponentRows();
+  const playerRow = playerRows[Number($("damagePlayerSelect")?.value) || 0];
+  const opponentRow = opponentRows[Number($("damageOpponentSelect")?.value) || 0];
+  if(!playerRow || !opponentRow){
+    box.innerHTML = `<div class="empty">先に6匹ずつ入力して「選出予測する」を押してください。</div>`;
+    return;
+  }
+  box.innerHTML = playerRow.mons.map(attacker => opponentRow.mons.map(defender => damageCard(attacker, defender)).join("")).join("");
+}
+
+function damageCard(attacker, defender){
+  const moves = getFourMoves(attacker);
+  return `<article class="damage-card">
+    <div class="damage-title"><span>${escapeHtml(attacker.name)} → ${escapeHtml(defender.name)}</span><span>S ${attacker.spe}/${defender.spe}</span></div>
+    ${moves.map(move => {
+      const result = calcSimpleDamage(attacker, defender, move);
+      return `<div class="damage-row"><strong>${escapeHtml(move.name)}</strong> ${escapeHtml(move.type || "-")} / ${escapeHtml(move.category || "-")} / 威力 ${move.power || "-"}<br>${result.text} (${result.percentText}) 相性 x${result.eff}</div>`;
+    }).join("") || `<div class="damage-row">技候補がありません。</div>`}
+  </article>`;
+}
+
+function getFourMoves(pokemon){
+  const buildMoves = (pokemon.build?.moves || []).map(name => state.moveByName.get(name)).filter(Boolean);
+  const rankingMoves = (rankingRow(pokemon.name)?.moves || []).map(parseUsageName).map(name => state.moveByName.get(name)).filter(Boolean);
+  return uniqByName([...buildMoves, ...rankingMoves]).filter(move => move.category !== "変化").slice(0,4);
+}
+
+function calcSimpleDamage(attacker, defender, move){
+  if(!move || move.category === "変化" || !Number(move.power)){
+    return {min:0,max:0,eff:1,text:"変化技",percentText:"-"};
+  }
+  const lv = 50;
+  const atkStats = calcStats(attacker);
+  const defStats = calcStats(defender);
+  const category = move.category === "物理" ? "物理" : "特殊";
+  const atk = category === "物理" ? atkStats.atk : atkStats.spa;
+  const def = category === "物理" ? defStats.def : defStats.spd;
+  const eff = effectiveness(move.type, defender);
+  if(eff === 0) return {min:0,max:0,eff:0,text:"無効",percentText:"0%"};
+  const stab = getTypes(attacker).includes(move.type) ? 1.5 : 1;
+  const base = Math.floor(Math.floor(Math.floor((lv * 2 / 5 + 2) * Number(move.power) * atk / Math.max(1, def)) / 50 + 2) * stab * eff);
+  const min = Math.max(1, Math.floor(base * 0.85));
+  const maxD = Math.max(min, base);
+  const hp = Math.max(1, defStats.hp);
+  return {
+    min,
+    max: maxD,
+    eff,
+    text: `${min}〜${maxD}`,
+    percentText: `${Math.floor(min / hp * 100)}〜${Math.floor(maxD / hp * 100)}%`
+  };
+}
+
+function calcStats(pokemon){
+  const build = pokemon.build || {};
+  const ev = build.ev || {};
+  const nature = NATURES[build.nature || "がんばりや"] || NATURES["がんばりや"];
+  const iv = Number(build.iv || 31);
+  const lv = Number(build.lv || 50);
+  return {
+    hp: calcHP(Number(pokemon.hp||0), iv, Number(ev.hp||0), lv, true),
+    atk: calcStat(Number(pokemon.atk||0), iv, Number(ev.atk||0), lv, nature.atk, true),
+    def: calcStat(Number(pokemon.def||0), iv, Number(ev.def||0), lv, nature.def, true),
+    spa: calcStat(Number(pokemon.spa||0), iv, Number(ev.spa||0), lv, nature.spa, true),
+    spd: calcStat(Number(pokemon.spd||0), iv, Number(ev.spd||0), lv, nature.spd, true),
+    spe: calcStat(Number(pokemon.spe||0), iv, Number(ev.spe||0), lv, nature.spe, true)
+  };
+}
+
+function calcHP(base, iv, ev, lv, champions){
+  return champions ? Math.floor((Math.floor((base * 2 + iv) * lv / 100) + 10 + lv)) + ev : Math.floor((Math.floor((base * 2 + iv + Math.floor(ev / 4)) * lv / 100) + 10 + lv));
+}
+
+function calcStat(base, iv, ev, lv, nature, champions){
+  return champions ? Math.floor((Math.floor((base * 2 + iv) * lv / 100) + 5) * nature) + Math.floor(ev * nature) : Math.floor((Math.floor((base * 2 + iv + Math.floor(ev / 4)) * lv / 100) + 5) * nature);
 }
 
 function renderComboList(id, rows, label){
@@ -264,15 +539,34 @@ function renderAfterLead(){
     return;
   }
   const lead = opponent.find(p => p.name === state.leadName);
-  const rest = opponent.filter(p => p.name !== state.leadName);
-  const rows = comboIndexes(rest.length, 2).map(idxs => scoreBackTwo(idxs.map(i => rest[i]), lead, rest, player)).sort((a,b)=>b.score-a.score);
+  const second = opponent.find(p => p.name === state.secondName);
+  const rest = opponent.filter(p => p.name !== state.leadName && p.name !== state.secondName);
+  const rows = second
+    ? rest.map(p => scoreLastOne(p, lead, second, rest, player)).sort((a,b)=>b.score-a.score)
+    : comboIndexes(rest.length, 2).map(idxs => scoreBackTwo(idxs.map(i => rest[i]), lead, rest, player)).sort((a,b)=>b.score-a.score);
   box.innerHTML = rows.slice(0, 8).map((row, i) => `
     <article class="result ${i === 0 ? "top" : ""}">
-      <div class="result-head"><strong>裏候補 ${i + 1}</strong><span class="score">${row.score}</span></div>
+      <div class="result-head"><strong>${second ? "3匹目候補" : "裏候補"} ${i + 1}</strong><span class="score">${row.score}</span></div>
       <div class="mons">${row.mons.map(m => `<span class="chip">${escapeHtml(m.name)}</span>`).join("")}</div>
       <div class="note">${row.notes.map(escapeHtml).join("<br>")}</div>
     </article>
   `).join("");
+}
+
+function scoreLastOne(mon, lead, second, rest, player){
+  const picked = [lead, second, mon];
+  const need = necessityScore(mon, lead, rest, player);
+  const secondNeed = necessityScore(mon, second, rest, player);
+  const score = need.score * 1.05 + secondNeed.score + coverageDiversity(picked) * 8 + usageScore(mon.name) - typeDupPenalty(picked) * 6;
+  return {
+    mons: [mon],
+    score: Math.round(score),
+    notes: [
+      `${lead.name}・${second.name}で見にくい相手への補完を評価`,
+      `${mon.name}: ${need.reason}`,
+      `${second.name}との補完: ${secondNeed.reason}`
+    ]
+  };
 }
 
 function scoreBackTwo(backMons, lead, rest, player){
@@ -439,9 +733,19 @@ function compact(arr){ return arr.filter(Boolean); }
 function average(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
 function max(arr){ return arr.length ? Math.max(...arr) : 0; }
 function uniq(arr){ return [...new Set(arr.filter(Boolean))]; }
+function uniqByName(arr){
+  const seen = new Set();
+  return arr.filter(item => {
+    const name = item?.name;
+    if(!name || seen.has(name)) return false;
+    seen.add(name);
+    return true;
+  });
+}
 function displayName(name){ return String(name || "").trim(); }
 function speciesKey(name){ return displayName(name).replace(/^メガ/,"").replace(/[XYZ]$/,""); }
 function normalize(text){ return String(text || "").trim().toLowerCase(); }
+function safeJson(text, fallback){ try{ const value = JSON.parse(text || ""); return value ?? fallback; }catch(_e){ return fallback; } }
 function typeText(p){ return getTypes(p).join("/") || "-"; }
 function monHtml(p){
   return `<div class="slot-name">${escapeHtml(p.name)}</div><div class="types">${getTypes(p).map(t=>`<span class="type">${escapeHtml(t)}</span>`).join("")}</div><div class="slot-meta">H${p.hp} A${p.atk} B${p.def} C${p.spa} D${p.spd} S${p.spe}</div>`;
