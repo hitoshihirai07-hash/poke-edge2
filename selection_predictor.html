@@ -76,7 +76,15 @@ input,select,button{font:inherit}
 .damage-title{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:900}
 .damage-row{border-top:1px solid var(--border);padding-top:6px;font-size:11px;color:var(--text2);line-height:1.55}
 .damage-row strong{color:var(--text)}
-@media(max-width:980px){.grid,.results,.damage-layout,.damage-grid{grid-template-columns:1fr}.hero{display:block}.status{text-align:left;margin-top:10px}.slots,.lead-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.usage-profile{border-top:1px solid var(--border);padding-top:6px;display:grid;gap:3px}
+.usage-line{font-size:10px;color:var(--text2);line-height:1.45}
+.usage-line strong{color:var(--accent3);font-weight:900}
+.manual-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.pick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pick-card{border:1px solid var(--border);background:var(--bg2);color:var(--text);padding:9px;cursor:pointer;text-align:left;min-height:72px}
+.pick-card.active{border-color:var(--accent3);box-shadow:inset 3px 0 0 var(--accent3)}
+.manual-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media(max-width:980px){.grid,.results,.damage-layout,.damage-grid,.manual-layout,.manual-summary{grid-template-columns:1fr}.hero{display:block}.status{text-align:left;margin-top:10px}.slots,.lead-picker,.pick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -102,6 +110,7 @@ input,select,button{font:inherit}
 
   <div class="tabs">
     <button class="tab-btn active" data-tab="predict">選出予測</button>
+    <button class="tab-btn" data-tab="manual">手動選出</button>
     <button class="tab-btn" data-tab="damage">4技ダメージ</button>
   </div>
 
@@ -170,6 +179,34 @@ input,select,button{font:inherit}
       <div id="afterLeadPredictions" class="result-list"></div>
     </div>
   </section>
+  </section>
+
+  <section id="manualTab" class="tab-panel">
+    <section class="manual-layout">
+      <div class="panel">
+        <h2>自分の選出を手動指定</h2>
+        <p class="sub">自分の6匹から3匹を選びます。予測結果と違う並びを試したい時に使います。</p>
+        <div id="manualPlayerPick" class="pick-grid"></div>
+      </div>
+      <div class="panel">
+        <h2>相手の選出を手動指定</h2>
+        <p class="sub">相手の6匹から3匹を選びます。初手確認後や読み直し用に固定できます。</p>
+        <div id="manualOpponentPick" class="pick-grid"></div>
+      </div>
+    </section>
+    <section class="panel" style="margin-top:14px">
+      <h2>手動選出の確認</h2>
+      <div class="controls" style="margin:0 0 10px">
+        <button class="btn" id="applyTopManual">予測1位をセット</button>
+        <button class="btn" id="clearManual">手動選出をクリア</button>
+      </div>
+      <div id="manualSummary" class="manual-summary"></div>
+    </section>
+    <section class="panel" style="margin-top:14px">
+      <h2>手動選出同士の4技ダメージ</h2>
+      <p class="sub">自分3匹と相手3匹が揃うと、各対面の4技ダメージを表示します。</p>
+      <div id="manualDamageResults" class="damage-grid"></div>
+    </section>
   </section>
 
   <section id="damageTab" class="tab-panel">

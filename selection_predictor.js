@@ -56,6 +56,8 @@ const state = {
   activeSide: "player",
   leadName: "",
   secondName: "",
+  manualPlayer: [],
+  manualOpponent: [],
   predictions: null
 };
 
@@ -87,8 +89,8 @@ function bind(){
   document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
   $("playerSearch").addEventListener("input", () => renderSuggest("player"));
   $("opponentSearch").addEventListener("input", () => renderSuggest("opponent"));
-  $("playerClear").addEventListener("click", () => { state.player = Array(6).fill(null); renderAll(); });
-  $("opponentClear").addEventListener("click", () => { state.opponent = Array(6).fill(null); state.leadName = ""; state.secondName = ""; state.predictions = null; renderAll(); });
+  $("playerClear").addEventListener("click", () => { state.player = Array(6).fill(null); state.manualPlayer = []; renderAll(); });
+  $("opponentClear").addEventListener("click", () => { state.opponent = Array(6).fill(null); state.manualOpponent = []; state.leadName = ""; state.secondName = ""; state.predictions = null; renderAll(); });
   $("runPredict").addEventListener("click", runPredict);
   $("loadSample").addEventListener("click", loadSample);
   $("loadSavedParty").addEventListener("click", loadSelectedSavedParty);
@@ -96,6 +98,12 @@ function bind(){
   $("runDamage").addEventListener("click", renderDamageResults);
   $("damagePlayerSelect").addEventListener("change", renderDamageResults);
   $("damageOpponentSelect").addEventListener("change", renderDamageResults);
+  $("applyTopManual").addEventListener("click", applyTopPredictionToManual);
+  $("clearManual").addEventListener("click", () => {
+    state.manualPlayer = [];
+    state.manualOpponent = [];
+    renderManualTab();
+  });
   $("savePlayer").addEventListener("click", () => {
     localStorage.setItem("selection_predictor_player", JSON.stringify(state.player.map(p => p?.name || "")));
     $("status").textContent = "自分6匹を保存しました";
@@ -110,7 +118,11 @@ function bind(){
 function switchTab(tab){
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
   $("predictTab").classList.toggle("active", tab === "predict");
+  $("manualTab").classList.toggle("active", tab === "manual");
   $("damageTab").classList.toggle("active", tab === "damage");
+  if(tab === "manual") {
+    renderManualTab();
+  }
   if(tab === "damage") {
     renderDamageSelectors();
     renderDamageResults();
@@ -158,6 +170,7 @@ function renderAll(){
   renderLeadPicker();
   renderResults();
   renderDamageSelectors();
+  renderManualTab();
 }
 
 function buildSavedPartyOptions(partyList){
@@ -292,12 +305,37 @@ function memberName(member){
   return displayName(member?.pokeName || member?.pokemon || member?.name || "");
 }
 
+function usageProfileHtml(pokemon){
+  const row = rankingRow(pokemon.name);
+  if(!row) {
+    return `<div class="usage-profile"><div class="usage-line">型候補: ランキングデータなし</div></div>`;
+  }
+  const lines = [
+    ["技", row.moves, 3],
+    ["持ち物", row.items, 2],
+    ["特性", row.abilities, 2],
+    ["性格", row.natures, 1]
+  ].map(([label, values, count]) => usageLine(label, values, count)).filter(Boolean);
+  return lines.length ? `<div class="usage-profile">${lines.join("")}</div>` : "";
+}
+
+function usageLine(label, values, count){
+  const list = (Array.isArray(values) ? values : []).slice(0, count).map(shortUsageText).filter(Boolean);
+  if(!list.length) return "";
+  return `<div class="usage-line"><strong>${escapeHtml(label)}</strong> ${list.map(escapeHtml).join(" / ")}</div>`;
+}
+
+function shortUsageText(text){
+  return String(text || "").replace(/\s+/g, " ").trim();
+}
+
 function renderSlots(side){
   const box = $(side === "player" ? "playerSlots" : "opponentSlots");
   const party = state[side];
   box.innerHTML = party.map((p, i) => `
     <div class="slot ${p ? "filled" : ""}" data-side="${side}" data-index="${i}">
       ${p ? monHtml(p) : `<div class="slot-name">${i + 1}枠</div><div class="slot-meta">未設定</div>`}
+      ${p && side === "opponent" ? usageProfileHtml(p) : ""}
       ${p ? megaControlsHtml(p, side, i) : ""}
     </div>
   `).join("");
@@ -307,6 +345,7 @@ function renderSlots(side){
       const s = el.dataset.side;
       const i = Number(el.dataset.index);
       if(state[s][i]){
+        removeManualName(s, state[s][i].name);
         state[s][i] = null;
         if(s === "opponent") state.leadName = "";
         renderAll();
@@ -388,6 +427,7 @@ function switchMega(side, index, targetName){
     if(state.leadName === current.name) state.leadName = target.name;
     if(state.secondName === current.name) state.secondName = target.name;
   }
+  replaceManualName(side, current.name, target.name);
   state.predictions = null;
   renderAll();
   $("status").textContent = `${current.name} → ${target.name} に切り替えました`;
@@ -532,6 +572,122 @@ function renderDamageResults(){
     return;
   }
   box.innerHTML = playerRow.mons.map(attacker => opponentRow.mons.map(defender => damageCard(attacker, defender)).join("")).join("");
+}
+
+function renderManualTab(){
+  if(!$("manualPlayerPick") || !$("manualOpponentPick")) return;
+  pruneManualSelections();
+  renderManualPickGroup("player");
+  renderManualPickGroup("opponent");
+  renderManualSummary();
+  renderManualDamageResults();
+}
+
+function renderManualPickGroup(side){
+  const box = $(side === "player" ? "manualPlayerPick" : "manualOpponentPick");
+  const party = compact(state[side]);
+  const selected = state[manualKey(side)];
+  if(!party.length){
+    box.innerHTML = `<div class="empty wide">${side === "player" ? "自分" : "相手"}の6匹を先に入力してください。</div>`;
+    return;
+  }
+  box.innerHTML = party.map(p => `
+    <button type="button" class="pick-card ${selected.includes(p.name) ? "active" : ""}" data-side="${side}" data-name="${escapeAttr(p.name)}">
+      <div class="mini-label">${selected.includes(p.name) ? "選出中" : "候補"}</div>
+      ${monHtml(p)}
+    </button>
+  `).join("");
+  box.querySelectorAll("button[data-name]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      toggleManualPick(btn.dataset.side, btn.dataset.name);
+      renderManualTab();
+    });
+  });
+}
+
+function toggleManualPick(side, name){
+  const key = manualKey(side);
+  const list = state[key];
+  if(list.includes(name)){
+    state[key] = list.filter(x => x !== name);
+    return;
+  }
+  if(list.length >= 3){
+    $("status").textContent = `${side === "player" ? "自分" : "相手"}の手動選出は3匹までです`;
+    return;
+  }
+  state[key] = [...list, name];
+}
+
+function renderManualSummary(){
+  const box = $("manualSummary");
+  if(!box) return;
+  const player = manualMons("player");
+  const opponent = manualMons("opponent");
+  box.innerHTML = `
+    <div class="empty">
+      <strong>自分:</strong><br>
+      ${player.length ? player.map(m => escapeHtml(m.name)).join(" / ") : "未選択"}
+    </div>
+    <div class="empty">
+      <strong>相手:</strong><br>
+      ${opponent.length ? opponent.map(m => escapeHtml(m.name)).join(" / ") : "未選択"}
+    </div>
+  `;
+}
+
+function renderManualDamageResults(){
+  const box = $("manualDamageResults");
+  if(!box) return;
+  const player = manualMons("player");
+  const opponent = manualMons("opponent");
+  if(player.length !== 3 || opponent.length !== 3){
+    box.innerHTML = `<div class="empty">自分3匹・相手3匹を選ぶとダメージを表示します。</div>`;
+    return;
+  }
+  box.innerHTML = player.map(attacker => opponent.map(defender => damageCard(attacker, defender)).join("")).join("");
+}
+
+function applyTopPredictionToManual(){
+  if(!state.predictions && compact(state.player).length === 6 && compact(state.opponent).length === 6){
+    runPredict();
+  }
+  const playerRow = state.predictions?.playerCombos?.[0];
+  const opponentRow = damageOpponentRows()[0] || state.predictions?.opponentCombos?.[0];
+  if(!playerRow || !opponentRow){
+    $("status").textContent = "先に6匹ずつ入力して予測してください";
+    return;
+  }
+  state.manualPlayer = playerRow.mons.map(m => m.name).slice(0,3);
+  state.manualOpponent = opponentRow.mons.map(m => m.name).slice(0,3);
+  renderManualTab();
+  $("status").textContent = "予測1位を手動選出にセットしました";
+}
+
+function manualMons(side){
+  const party = compact(state[side]);
+  return state[manualKey(side)].map(name => party.find(p => p.name === name)).filter(Boolean);
+}
+
+function manualKey(side){
+  return side === "player" ? "manualPlayer" : "manualOpponent";
+}
+
+function pruneManualSelections(){
+  ["player","opponent"].forEach(side => {
+    const names = new Set(compact(state[side]).map(p => p.name));
+    state[manualKey(side)] = state[manualKey(side)].filter(name => names.has(name));
+  });
+}
+
+function removeManualName(side, name){
+  const key = manualKey(side);
+  state[key] = state[key].filter(x => x !== name);
+}
+
+function replaceManualName(side, fromName, toName){
+  const key = manualKey(side);
+  state[key] = state[key].map(name => name === fromName ? toName : name);
 }
 
 function damageCard(attacker, defender){
