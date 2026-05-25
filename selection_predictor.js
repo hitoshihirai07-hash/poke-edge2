@@ -49,6 +49,10 @@ const state = {
   megaByBase: new Map(),
   baseByMega: new Map(),
   ranking: new Map(),
+  rankingSeason: "",
+  rankingSource: "",
+  rankingUpdatedAt: "",
+  rankingError: "",
   partySamples: [],
   savedParties: [],
   player: Array(6).fill(null),
@@ -64,25 +68,31 @@ const state = {
 init();
 
 async function init(){
-  const [pokemon, ranking, partyList, moves, megaData] = await Promise.all([
+  const [pokemon, rankingBundle, partyList, moves, megaData] = await Promise.all([
     fetchJson("pokemon.json", []),
-    fetchJson("season_ranking_single.json", {rows: []}),
+    loadLatestRankingData(),
     fetchJson("party_list.json", {parties: []}),
     fetchJson("moves.json", []),
     fetchJson("mega.json", {rows: [], baseToForms: {}, formToBase: {}})
   ]);
+  const ranking = rankingBundle.data || {rows: []};
   state.pokemon = pokemon.filter(p => p && p.name).map(p => ({...p, types: [p.type1, p.type2].filter(Boolean)}));
   state.moves = moves.filter(m => m && m.name);
   state.pokemon.forEach(p => state.byName.set(p.name, p));
   state.moves.forEach(m => state.moveByName.set(m.name, m));
   (ranking.rows || []).forEach(r => state.ranking.set(displayName(r.name || r.siteName), r));
+  state.rankingSeason = rankingBundle.season || "";
+  state.rankingSource = rankingBundle.source || "";
+  state.rankingUpdatedAt = (ranking.rows || []).find(row => row?.updatedAt)?.updatedAt || "";
+  state.rankingError = rankingBundle.error || "";
   buildMegaMaps(megaData);
   state.partySamples = partyList.parties || [];
   state.savedParties = buildSavedPartyOptions(partyList);
   bind();
   renderAll();
   renderSavedPartySelect();
-  $("status").textContent = `読込完了: ${state.pokemon.length}匹 / ランキング${state.ranking.size}件 / パーティ${state.savedParties.length}件`;
+  renderRankingInfo();
+  $("status").textContent = `読込完了: ${state.pokemon.length}匹 / ランキング${state.rankingSeason || "-"} ${state.ranking.size}件 / パーティ${state.savedParties.length}件`;
 }
 
 function bind(){
@@ -131,13 +141,76 @@ function switchTab(tab){
 
 async function fetchJson(path, fallback){
   try{
-    const res = await fetch(path, {cache: "no-store"});
+    const res = await fetch(cacheBust(path), {cache: "no-store"});
     if(!res.ok) return fallback;
     return await res.json();
   }catch(e){
     $("status").textContent = "JSONを読めません。ローカルサーバー上で開いてください。";
     return fallback;
   }
+}
+
+async function fetchJsonOptional(path){
+  try{
+    const res = await fetch(cacheBust(path), {cache: "no-store"});
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(_e){
+    return null;
+  }
+}
+
+function cacheBust(path){
+  const sep = String(path).includes("?") ? "&" : "?";
+  return `${path}${sep}_=${Date.now()}`;
+}
+
+function renderRankingInfo(){
+  const box = $("rankingInfo");
+  if(!box) return;
+  const detail = state.rankingError
+    ? `<br><span class="rank-error">${escapeHtml(state.rankingError)}</span>`
+    : "";
+  box.innerHTML = `使用中ランキング: <strong>${escapeHtml(state.rankingSeason || "-")}</strong> / ${escapeHtml(state.rankingSource || "-")}${state.rankingUpdatedAt ? ` / 更新日 ${escapeHtml(state.rankingUpdatedAt)}` : ""}${detail}`;
+}
+
+async function loadLatestRankingData(){
+  const seasonData = await fetchJson("season.json", {seasons: ["S1"]});
+  const candidates = sortSeasonLabels(seasonData.seasons || ["S1"], true);
+  const latest = candidates[0] || "S1";
+  for(const season of candidates){
+    const source = rankingFileName("season_ranking_single", season);
+    const data = await fetchJsonOptional(source);
+    if(data && Array.isArray(data.rows) && data.rows.length){
+      return {data, season, source};
+    }
+  }
+  return {
+    data: {rows: []},
+    season: latest,
+    source: rankingFileName("season_ranking_single", latest),
+    error: `${latest}のランキングJSONを読めません。${rankingFileName("season_ranking_single", latest)} がGitHub上にあるか確認してください。`
+  };
+}
+
+function sortSeasonLabels(labels, desc = false){
+  return [...new Set((labels || []).filter(Boolean).map(label => String(label).trim()))].sort((a,b) => {
+    const av = seasonNumber(a);
+    const bv = seasonNumber(b);
+    if(av !== bv) return desc ? bv - av : av - bv;
+    return desc ? String(b).localeCompare(String(a), "ja") : String(a).localeCompare(String(b), "ja");
+  });
+}
+
+function seasonNumber(label){
+  const match = String(label || "").match(/(\d+)/);
+  return match ? Number(match[1]) : 0;
+}
+
+function rankingFileName(baseName, season){
+  const n = seasonNumber(season);
+  if(!n || n === 1) return `${baseName}.json`;
+  return `${baseName}_s${n}.json`;
 }
 
 function buildMegaMaps(megaData){
@@ -305,17 +378,21 @@ function memberName(member){
   return displayName(member?.pokeName || member?.pokemon || member?.name || "");
 }
 
-function usageProfileHtml(pokemon){
+function usageProfileHtml(pokemon, itemPrediction){
   const row = rankingRow(pokemon.name);
   if(!row) {
     return `<div class="usage-profile"><div class="usage-line">型候補: ランキングデータなし</div></div>`;
   }
-  const lines = [
+  const lines = [];
+  if(itemPrediction?.item){
+    lines.push(`<div class="usage-line predicted-item"><strong>持ち物予測</strong> ${escapeHtml(itemPrediction.item)}${itemPrediction.percent ? ` ${escapeHtml(itemPrediction.percentText)}` : ""}</div>`);
+  }
+  lines.push(...[
     ["技", row.moves, 3],
     ["持ち物", row.items, 2],
     ["特性", row.abilities, 2],
     ["性格", row.natures, 1]
-  ].map(([label, values, count]) => usageLine(label, values, count)).filter(Boolean);
+  ].map(([label, values, count]) => usageLine(label, values, count)).filter(Boolean));
   return lines.length ? `<div class="usage-profile">${lines.join("")}</div>` : "";
 }
 
@@ -329,13 +406,84 @@ function shortUsageText(text){
   return String(text || "").replace(/\s+/g, " ").trim();
 }
 
+function opponentItemPredictionMap(){
+  const opponent = compact(state.opponent);
+  if(opponent.length !== 6) return new Map();
+  const candidateRows = opponent.map((mon, index) => ({
+    mon,
+    index,
+    candidates: itemCandidates(mon).slice(0, 8)
+  }));
+  const ordered = [...candidateRows].sort((a,b) => {
+    const ac = a.candidates.length || 99;
+    const bc = b.candidates.length || 99;
+    return ac - bc || usageRank(a.mon.name) - usageRank(b.mon.name);
+  });
+  const best = {
+    score: -Infinity,
+    picks: Array(opponent.length).fill(null)
+  };
+
+  function walk(pos, used, picks, score){
+    if(pos >= ordered.length){
+      if(score > best.score){
+        best.score = score;
+        best.picks = [...picks];
+      }
+      return;
+    }
+    const row = ordered[pos];
+    const candidates = row.candidates.length ? row.candidates : [{item:"", percent:0, percentText:"", score:-100}];
+    candidates.forEach(candidate => {
+      if(candidate.item && used.has(candidate.item)) return;
+      if(candidate.item) used.add(candidate.item);
+      picks[row.index] = candidate.item ? candidate : null;
+      walk(pos + 1, used, picks, score + candidate.score);
+      picks[row.index] = null;
+      if(candidate.item) used.delete(candidate.item);
+    });
+  }
+
+  walk(0, new Set(), Array(opponent.length).fill(null), 0);
+  const out = new Map();
+  opponent.forEach((mon, index) => {
+    if(best.picks[index]) out.set(mon.name, best.picks[index]);
+  });
+  return out;
+}
+
+function itemCandidates(pokemon){
+  const row = rankingRow(pokemon.name);
+  return (row?.items || []).map((text, index) => {
+    const parsed = parseUsageEntry(text);
+    return {
+      ...parsed,
+      rank: index + 1,
+      score: parsed.percent + Math.max(0, 8 - index) * 0.01
+    };
+  }).filter(candidate => candidate.item);
+}
+
+function parseUsageEntry(text){
+  const raw = String(text || "").trim();
+  const match = raw.match(/^(.*?)\s*\(([\d.]+)%\)\s*$/);
+  const item = parseUsageName(match ? match[1] : raw);
+  const percent = match ? Number(match[2]) || 0 : 0;
+  return {
+    item,
+    percent,
+    percentText: match ? `(${match[2]}%)` : ""
+  };
+}
+
 function renderSlots(side){
   const box = $(side === "player" ? "playerSlots" : "opponentSlots");
   const party = state[side];
+  const itemPredictions = side === "opponent" ? opponentItemPredictionMap() : new Map();
   box.innerHTML = party.map((p, i) => `
     <div class="slot ${p ? "filled" : ""}" data-side="${side}" data-index="${i}">
       ${p ? monHtml(p) : `<div class="slot-name">${i + 1}枠</div><div class="slot-meta">未設定</div>`}
-      ${p && side === "opponent" ? usageProfileHtml(p) : ""}
+      ${p && side === "opponent" ? usageProfileHtml(p, itemPredictions.get(p.name)) : ""}
       ${p ? megaControlsHtml(p, side, i) : ""}
     </div>
   `).join("");

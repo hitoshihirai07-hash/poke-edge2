@@ -25,6 +25,9 @@ header{height:52px;display:flex;align-items:center;gap:14px;padding:0 18px;borde
 h1{margin:0;font-size:25px;letter-spacing:1px}
 .lead{margin:6px 0 0;color:var(--text2);font-size:13px;line-height:1.7}
 .status{border:1px solid var(--border);background:var(--panel);padding:9px 12px;color:var(--text2);font-size:12px;min-width:230px;text-align:right}
+.ranking-info{border:1px solid var(--border);background:var(--bg2);padding:8px 10px;color:var(--text2);font-size:11px;margin:0 0 14px;line-height:1.6}
+.ranking-info strong{color:var(--green)}
+.rank-error{color:var(--accent2);font-weight:800}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 .panel{border:1px solid var(--border);background:var(--panel);padding:14px;min-width:0}
 .panel h2{font-size:15px;margin:0 0 10px}
@@ -115,6 +118,7 @@ input,select,button{font:inherit}
     <button class="tab-btn" data-tab="manual">手動選出</button>
     <button class="tab-btn" data-tab="damage">4技ダメージ</button>
   </div>
+  <div id="rankingInfo" class="ranking-info">使用中ランキング: 読み込み中</div>
 
   <section id="predictTab" class="tab-panel active">
   <section class="grid">
@@ -232,6 +236,6 @@ input,select,button{font:inherit}
   </section>
 </main>
 
-<script src="selection_predictor.js"></script>
+<script src="selection_predictor.js?v=20260525-s2-fix"></script>
 </body>
 </html>
