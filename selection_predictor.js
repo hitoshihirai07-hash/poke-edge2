@@ -145,7 +145,7 @@ async function fetchJson(path, fallback){
     if(!res.ok) return fallback;
     return await res.json();
   }catch(e){
-    $("status").textContent = "JSONを読めません。ローカルサーバー上で開いてください。";
+    $("status").textContent = "データを読み込めません。ページを更新してください。";
     return fallback;
   }
 }
@@ -171,7 +171,7 @@ function renderRankingInfo(){
   const detail = state.rankingError
     ? `<br><span class="rank-error">${escapeHtml(state.rankingError)}</span>`
     : "";
-  box.innerHTML = `使用中ランキング: <strong>${escapeHtml(state.rankingSeason || "-")}</strong> / ${escapeHtml(state.rankingSource || "-")}${state.rankingUpdatedAt ? ` / 更新日 ${escapeHtml(state.rankingUpdatedAt)}` : ""}${detail}`;
+  box.innerHTML = `使用中ランキング: <strong>${escapeHtml(state.rankingSeason || "-")}</strong>${state.rankingUpdatedAt ? ` / 更新日 ${escapeHtml(state.rankingUpdatedAt)}` : ""}${detail}`;
 }
 
 async function loadLatestRankingData(){
@@ -189,7 +189,7 @@ async function loadLatestRankingData(){
     data: {rows: []},
     season: latest,
     source: rankingFileName("season_ranking_single", latest),
-    error: `${latest}のランキングJSONを読めません。${rankingFileName("season_ranking_single", latest)} がGitHub上にあるか確認してください。`
+    error: `${latest}のランキングデータを読み込めません。最新データが公開されているか確認してください。`
   };
 }
 
@@ -251,7 +251,7 @@ function buildSavedPartyOptions(partyList){
   const draft = safeJson(localStorage.getItem(PARTY_DRAFT_KEY), null);
   const draftRecord = draft && Array.isArray(draft.members) && draft.members.length ? [{
     id: "party-html-draft",
-    name: draft.saveName ? `編集中: ${draft.saveName}` : "編集中: party.html",
+    name: draft.saveName ? `編集中: ${draft.saveName}` : "編集中のパーティ",
     data: {members: draft.members},
     draft: true
   }] : [];
@@ -322,14 +322,14 @@ function loadSelectedSavedParty(){
 function loadPartyDraft(){
   const draft = safeJson(localStorage.getItem(PARTY_DRAFT_KEY), null);
   if(!draft || !Array.isArray(draft.members) || !draft.members.length){
-    $("status").textContent = "party.htmlの編集中パーティが見つかりません。party.htmlで一度編集/保存してください。";
+    $("status").textContent = "パーティー管理の編集中パーティが見つかりません。パーティー管理で一度編集または保存してください。";
     return;
   }
   const members = draft.members.map(memberToPokemon).filter(Boolean).slice(0,6);
   if(members.length !== 6){
-    $("status").textContent = `party.html編集中パーティを${members.length}匹だけ読み込みました。6匹揃っていません。`;
+    $("status").textContent = `パーティー管理の編集中パーティを${members.length}匹だけ読み込みました。6匹揃っていません。`;
   } else {
-    $("status").textContent = `party.html編集中の「${draft.saveName || "パーティ"}」を読み込みました`;
+    $("status").textContent = `パーティー管理で編集中の「${draft.saveName || "パーティ"}」を読み込みました`;
   }
   state.player = Array(6).fill(null).map((_, i) => members[i] || null);
   state.predictions = null;
