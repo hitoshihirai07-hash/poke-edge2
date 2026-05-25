@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://poke-edge.pages.dev/</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -32,7 +32,7 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/builder.html</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -51,6 +51,12 @@
   <url>
     <loc>https://poke-edge.pages.dev/scope.html</loc>
     <lastmod>2026-05-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://poke-edge.pages.dev/selection_predictor.html</loc>
+    <lastmod>2026-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -74,7 +80,7 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/blog.html</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -153,6 +159,12 @@
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-quick-damage-season2-register-search-20260516.html</loc>
     <lastmod>2026-05-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://poke-edge.pages.dev/articles/update-summary-builder-selection-predictor-20260525.html</loc>
+    <lastmod>2026-05-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

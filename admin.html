@@ -1057,7 +1057,7 @@ function adminNormalizeAnalyticsPage(page){
   let last = raw.split('/').pop() || 'index';
   if(last === '') last = 'index';
   const aliases = {
-    index:'index.html', calc:'calc.html', endure:'endure.html', move:'move.html', party:'party.html', pokemon:'pokemon.html', items:'items.html', scope:'scope.html', season:'season.html', speed:'speed.html', stats:'stats.html', blog:'blog.html', policy:'policy.html', admin:'admin.html', auth:'auth.html'
+    index:'index.html', calc:'calc.html', endure:'endure.html', move:'move.html', battle:'battle.html', builder:'builder.html', party:'party.html', pokemon:'pokemon.html', items:'items.html', scope:'scope.html', selection_predictor:'selection_predictor.html', season:'season.html', speed:'speed.html', stats:'stats.html', blog:'blog.html', policy:'policy.html', admin:'admin.html', auth:'auth.html'
   };
   if(aliases[last]) return aliases[last];
   if(!/\.html$/i.test(last) && aliases[last.replace(/\.html$/i,'')]) return aliases[last.replace(/\.html$/i,'')];
@@ -1066,7 +1066,7 @@ function adminNormalizeAnalyticsPage(page){
 function adminPageLabel(page){
   const normalized = adminNormalizeAnalyticsPage(page);
   const map = {
-    'index.html':'トップ','calc.html':'ダメージ計算','endure.html':'耐久調整','move.html':'クイック技ダメージ','party.html':'パーティ管理','pokemon.html':'ポケモン登録','items.html':'アイテム','scope.html':'バトルアナライザー','season.html':'使用可能ポケモン','speed.html':'素早さライン','stats.html':'旧ページ','blog.html':'記事一覧','policy.html':'サイト情報','admin.html':'管理画面','auth.html':'ログイン'
+    'index.html':'トップ','calc.html':'ダメージ計算','endure.html':'耐久調整','move.html':'クイック技ダメージ','battle.html':'バトル','builder.html':'構築アシスト','party.html':'パーティ管理','pokemon.html':'ポケモン登録','items.html':'アイテム','scope.html':'バトルアナライザー','selection_predictor.html':'選出予測','season.html':'使用可能ポケモン','speed.html':'素早さライン','stats.html':'旧ページ','blog.html':'記事一覧','policy.html':'サイト情報','admin.html':'管理画面','auth.html':'ログイン'
   };
   return (map[normalized] ? map[normalized] + ' / ' : '') + normalized;
 }

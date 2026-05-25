@@ -20,6 +20,7 @@ header{height:52px;display:flex;align-items:center;gap:14px;padding:0 18px;borde
 .nav{margin-left:auto;display:flex;gap:8px;overflow:auto}
 .nav a{color:var(--text2);text-decoration:none;border:1px solid var(--border);padding:7px 10px;font-size:12px;white-space:nowrap}
 .nav a:hover{border-color:var(--accent);color:var(--accent)}
+.nav a.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.12);font-weight:800}
 .page{max-width:1320px;margin:0 auto;padding:18px}
 .hero{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:14px}
 h1{margin:0;font-size:25px;letter-spacing:1px}
@@ -90,6 +91,23 @@ input,select,button{font:inherit}
 .pick-card.active{border-color:var(--accent3);box-shadow:inset 3px 0 0 var(--accent3)}
 .manual-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 @media(max-width:980px){.grid,.results,.damage-layout,.damage-grid,.manual-layout,.manual-summary{grid-template-columns:1fr}.hero{display:block}.status{text-align:left;margin-top:10px}.slots,.lead-picker,.pick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40}
+.side-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.side-title{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:10px}
+.side-links{display:grid;gap:8px}
+.side-link{display:block;text-decoration:none;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;transition:all .18s}
+.side-link:hover,.side-link.active{border-color:var(--accent);color:var(--accent)}
+.side-link.active{background:rgba(0,200,240,.08);font-weight:800}
+.mobile-tool-nav{display:none}
+.mobile-tool-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 2px}
+.mobile-tool-scroll::-webkit-scrollbar{display:none}
+.mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap}
+.mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);font-weight:800}
+@media(min-width:1241px){body{padding-right:290px}.page{max-width:1180px}}
+@media(max-width:1240px){.side-dock{display:none}body{padding-right:0}}
+@media(max-width:768px){header{padding:0 12px}.nav{gap:6px}.nav a{padding:7px 9px}.mobile-tool-nav{display:block;position:sticky;top:52px;z-index:72;background:rgba(7,9,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);padding:8px 10px}.mobile-tool-nav-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 2px 6px;line-height:1}}
+
 </style>
 </head>
 <body>
@@ -98,13 +116,26 @@ input,select,button{font:inherit}
   <div>選出予測</div>
   <nav class="nav">
     <a href="index.html">TOP</a>
-    <a href="battle.html">バトル</a>
-    <a href="scope.html">アナライザー</a>
-    <a href="builder.html">構築</a>
-    <a href="party.html">パーティ</a>
     <a href="calc.html">ダメ計</a>
+    <a href="endure.html">耐久</a>
+    <a href="move.html">クイック</a>
+    <a href="battle.html">バトル</a>
+    <a href="builder.html">構築</a>
+    <a href="scope.html">アナライザー</a>
+    <a class="active" href="selection_predictor.html">選出予測</a>
+    <a href="party.html">パーティ</a>
+    <a href="pokemon.html">登録</a>
+    <a href="season.html">使用可能</a>
+    <a href="speed.html">素早さ</a>
+    <a href="items.html">アイテム</a>
+    <a href="blog.html">記事</a>
   </nav>
 </header>
+<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">クイック技ダメージ</a><a class="side-link" href="battle.html">バトルシミュレーション</a><a class="side-link" href="builder.html">構築アシスト</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link" href="scope.html">バトルアナライザー</a><a class="side-link active" href="selection_predictor.html">選出予測</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a><a class="side-link" href="blog.html">記事一覧</a><a class="side-link" href="policy.html">サイト情報</a></div></div></aside>
+<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
+  <div class="mobile-tool-nav-title">ツール移動</div>
+  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="index.html">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="builder.html">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link active" href="selection_predictor.html" aria-current="page">選出予測</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
+</nav>
 
 <main class="page">
   <section class="hero">
