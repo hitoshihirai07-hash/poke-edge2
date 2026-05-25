@@ -95,9 +95,14 @@ h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px;}
 .segment-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .segment-btn{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;cursor:pointer;}
 .segment-btn.active,.segment-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.1);}
-.rank-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:10px;}
+.rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:6px;margin-top:10px;}
 .rank-box{border:1px solid var(--border);background:var(--panel2);border-radius:12px;padding:7px;display:grid;gap:4px;}
 .rank-box input{padding:7px;font-size:13px;text-align:center;}
+.rank-stepper{display:grid;grid-template-columns:32px minmax(48px,1fr) 32px;gap:4px;align-items:center;}
+.rank-stepper input{min-width:0;height:34px;}
+.rank-stepper-btn{height:34px;border:1px solid var(--border2);background:var(--panel);color:var(--text);border-radius:10px;font-size:16px;font-weight:900;line-height:1;cursor:pointer;transition:.16s;}
+.rank-stepper-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.1);}
+.rank-help{font-size:10px;color:var(--text3);line-height:1.5;margin-top:6px;}
 .ranking-note{font-size:11px;color:var(--text2);line-height:1.55;margin-top:6px;}
 
 .chip{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;cursor:pointer;}
@@ -1614,7 +1619,13 @@ function quickGetCondition(slot){
   return slot.condition;
 }
 function quickGetFaintedAllies(slot){ return quickGetCondition(slot).faintedAllies; }
-function quickSetRank(role, stat, value){ const slot=quickSlot(role); if(!slot.rank) slot.rank={atk:0,def:0,spa:0,spd:0,spe:0}; slot.rank[stat]=Math.max(-6,Math.min(6,parseInt(value||0,10)||0)); quickRenderAll(); }
+function quickNormalizeRankValue(value){ return Math.max(-6, Math.min(6, parseInt(value || 0, 10) || 0)); }
+function quickSetRank(role, stat, value){ const slot=quickSlot(role); if(!slot.rank) slot.rank={atk:0,def:0,spa:0,spd:0,spe:0}; slot.rank[stat]=quickNormalizeRankValue(value); quickRenderAll(); }
+function quickAdjustRank(role, stat, delta){ const slot=quickSlot(role); if(!slot.rank) slot.rank={atk:0,def:0,spa:0,spd:0,spe:0}; const current=quickNormalizeRankValue(slot.rank[stat]); quickSetRank(role, stat, current + (parseInt(delta || 0, 10) || 0)); }
+function quickRankControl(role, stat, value){
+  const current = quickNormalizeRankValue(value);
+  return `<div class="rank-box"><div class="label">${quickStatLabel(stat)}</div><div class="rank-stepper"><button class="rank-stepper-btn" type="button" aria-label="${quickStatLabel(stat)}ランクを1下げる" onclick="quickAdjustRank('${role}','${stat}',-1)">−</button><input class="input" type="number" min="-6" max="6" step="1" value="${current}" onchange="quickSetRank('${role}','${stat}',this.value)" onblur="quickSetRank('${role}','${stat}',this.value)"><button class="rank-stepper-btn" type="button" aria-label="${quickStatLabel(stat)}ランクを1上げる" onclick="quickAdjustRank('${role}','${stat}',1)">＋</button></div></div>`;
+}
 function quickSetCondition(role, key, value){
   const slot = quickSlot(role);
   const condition = quickGetCondition(slot);
@@ -1976,7 +1987,7 @@ function quickRenderSettings(role){
       <div class="field"><div class="label">持ち物</div><div class="search-wrap"><input class="input" id="${role}-item-input" value="${escapeAttr(slot.item||'')}" placeholder="持ち物を検索" autocomplete="off"><div class="search-panel" id="${role}-item-panel"></div></div></div>
       <div class="field"><div class="label">実数値</div><div class="note">${quickStatsText(slot)}${slot.rankingLabel ? '<br>' + escapeHtml(slot.rankingLabel) + 'を反映' : ''}</div></div>
       <div class="field" style="grid-column:1/-1"><div class="label">性格補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><div class="segment-grid">${quickNatureModButtons(role, st, nat[st])}</div></div>`).join('')}</div></div>
-      <div class="field" style="grid-column:1/-1"><div class="label">ランク補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><input class="input" type="number" min="-6" max="6" value="${slot.rank?.[st]||0}" onchange="quickSetRank('${role}','${st}',this.value)"></div>`).join('')}</div></div>
+      <div class="field" style="grid-column:1/-1"><div class="label">ランク補正</div><div class="rank-grid">${QUICK_BATTLE_STATS.map(st=>quickRankControl(role, st, slot.rank?.[st] || 0)).join('')}</div><div class="rank-help">数値を直接入力、または − / ＋ ボタンで -6〜+6 の範囲を調整できます。</div></div>
       ${quickConditionControls(role, slot)}`;
     const itemInput = document.getElementById(role+'-item-input');
     if(itemInput){
