@@ -308,6 +308,13 @@ let SELECTED = [];
 let BATTLE_MODE = localStorage.getItem('pokeedge_builder_battle_mode') || 'single';
 let ACTIVE_SEASON = '';
 let _toastTimer = null;
+let RANKING_ROW_MAP = new Map();
+let ALLOWED_NAMES_CACHE = new Set();
+let CANDIDATE_POOL_CACHE = {key:'', list:[]};
+let MOVE_OPTIONS_CACHE = new Map();
+let POKEMON_MOVES_READY = false;
+let POKEMON_MOVES_PROMISE = null;
+let _candidateRenderTimer = null;
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function jsArg(s){return esc(JSON.stringify(String(s??'')));}
@@ -367,6 +374,44 @@ function candidateSearchText(p){
   return [display,p?.name||'',...names].join(' ');
 }
 function fetchJson(path, fallback){return fetch(path, DATA_FETCH_OPTIONS).then(r=>r.ok?r.json():Promise.reject(new Error(path))).catch(()=>fallback);}
+function clearBuilderCaches(){CANDIDATE_POOL_CACHE={key:'',list:[]};MOVE_OPTIONS_CACHE.clear();}
+function rankingLookupKey(name){return normalizeKey(familyName(name));}
+function rebuildAllowedNamesCache(){
+  const list=Array.isArray(SEASON_DATA[ACTIVE_SEASON]) ? SEASON_DATA[ACTIVE_SEASON] : [];
+  ALLOWED_NAMES_CACHE=new Set(list.map(v=>String(v).trim()).filter(Boolean));
+  CANDIDATE_POOL_CACHE={key:'',list:[]};
+}
+function buildRankingIndex(){
+  RANKING_ROW_MAP=new Map();
+  function add(name,row){
+    const key=rankingLookupKey(name);
+    if(key && !RANKING_ROW_MAP.has(key)) RANKING_ROW_MAP.set(key,row);
+  }
+  (RANKING.rows||[]).forEach(row=>{
+    const site=String(row.siteName||row.name||'').trim();
+    const raw=String(row.name||'').trim();
+    add(site,row);add(raw,row);add(normalizeCandidateName(site),row);add(normalizeCandidateName(raw),row);
+    getCandidateLookupNames(site).forEach(n=>add(n,row));
+    getCandidateLookupNames(raw).forEach(n=>add(n,row));
+  });
+  clearBuilderCaches();
+}
+function ensurePokemonMovesLoaded(){
+  if(POKEMON_MOVES_READY) return Promise.resolve(POKEMON_MOVES);
+  if(!POKEMON_MOVES_PROMISE){
+    POKEMON_MOVES_PROMISE=fetchJson('pokemon_moves.json',{pokemon:{}}).then(data=>{
+      POKEMON_MOVES=data && data.pokemon ? data.pokemon : {};
+      POKEMON_MOVES_READY=true;
+      MOVE_OPTIONS_CACHE.clear();
+      return POKEMON_MOVES;
+    }).catch(()=>{
+      POKEMON_MOVES={};
+      POKEMON_MOVES_READY=true;
+      return POKEMON_MOVES;
+    });
+  }
+  return POKEMON_MOVES_PROMISE;
+}
 function parseUsageEntry(entry){const raw=String(entry||'').trim();const m=raw.match(/^(.*?)(?:\s*\(([-\d.]+)%\))?$/);return {name:normalizeMoveDisplay(m?m[1]:raw), percent:m&&m[2]!=null?Number(m[2]):0, raw};}
 function normalizeNatureName(raw){return String(raw||'').replace(/[A-ZＨＡＢＣＤＳ][↑↓].*$/,'').replace(/[\s　]*[A-ZＨＡＢＣＤＳ]?[↑↓].*$/,'').trim() || 'がんばりや';}
 function getTypes(p){return [p?.type1,p?.type2].filter(Boolean);}
@@ -386,16 +431,9 @@ function findPokemon(name){
   const key=normalizeKey(representative || raw);
   return POKEMON_DATA.find(p=>normalizeKey(p.name)===key) || null;
 }
-function rankingRowFor(name){
-  const fam=familyName(name);
-  return (RANKING.rows||[]).find(r=>{
-    const rn=String(r.siteName||r.name||'').trim();
-    const rawName=String(r.name||'').trim();
-    return rn===name || rawName===name || familyName(rn)===fam || familyName(rawName)===fam;
-  }) || null;
-}
+function rankingRowFor(name){return RANKING_ROW_MAP.get(rankingLookupKey(name)) || null;}
 function rankingRank(name){const row=rankingRowFor(name);return row ? Number(row.rank||9999) : 9999;}
-function getAllowedNames(){const list=Array.isArray(SEASON_DATA[ACTIVE_SEASON]) ? SEASON_DATA[ACTIVE_SEASON] : [];return new Set(list.map(v=>String(v).trim()).filter(Boolean));}
+function getAllowedNames(){return ALLOWED_NAMES_CACHE;}
 function isAllowedCandidateName(name){
   const allowed=getAllowedNames();
   return getCandidateLookupNames(name).some(n=>allowed.has(n));
@@ -403,6 +441,8 @@ function isAllowedCandidateName(name){
 function getCandidatePool(){
   const allowed=getAllowedNames();
   const selectedFamilies=new Set(SELECTED.map(m=>familyName(m.pokemon.name)));
+  const cacheKey=[ACTIVE_SEASON,BATTLE_MODE,(RANKING.rows||[]).length,allowed.size,Array.from(selectedFamilies).sort().join('|')].join('::');
+  if(CANDIDATE_POOL_CACHE.key===cacheKey) return CANDIDATE_POOL_CACHE.list;
   const rankingNames=(RANKING.rows||[]).map(r=>String(r.siteName||r.name||'').trim()).filter(Boolean);
   const out=[];
   const seen=new Set();
@@ -418,9 +458,12 @@ function getCandidatePool(){
   }
   rankingNames.forEach(add);
   Array.from(allowed).forEach(add);
+  CANDIDATE_POOL_CACHE={key:cacheKey,list:out};
   return out;
 }
+
 function getKnownMoveEntries(name){
+  if(!POKEMON_MOVES_READY) return [];
   const fam=familyName(name);
   const records=[];
   const raw=POKEMON_MOVES[name] || POKEMON_MOVES[fam] || null;
@@ -436,21 +479,26 @@ function makeMoveOption(name, percent=0){
   return {name:label,type:meta.type||'',category:meta.category||'',power:Number(meta.power||0)||0,accuracy:meta.accuracy||'',pp:meta.pp||'',description:meta.description||meta.effect||'',percent:Number(percent||0)||0};
 }
 function getMoveOptions(name, limit=80){
+  const cacheKey=rankingLookupKey(name);
+  if(MOVE_OPTIONS_CACHE.has(cacheKey)) return MOVE_OPTIONS_CACHE.get(cacheKey).slice(0,limit);
   const row=rankingRowFor(name);
   const out=[];
   const seen=new Set();
+  const knownEntries=getKnownMoveEntries(name);
   function add(moveName, percent=0){
     const label=normalizeMoveDisplay(moveName);
     const key=normalizeKey(label);
     if(!label || seen.has(key)) return;
-    const meta=getMoveMeta(label) || getKnownMoveEntries(name).find(m=>normalizeKey(m.name)===key) || {name:label};
+    const meta=getMoveMeta(label) || knownEntries.find(m=>normalizeKey(m.name)===key) || {name:label};
     seen.add(key);
     out.push({name:label,type:meta.type||'',category:meta.category||'',power:Number(meta.power||0)||0,accuracy:meta.accuracy||'',pp:meta.pp||'',description:meta.description||meta.effect||'',percent:Number(percent||0)||0,recommended:percent>0});
   }
   (Array.isArray(row?.moves)?row.moves:[]).forEach(v=>{const e=parseUsageEntry(v);add(e.name,e.percent);});
-  getKnownMoveEntries(name).forEach(m=>add(m.name,0));
+  knownEntries.forEach(m=>add(m.name,0));
+  MOVE_OPTIONS_CACHE.set(cacheKey,out);
   return out.slice(0,limit);
 }
+
 function getRecommendedMoveSet(name){
   const opts=getMoveOptions(name,80);
   const damaging=opts.filter(isDamagingMove);
@@ -511,10 +559,23 @@ function teamAttackTypes(members){
 function topThreats(limit=24){return (RANKING.rows||[]).slice(0,limit).map(r=>findPokemon(String(r.siteName||r.name||'').trim())).filter(Boolean);}
 function teamHasSuperEffective(threat){return SELECTED.some(m=>memberDamagingMoves(m).some(mv=>effect(mv.type,getTypes(threat))>=2));}
 function candidateHitsThreat(p, threat){return getTopMoves(p.name,8).some(mv=>effect(mv.type,getTypes(threat))>=2);}
-function evaluateCandidate(p){
+function buildEvaluationContext(){
   const selected=SELECTED.slice();
-  const profile=teamDefenseProfile(selected);
-  const atk=teamAttackTypes(selected);
+  const selectedDamageMoves=selected.flatMap(memberDamagingMoves);
+  return {
+    selected,
+    profile:teamDefenseProfile(selected),
+    atk:teamAttackTypes(selected),
+    uncoveredThreats:topThreats(20).filter(t=>!selectedDamageMoves.some(mv=>effect(mv.type,getTypes(t))>=2)),
+    fastSelected:selected.filter(m=>Number(m.pokemon.spe||0)>=100).length,
+    hasMegaSelected:selected.some(m=>isMegaName(m.pokemon.name) || /ナイト$/.test(String(m.item||''))),
+    selectedItems:new Set(selected.map(m=>String(m.item||'')).filter(Boolean))
+  };
+}
+function evaluateCandidate(p, ctx=buildEvaluationContext()){
+  const selected=ctx.selected;
+  const profile=ctx.profile;
+  const atk=ctx.atk;
   const row=rankingRowFor(p.name);
   const rank=rankingRank(p.name);
   const moves=getTopMoves(p.name,8);
@@ -543,16 +604,16 @@ function evaluateCandidate(p){
     if(atk.physical>=atk.special+4 && spec){score+=5;reasons.push('特殊打点で偏りを補正');}
     if(atk.special>=atk.physical+4 && phys){score+=5;reasons.push('物理打点で偏りを補正');}
   }
-  const heavy=topThreats(20).filter(t=>!teamHasSuperEffective(t) && candidateHitsThreat(p,t)).slice(0,4);
+  const heavy=(ctx.uncoveredThreats||[]).filter(t=>candidateHitsThreat(p,t)).slice(0,4);
   if(heavy.length){score+=heavy.length*7;reasons.push(`現在の技構成で打点不足の相手に打点：${heavy.map(t=>t.name).join(' / ')}`);}
-  const fastSelected=selected.filter(m=>Number(m.pokemon.spe||0)>=100).length;
+  const fastSelected=ctx.fastSelected;
   if(selected.length && fastSelected===0 && Number(p.spe||0)>=100){score+=8;reasons.push('素早さ100以上の高速枠を追加');}
   else if(selected.length && Number(p.spe||0)>=95){score+=3;reasons.push('素早さラインを上げやすい');}
   const sameTypeCount=selected.filter(m=>getTypes(m.pokemon).some(t=>getTypes(p).includes(t))).length;
   if(sameTypeCount>=2){score-=7;risks.push('タイプ役割がやや重複');}
-  if(isMegaName(p.name) && hasMegaSelected()){score-=18;risks.push('メガ枠が重複する可能性');}
+  if(isMegaName(p.name) && ctx.hasMegaSelected){score-=18;risks.push('メガ枠が重複する可能性');}
   const itemName=items[0]?.name || (isMegaName(p.name) ? `${familyName(p.name)}ナイト` : '');
-  if(itemName && SELECTED.some(m=>m.item && m.item===itemName)){score-=5;risks.push(`持ち物候補「${itemName}」が重複`);}
+  if(itemName && ctx.selectedItems.has(itemName)){score-=5;risks.push(`持ち物候補「${itemName}」が重複`);}
   if(!moves.length){score-=12;risks.push('攻撃技候補が少ないため手動確認推奨');}
   const safeScore=Math.max(0,Math.min(99,Math.round(score)));
   const uniqueReasons=[];reasons.forEach(r=>{if(uniqueReasons.length<5 && !uniqueReasons.includes(r))uniqueReasons.push(r);});
@@ -564,7 +625,7 @@ function addPokemonByName(name, openEditor=true){
   const p=findPokemon(name);
   if(!p){toast('ポケモンが見つかりませんでした。');return;}
   if(SELECTED.some(m=>familyName(m.pokemon.name)===familyName(p.name))){toast('同じ系統のポケモンはすでに入っています。');return;}
-  const ev=evaluateCandidate(p);
+  const ev=evaluateCandidate(p, buildEvaluationContext());
   SELECTED.push(makeDefaultMember(p,ev));
   document.getElementById('pokemon-search').value='';
   closeSuggest();
@@ -620,7 +681,8 @@ function renderCandidates(){
   const el=document.getElementById('candidate-list');
   if(SELECTED.length>=6){el.innerHTML='<div class="empty">6匹そろいました。各ポケモンの「型編集」で技・持ち物・性格・努力値を調整してからparty.htmlへ送れます。</div>';return;}
   const pool=getCandidatePool();
-  const evaluated=pool.map(evaluateCandidate).sort((a,b)=>b.score-a.score || (a.rank||9999)-(b.rank||9999)).slice(0,10);
+  const ctx=buildEvaluationContext();
+  const evaluated=pool.map(p=>evaluateCandidate(p,ctx)).sort((a,b)=>b.score-a.score || (a.rank||9999)-(b.rank||9999)).slice(0,10);
   if(!evaluated.length){el.innerHTML='<div class="empty">候補が見つかりませんでした。シーズンやルールを切り替えて確認してください。</div>';return;}
   el.innerHTML=evaluated.map(renderCandidateCard).join('');
 }
@@ -637,7 +699,7 @@ function closeSuggest(){document.getElementById('search-suggest')?.classList.rem
 function openDetail(name){
   const p=findPokemon(name);
   if(!p){toast('ポケモンが見つかりませんでした。');return;}
-  const ev=evaluateCandidate(p);
+  const ev=evaluateCandidate(p, buildEvaluationContext());
   const label=displayPokemonName(ev.pokemon);
   const card=document.getElementById('detail-card');
   const moves=ev.moves.length?ev.moves.map(m=>`<div class="report-line">${esc(m.name)}：${esc(m.type||'-')} / ${esc(m.category||'-')} / ${m.power?`威力${esc(m.power)}`:'変化または特殊威力'}${m.percent?` / ${esc(m.percent)}%`:''}</div>`).join(''):'<div class="report-line">技候補が少ないため手動確認してください。</div>';
@@ -654,10 +716,15 @@ function moveSelectHtml(member,index,slot){
   opts.forEach(m=>rows.push(optionHtml(m.name,`${m.name}${m.percent?` (${m.percent}%)`:''}${m.type?` / ${m.type}`:''}${m.category?` / ${m.category}`:''}`,selected)));
   return `<div class="editor-field"><label>技${slot+1}</label><select onchange="updateMemberMove(${index},${slot},this.value)">${rows.join('')}</select></div>`;
 }
-function openMemberEditor(index){
+async function openMemberEditor(index){
   const member=SELECTED[index];
   if(!member){toast('編集するポケモンが見つかりません。');return;}
   const card=document.getElementById('detail-card');
+  if(!POKEMON_MOVES_READY){
+    card.innerHTML=`<div class="detail-head"><div><div class="detail-title">${esc(index+1)}匹目：${esc(displayPokemonName(member.pokemon))} 型編集</div><div class="slot-meta"><span class="type-pill">全技候補を読み込み中</span></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div class="empty">ランキング候補は先に表示済みです。技を細かく選ぶための全技データだけ、ここで読み込みます。</div>`;
+    document.getElementById('detail-modal').classList.add('show');
+    await ensurePokemonMovesLoaded();
+  }
   const itemOptions=getItemOptions(member.pokemon.name);
   const natureOptions=getNatureOptions(member.pokemon.name);
   const abilityOptions=getAbilityOptions(member.pokemon.name);
@@ -676,7 +743,7 @@ function openMemberEditor(index){
   document.getElementById('detail-modal').classList.add('show');
 }
 function normalizeMemberMoves(member){member.moves=(Array.isArray(member.moves)?member.moves:[]).map(v=>String(v||'').trim()).filter(Boolean).slice(0,4);while(member.moves.length<4) member.moves.push('');}
-function afterMemberEdit(message){saveDraft();renderAll();if(message)toast(message);}
+function afterMemberEdit(message){saveDraft();renderSlots();renderSummary();scheduleRenderCandidates();if(message)toast(message);}
 function updateMemberMove(index,slot,value){const m=SELECTED[index];if(!m)return;normalizeMemberMoves(m);m.moves[slot]=String(value||'').trim();afterMemberEdit('技を更新しました。次候補にも反映しています。');}
 function updateMemberField(index,field,value){const m=SELECTED[index];if(!m)return;if(['item','nature','ability'].includes(field))m[field]=String(value||'').trim();afterMemberEdit(`${field==='item'?'持ち物':field==='nature'?'性格':'特性'}を更新しました。`);}
 function updateMemberEv(index,key,value){const m=SELECTED[index];if(!m)return;if(!m.ev)m.ev={hp:0,atk:0,def:0,spa:0,spd:0,spe:0};m.ev[key]=Math.max(0,Math.min(32,Number(value||0)||0));afterMemberEdit('努力値を更新しました。');}
@@ -687,7 +754,12 @@ function applyRecommendedAbility(index){const m=SELECTED[index];if(!m)return;m.a
 function applyRecommendedSpread(index){const m=SELECTED[index];if(!m)return;m.ev=Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0},getTopSpread(m.pokemon.name));afterMemberEdit('おすすめ努力値を反映しました。');openMemberEditor(index);}
 function applyRecommendedSet(index){const m=SELECTED[index];if(!m)return;m.moves=getRecommendedMoveSet(m.pokemon.name);m.item=getItemOptions(m.pokemon.name)[0]?.name || m.item;m.nature=getTopNature(m.pokemon.name);m.ability=getTopAbility(m.pokemon.name);m.ev=Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0},getTopSpread(m.pokemon.name));afterMemberEdit('おすすめ型を一括反映しました。');openMemberEditor(index);}
 function applySpreadByOption(index,opt){const m=SELECTED[index];if(!m||opt==='')return;const spread=getSpreadOptions(m.pokemon.name)[Number(opt)];if(spread){m.ev=Object.assign({hp:0,atk:0,def:0,spa:0,spd:0,spe:0},spread.ev);afterMemberEdit('選んだおすすめ努力値を反映しました。');openMemberEditor(index);}}
-function renderAll(){renderSlots();renderSummary();renderCandidates();}
+function scheduleRenderCandidates(){
+  clearTimeout(_candidateRenderTimer);
+  _candidateRenderTimer=setTimeout(()=>renderCandidates(),90);
+}
+function renderAll(){renderSlots();renderSummary();scheduleRenderCandidates();}
+
 function saveDraft(){try{localStorage.setItem(LS_DRAFT_KEY,JSON.stringify({season:ACTIVE_SEASON,mode:BATTLE_MODE,selected:SELECTED.map(m=>({pokemon:m.pokemon.name,moves:(Array.isArray(m.moves)?m.moves:[]).filter(Boolean),item:m.item,ability:m.ability,nature:m.nature,ev:m.ev,score:m.score}))}));}catch(e){}}
 function restoreDraft(){
   try{
@@ -703,12 +775,12 @@ function sendToParty(){
 }
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
 async function setBattleMode(mode){BATTLE_MODE=mode==='double'?'double':'single';localStorage.setItem('pokeedge_builder_battle_mode',BATTLE_MODE);document.getElementById('mode-single').classList.toggle('active',BATTLE_MODE==='single');document.getElementById('mode-double').classList.toggle('active',BATTLE_MODE==='double');await reloadRanking();renderAll();saveDraft();}
-async function changeSeason(label){ACTIVE_SEASON=String(label||'').trim();if(window.pokeEdgeRankingSeason) window.pokeEdgeRankingSeason.setStored(ACTIVE_SEASON);await reloadRanking();renderAll();saveDraft();}
+async function changeSeason(label){ACTIVE_SEASON=String(label||'').trim();if(window.pokeEdgeRankingSeason) window.pokeEdgeRankingSeason.setStored(ACTIVE_SEASON);rebuildAllowedNamesCache();await reloadRanking();renderAll();saveDraft();}
 function getRankingFilePath(mode,season){const base=mode==='double'?'season_ranking_double':'season_ranking_single';if(window.pokeEdgeRankingSeason && typeof window.pokeEdgeRankingSeason.file==='function')return window.pokeEdgeRankingSeason.file(base,season);const n=(String(season).match(/\d+/)||['1'])[0];return Number(n)>1?`${base}_s${n}.json`:`${base}.json`;}
-async function reloadRanking(){RANKING=await fetchJson(getRankingFilePath(BATTLE_MODE,ACTIVE_SEASON),{rows:[],updatedAt:''});}
+async function reloadRanking(){RANKING=await fetchJson(getRankingFilePath(BATTLE_MODE,ACTIVE_SEASON),{rows:[],updatedAt:''});buildRankingIndex();}
 async function init(){
-  [POKEMON_DATA,MOVES_DATA,SEASON_DATA,POKEMON_MOVES,MEGA_DATA]=await Promise.all([fetchJson('pokemon.json',[]),fetchJson('moves.json',[]),fetchJson('season.json',{seasons:[]}),fetchJson('pokemon_moves.json',{pokemon:{}}),fetchJson('mega.json',{rows:[],baseToForms:{},formToBase:{}})]);
-  POKEMON_MOVES=POKEMON_MOVES && POKEMON_MOVES.pokemon ? POKEMON_MOVES.pokemon : {};
+  [POKEMON_DATA,MOVES_DATA,SEASON_DATA,MEGA_DATA]=await Promise.all([fetchJson('pokemon.json',[]),fetchJson('moves.json',[]),fetchJson('season.json',{seasons:[]}),fetchJson('mega.json',{rows:[],baseToForms:{},formToBase:{}})]);
+  POKEMON_MOVES={};POKEMON_MOVES_READY=false;POKEMON_MOVES_PROMISE=null;
   POKE_MAP={};POKEMON_DATA.forEach(p=>{POKE_MAP[p.name]=p;POKE_MAP[normalizeMoveDisplay(p.name)]=p;});
   Object.entries(SPECIAL_FORM_GROUPS).forEach(([base,cfg])=>{
     const rep=POKEMON_DATA.find(p=>p.name===cfg.preferred) || (cfg.forms||[]).map(n=>POKEMON_DATA.find(p=>p.name===n)).find(Boolean);
@@ -718,6 +790,7 @@ async function init(){
   const labels=Array.isArray(SEASON_DATA.seasons)?SEASON_DATA.seasons:[];
   const sorted=window.pokeEdgeRankingSeason?window.pokeEdgeRankingSeason.sortLabels(labels,true):labels.slice().sort().reverse();
   ACTIVE_SEASON=sorted[0] || 'S1';
+  rebuildAllowedNamesCache();
   const sel=document.getElementById('season-select');
   sel.innerHTML=sorted.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
   sel.value=ACTIVE_SEASON;
