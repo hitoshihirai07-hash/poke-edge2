@@ -126,6 +126,20 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .ev-advice.neutral{color:var(--text2);}
 .compare-ev-advice{margin-top:4px;padding-top:6px;border-top:1px solid var(--border);display:grid;gap:3px;}
 .compare-ev-advice span{display:block;}
+.speed-advice-board{border:1px solid rgba(0,200,240,0.38);background:rgba(0,200,240,0.06);padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+.speed-advice-title{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;}
+.speed-advice-cards{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:8px;}
+.speed-advice-card{border:1px solid var(--border);background:var(--panel);padding:8px 9px;border-radius:10px;min-height:58px;}
+.speed-advice-card strong{display:block;font-size:12px;color:var(--text);margin-bottom:3px;}
+.speed-advice-card span{display:block;font-size:10px;color:var(--text2);line-height:1.55;}
+.speed-advice-card.ok{border-color:rgba(0,230,118,0.45);background:rgba(0,230,118,0.06);}
+.speed-advice-card.need{border-color:rgba(255,200,0,0.45);background:rgba(255,200,0,0.06);}
+.speed-advice-card.bad{border-color:rgba(255,48,96,0.45);background:rgba(255,48,96,0.06);}
+.speed-advice-empty{font-size:11px;color:var(--text2);line-height:1.7;}
+.compare-card-advice{border:1px dashed var(--border);background:rgba(255,255,255,0.03);padding:8px 9px;border-radius:10px;font-size:10px;color:var(--text2);line-height:1.65;}
+.compare-card-advice strong{color:var(--accent);font-size:11px;}
+@media(max-width:980px){.speed-advice-cards{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.speed-advice-cards{grid-template-columns:1fr;}}
 .ability-detail{display:block;margin-top:4px;font-size:9px;color:var(--text2);line-height:1.5;}
 .head-sub{display:block;margin-top:3px;font-size:9px;color:var(--text2);font-weight:400;letter-spacing:0;}
 @media(max-width:980px){.my-speed-grid{grid-template-columns:repeat(3,minmax(110px,1fr));}.compare-grid{grid-template-columns:1fr;}}
@@ -392,6 +406,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <div class="my-speed-pill">比較基準 <strong id="compare-mode-label">相手の最速</strong></div>
       <div class="my-speed-pill ev-advice-pill">努力値判断 <strong id="my-ev-summary">—</strong></div>
     </div>
+    <div class="speed-advice-board" id="my-speed-advice-board">
+      <div class="speed-advice-title">努力値調整候補</div>
+      <div class="speed-advice-cards" id="my-speed-advice-cards">
+        <div class="speed-advice-empty">自分のポケモンを選ぶと、今の素早さから何P下げても抜けるか、何P足せば抜けるかをここに表示します。</div>
+      </div>
+    </div>
   </div>
 
   <div class="compare-wrap">
@@ -452,6 +472,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div class="compare-pill">未補正 <strong id="cmp-a-base">—</strong></div>
           <div class="compare-pill">補正後 <strong id="cmp-a-effective">—</strong></div>
         </div>
+        <div class="compare-card-advice" id="cmp-a-advice">比較Bを入れると、Aを何Pまで下げられるかを表示します。</div>
       </div>
       <div class="compare-card">
         <div class="compare-card-head">
@@ -503,6 +524,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <div class="compare-pill">未補正 <strong id="cmp-b-base">—</strong></div>
           <div class="compare-pill">補正後 <strong id="cmp-b-effective">—</strong></div>
         </div>
+        <div class="compare-card-advice" id="cmp-b-advice">比較Aを入れると、Bを何Pまで下げられるかを表示します。</div>
       </div>
     </div>
     <div class="compare-result">
@@ -953,24 +975,97 @@ function makeMyEvSummary(mySpeedState){
 }
 
 function getEvAdviceForTarget(profile, currentSpeed, targetSpeed, manualMode){
-  if(!profile || !profile.hasInput) return { text:'—', cls:'neutral' };
-  if(manualMode) return { text:'直接入力中', cls:'neutral' };
+  const detail = getEvAdviceDetail(profile, currentSpeed, targetSpeed, manualMode);
+  return { text: detail.text, cls: detail.cls };
+}
+
+function getEvAdviceDetail(profile, currentSpeed, targetSpeed, manualMode){
+  if(!profile || !profile.hasInput) return { text:'—', cls:'neutral', minEv:null, reducible:0, needed:0, state:'empty' };
+  if(manualMode) return { text:'直接入力中', cls:'neutral', minEv:null, reducible:0, needed:0, state:'manual' };
   const minEv = findMinimumEvToBeat(profile, targetSpeed);
   const currentEv = profile.currentEv;
   if(currentSpeed > targetSpeed){
-    if(minEv == null) return { text:'—', cls:'neutral' };
-    const reducible = Math.max(0, currentEv - minEv);
-    if(reducible > 0) return { text:`最低${formatSpeedEv(minEv)} / ${formatSpeedEv(reducible)}下げOK`, cls:'ok' };
-    return { text:'今が最低ライン', cls:'ok' };
+    const reducible = minEv == null ? 0 : Math.max(0, currentEv - minEv);
+    return {
+      text: reducible > 0 ? `最低${formatSpeedEv(minEv)} / ${formatSpeedEv(reducible)}下げOK` : '今が最低ライン',
+      cls:'ok',
+      minEv,
+      reducible,
+      needed:0,
+      state: reducible > 0 ? 'can_reduce' : 'minimum_line'
+    };
   }
   if(currentSpeed === targetSpeed){
-    if(minEv == null) return { text:'最大でも上不可', cls:'bad' };
-    if(minEv > currentEv) return { text:`同速 / あと${formatSpeedEv(minEv-currentEv)}で上`, cls:'need' };
-    return { text:'同速', cls:'need' };
+    if(minEv == null) return { text:'最大でも上不可', cls:'bad', minEv:null, reducible:0, needed:null, state:'impossible' };
+    const needed = Math.max(0, minEv-currentEv);
+    return { text: needed > 0 ? `同速 / あと${formatSpeedEv(needed)}で上` : '同速', cls:'need', minEv, reducible:0, needed, state:'same' };
   }
-  if(minEv == null) return { text:'最大でも厳しい', cls:'bad' };
-  if(minEv > currentEv) return { text:`あと${formatSpeedEv(minEv-currentEv)}で上`, cls:'need' };
-  return { text:`最低${formatSpeedEv(minEv)}で上`, cls:'need' };
+  if(minEv == null) return { text:'最大でも厳しい', cls:'bad', minEv:null, reducible:0, needed:null, state:'impossible' };
+  const needed = Math.max(0, minEv-currentEv);
+  return { text: needed > 0 ? `あと${formatSpeedEv(needed)}で上` : `最低${formatSpeedEv(minEv)}で上`, cls:'need', minEv, reducible:0, needed, state:'need_more' };
+}
+
+function renderMySpeedAdviceBoard(mySpeedState, rows, compareKey, compareLabel){
+  const box = document.getElementById('my-speed-advice-cards');
+  if(!box) return;
+  if(!mySpeedState.hasInput){
+    box.innerHTML = '<div class="speed-advice-empty">自分のポケモンを選ぶと、色分けだけでなく「何Pまで下げても抜けるか」「あと何Pで抜けるか」をここに表示します。</div>';
+    return;
+  }
+  if(mySpeedState.manualMode){
+    box.innerHTML = '<div class="speed-advice-empty">実数値直接入力中です。努力値を削る判断は、ポケモン名・ポイント・性格から自動計算した時に表示します。</div>';
+    return;
+  }
+  const details = rows.map(r=>{
+    const targetSpeed = r[compareKey];
+    const d = getEvAdviceDetail(mySpeedState, mySpeedState.effectiveSpeed, targetSpeed, false);
+    return { row:r, targetSpeed, ...d };
+  });
+  const reduce = details
+    .filter(d=>d.state === 'can_reduce' && d.reducible > 0)
+    .sort((a,b)=>(a.reducible-b.reducible) || (b.targetSpeed-a.targetSpeed))
+    .slice(0,3);
+  const need = details
+    .filter(d=>(d.state === 'need_more' || d.state === 'same') && d.needed != null && d.needed > 0)
+    .sort((a,b)=>(a.needed-b.needed) || (b.targetSpeed-a.targetSpeed))
+    .slice(0,2);
+  const impossible = details
+    .filter(d=>d.state === 'impossible')
+    .sort((a,b)=>b.targetSpeed-a.targetSpeed)
+    .slice(0,1);
+  const cards = [];
+  reduce.forEach(d=>{
+    cards.push(`<div class="speed-advice-card ok"><strong>${escapeSpeedHtml(d.row.name)}</strong><span>${escapeSpeedHtml(compareLabel)} ${d.targetSpeed} を抜くには最低${escapeSpeedHtml(formatSpeedEv(d.minEv))}。</span><span>現在から${escapeSpeedHtml(formatSpeedEv(d.reducible))}下げてもOK。</span></div>`);
+  });
+  need.forEach(d=>{
+    cards.push(`<div class="speed-advice-card need"><strong>${escapeSpeedHtml(d.row.name)}</strong><span>${escapeSpeedHtml(compareLabel)} ${d.targetSpeed} を抜くには最低${escapeSpeedHtml(formatSpeedEv(d.minEv))}。</span><span>あと${escapeSpeedHtml(formatSpeedEv(d.needed))}必要です。</span></div>`);
+  });
+  impossible.forEach(d=>{
+    cards.push(`<div class="speed-advice-card bad"><strong>${escapeSpeedHtml(d.row.name)}</strong><span>${escapeSpeedHtml(compareLabel)} ${d.targetSpeed} は、現在条件では最大まで振っても上を取れません。</span></div>`);
+  });
+  if(!cards.length){
+    cards.push(`<div class="speed-advice-card ok"><strong>現在の条件</strong><span>表示中の相手に対して、追加で削れる候補が少ない状態です。</span><span>比較基準や補正を変えると判断候補が更新されます。</span></div>`);
+  }
+  box.innerHTML = cards.join('');
+}
+
+function makeCompareCardAdviceHtml(profile, target){
+  if(!profile || !profile.hasInput) return '<span>この枠のポケモンを選ぶと、努力値判断を表示します。</span>';
+  if(!target || !target.hasInput) return '<span>相手側のポケモンを選ぶと、何Pまで下げられるか / あと何P必要かを表示します。</span>';
+  const d = getEvAdviceDetail(profile, profile.effectiveSpeed, target.effectiveSpeed, false);
+  if(d.state === 'can_reduce') return `<strong>${escapeSpeedHtml(formatSpeedEv(d.minEv))}まで下げても上</strong><br>${escapeSpeedHtml(target.name)}の補正後${target.effectiveSpeed}を抜く最低ラインです。現在から${escapeSpeedHtml(formatSpeedEv(d.reducible))}削れます。`;
+  if(d.state === 'minimum_line') return `<strong>今が最低ライン</strong><br>${escapeSpeedHtml(target.name)}を抜くには、現在の${escapeSpeedHtml(formatSpeedEv(profile.currentEv))}を下げない方が安全です。`;
+  if(d.state === 'same' && d.needed > 0) return `<strong>同速です</strong><br>上を取るには最低${escapeSpeedHtml(formatSpeedEv(d.minEv))}、あと${escapeSpeedHtml(formatSpeedEv(d.needed))}必要です。`;
+  if(d.state === 'need_more') return `<strong>あと${escapeSpeedHtml(formatSpeedEv(d.needed))}で上</strong><br>${escapeSpeedHtml(target.name)}を抜くには最低${escapeSpeedHtml(formatSpeedEv(d.minEv))}必要です。`;
+  if(d.state === 'impossible') return `<strong>最大でも厳しい</strong><br>現在の条件では、最大まで振っても${escapeSpeedHtml(target.name)}の補正後${target.effectiveSpeed}を上回れません。`;
+  return `<strong>${escapeSpeedHtml(d.text)}</strong>`;
+}
+
+function renderCompareCardAdvice(a,b){
+  const aBox = document.getElementById('cmp-a-advice');
+  const bBox = document.getElementById('cmp-b-advice');
+  if(aBox) aBox.innerHTML = makeCompareCardAdviceHtml(a,b);
+  if(bBox) bBox.innerHTML = makeCompareCardAdviceHtml(b,a);
 }
 
 function makeCompareAdjustmentText(profile, target){
@@ -1085,6 +1180,7 @@ function render(){
   document.getElementById('cmp-b-effective').textContent = cmpB.effectiveSpeed > 0 ? cmpB.effectiveSpeed : '—';
   document.getElementById('cmp-a-quick').textContent = cmpA.hasInput ? `${cmpA.name} / ${cmpA.effectiveSpeed}` : '未入力';
   document.getElementById('cmp-b-quick').textContent = cmpB.hasInput ? `${cmpB.name} / ${cmpB.effectiveSpeed}` : '未入力';
+  renderCompareCardAdvice(cmpA, cmpB);
   const compareMain = document.getElementById('compare-result-main');
   const compareSub = document.getElementById('compare-result-sub');
   if(cmpA.hasInput && cmpB.hasInput){
@@ -1135,6 +1231,7 @@ function render(){
   });
 
   rows.sort((a,b)=>(b[compareKey]-a[compareKey]) || (b.fastest-a.fastest) || (b.baseSpe-a.baseSpe));
+  renderMySpeedAdviceBoard(mySpeedState, rows, compareKey, compareLabelMap[compareMode] || '相手の最速');
 
   const thead = document.getElementById('speed-thead');
   let thHtml = '<tr><th>ポケモン</th><th>タイプ</th><th class="num">種族値</th>';
