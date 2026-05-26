@@ -118,6 +118,14 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .compare-winner{color:var(--green);}
 .compare-loser{color:var(--accent2);}
 .compare-even{color:var(--accent3);}
+.ev-advice-pill strong{font-family:'Noto Sans JP',sans-serif;font-size:11px;}
+.ev-advice{font-size:10px;line-height:1.55;color:var(--text2);min-width:128px;}
+.ev-advice.ok{color:var(--green);}
+.ev-advice.need{color:var(--accent3);}
+.ev-advice.bad{color:var(--accent2);}
+.ev-advice.neutral{color:var(--text2);}
+.compare-ev-advice{margin-top:4px;padding-top:6px;border-top:1px solid var(--border);display:grid;gap:3px;}
+.compare-ev-advice span{display:block;}
 .ability-detail{display:block;margin-top:4px;font-size:9px;color:var(--text2);line-height:1.5;}
 .head-sub{display:block;margin-top:3px;font-size:9px;color:var(--text2);font-weight:400;letter-spacing:0;}
 @media(max-width:980px){.my-speed-grid{grid-template-columns:repeat(3,minmax(110px,1fr));}.compare-grid{grid-template-columns:1fr;}}
@@ -241,7 +249,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 <div class="main">
   <div style="margin-bottom:14px;">
     <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:3px;">SPEED TIER CHART</div>
-    <div class="desc">素早さの実数値を一覧で比較。スカーフ・追い風・特性補正・ランク補正にも対応。自分の素早さを入力すると、抜ける相手と抜けない相手がハイライトされます。</div>
+    <div class="desc">素早さの実数値を一覧で比較。スカーフ・追い風・特性補正・ランク補正にも対応。自分の素早さを入力すると、抜ける相手と抜けない相手を色分けし、どこまでポイントを下げても上を取れるかも確認できます。</div>
   </div>
 
   <div class="guide-link-box">
@@ -382,6 +390,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
       <div class="my-speed-pill">未補正実数値 <strong id="my-speed-base">—</strong></div>
       <div class="my-speed-pill">判定に使う補正後素早さ <strong id="my-speed-effective">—</strong></div>
       <div class="my-speed-pill">比較基準 <strong id="compare-mode-label">相手の最速</strong></div>
+      <div class="my-speed-pill ev-advice-pill">努力値判断 <strong id="my-ev-summary">—</strong></div>
     </div>
   </div>
 
@@ -873,46 +882,21 @@ function updateCompareAbilityOptions(prefix){
   sel.value = values.includes(current) ? current : '1';
 }
 
-function calculateMySpeedValues(){
-  const manualInput = Number(document.getElementById('my-speed-manual').value);
-  const myName = document.getElementById('my-pokemon-name').value.trim();
-  const myPokemon = findPokemonByName(myName);
-  const ev = clampEvForSpeed(document.getElementById('my-spe-ev').value);
-  const iv = getCurrentGameRule().label === 'Champions' ? 31 : Math.max(0, Math.min(31, Number(document.getElementById('my-spe-iv').value)||31));
-  const nature = document.getElementById('my-nature').value;
-  const rankMult = RANK_MULT[document.getElementById('my-rank-mod').value] || 1;
-  const tailwind = document.getElementById('my-tgl-tailwind').classList.contains('on');
-  const para = document.getElementById('my-tgl-para').classList.contains('on');
-  const abilityMult = Number(document.getElementById('my-speed-ability').value || '1');
-  const natureMult = getNatureMult(nature);
-
-  let baseSpeed = 0;
-  let helpText = 'ポケモン・素早さポイント・性格から自動計算します。直接入力した場合はその値を優先します。';
-  if(Number.isFinite(manualInput) && manualInput > 0){
-    baseSpeed = Math.floor(manualInput);
-    helpText = '実数値直接入力を優先中です。ここに特性・持ち物・ランク補正を上乗せしています。';
-  }else if(myPokemon){
-    baseSpeed = calcSpe(myPokemon.spe, iv, ev, 50, natureMult);
-    helpText = '選択したポケモンの種族値・ポイント・個体値・性格から実数値を計算しています。';
-  }else{
-    helpText = 'ポケモン名を入れるか、実数値を直接入力すると比較できます。';
-  }
-
-  if(isMegaPokemonName(myName) && document.getElementById('my-tgl-scarf').classList.contains('on')){
-    document.getElementById('my-tgl-scarf').classList.remove('on');
-    helpText = 'メガ進化ポケモンはメガストーン固定なので、スカーフ補正は外しています。';
-  }
-
-  let effectiveSpeed = baseSpeed;
-  effectiveSpeed = Math.floor(effectiveSpeed * abilityMult);
-  if(document.getElementById('my-tgl-scarf').classList.contains('on')) effectiveSpeed = Math.floor(effectiveSpeed * 1.5);
-  if(tailwind) effectiveSpeed = Math.floor(effectiveSpeed * 2);
-  if(para) effectiveSpeed = Math.floor(effectiveSpeed * 0.5);
-  effectiveSpeed = Math.floor(effectiveSpeed * rankMult);
-  return { baseSpeed, effectiveSpeed, helpText, hasInput: baseSpeed > 0 };
+function getMySpeedProfile(){
+  const name = document.getElementById('my-pokemon-name')?.value.trim() || '';
+  const pokemon = findPokemonByName(name);
+  const ev = clampEvForSpeed(document.getElementById('my-spe-ev')?.value || 0);
+  const iv = getCurrentGameRule().label === 'Champions' ? 31 : Math.max(0, Math.min(31, Number(document.getElementById('my-spe-iv')?.value)||31));
+  const nature = document.getElementById('my-nature')?.value || 'ようき';
+  const rankMult = RANK_MULT[document.getElementById('my-rank-mod')?.value || '0'] || 1;
+  const abilityMult = Number(document.getElementById('my-speed-ability')?.value || '1');
+  const tailwind = document.getElementById('my-tgl-tailwind')?.classList.contains('on');
+  const para = document.getElementById('my-tgl-para')?.classList.contains('on');
+  const scarf = document.getElementById('my-tgl-scarf')?.classList.contains('on') && !isMegaPokemonName(name);
+  return { label:'自分', name, pokemon, currentEv:ev, iv, nature, natureMult:getNatureMult(nature), rankMult, abilityMult, tailwind, para, scarf, hasInput:!!pokemon };
 }
 
-function calculateCompareSpeedValues(prefix){
+function getCompareSpeedProfile(prefix, label){
   const name = document.getElementById(`${prefix}-name`)?.value.trim() || '';
   const pokemon = findPokemonByName(name);
   const ev = clampEvForSpeed(document.getElementById(`${prefix}-ev`)?.value || 0);
@@ -922,17 +906,139 @@ function calculateCompareSpeedValues(prefix){
   const abilityMult = Number(document.getElementById(`${prefix}-ability`)?.value || '1');
   const tailwind = document.getElementById(`${prefix}-tgl-tailwind`)?.classList.contains('on');
   const para = document.getElementById(`${prefix}-tgl-para`)?.classList.contains('on');
-  const scarf = document.getElementById(`${prefix}-tgl-scarf`)?.classList.contains('on');
-  const natureMult = getNatureMult(nature);
-  let baseSpeed = 0;
-  if(pokemon) baseSpeed = calcSpe(pokemon.spe, iv, ev, 50, natureMult);
+  const scarf = document.getElementById(`${prefix}-tgl-scarf`)?.classList.contains('on') && !isMegaPokemonName(name);
+  return { label, name, pokemon, currentEv:ev, iv, nature, natureMult:getNatureMult(nature), rankMult, abilityMult, tailwind, para, scarf, hasInput:!!pokemon };
+}
+
+function calcEffectiveSpeedFromProfile(profile, ev){
+  if(!profile || !profile.pokemon) return { baseSpeed:0, effectiveSpeed:0 };
+  let baseSpeed = calcSpe(profile.pokemon.spe, profile.iv, ev, 50, profile.natureMult);
   let effectiveSpeed = baseSpeed;
-  effectiveSpeed = Math.floor(effectiveSpeed * abilityMult);
-  if(scarf && !isMegaPokemonName(name)) effectiveSpeed = Math.floor(effectiveSpeed * 1.5);
-  if(tailwind) effectiveSpeed = Math.floor(effectiveSpeed * 2);
-  if(para) effectiveSpeed = Math.floor(effectiveSpeed * 0.5);
-  effectiveSpeed = Math.floor(effectiveSpeed * rankMult);
-  return { name, baseSpeed, effectiveSpeed, hasInput: !!pokemon };
+  effectiveSpeed = Math.floor(effectiveSpeed * profile.abilityMult);
+  if(profile.scarf) effectiveSpeed = Math.floor(effectiveSpeed * 1.5);
+  if(profile.tailwind) effectiveSpeed = Math.floor(effectiveSpeed * 2);
+  if(profile.para) effectiveSpeed = Math.floor(effectiveSpeed * 0.5);
+  effectiveSpeed = Math.floor(effectiveSpeed * profile.rankMult);
+  return { baseSpeed, effectiveSpeed };
+}
+
+function buildEvCandidates(){
+  const rule = getCurrentGameRule();
+  const step = Math.max(1, Number(rule.evStep)||1);
+  const values = [];
+  for(let ev=0; ev<=rule.evMax; ev+=step){ values.push(ev); }
+  if(values[values.length-1] !== rule.evMax) values.push(rule.evMax);
+  return values;
+}
+
+function findMinimumEvToBeat(profile, targetSpeed){
+  if(!profile || !profile.hasInput) return null;
+  const candidates = buildEvCandidates();
+  for(const ev of candidates){
+    if(calcEffectiveSpeedFromProfile(profile, ev).effectiveSpeed > targetSpeed) return ev;
+  }
+  return null;
+}
+
+function formatSpeedEv(value){
+  const rule = getCurrentGameRule();
+  const v = Math.max(0, Math.floor(Number(value)||0));
+  return rule.label === 'Champions' ? `${v}P` : `${v}努力値`;
+}
+
+function makeMyEvSummary(mySpeedState){
+  if(!mySpeedState.hasInput) return '—';
+  if(mySpeedState.manualMode) return '直接入力中は対象外';
+  return `現在${formatSpeedEv(mySpeedState.currentEv)} / 一覧で削れる幅を表示`;
+}
+
+function getEvAdviceForTarget(profile, currentSpeed, targetSpeed, manualMode){
+  if(!profile || !profile.hasInput) return { text:'—', cls:'neutral' };
+  if(manualMode) return { text:'直接入力中', cls:'neutral' };
+  const minEv = findMinimumEvToBeat(profile, targetSpeed);
+  const currentEv = profile.currentEv;
+  if(currentSpeed > targetSpeed){
+    if(minEv == null) return { text:'—', cls:'neutral' };
+    const reducible = Math.max(0, currentEv - minEv);
+    if(reducible > 0) return { text:`最低${formatSpeedEv(minEv)} / ${formatSpeedEv(reducible)}下げOK`, cls:'ok' };
+    return { text:'今が最低ライン', cls:'ok' };
+  }
+  if(currentSpeed === targetSpeed){
+    if(minEv == null) return { text:'最大でも上不可', cls:'bad' };
+    if(minEv > currentEv) return { text:`同速 / あと${formatSpeedEv(minEv-currentEv)}で上`, cls:'need' };
+    return { text:'同速', cls:'need' };
+  }
+  if(minEv == null) return { text:'最大でも厳しい', cls:'bad' };
+  if(minEv > currentEv) return { text:`あと${formatSpeedEv(minEv-currentEv)}で上`, cls:'need' };
+  return { text:`最低${formatSpeedEv(minEv)}で上`, cls:'need' };
+}
+
+function makeCompareAdjustmentText(profile, target){
+  if(!profile || !target || !profile.hasInput || !target.hasInput) return '';
+  const currentSpeed = profile.effectiveSpeed || 0;
+  const targetSpeed = target.effectiveSpeed || 0;
+  const minEv = findMinimumEvToBeat(profile, targetSpeed);
+  const currentEv = profile.currentEv;
+  const name = profile.label;
+  if(currentSpeed > targetSpeed){
+    if(minEv == null) return '';
+    const reducible = Math.max(0, currentEv - minEv);
+    if(reducible > 0) return `${name}は最低${formatSpeedEv(minEv)}で上。現在から${formatSpeedEv(reducible)}下げても先に動けます。`;
+    return `${name}は今の${formatSpeedEv(currentEv)}が抜く最低ラインです。`;
+  }
+  if(currentSpeed === targetSpeed){
+    if(minEv == null) return `${name}は最大まで振っても上は取れません。`;
+    if(minEv > currentEv) return `${name}は同速。上を取るには最低${formatSpeedEv(minEv)}（あと${formatSpeedEv(minEv-currentEv)}）です。`;
+    return `${name}は同速です。`;
+  }
+  if(minEv == null) return `${name}は最大まで振っても上は取れません。`;
+  return `${name}が上を取るには最低${formatSpeedEv(minEv)}（あと${formatSpeedEv(Math.max(0,minEv-currentEv))}）です。`;
+}
+
+function makeCompareAdjustmentHtml(a, b){
+  const lines = [makeCompareAdjustmentText(a,b), makeCompareAdjustmentText(b,a)].filter(Boolean);
+  if(!lines.length) return '';
+  return `<div class="compare-ev-advice">${lines.map(line=>`<span>${escapeSpeedHtml(line)}</span>`).join('')}</div>`;
+}
+
+function calculateMySpeedValues(){
+  const manualInput = Number(document.getElementById('my-speed-manual').value);
+  const manualMode = Number.isFinite(manualInput) && manualInput > 0;
+  const profile = getMySpeedProfile();
+  let baseSpeed = 0;
+  let effectiveSpeed = 0;
+  let helpText = 'ポケモン・ポイント・性格から自動計算します。直接入力した場合はその値を優先します。';
+  if(manualMode){
+    baseSpeed = Math.floor(manualInput);
+    effectiveSpeed = baseSpeed;
+    effectiveSpeed = Math.floor(effectiveSpeed * profile.abilityMult);
+    if(profile.scarf) effectiveSpeed = Math.floor(effectiveSpeed * 1.5);
+    if(profile.tailwind) effectiveSpeed = Math.floor(effectiveSpeed * 2);
+    if(profile.para) effectiveSpeed = Math.floor(effectiveSpeed * 0.5);
+    effectiveSpeed = Math.floor(effectiveSpeed * profile.rankMult);
+    helpText = '実数値直接入力を優先中です。ここに特性・持ち物・ランク補正を上乗せしています。努力値を何Pまで下げられるかの判断は、ポケモン名からの自動計算時に表示します。';
+  }else if(profile.hasInput){
+    const speed = calcEffectiveSpeedFromProfile(profile, profile.currentEv);
+    baseSpeed = speed.baseSpeed;
+    effectiveSpeed = speed.effectiveSpeed;
+    helpText = '選択したポケモンの種族値・ポイント・個体値・性格から実数値を計算しています。一覧の「努力値判断」で、対象ごとに削れる幅や必要量を確認できます。';
+  }else{
+    helpText = 'ポケモン名を入れるか、実数値を直接入力すると比較できます。';
+  }
+
+  if(isMegaPokemonName(profile.name) && document.getElementById('my-tgl-scarf').classList.contains('on')){
+    document.getElementById('my-tgl-scarf').classList.remove('on');
+    profile.scarf = false;
+    helpText = 'メガ進化ポケモンはメガストーン固定なので、スカーフ補正は外しています。';
+  }
+
+  return { ...profile, baseSpeed, effectiveSpeed, helpText, manualMode, hasInput: baseSpeed > 0 };
+}
+
+function calculateCompareSpeedValues(prefix){
+  const profile = getCompareSpeedProfile(prefix, prefix === 'cmp-a' ? '比較A' : '比較B');
+  const speed = calcEffectiveSpeedFromProfile(profile, profile.currentEv);
+  return { ...profile, baseSpeed:speed.baseSpeed, effectiveSpeed:speed.effectiveSpeed, hasInput:profile.hasInput };
 }
 
 function applyOverallMods(baseVal, speedAbs, isMega, forceAbility){
@@ -968,6 +1074,8 @@ function render(){
   document.getElementById('my-speed-effective').textContent = mySpeedState.effectiveSpeed > 0 ? mySpeedState.effectiveSpeed : '—';
   document.getElementById('my-speed-help').textContent = mySpeedState.helpText;
   document.getElementById('compare-mode-label').textContent = compareLabelMap[compareMode] || '相手の最速';
+  const myEvSummary = document.getElementById('my-ev-summary');
+  if(myEvSummary) myEvSummary.textContent = makeMyEvSummary(mySpeedState);
 
   const cmpA = calculateCompareSpeedValues('cmp-a');
   const cmpB = calculateCompareSpeedValues('cmp-b');
@@ -980,19 +1088,20 @@ function render(){
   const compareMain = document.getElementById('compare-result-main');
   const compareSub = document.getElementById('compare-result-sub');
   if(cmpA.hasInput && cmpB.hasInput){
+    const adjustmentHtml = makeCompareAdjustmentHtml(cmpA, cmpB);
     if(cmpA.effectiveSpeed > cmpB.effectiveSpeed){
       compareMain.innerHTML = `<span class="compare-winner">${escapeSpeedHtml(cmpA.name)}</span> の方が先に動けます。`;
-      compareSub.textContent = `補正後素早さは ${cmpA.effectiveSpeed} と ${cmpB.effectiveSpeed} で ${cmpA.effectiveSpeed - cmpB.effectiveSpeed} 差です。`;
+      compareSub.innerHTML = `${escapeSpeedHtml(`補正後素早さは ${cmpA.effectiveSpeed} と ${cmpB.effectiveSpeed} で ${cmpA.effectiveSpeed - cmpB.effectiveSpeed} 差です。`)}${adjustmentHtml}`;
     }else if(cmpA.effectiveSpeed < cmpB.effectiveSpeed){
       compareMain.innerHTML = `<span class="compare-winner">${escapeSpeedHtml(cmpB.name)}</span> の方が先に動けます。`;
-      compareSub.textContent = `補正後素早さは ${cmpA.effectiveSpeed} と ${cmpB.effectiveSpeed} で ${cmpB.effectiveSpeed - cmpA.effectiveSpeed} 差です。`;
+      compareSub.innerHTML = `${escapeSpeedHtml(`補正後素早さは ${cmpA.effectiveSpeed} と ${cmpB.effectiveSpeed} で ${cmpB.effectiveSpeed - cmpA.effectiveSpeed} 差です。`)}${adjustmentHtml}`;
     }else{
       compareMain.innerHTML = `<span class="compare-even">同速です。</span>`;
-      compareSub.textContent = `どちらも補正後素早さ ${cmpA.effectiveSpeed} です。`;
+      compareSub.innerHTML = `${escapeSpeedHtml(`どちらも補正後素早さ ${cmpA.effectiveSpeed} です。`)}${adjustmentHtml}`;
     }
   }else{
     compareMain.textContent = '2匹を入れると比較結果が出ます。';
-    compareSub.textContent = '同速かどうか、どちらが何差で上を取れるかをここに表示します。';
+    compareSub.textContent = '同速かどうか、どちらが何差で上を取れるか、どこまでポイントを削れるかをここに表示します。';
   }
 
   let pokes = POKEMON_DATA.filter(p=>{
@@ -1034,6 +1143,7 @@ function render(){
   if(colMode==='all'||colMode==='no') thHtml += '<th class="num">無振り</th>';
   if(colMode==='all'||colMode==='slowest') thHtml += '<th class="num">最遅</th>';
   thHtml += `<th class="num">特性発動時<span class="head-sub">${compareLabelMap[compareMode] || '相手の最速'}</span></th>`;
+  thHtml += '<th>努力値判断</th>';
   thHtml += '<th>素早さ特性</th></tr>';
   thead.innerHTML = thHtml;
 
@@ -1052,6 +1162,7 @@ function render(){
     const abHtml = r.speedAbs.map(a=>`<span class="ab-badge" title="${a.condition}で×${a.mult}">${a.name}</span>`).join('');
     const abilityCompareValue = r[`${compareKey}Ability`] || r[compareKey];
     const abilityDetail = r.speedAbs.length ? `<span class="ability-detail">通常 ${r[compareKey]} → 発動 ${abilityCompareValue}</span>` : '<span style="color:var(--border2);">—</span>';
+    const evAdvice = getEvAdviceForTarget(mySpeedState, mySpeedState.effectiveSpeed, targetSpeed, mySpeedState.manualMode);
     html += `<tr class="${rowClass}">`;
     html += `<td><span class="poke-name">${r.name}</span></td>`;
     html += `<td>${t1}${t2}</td>`;
@@ -1061,6 +1172,7 @@ function render(){
     if(colMode==='all'||colMode==='no') html += `<td class="num">${r.noev}</td>`;
     if(colMode==='all'||colMode==='slowest') html += `<td class="num">${r.slowest}</td>`;
     html += `<td class="num">${r.speedAbs.length ? abilityCompareValue : '—'}</td>`;
+    html += `<td><span class="ev-advice ${evAdvice.cls}">${escapeSpeedHtml(evAdvice.text)}</span></td>`;
     html += `<td>${abHtml || '<span style="color:var(--border2);">—</span>'}${r.speedAbs.length ? abilityDetail : ''}</td>`;
     html += '</tr>';
   });
