@@ -95,6 +95,20 @@ h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px;}
 .segment-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .segment-btn{border:1px solid var(--border);background:var(--panel);color:var(--text2);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;cursor:pointer;}
 .segment-btn.active,.segment-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.1);}
+.quick-nature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin-top:7px;}
+.quick-nature-box{border:1px solid var(--border);background:var(--panel);border-radius:13px;padding:8px;display:grid;gap:5px;}
+.quick-nature-box .label{line-height:1.35;}
+.quick-nature-box .segment-grid{margin-top:0;gap:5px;}
+.quick-nature-box .segment-btn{padding:6px 8px;font-size:10px;}
+.quick-mobile-tabs{display:none;}
+.quick-tab-btn{border:1px solid var(--border2);background:var(--panel2);color:var(--text2);border-radius:14px;padding:10px 8px;font-size:12px;font-weight:900;letter-spacing:.04em;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.10);}
+.quick-tab-btn.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);}
+.quick-match-summary{border:1px solid var(--border);background:linear-gradient(135deg,rgba(0,200,240,.08),rgba(255,48,96,.035)),var(--panel2);border-radius:18px;padding:11px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:stretch;margin-bottom:12px;}
+.quick-match-side{border:1px solid var(--border);background:var(--panel);border-radius:14px;padding:10px;min-width:0;}
+.quick-match-label{font-size:10px;color:var(--text3);font-weight:900;letter-spacing:.1em;margin-bottom:4px;}
+.quick-match-name{font-size:15px;font-weight:900;line-height:1.35;word-break:break-word;}
+.quick-match-meta{font-size:11px;color:var(--text2);line-height:1.55;margin-top:5px;}
+.quick-match-swap{align-self:center;}
 .rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:6px;margin-top:10px;}
 .rank-box{border:1px solid var(--border);background:var(--panel2);border-radius:12px;padding:7px;display:grid;gap:4px;}
 .rank-box input{padding:7px;font-size:13px;text-align:center;}
@@ -182,6 +196,8 @@ details summary::-webkit-details-marker{display:none;}
   .mobile-tool-scroll::-webkit-scrollbar{display:none;}
   .mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap;}
   .mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,0.14);color:var(--accent);font-weight:800;}
+  .quick-mobile-tabs{top:104px;}
+  .input-card .card-head{top:154px;}
 }
 @media(min-width:769px){.mobile-tool-nav{display:none!important;}}
 [data-theme="light"] .mobile-tool-nav{background:rgba(248,251,254,0.96);border-bottom-color:#a9c4d8;}
@@ -201,8 +217,18 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
   .hero{grid-template-columns:1fr;}
   .layout{grid-template-columns:1fr;}
   .result-card{position:static;}
+  .quick-mobile-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:sticky;top:60px;z-index:60;background:linear-gradient(180deg,var(--bg),rgba(0,0,0,0));padding:8px 0 10px;margin:-2px 0 10px;}
+  body.quick-mobile-panel-attacker .result-card, body.quick-mobile-panel-defender .result-card{display:none;}
+  body.quick-mobile-panel-attacker [data-quick-panel="defender"]{display:none;}
+  body.quick-mobile-panel-defender [data-quick-panel="attacker"]{display:none;}
+  body.quick-mobile-panel-damage .input-card{display:none;}
+  .input-card .card-head{position:sticky;top:110px;z-index:35;background:var(--panel);}
   .wrap{padding:14px 10px 34px;}
   h1{font-size:22px;}
+}
+@media(max-width:768px){
+  .quick-mobile-tabs{top:104px;}
+  .input-card .card-head{top:154px;}
 }
 @media(max-width:640px){
   .hero{display:block;margin-bottom:10px;}
@@ -219,6 +245,11 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
   .damage-main{text-align:left;}
   .damage-pct{font-size:24px;}
   .compact-tools{grid-template-columns:1fr;}
+  .quick-mobile-tabs{top:102px;}
+  .input-card .card-head{top:150px;}
+  .quick-match-summary{grid-template-columns:1fr;gap:8px;}
+  .quick-match-swap{width:100%;}
+  .quick-match-swap .btn{width:100%;}
   .input,.select{font-size:16px;min-height:44px;}
   .registered-apply-row{grid-template-columns:1fr;}
   .registered-apply{padding:10px;border-radius:14px;}
@@ -291,15 +322,21 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
     </div>
   </section>
 
+  <div class="quick-mobile-tabs" id="quick-mobile-tabs" aria-label="クイック技ダメージ表示切り替え">
+    <button class="quick-tab-btn" type="button" data-quick-tab="attacker" onclick="quickSetMobilePanel('attacker')">攻撃側</button>
+    <button class="quick-tab-btn" type="button" data-quick-tab="defender" onclick="quickSetMobilePanel('defender')">防御側</button>
+    <button class="quick-tab-btn" type="button" data-quick-tab="damage" onclick="quickSetMobilePanel('damage')">ダメージ計算</button>
+  </div>
+
   <section class="layout">
-    <div class="card">
+    <div class="card input-card">
       <div class="card-head">
         <div class="card-title">入力</div>
         <button class="btn primary" type="button" onclick="quickSwapSides()">自分 ⇄ 相手</button>
       </div>
       <div class="card-body control-grid">
-        <div class="side-card">
-          <div class="side-top"><div class="side-title">自分</div><button class="btn" type="button" onclick="quickAutoMoves()">候補技4つ</button></div>
+        <div class="side-card" data-quick-panel="attacker">
+          <div class="side-top"><div class="side-title">攻撃側</div><button class="btn" type="button" onclick="quickAutoMoves()">候補技4つ</button></div>
           <div class="field">
             <div class="label">ポケモン</div>
             <div class="search-wrap"><input class="input" id="attacker-name" placeholder="ポケモン名を入力" autocomplete="off"><div class="search-panel" id="attacker-name-panel"></div></div>
@@ -315,6 +352,10 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
             <div class="label">攻撃プリセット</div>
             <div class="segment-grid" id="atk-preset-chips"></div>
           </div>
+          <div class="field quick-nature-field">
+            <div class="label">よく使う性格補正</div>
+            <div class="quick-nature-grid" id="attacker-nature-chips"></div>
+          </div>
           <details class="advanced" id="attacker-advanced">
             <summary>自分の詳細調整</summary>
             <div class="adv-grid" id="attacker-settings"></div>
@@ -322,8 +363,8 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
           </details>
         </div>
 
-        <div class="side-card">
-          <div class="side-top"><div class="side-title">相手</div><button class="btn" type="button" onclick="quickUseDefPreset('HB')">HB</button></div>
+        <div class="side-card" data-quick-panel="defender">
+          <div class="side-top"><div class="side-title">防御側</div><button class="btn" type="button" onclick="quickUseDefPreset('HB')">HB</button></div>
           <div class="field">
             <div class="label">ポケモン</div>
             <div class="search-wrap"><input class="input" id="defender-name" placeholder="ポケモン名を入力" autocomplete="off"><div class="search-panel" id="defender-name-panel"></div></div>
@@ -340,6 +381,10 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
               <div class="segment-grid" id="weather-chips"></div>
             </div>
           </div>
+          <div class="field quick-nature-field">
+            <div class="label">よく使う性格補正</div>
+            <div class="quick-nature-grid" id="defender-nature-chips"></div>
+          </div>
           <details class="advanced" id="defender-advanced">
             <summary>相手の詳細調整</summary>
             <div class="adv-grid" id="defender-settings"></div>
@@ -349,7 +394,7 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
       </div>
     </div>
 
-    <div class="card result-card">
+    <div class="card result-card" data-quick-panel="damage">
       <div class="card-head result-head">
         <div>
           <div class="card-title">4技ダメージ</div>
@@ -357,12 +402,14 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
           <div class="pair-sub" id="pair-sub">入力したら自動で表示します。</div>
         </div>
         <div class="btn-row result-controls">
+          <button class="btn" type="button" onclick="quickSwapSides()">攻守入替</button>
           <button class="btn primary" type="button" onclick="quickSaveDamageResults()">履歴に保存</button>
           <button class="btn" type="button" onclick="quickClearMoves()">技クリア</button>
           <a class="btn" href="calc.html">精密計算へ</a>
         </div>
       </div>
       <div class="card-body">
+        <div class="quick-match-summary" id="quick-match-summary"></div>
         <div class="speed-box" id="speed-box">
           <div class="speed-side">--</div><div class="speed-mid">素早さ</div><div class="speed-side right">--</div>
         </div>
@@ -1367,7 +1414,8 @@ const quickState = {
   activeMoveIndex: 0,
   combo: { first: 0, second: 1 },
   weather: '',
-  recent: []
+  recent: [],
+  mobilePanel: 'attacker'
 };
 
 function quickEmptySlot(role){
@@ -1595,6 +1643,7 @@ function quickRenderPresetChips(){
   if(presetWrap){ presetWrap.innerHTML=Object.entries(EV_PRESETS).filter(([k])=>['none','H32','HB','HD','B32','D32'].includes(k)).map(([k,v])=>`<button type="button" class="segment-btn ${quickState.defender.preset===k?'active':''}" onclick="quickUseDefPreset('${k}')">${escapeHtml(v.name)}</button>`).join(''); }
   const weatherWrap=document.getElementById('weather-chips');
   if(weatherWrap){ const arr=[['','なし'],['sunny','晴れ'],['rain','雨'],['snow','雪'],['sand','砂嵐']]; weatherWrap.innerHTML=arr.map(([k,v])=>`<button type="button" class="segment-btn ${quickState.weather===k?'active':''}" onclick="quickSetWeather('${k}')">${escapeHtml(v)}</button>`).join(''); }
+  quickRenderNatureShortcuts();
 }
 function quickSetWeather(v){ quickState.weather=v||''; quickRenderAll(); }
 function quickStageMult(stage){ const s = Math.max(-6, Math.min(6, parseInt(stage||0,10)||0)); return s >= 0 ? (2+s)/2 : 2/(2-s); }
@@ -1645,6 +1694,23 @@ function quickSetCondition(role, key, value){
 }
 function quickSetNatureMod(role, stat, value){ const slot=quickSlot(role); if(!slot.natureMods) slot.natureMods=quickNatureModsFromName(slot.nature); slot.natureMods[stat]=Number(value)||1; slot.nature='カスタム'; quickRenderAll(); }
 function quickNatureModButtons(role, stat, current){ return [0.9,1,1.1].map(v=>`<button type="button" class="segment-btn ${Number(current||1)===v?'active':''}" onclick="quickSetNatureMod('${role}','${stat}',${v})">${v===1?'変化なし':v}</button>`).join(''); }
+const QUICK_NATURE_SHORTCUT_STATS = {
+  attacker:[['atk','攻撃'],['spa','特攻'],['def','防御（ボディプレス）']],
+  defender:[['def','防御'],['spd','特防'],['atk','攻撃（イカサマ）']]
+};
+function quickNatureShortcutButtons(role, stat, current){
+  return [[0.9,'下降0.9'],[1,'通常'],[1.1,'上昇1.1']].map(([v,label])=>`<button type="button" class="segment-btn ${Number(current||1)===v?'active':''}" onclick="quickSetNatureMod('${role}','${stat}',${v})">${label}</button>`).join('');
+}
+function quickRenderNatureShortcuts(){
+  ['attacker','defender'].forEach(role=>{
+    const wrap = document.getElementById(role + '-nature-chips');
+    if(!wrap) return;
+    const slot = quickSlot(role);
+    const nat = slot.natureMods || quickNatureModsFromName(slot.nature);
+    const stats = QUICK_NATURE_SHORTCUT_STATS[role] || [];
+    wrap.innerHTML = stats.map(([stat,label])=>`<div class="quick-nature-box"><div class="label">${escapeHtml(label)}</div><div class="segment-grid">${quickNatureShortcutButtons(role, stat, nat[stat])}</div></div>`).join('');
+  });
+}
 async function quickLoadSources(){
   try{ if(typeof initAuth === 'function') await initAuth(); }catch(_e){}
   try{ registeredPokes = typeof initPokemonData === 'function' ? await initPokemonData() : (typeof loadLocal === 'function' ? loadLocal() : []); }catch(_e){ registeredPokes = []; }
@@ -2120,6 +2186,7 @@ function quickRenderResults(){
   const pairSub = document.getElementById('pair-sub');
   if(pairTitle) pairTitle.textContent = `${quickDisplaySlotName(atk)} → ${quickDisplaySlotName(def)}`;
   if(pairSub) pairSub.textContent = `${atk.ability || '特性未設定'} / ${atk.item || '持ち物なし'} / 天候:${quickWeatherLabel(quickState.weather)}`;
+  quickRenderMatchSummary();
   quickRenderSpeed();
   if(!list){ quickRenderCombo(); return; }
   if(!atk.poke || !def.poke){
@@ -2276,6 +2343,17 @@ function quickDamageCard(row, bestScore){
   const critMeta = r.criticalLabel ? ` / ${escapeHtml(r.criticalLabel)}` : '';
   return `<div class="damage-card${best}"><div><div class="damage-move">${no}. ${escapeHtml(move.name)} <span class="type-pill">${escapeHtml(r.moveType || move.type)}</span>${critBadge}</div><div class="damage-meta">${escapeHtml(r.category)} / 威力${escapeHtml(r.power || move.power)} / 相性 <span class="${quickEffClass(r.eff)}">×${r.eff}</span> / ${escapeHtml(r.attackStatName)}→${escapeHtml(r.defenseStatName)}${critMeta}${notes}</div></div><div class="damage-main"><div class="damage-pct">${r.pctMin}〜${r.pctMax}%</div><div class="damage-range">${r.min}〜${r.max}ダメージ</div>${after}<span class="ko ${quickKoClass(r.ko)}">${escapeHtml(r.ko)}</span></div></div>`;
 }
+function quickRenderMatchSummary(){
+  const box = document.getElementById('quick-match-summary');
+  if(!box) return;
+  const renderSide = (label, slot)=>{
+    const stats = slot.poke ? calcFullStats(slot) : null;
+    const statLine = stats ? `H${stats.hp} A${stats.atk} B${stats.def} C${stats.spa} D${stats.spd} S${stats.spe}` : '実数値未設定';
+    const meta = [quickSpreadText(slot), quickNatureText(slot), quickRankText(slot), `特性 ${slot.ability || 'なし'}`, `持ち物 ${slot.item || 'なし'}`].filter(Boolean).join(' / ');
+    return `<div class="quick-match-side"><div class="quick-match-label">${escapeHtml(label)}</div><div class="quick-match-name">${escapeHtml(quickDisplaySlotName(slot))}</div><div class="quick-match-meta">${escapeHtml(statLine)}<br>${escapeHtml(meta)}</div></div>`;
+  };
+  box.innerHTML = `${renderSide('攻撃側', quickState.attacker)}<div class="quick-match-swap"><button class="btn" type="button" onclick="quickSwapSides()">攻守入替</button></div>${renderSide('防御側', quickState.defender)}`;
+}
 function quickRenderSpeed(){
   const box = document.getElementById('speed-box'); if(!box) return;
   const atk = quickState.attacker, def = quickState.defender;
@@ -2300,6 +2378,13 @@ function quickUpdateStatus(){
 }
 function quickApplyResultViewState(){}
 function quickToggleResultSticky(){}
+function quickSetMobilePanel(panel){
+  const next = ['attacker','defender','damage'].includes(panel) ? panel : 'attacker';
+  quickState.mobilePanel = next;
+  document.body.classList.remove('quick-mobile-panel-attacker','quick-mobile-panel-defender','quick-mobile-panel-damage');
+  document.body.classList.add('quick-mobile-panel-' + next);
+  document.querySelectorAll('[data-quick-tab]').forEach(btn=>btn.classList.toggle('active', btn.dataset.quickTab === next));
+}
 function quickRenderAll(){
   quickRenderRecent();
   quickRenderSideLabels();
@@ -2335,6 +2420,7 @@ function quickAttachEvents(){
 }
 window.onload = async()=>{
   quickApplyTheme(localStorage.getItem('pokeedge_theme') || 'dark');
+  quickSetMobilePanel(quickState.mobilePanel);
   await loadGameData();
   await quickLoadSources();
   quickBuildDataLists();
@@ -2344,6 +2430,7 @@ window.onload = async()=>{
   quickApplyResultViewState();
   quickUseDefPreset('none');
   quickRenderAll();
+  quickSetMobilePanel(quickState.mobilePanel);
   quickApplyResultViewState();
 };
 </script>
