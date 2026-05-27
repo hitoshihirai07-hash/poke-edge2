@@ -197,7 +197,6 @@ details summary::-webkit-details-marker{display:none;}
   .mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap;}
   .mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,0.14);color:var(--accent);font-weight:800;}
   .quick-mobile-tabs{top:104px;}
-  .input-card .card-head{top:154px;}
 }
 @media(min-width:769px){.mobile-tool-nav{display:none!important;}}
 [data-theme="light"] .mobile-tool-nav{background:rgba(248,251,254,0.96);border-bottom-color:#a9c4d8;}
@@ -222,13 +221,13 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
   body.quick-mobile-panel-attacker [data-quick-panel="defender"]{display:none;}
   body.quick-mobile-panel-defender [data-quick-panel="attacker"]{display:none;}
   body.quick-mobile-panel-damage .input-card{display:none;}
-  .input-card .card-head{position:sticky;top:110px;z-index:35;background:var(--panel);}
+  body.quick-mobile-panel-attacker .input-card .card-head,
+  body.quick-mobile-panel-defender .input-card .card-head{display:none;}
   .wrap{padding:14px 10px 34px;}
   h1{font-size:22px;}
 }
 @media(max-width:768px){
   .quick-mobile-tabs{top:104px;}
-  .input-card .card-head{top:154px;}
 }
 @media(max-width:640px){
   .hero{display:block;margin-bottom:10px;}
@@ -246,7 +245,6 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
   .damage-pct{font-size:24px;}
   .compact-tools{grid-template-columns:1fr;}
   .quick-mobile-tabs{top:102px;}
-  .input-card .card-head{top:150px;}
   .quick-match-summary{grid-template-columns:1fr;gap:8px;}
   .quick-match-swap{width:100%;}
   .quick-match-swap .btn{width:100%;}
@@ -332,7 +330,7 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
     <div class="card input-card">
       <div class="card-head">
         <div class="card-title">入力</div>
-        <button class="btn primary" type="button" onclick="quickSwapSides()">自分 ⇄ 相手</button>
+        <button class="btn primary" type="button" onclick="quickSwapSides()">攻守入替</button>
       </div>
       <div class="card-body control-grid">
         <div class="side-card" data-quick-panel="attacker">
