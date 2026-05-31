@@ -368,6 +368,7 @@ input[type=file]{display:none;}
         <option value="rank_double">順位データ更新（ダブル）</option>
         <option value="rank_history_single">順位推移データ更新（シングル）</option>
         <option value="rank_history_double">順位推移データ更新（ダブル）</option>
+        <option value="recruitment">上位構築関連集計更新</option>
         <option value="poke">ポケモンデータ更新</option>
         <option value="move">技データ更新</option>
         <option value="pmove">ポケモン別技データ更新</option>
@@ -387,6 +388,7 @@ input[type=file]{display:none;}
       <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_double')">ダブル順位</button>
       <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_history_single')">シングル順位推移</button>
       <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('rank_history_double')">ダブル順位推移</button>
+      <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('recruitment')">上位構築集計</button>
       <button type="button" class="admin-quick-chip" onclick="jumpToUpdate('party_list')">参考パーティー</button>
       <button type="button" class="admin-quick-chip" onclick="window.scrollTo({top:0,behavior:'smooth'})">ページ上へ戻る</button>
     </div>
@@ -407,6 +409,62 @@ input[type=file]{display:none;}
     </label>
     <div id="ranking-season-output-preview" style="font-size:11px;color:var(--text2);line-height:1.8;"></div>
   </div>
+</div>
+
+<!-- single_pokemon_recruitment_*.csv → season_recruitment_single*.json -->
+<div class="section" id="update-section-recruitment">
+  <div class="sec-title">上位構築関連集計更新</div>
+  <div class="sec-file" id="recruitment-file-label">single_pokemon_recruitment_summary_s1.csv + single_pokemon_item_recruitment_s1.csv → season_recruitment_single.json</div>
+  <div class="sec-cols">
+    必須カラム：集計側 <span>No</span>・<span>ポケモン</span>・<span>数</span> / 持ち物側 <span>No</span>・<span>ポケモン</span>・<span>持ち物</span>・<span>回数</span><br>
+    <span style="font-size:10px;color:var(--text3);">上位構築記事に掲載されていたポケモン数・持ち物数を1つのJSONにまとめます。公開側では参考集計として表示します。</span>
+  </div>
+  <div class="steps">
+    <div class="step"><span class="step-n">1</span><span>上のシーズン選択を確認</span></div>
+    <div class="step"><span class="step-n">2</span><span>single_ から始まる2種類のCSVを読み込み</span></div>
+    <div class="step"><span class="step-n">3</span><span>生成したJSONを公開中の同名ファイルへ上書きアップロードしてください</span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px;">
+    <div>
+      <div class="drop-zone" id="dz-recruitment-summary"
+        onclick="document.getElementById('f-recruitment-summary').click()"
+        ondragover="onDragOver(event,'dz-recruitment-summary')"
+        ondragleave="onDragLeave('dz-recruitment-summary')"
+        ondrop="onRecruitmentDrop(event,'summary')">
+        <div class="drop-icon">📊</div>
+        <div class="drop-text" id="recruitment-summary-drop-text">single_pokemon_recruitment_summary_s1.csv</div>
+        <div class="drop-sub">ポケモン別掲載数CSV</div>
+      </div>
+      <input type="file" id="f-recruitment-summary" accept=".csv" onchange="loadRecruitmentCSV(event,'summary')">
+    </div>
+    <div>
+      <div class="drop-zone" id="dz-recruitment-items"
+        onclick="document.getElementById('f-recruitment-items').click()"
+        ondragover="onDragOver(event,'dz-recruitment-items')"
+        ondragleave="onDragLeave('dz-recruitment-items')"
+        ondrop="onRecruitmentDrop(event,'items')">
+        <div class="drop-icon">🎒</div>
+        <div class="drop-text" id="recruitment-items-drop-text">single_pokemon_item_recruitment_s1.csv</div>
+        <div class="drop-sub">ポケモンごとの持ち物回数CSV</div>
+      </div>
+      <input type="file" id="f-recruitment-items" accept=".csv" onchange="loadRecruitmentCSV(event,'items')">
+    </div>
+  </div>
+  <div class="preview" id="prev-recruitment" style="display:block;">
+    <div class="preview-head">
+      <div class="prev-stat"><div class="prev-val" id="prev-recruitment-summary-n">0</div><div class="prev-lbl">ポケモン集計</div></div>
+      <div class="prev-stat"><div class="prev-val" id="prev-recruitment-items-n">0</div><div class="prev-lbl">持ち物集計</div></div>
+      <div class="prev-stat" style="flex:1;text-align:left;padding-left:16px;">
+        <div class="prev-lbl" style="margin-bottom:4px;">出力名</div>
+        <div id="recruitment-output-preview" style="font-size:10px;color:var(--text3);"></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-gen" id="btn-recruitment-gen" onclick="generateRecruitmentJSON()" disabled>⚡ JSON生成</button>
+    <button class="btn btn-dl" id="btn-recruitment-dl" onclick="downloadRecruitmentJSON()" disabled>💾 上位構築関連集計JSON ダウンロード</button>
+  </div>
+  <div class="log" id="log-recruitment">2種類のCSVを読み込んでください</div>
 </div>
 
 <!-- party_list.csv → party_list.json -->
@@ -1157,6 +1215,7 @@ const ADMIN_UPDATE_SHORTCUTS = {
   belongings: { label:'道具データ更新', file:'belongings.csv', out:'belongings.json', sectionId:'update-section-belongings', inputId:'f-belongings' },
   mega: { label:'メガ進化対応更新', file:'mega.csv', out:'mega.json', sectionId:'update-section-mega', inputId:'f-mega' },
   party_list: { label:'参考パーティー更新', file:'party_list.csv', out:'party_list.json', sectionId:'update-section-party_list', inputId:'f-party_list' },
+  recruitment: { label:'上位構築関連集計更新', file:'single_pokemon_recruitment_summary_s1.csv / single_pokemon_item_recruitment_s1.csv', out:'season_recruitment_single.json', sectionId:'update-section-recruitment', inputId:'f-recruitment-summary' },
   rank_single: { label:'順位データ更新（シングル）', file:'single.csv', out:'season_ranking_single.json', sectionId:'update-section-rank_single', inputId:'f-rank_single' },
   rank_double: { label:'順位データ更新（ダブル）', file:'double.csv', out:'season_ranking_double.json', sectionId:'update-section-rank_double', inputId:'f-rank_double' },
   rank_history_single: { label:'順位推移データ更新（シングル）', file:'single_ranking_change.csv', out:'season_ranking_history_single.json', sectionId:'update-section-rank_history_single', inputId:'f-rank_history_single' },
@@ -1256,7 +1315,8 @@ function updateRankingSeasonUI(){
   const hs = adminRankingOutputFilename('rank_history_single') || 'season_ranking_history_single.json';
   const hd = adminRankingOutputFilename('rank_history_double') || 'season_ranking_history_double.json';
   const preview = document.getElementById('ranking-season-output-preview');
-  if(preview) preview.innerHTML = `シングル順位: <b>${adminEsc(single)}</b><br>ダブル順位: <b>${adminEsc(double)}</b><br>シングル順位推移: <b>${adminEsc(hs)}</b><br>ダブル順位推移: <b>${adminEsc(hd)}</b>`;
+  if(preview) preview.innerHTML = `シングル順位: <b>${adminEsc(single)}</b><br>ダブル順位: <b>${adminEsc(double)}</b><br>シングル順位推移: <b>${adminEsc(hs)}</b><br>ダブル順位推移: <b>${adminEsc(hd)}</b><br>上位構築関連集計: <b>${adminEsc(adminRecruitmentOutputFilename())}</b>`;
+  if(typeof updateRecruitmentSeasonUI === 'function') updateRecruitmentSeasonUI();
   const labelMap = {
     'rank-single-file-label': `single.csv → ${single}` ,
     'rank-double-file-label': `double.csv → ${double}` ,
@@ -2068,6 +2128,174 @@ function toggleTheme() {
 (function() {
   const saved = localStorage.getItem('pokeedge_theme') || 'dark';
   applyTheme(saved);
+})();
+</script>
+
+
+<script>
+(function(){
+  const recruitmentState = { summary:null, items:null, json:null };
+
+  window.adminRecruitmentOutputFilename = function(){
+    const season = document.getElementById('ranking-season-select')?.value || 'S1';
+    const suffix = typeof adminRankingSeasonSuffix === 'function' ? adminRankingSeasonSuffix(season) : '';
+    return `season_recruitment_single${suffix}.json`;
+  };
+
+  function recruitmentSeasonNumber(){
+    const season = document.getElementById('ranking-season-select')?.value || 'S1';
+    const n = typeof adminSeasonNumber === 'function' ? adminSeasonNumber(season) : 1;
+    return n || 1;
+  }
+  function recruitmentCsvNames(){
+    const n = recruitmentSeasonNumber();
+    return {
+      summary: `single_pokemon_recruitment_summary_s${n}.csv`,
+      items: `single_pokemon_item_recruitment_s${n}.csv`
+    };
+  }
+  window.updateRecruitmentSeasonUI = function(){
+    const names = recruitmentCsvNames();
+    const output = window.adminRecruitmentOutputFilename();
+    const label = document.getElementById('recruitment-file-label');
+    if(label) label.textContent = `${names.summary} + ${names.items} → ${output}`;
+    const summaryText = document.getElementById('recruitment-summary-drop-text');
+    if(summaryText) summaryText.textContent = names.summary;
+    const itemsText = document.getElementById('recruitment-items-drop-text');
+    if(itemsText) itemsText.textContent = names.items;
+    const preview = document.getElementById('recruitment-output-preview');
+    if(preview) preview.innerHTML = adminEsc(output);
+  };
+
+  function normalizeRecruitmentName(row){
+    return String(row['ポケモン'] || row['ポケモン名'] || row['名前'] || '').trim();
+  }
+  function toRecruitmentInt(value){
+    const n = parseInt(String(value == null ? '' : value).replace(/,/g,'').trim(), 10);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function setRecruitmentLog(message, ok){
+    const log = document.getElementById('log-recruitment');
+    if(log) log.innerHTML = `<span class="${ok ? 'ok' : 'err'}">${message}</span>`;
+  }
+  function updateRecruitmentButtons(){
+    const gen = document.getElementById('btn-recruitment-gen');
+    const dl = document.getElementById('btn-recruitment-dl');
+    if(gen) gen.disabled = !(recruitmentState.summary && recruitmentState.items);
+    if(dl) dl.disabled = !recruitmentState.json;
+    const sn = document.getElementById('prev-recruitment-summary-n');
+    const inum = document.getElementById('prev-recruitment-items-n');
+    if(sn) sn.textContent = recruitmentState.summary ? recruitmentState.summary.rows.length.toLocaleString() : '0';
+    if(inum) inum.textContent = recruitmentState.items ? recruitmentState.items.rows.length.toLocaleString() : '0';
+  }
+  window.onRecruitmentDrop = function(ev, kind){
+    ev.preventDefault();
+    const zoneId = kind === 'summary' ? 'dz-recruitment-summary' : 'dz-recruitment-items';
+    onDragLeave(zoneId);
+    const file = ev.dataTransfer && ev.dataTransfer.files ? ev.dataTransfer.files[0] : null;
+    if(file) readRecruitmentFile(file, kind);
+  };
+  window.loadRecruitmentCSV = function(event, kind){
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    if(file) readRecruitmentFile(file, kind);
+  };
+  function readRecruitmentFile(file, kind){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const parsed = parseCSV(e.target.result);
+        recruitmentState[kind] = parsed;
+        recruitmentState.json = null;
+        const label = kind === 'summary' ? 'ポケモン別掲載数' : '持ち物回数';
+        setRecruitmentLog(`✅ ${adminEsc(file.name)} を読み込みました（${label}: ${parsed.rows.length}件）`, true);
+        updateRecruitmentButtons();
+      }catch(err){
+        recruitmentState[kind] = null;
+        recruitmentState.json = null;
+        setRecruitmentLog(`❌ 読み込みエラー: ${adminEsc(err.message || err)}`, false);
+        updateRecruitmentButtons();
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+  function validateRecruitmentData(){
+    if(!recruitmentState.summary) throw new Error('ポケモン別掲載数CSVを読み込んでください');
+    if(!recruitmentState.items) throw new Error('持ち物回数CSVを読み込んでください');
+    const summaryHeaders = recruitmentState.summary.headers || [];
+    const itemHeaders = recruitmentState.items.headers || [];
+    const summaryMissing = ['No','ポケモン','数'].filter(k => !summaryHeaders.includes(k));
+    const itemMissing = ['No','ポケモン','持ち物','回数'].filter(k => !itemHeaders.includes(k));
+    if(summaryMissing.length) throw new Error('ポケモン別掲載数CSVの必須カラムが不足: ' + summaryMissing.join(', '));
+    if(itemMissing.length) throw new Error('持ち物回数CSVの必須カラムが不足: ' + itemMissing.join(', '));
+  }
+  window.generateRecruitmentJSON = function(){
+    try{
+      validateRecruitmentData();
+      const itemMap = new Map();
+      recruitmentState.items.rows.forEach(row => {
+        const name = normalizeRecruitmentName(row);
+        const item = String(row['持ち物'] || row['アイテム'] || '').trim();
+        const count = toRecruitmentInt(row['回数'] || row['数']);
+        if(!name || !item) return;
+        if(!itemMap.has(name)) itemMap.set(name, []);
+        itemMap.get(name).push({ item, count });
+      });
+      itemMap.forEach(list => list.sort((a,b) => (b.count - a.count) || String(a.item).localeCompare(String(b.item), 'ja')));
+      const rows = recruitmentState.summary.rows.map(row => {
+        const no = String(row['No'] || '').trim();
+        const name = normalizeRecruitmentName(row);
+        if(!name) return null;
+        return {
+          no,
+          name,
+          count: toRecruitmentInt(row['数'] || row['掲載数'] || row['回数']),
+          items: itemMap.get(name) || []
+        };
+      }).filter(Boolean).sort((a,b) => {
+        const diff = b.count - a.count;
+        if(diff) return diff;
+        const an = parseInt(String(a.no || '').replace(/\D+/g,''), 10);
+        const bn = parseInt(String(b.no || '').replace(/\D+/g,''), 10);
+        if(Number.isFinite(an) && Number.isFinite(bn) && an !== bn) return an - bn;
+        return String(a.name).localeCompare(String(b.name), 'ja');
+      });
+      const season = document.getElementById('ranking-season-select')?.value || 'S1';
+      const json = {
+        season,
+        sourceLabel: '上位構築記事掲載集計',
+        note: '上位構築記事をもとにした参考集計です。使用率や推奨順位を断定するものではありません。',
+        pokemonCount: rows.length,
+        totalCount: rows.reduce((sum,row) => sum + (row.count || 0), 0),
+        itemRowCount: rows.reduce((sum,row) => sum + (Array.isArray(row.items) ? row.items.length : 0), 0),
+        rows
+      };
+      recruitmentState.json = json;
+      updateRecruitmentButtons();
+      setRecruitmentLog(`✅ 上位構築関連集計JSONを生成しました（${json.pokemonCount}匹 / 延べ${json.totalCount}件 / 持ち物${json.itemRowCount}件 / 出力名: ${adminEsc(window.adminRecruitmentOutputFilename())}）`, true);
+    }catch(err){
+      recruitmentState.json = null;
+      updateRecruitmentButtons();
+      setRecruitmentLog(`❌ 生成エラー: ${adminEsc(err.message || err)}`, false);
+    }
+  };
+  window.downloadRecruitmentJSON = function(){
+    const json = recruitmentState.json;
+    if(!json) return;
+    const filename = window.adminRecruitmentOutputFilename();
+    const blob = new Blob([JSON.stringify(json, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    const log = document.getElementById('log-recruitment');
+    if(log) log.innerHTML += `<br><span class="ok">💾 ${adminEsc(filename)} をダウンロードしました — 公開中の同名JSONへ上書きアップロードしてください</span>`;
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    if(typeof updateRecruitmentSeasonUI === 'function') updateRecruitmentSeasonUI();
+    updateRecruitmentButtons();
+  });
 })();
 </script>
 

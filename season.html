@@ -2278,6 +2278,301 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 
+
+<script id="recruitment-extension">
+(function(){
+  const RECRUITMENT_BASE_FILE = 'season_recruitment_single';
+  let recruitmentViewActive = false;
+  let recruitmentSearchQuery = '';
+  let recruitmentSortMode = 'count';
+  let recruitmentSeason = '';
+  let recruitmentStore = {};
+  let recruitmentLoading = {};
+
+  function recEsc(value){
+    return typeof escapeHtml === 'function' ? escapeHtml(value) : String(value == null ? '' : value)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function recNum(value){
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function recSeasonNumber(label){
+    const m = String(label || '').match(/(\d+)/);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+  function recSortSeasonLabels(labels){
+    const unique = Array.from(new Set((labels || []).filter(Boolean).map(v => String(v).trim()).filter(Boolean)));
+    return unique.sort((a,b) => {
+      const av = recSeasonNumber(a), bv = recSeasonNumber(b);
+      if(av !== bv) return bv - av;
+      return String(b).localeCompare(String(a), 'ja');
+    });
+  }
+  function recSeasonLabels(){
+    const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons : [];
+    return recSortSeasonLabels(labels.length ? labels : ['S1']);
+  }
+  function recDefaultSeason(){
+    const labels = recSeasonLabels();
+    if(labels.includes('S1')) return 'S1';
+    return labels[0] || 'S1';
+  }
+  function recFileForSeason(season){
+    if(window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.file === 'function') {
+      return pokeEdgeRankingSeason.file(RECRUITMENT_BASE_FILE, season || 'S1');
+    }
+    const n = recSeasonNumber(season);
+    return `${RECRUITMENT_BASE_FILE}${n > 1 ? `_s${n}` : ''}.json`;
+  }
+  async function recFetchJson(path){
+    const res = await fetch(path, {cache:'no-cache'});
+    if(!res.ok) throw new Error(path);
+    return await res.json();
+  }
+  async function loadRecruitmentData(season){
+    const key = season || 'S1';
+    if(recruitmentStore[key]) return recruitmentStore[key];
+    if(recruitmentLoading[key]) return recruitmentLoading[key];
+    const path = recFileForSeason(key);
+    recruitmentLoading[key] = recFetchJson(path).then(data => {
+      const rows = Array.isArray(data?.rows) ? data.rows : [];
+      const normalized = Object.assign({}, data || {}, {
+        season: data?.season || key,
+        rows: rows.map(row => ({
+          no: String(row?.no || '').trim(),
+          name: String(row?.name || row?.pokemon || '').trim(),
+          count: recNum(row?.count),
+          items: (Array.isArray(row?.items) ? row.items : []).map(item => ({
+            item: String(item?.item || item?.name || '').trim(),
+            count: recNum(item?.count)
+          })).filter(item => item.item)
+        })).filter(row => row.name)
+      });
+      recruitmentStore[key] = normalized;
+      return normalized;
+    }).catch(() => {
+      const empty = {season:key, rows:[], pokemonCount:0, totalCount:0, itemRowCount:0, missing:true};
+      recruitmentStore[key] = empty;
+      return empty;
+    });
+    return recruitmentLoading[key];
+  }
+  function ensureRecruitmentStyle(){
+    if(document.getElementById('recruitment-style')) return;
+    const style = document.createElement('style');
+    style.id = 'recruitment-style';
+    style.textContent = `
+      .recruitment-view{display:none;}
+      .recruitment-view.show{display:block;}
+      .recruitment-note{border:1px solid var(--border);background:rgba(0,200,240,0.06);color:var(--text2);padding:10px 12px;border-radius:14px;font-size:11px;line-height:1.8;margin-bottom:12px;}
+      .recruitment-items{display:flex;flex-wrap:wrap;gap:6px;}
+      .recruitment-item-chip{display:inline-flex;gap:5px;align-items:center;border:1px solid var(--border);background:var(--bg2);border-radius:999px;padding:4px 8px;font-size:11px;line-height:1.4;color:var(--text);}
+      .recruitment-item-chip b{color:var(--accent3);font-weight:700;}
+      .recruitment-count{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent3);letter-spacing:1px;}
+      .recruitment-sub{font-size:11px;color:var(--text2);line-height:1.7;margin-top:2px;}
+      .recruitment-empty{border:1px dashed var(--border);background:var(--panel);border-radius:16px;padding:18px;text-align:center;color:var(--text2);font-size:12px;line-height:1.8;}
+      @media(max-width:640px){
+        #season-recruitment-view .rank-table td:nth-child(1)::before{content:'掲載数';}
+        #season-recruitment-view .rank-table td:nth-child(2)::before{content:'ポケモン';}
+        #season-recruitment-view .rank-table td:nth-child(3)::before{content:'持ち物';}
+        #season-recruitment-view .rank-table td:nth-child(4)::before{content:'確認';}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  function ensureRecruitmentShell(){
+    ensureRecruitmentStyle();
+    const tabs = document.getElementById('view-tabs');
+    if(tabs && !tabs.querySelector('[data-view="recruitment"]')){
+      const btn = document.createElement('button');
+      btn.className = 'view-tab';
+      btn.type = 'button';
+      btn.dataset.view = 'recruitment';
+      btn.textContent = '上位構築関連集計';
+      const partyBtn = tabs.querySelector('[data-view="party"]');
+      if(partyBtn) tabs.insertBefore(btn, partyBtn);
+      else tabs.appendChild(btn);
+    }
+    if(!document.getElementById('season-recruitment-view')){
+      const panel = document.createElement('div');
+      panel.id = 'season-recruitment-view';
+      panel.className = 'rank-panel recruitment-view';
+      panel.innerHTML = `
+        <div class="rank-toolbar">
+          <label class="search-field">
+            <span class="search-field-label">シーズン</span>
+            <select id="recruitment-season-select" aria-label="上位構築関連集計のシーズン選択"></select>
+          </label>
+          <label class="search-field">
+            <span class="search-field-label">検索</span>
+            <input type="text" id="recruitment-search" placeholder="ポケモン名・持ち物で検索" autocomplete="off">
+          </label>
+          <button class="rank-clear-btn" type="button" id="recruitment-clear-btn">クリア</button>
+        </div>
+        <div class="recruitment-note">上位構築記事に掲載されていたポケモン数・持ち物数の参考集計です。使用率やおすすめ順位を断定するものではなく、構築を考えるときの目安としてご利用ください。</div>
+        <div class="rank-meta" id="recruitment-meta">集計データを読み込み中...</div>
+        <div class="rank-wrap">
+          <table class="rank-table">
+            <thead>
+              <tr>
+                <th>掲載数</th>
+                <th>ポケモン</th>
+                <th>主な持ち物</th>
+                <th>確認</th>
+              </tr>
+            </thead>
+            <tbody id="recruitment-tbody"></tbody>
+          </table>
+        </div>
+      `;
+      const rankingRoot = document.getElementById('season-ranking-root');
+      const listView = document.getElementById('season-list-view');
+      if(rankingRoot && rankingRoot.parentNode) rankingRoot.parentNode.insertBefore(panel, rankingRoot.nextSibling);
+      else if(listView && listView.parentNode) listView.parentNode.insertBefore(panel, listView.nextSibling);
+      else document.querySelector('.main')?.appendChild(panel);
+    }
+    installRecruitmentHandlers();
+    syncRecruitmentSeasonSelect();
+  }
+  function syncRecruitmentSeasonSelect(){
+    const select = document.getElementById('recruitment-season-select');
+    if(!select) return;
+    const labels = recSeasonLabels();
+    if(!recruitmentSeason) recruitmentSeason = recDefaultSeason();
+    select.innerHTML = labels.map(label => `<option value="${recEsc(label)}">${recEsc(label)}</option>`).join('') || '<option value="S1">S1</option>';
+    if(!labels.includes(recruitmentSeason)) recruitmentSeason = labels[0] || 'S1';
+    select.value = recruitmentSeason;
+  }
+  function hideRecruitmentView(){
+    recruitmentViewActive = false;
+    const panel = document.getElementById('season-recruitment-view');
+    if(panel){ panel.classList.remove('show'); panel.style.display = 'none'; }
+  }
+  async function showRecruitmentView(){
+    ensureRecruitmentShell();
+    recruitmentViewActive = true;
+    const listView = document.getElementById('season-list-view');
+    const rankingRoot = document.getElementById('season-ranking-root');
+    const partyView = document.getElementById('season-party-view');
+    const panel = document.getElementById('season-recruitment-view');
+    if(listView) listView.style.display = 'none';
+    if(rankingRoot) rankingRoot.classList.remove('show');
+    if(partyView){ partyView.classList.remove('show'); partyView.style.display = 'none'; }
+    if(panel){ panel.classList.add('show'); panel.style.display = ''; }
+    document.querySelectorAll('.view-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.view === 'recruitment'));
+    syncRecruitmentSeasonSelect();
+    await renderRecruitmentList();
+  }
+  function rowMatchesRecruitment(row){
+    const q = String(recruitmentSearchQuery || '').trim().toLowerCase();
+    if(!q) return true;
+    const hay = [row.name, row.no].concat((row.items || []).map(item => item.item)).join(' ').toLowerCase();
+    return hay.includes(q);
+  }
+  function getRecruitmentRows(data){
+    let rows = (Array.isArray(data?.rows) ? data.rows : []).filter(rowMatchesRecruitment);
+    rows = rows.slice().sort((a,b) => {
+      if(recruitmentSortMode === 'name') return String(a.name || '').localeCompare(String(b.name || ''), 'ja');
+      const diff = recNum(b.count) - recNum(a.count);
+      if(diff) return diff;
+      const an = parseInt(String(a.no || '').replace(/\D+/g,''), 10);
+      const bn = parseInt(String(b.no || '').replace(/\D+/g,''), 10);
+      if(Number.isFinite(an) && Number.isFinite(bn) && an !== bn) return an - bn;
+      return String(a.name || '').localeCompare(String(b.name || ''), 'ja');
+    });
+    return rows;
+  }
+  function itemChipHtml(item, total){
+    const pct = total ? Math.round((recNum(item.count) / total) * 100) : 0;
+    return `<span class="recruitment-item-chip">${recEsc(item.item)} <b>${recEsc(item.count)}${pct ? ` / ${pct}%` : ''}</b></span>`;
+  }
+  async function renderRecruitmentList(){
+    const tbody = document.getElementById('recruitment-tbody');
+    const meta = document.getElementById('recruitment-meta');
+    if(!tbody || !meta) return;
+    if(!recruitmentSeason) recruitmentSeason = recDefaultSeason();
+    meta.textContent = `${recruitmentSeason} の集計データを読み込み中...`;
+    const data = await loadRecruitmentData(recruitmentSeason);
+    const rows = getRecruitmentRows(data);
+    if(data.missing){
+      meta.textContent = `${recruitmentSeason} の上位構築関連集計は未登録です。`;
+      tbody.innerHTML = '<tr><td colspan="4"><div class="recruitment-empty">このシーズンの集計データがありません。</div></td></tr>';
+      return;
+    }
+    const total = recNum(data.totalCount) || (Array.isArray(data.rows) ? data.rows.reduce((sum,row)=>sum+recNum(row.count),0) : 0);
+    const pokemonCount = recNum(data.pokemonCount) || (Array.isArray(data.rows) ? data.rows.length : 0);
+    const itemRowCount = recNum(data.itemRowCount) || (Array.isArray(data.rows) ? data.rows.reduce((sum,row)=>sum+(row.items||[]).length,0) : 0);
+    meta.textContent = `${recruitmentSeason} / ${rows.length}件表示 / 集計対象 ${pokemonCount}匹・延べ${total}件 / 持ち物内訳 ${itemRowCount}件`;
+    if(!rows.length){
+      tbody.innerHTML = '<tr><td colspan="4"><div class="recruitment-empty">該当するポケモン・持ち物がありません</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(row => {
+      const items = (row.items || []).slice(0, 8);
+      return `<tr>
+        <td><div class="recruitment-count">${recEsc(row.count || 0)}</div><div class="recruitment-sub">記事掲載</div></td>
+        <td><button class="name-open-btn js-open-detail" type="button" data-name="${recEsc(row.name || '')}">${recEsc(row.name || '—')}</button><div class="recruitment-sub">No.${recEsc(row.no || '—')}</div></td>
+        <td><div class="recruitment-items">${items.length ? items.map(item => itemChipHtml(item, recNum(row.count))).join('') : '<span class="rank-mini muted">持ち物集計なし</span>'}</div>${(row.items || []).length > items.length ? `<div class="recruitment-sub">他${(row.items || []).length - items.length}件</div>` : ''}</td>
+        <td><button class="detail-link-btn js-open-detail" type="button" data-name="${recEsc(row.name || '')}">詳細を見る</button></td>
+      </tr>`;
+    }).join('');
+  }
+  function installRecruitmentHandlers(){
+    const tabs = document.getElementById('view-tabs');
+    if(tabs && !tabs.dataset.recruitmentHooked){
+      tabs.dataset.recruitmentHooked = '1';
+      tabs.addEventListener('click', function(e){
+        const btn = e.target.closest('.view-tab');
+        if(!btn) return;
+        if(btn.dataset.view !== 'recruitment') hideRecruitmentView();
+      }, true);
+      tabs.addEventListener('click', function(e){
+        const btn = e.target.closest('.view-tab[data-view="recruitment"]');
+        if(!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+        showRecruitmentView();
+      }, true);
+    }
+    const select = document.getElementById('recruitment-season-select');
+    if(select && !select.dataset.recruitmentHooked){
+      select.dataset.recruitmentHooked = '1';
+      select.addEventListener('change', function(){
+        recruitmentSeason = select.value || recDefaultSeason();
+        renderRecruitmentList();
+      });
+    }
+    const input = document.getElementById('recruitment-search');
+    if(input && !input.dataset.recruitmentHooked){
+      input.dataset.recruitmentHooked = '1';
+      input.addEventListener('input', function(){
+        recruitmentSearchQuery = String(input.value || '').trim();
+        renderRecruitmentList();
+      });
+    }
+    const clear = document.getElementById('recruitment-clear-btn');
+    if(clear && !clear.dataset.recruitmentHooked){
+      clear.dataset.recruitmentHooked = '1';
+      clear.addEventListener('click', function(){
+        recruitmentSearchQuery = '';
+        const input = document.getElementById('recruitment-search');
+        if(input) input.value = '';
+        renderRecruitmentList();
+      });
+    }
+  }
+  function initRecruitmentExtension(){
+    ensureRecruitmentShell();
+    if(recruitmentViewActive) renderRecruitmentList();
+  }
+  document.addEventListener('DOMContentLoaded', initRecruitmentExtension);
+  window.addEventListener('load', initRecruitmentExtension);
+  window.addEventListener('pokeedge:season-change', function(){ if(recruitmentViewActive) renderRecruitmentList(); });
+})();
+</script>
+
 <script id="party-reference-extension">
 (function(){
   const PARTY_IMPORT_KEY = 'pokeedge_party_reference_transfer';
