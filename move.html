@@ -134,6 +134,11 @@ details summary::-webkit-details-marker{display:none;}
 .ev-box .label{margin-bottom:4px;}
 .ev-box input{padding:8px;font-size:14px;}
 .result-card{position:sticky;top:68px;}
+.crit-control-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:10px 11px;margin:10px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.crit-control-title{font-size:11px;font-weight:900;color:var(--text2);letter-spacing:.08em;}
+.crit-control-note{font-size:10px;color:var(--text3);line-height:1.55;margin-top:2px;}
+.crit-control-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.crit-control-actions .segment-btn{min-height:34px;}
 .result-toggle{border:1px solid var(--border2);background:var(--panel2);color:var(--text2);border-radius:12px;padding:9px 11px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;}
 .result-toggle input{accent-color:var(--accent);}
 .result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;}
@@ -252,6 +257,8 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
   .registered-apply-row{grid-template-columns:1fr;}
   .registered-apply{padding:10px;border-radius:14px;}
   .result-controls{gap:6px;}
+  .crit-control-box{align-items:stretch;}
+  .crit-control-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;}
   .result-toggle{min-height:42px;justify-content:center;}
   .btn{min-height:42px;}
 }
@@ -410,6 +417,10 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
         <div class="quick-match-summary" id="quick-match-summary"></div>
         <div class="speed-box" id="speed-box">
           <div class="speed-side">--</div><div class="speed-mid">素早さ</div><div class="speed-side right">--</div>
+        </div>
+        <div class="crit-control-box" id="critical-control">
+          <div><div class="crit-control-title">急所判定</div><div class="crit-control-note">通常技も急所に当たった場合のダメージへ切り替えできます。</div></div>
+          <div class="crit-control-actions"><button class="segment-btn active" type="button">なし</button><button class="segment-btn" type="button">あり</button></div>
         </div>
         <div class="result-list" id="result-list">
           <div class="empty">自分・相手・技を入れると、ここに4技の結果が出ます。</div>
@@ -1134,15 +1145,17 @@ function quickCriticalInfo(atkSlot, defSlot, move){
   const cond = quickGetCondition(atkSlot || {});
   const byMove = quickMoveAlwaysCrit(move);
   const byMerciless = atkAbility === 'ひとでなし' && !!cond.targetPoisoned;
-  const wantsCrit = byMove || byMerciless;
-  if(!wantsCrit) return {active:false, blocked:false, mult:1, notes:[]};
+  const byToggle = quickState.criticalMode === 'crit';
+  const wantsCrit = byMove || byMerciless || byToggle;
+  if(!wantsCrit) return {active:false, blocked:false, mult:1, label:'', notes:[]};
   if(CRIT_BLOCK_ABILITIES.has(defAbility)){
-    return {active:false, blocked:true, mult:1, notes:[`${defAbility}: 急所無効`]};
+    return {active:false, blocked:true, mult:1, label:'急所無効', notes:[`${defAbility}: 急所無効`]};
   }
-  const notes = [byMove ? '確定急所' : 'ひとでなし: 相手どくで確定急所'];
+  const label = byMove ? '確定急所' : (byMerciless ? '確定急所' : '急所あり');
+  const notes = [byMove ? '確定急所' : (byMerciless ? 'ひとでなし: 相手どくで確定急所' : '急所あり')];
   const mult = atkAbility === 'スナイパー' ? 2.25 : 1.5;
   if(atkAbility === 'スナイパー') notes.push('スナイパー: 急所強化');
-  return {active:true, blocked:false, mult, notes};
+  return {active:true, blocked:false, mult, label, notes};
 }
 
 function quickHasMoveInSet(setObj){
@@ -1166,22 +1179,41 @@ function quickTargetHpPower(percent){
   return Math.max(1, Math.floor(120 * p / 100));
 }
 
+function quickStatusLabel(status){ return {burn:'やけど', poison:'どく/猛毒', para:'まひ'}[status] || 'なし'; }
+function quickSpeedAbilityMultiplier(slot, weather){
+  const ability = String(slot?.ability || '').trim();
+  if((ability === 'すいすい' && weather === 'rain') || (ability === 'ようりょくそ' && weather === 'sunny') || (ability === 'すなかき' && weather === 'sand') || (ability === 'ゆきかき' && weather === 'snow')) return 2;
+  return 1;
+}
+function quickSpeedItemMultiplier(slot){
+  const item = normalizeItemText(slot?.item || '');
+  if(item.includes('こだわりスカーフ')) return 1.5;
+  return 1;
+}
+function quickBattleSpeed(slot, weather){
+  const stats = calcFullStats(slot);
+  if(!stats) return 1;
+  const ranked = quickApplyStage(stats.spe, slot.rank?.spe || 0);
+  return Math.max(1, Math.floor(ranked * quickSpeedAbilityMultiplier(slot, weather) * quickSpeedItemMultiplier(slot)));
+}
 function resolveMovePower(move, atkSlot, defSlot, weather){
   let power = Number(move.power || 0) || 0;
   const notes = [];
+  const atkCond = quickGetCondition(atkSlot);
+  const defCond = quickGetCondition(defSlot);
   if(move.name==='ウェザーボール' && weather && WB_MAP[weather]){ power = 100; }
   if(HP_LOW_POWER_MOVES.has(move.name)){
-    const hpPercent = quickGetCondition(atkSlot).hpPercent;
+    const hpPercent = atkCond.hpPercent;
     power = quickHpLowPower(hpPercent);
     notes.push(`${move.name}: 自分HP${hpPercent}%で威力${power}`);
   }
   if(HP_HIGH_POWER_MOVES.has(move.name)){
-    const hpPercent = quickGetCondition(atkSlot).hpPercent;
+    const hpPercent = atkCond.hpPercent;
     power = quickHpHighPower(hpPercent);
     notes.push(`${move.name}: 自分HP${hpPercent}%で威力${power}`);
   }
   if(TARGET_HP_POWER_MOVES.has(move.name)){
-    const hpPercent = quickGetCondition(defSlot).hpPercent;
+    const hpPercent = defCond.hpPercent;
     power = quickTargetHpPower(hpPercent);
     notes.push(`${move.name}: 相手HP${hpPercent}%で威力${power}`);
   }
@@ -1202,17 +1234,121 @@ function resolveMovePower(move, atkSlot, defSlot, weather){
       notes.push(`体重比:${ratio ? ratio.toFixed(2) : '0'}`);
     }
   }
+  if(move.notes === '素早さ依存'){
+    const atkSpe = quickBattleSpeed(atkSlot, weather);
+    const defSpe = quickBattleSpeed(defSlot, weather);
+    if(move.name === 'ジャイロボール'){
+      power = Math.max(1, Math.min(150, Math.floor(25 * defSpe / Math.max(1, atkSpe)) + 1));
+      notes.push(`素早さ依存: 威力${power}`);
+    } else if(move.name === 'エレキボール'){
+      const ratio = atkSpe / Math.max(1, defSpe);
+      power = ratio >= 4 ? 150 : ratio >= 3 ? 120 : ratio >= 2 ? 80 : ratio >= 1 ? 60 : 40;
+      notes.push(`素早さ依存: 威力${power}`);
+    }
+  }
   if(move.name === 'アシストパワー' || move.name === 'つけあがる'){
     const ranks = atkSlot.rank || {};
     const positiveRankTotal = ['atk','def','spa','spd','spe'].reduce((sum, stat)=>sum + Math.max(0, parseInt(ranks[stat] || 0, 10) || 0), 0);
     power = 20 + positiveRankTotal * 20;
     notes.push(`能力上昇合計+${positiveRankTotal}: 威力${power}`);
   }
+  if(move.name === 'からげんき' && atkCond.selfStatus !== 'none'){
+    power *= 2;
+    notes.push(`からげんき: 自分${quickStatusLabel(atkCond.selfStatus)}で威力2倍`);
+  }
+  if(move.name === 'ベノムショック' && defCond.targetStatus === 'poison'){
+    power *= 2;
+    notes.push('ベノムショック: 相手どく/猛毒で威力2倍');
+  }
+  if(move.name === 'たたりめ' && defCond.targetStatus !== 'none'){
+    power *= 2;
+    notes.push(`たたりめ: 相手${quickStatusLabel(defCond.targetStatus)}で威力2倍`);
+  }
+  if(move.name === 'しっぺがえし' && atkCond.movedAfter){
+    power *= 2;
+    notes.push('しっぺがえし: 後攻で威力2倍');
+  }
+  if(move.name === 'アクロバット' && !String(atkSlot.item || '').trim()){
+    power *= 2;
+    notes.push('アクロバット: 持ち物なしで威力2倍');
+  }
   return {power, notes};
 }
-function getAttackItemMultiplier(item, moveType, category, eff){ const text = normalizeItemText(item); const effect = getItemEffectText(item); if(!text) return 1; if(text.includes('こだわりハチマキ') && category==='物理') return 1.5; if(text.includes('こだわりメガネ') && category==='特殊') return 1.5; if(text.includes('いのちのたま')) return 1.3; if(text.includes('たつじんのおび') && eff > 1) return 1.2; if(effect.includes(moveType + 'タイプの技の威力が1.2倍') && eff > 0) return 1.2; if(text.includes('タイプ強化') && eff > 0) return 1.2; return 1; }
-function getDefenseItemMultiplier(item, moveType, eff){ const effect = getItemEffectText(item); if(!item || eff <= 1) return 1; if(effect.includes('効果バツグンの' + moveType + 'タイプの技') && effect.includes('半減')) return 0.5; return 1; }
-function getDefAbilityDmgMult(ability, moveType, eff){ if(!ability) return 1; let mult = 1; const ad = getAbilityData(ability); if(ad && ad.defDmgMult){ const arr = Array.isArray(ad.defDmgMult) ? ad.defDmgMult : [ad.defDmgMult]; arr.forEach(d=>{ if(!d.type || d.type===moveType) mult *= d.mult; }); } if(['フィルター','ハードロック'].includes(ability) && eff > 1) mult *= 0.75; if(ability==='あついしぼう' && (moveType==='ほのお' || moveType==='こおり')) mult *= 0.5; return mult; }
+function getAttackItemInfo(item, moveType, category, eff){
+  const text = normalizeItemText(item);
+  const effect = getItemEffectText(item);
+  const notes = [];
+  let mult = 1;
+  if(!text) return {mult, notes};
+  if(text.includes('こだわりハチマキ') && category==='物理'){ mult *= 1.5; notes.push('こだわりハチマキ: 物理×1.5'); }
+  if(text.includes('こだわりメガネ') && category==='特殊'){ mult *= 1.5; notes.push('こだわりメガネ: 特殊×1.5'); }
+  if(text.includes('いのちのたま')){ mult *= 1.3; notes.push('いのちのたま: 技×1.3'); }
+  if(text.includes('たつじんのおび') && eff > 1){ mult *= 1.2; notes.push('たつじんのおび: 抜群×1.2'); }
+  const typeBoost = effect.match(/([ぁ-んァ-ンー]+)タイプの技の威力が([0-9.]+)倍/);
+  if(typeBoost && typeBoost[1] === moveType && eff > 0){
+    const m = parseFloat(typeBoost[2]) || 1;
+    mult *= m;
+    notes.push(`${getItemName(getItemRecordByName(item)) || item}: ${moveType}技×${m}`);
+  }
+  if(text.includes('タイプ強化') && eff > 0){ mult *= 1.2; notes.push('タイプ強化アイテム×1.2'); }
+  return {mult, notes};
+}
+function getAttackItemMultiplier(item, moveType, category, eff){ return getAttackItemInfo(item, moveType, category, eff).mult; }
+function getAttackItemStatInfo(atkSlot, category, isBodyPress){
+  const item = normalizeItemText(atkSlot?.item || '');
+  const pokeName = String(atkSlot?.poke?.name || atkSlot?.pokeName || '').trim();
+  const notes = [];
+  let mult = 1;
+  if(item.includes('でんきだま') && pokeName === 'ピカチュウ' && (category === '物理' || category === '特殊') && !isBodyPress){
+    mult *= 2;
+    notes.push('でんきだま: ピカチュウの攻撃/特攻×2');
+  }
+  return {mult, notes};
+}
+function getDefenseItemInfo(item, moveType, eff){
+  const effect = getItemEffectText(item);
+  const notes = [];
+  let mult = 1;
+  if(!item) return {mult, notes};
+  const typeHalf = effect.match(/(効果バツグンの)?([ぁ-んァ-ンー]+)タイプの技を受けた時ダメージ[がを]半減/);
+  if(typeHalf && typeHalf[2] === moveType && (!typeHalf[1] || eff > 1)){
+    mult *= 0.5;
+    notes.push(`${getItemName(getItemRecordByName(item)) || item}: ${moveType}技半減`);
+  }
+  return {mult, notes};
+}
+function getDefenseItemMultiplier(item, moveType, eff){ return getDefenseItemInfo(item, moveType, eff).mult; }
+function getDefAbilityDmgInfo(defSlot, moveType, eff, defenseCategory, move){
+  const ability = String(defSlot?.ability || '').trim();
+  const notes = [];
+  let mult = 1;
+  if(!ability) return {mult, notes};
+  const ad = getAbilityData(ability);
+  if(ad && ad.defDmgMult){
+    const arr = Array.isArray(ad.defDmgMult) ? ad.defDmgMult : [ad.defDmgMult];
+    arr.forEach(d=>{
+      const types = d?.type ? (Array.isArray(d.type) ? d.type : [d.type]) : [];
+      const typeOk = !types.length || types.includes(moveType);
+      const categoryOk = !d?.category || d.category === defenseCategory;
+      if(typeOk && categoryOk){ mult *= d.mult; if(d.info) notes.push(d.info); }
+    });
+  }
+  if(['フィルター','ハードロック'].includes(ability) && eff > 1){ mult *= 0.75; notes.push(`${ability}: 抜群ダメージ軽減`); }
+  if(ability==='あついしぼう' && (moveType==='ほのお' || moveType==='こおり')){ mult *= 0.5; notes.push('あついしぼう'); }
+  if(ability==='たいねつ' && moveType==='ほのお'){ mult *= 0.5; notes.push('たいねつ'); }
+  if(ability==='もふもふ'){
+    if(move?.contact === true){ mult *= 0.5; notes.push('もふもふ: 直接技半減'); }
+    if(moveType === 'ほのお'){ mult *= 2; notes.push('もふもふ: ほのお技2倍'); }
+  }
+  if(ability==='こおりのりんぷん' && defenseCategory==='特殊'){ mult *= 0.5; notes.push('こおりのりんぷん'); }
+  if(ability==='パンクロック' && quickEffectTextHasMove('パンクロック', move?.name || '')){ mult *= 0.5; notes.push('パンクロック: 音技半減'); }
+  if(['マルチスケイル','ファントムガード'].includes(ability) && quickGetCondition(defSlot).hpPercent >= 100){
+    mult *= 0.5;
+    notes.push(`${ability}: HP満タンで半減`);
+  }
+  return {mult, notes};
+}
+function getDefAbilityDmgMult(ability, moveType, eff){ return getDefAbilityDmgInfo({ability, condition:quickDefaultCondition()}, moveType, eff, '', {name:''}).mult; }
 function quickAbilityEffectText(ability){ const ad = getAbilityData(ability); return String(ad?.effect || ''); }
 function quickEffectTextHasMove(ability, moveName){ const effect = quickAbilityEffectText(ability); const name = String(moveName || '').trim(); return !!name && (effect.includes('『' + name + '』') || effect.includes(name)); }
 function getAttackAbilityPowerInfo(atkSlot, move, moveType, category, eff){
@@ -1254,19 +1390,61 @@ function getAttackAbilityPowerInfo(atkSlot, move, moveType, category, eff){
     mult *= 2;
     notes.push('いろめがね');
   }
+  if(ability === 'アナライズ'){
+    mult *= 1.3;
+    notes.push('アナライズ');
+  }
+  if(ability === 'テクニシャン' && Number(move?.power || 0) > 0 && Number(move?.power || 0) <= 60){
+    mult *= 1.5;
+    notes.push('テクニシャン');
+  }
+  if(ability === 'ちからずく' && /[0-9]+%の確率|ランクを|状態に|ひるませ/.test(String(move?.effect || ''))){
+    mult *= 1.3;
+    notes.push('ちからずく');
+  }
+  if(ability === 'すなのちから' && condition.sandForce !== false && ['じめん','いわ','はがね'].includes(moveType) && quickState.weather === 'sand'){
+    mult *= 1.3;
+    notes.push('すなのちから');
+  }
   return {mult, notes};
 }
 function getAttackAbilityPowerMult(ability, moveType, category){
   const info = getAttackAbilityPowerInfo({ability, condition:quickDefaultCondition()}, {name:'', type:moveType, category}, moveType, category, 1);
   return info.mult;
 }
-function getAttackAbilityStatMult(ability, category, weather, moveType, isBodyPress){ if(!ability) return 1; if(['ちからもち','ヨガパワー'].includes(ability) && category==='物理' && !isBodyPress) return 2; if(ability==='サンパワー' && category==='特殊' && weather==='sunny') return 1.5; return 1; }
+function getAttackAbilityStatInfo(atkSlot, category, weather, moveType, isBodyPress){
+  const ability = String(atkSlot?.ability || '').trim();
+  const cond = quickGetCondition(atkSlot || {});
+  const notes = [];
+  let mult = 1;
+  if(!ability) return {mult, notes};
+  if(['ちからもち','ヨガパワー'].includes(ability) && category==='物理' && !isBodyPress){ mult *= 2; notes.push(`${ability}: 攻撃×2`); }
+  if(ability==='ごりむちゅう' && category==='物理' && !isBodyPress){ mult *= 1.5; notes.push('ごりむちゅう: 攻撃×1.5'); }
+  if(ability==='はりきり' && category==='物理' && !isBodyPress){ mult *= 1.5; notes.push('はりきり: 攻撃×1.5'); }
+  if(ability==='こんじょう' && category==='物理' && cond.selfStatus !== 'none' && !isBodyPress){ mult *= 1.5; notes.push('こんじょう: 攻撃×1.5'); }
+  if(ability==='サンパワー' && category==='特殊' && weather==='sunny'){ mult *= 1.5; notes.push('サンパワー: 特攻×1.5'); }
+  if(ability==='ねつぼうそう' && category==='特殊' && cond.selfStatus === 'burn'){ mult *= 1.5; notes.push('ねつぼうそう: 特攻×1.5'); }
+  if(['こだいかっせい','クォークチャージ'].includes(ability) && (category==='物理' || category==='特殊')){ mult *= 1.3; notes.push(`${ability}: 攻撃系×1.3`); }
+  return {mult, notes};
+}
+function getAttackAbilityStatMult(ability, category, weather, moveType, isBodyPress){ return getAttackAbilityStatInfo({ability, condition:quickDefaultCondition()}, category, weather, moveType, isBodyPress).mult; }
 function getWeatherMoveMult(weather, moveType){ if(weather==='sunny'){ if(moveType==='ほのお') return 1.5; if(moveType==='みず') return 0.5; } if(weather==='rain'){ if(moveType==='みず') return 1.5; if(moveType==='ほのお') return 0.5; } return 1; }
 function getWeatherDefenseMult(weather, defTypes, defenseCategory){ if(weather==='snow' && defTypes.includes('こおり') && defenseCategory==='物理') return 1.5; if(weather==='sand' && defTypes.includes('いわ') && defenseCategory==='特殊') return 1.5; return 1; }
 function getParentalBondInfo(atkSlot, move, hits){
   if(String(atkSlot?.ability || '').trim() !== 'おやこあい') return {active:false, note:''};
   if((hits?.max || 1) > 1 || (hits?.min || 1) > 1) return {active:false, note:'おやこあい: 連続技のため追加攻撃なし'};
   return {active:true, note:'おやこあい: 2撃目25%'};
+}
+function getAttackStatusDamageInfo(atkSlot, category, moveName, isBodyPress){
+  const cond = quickGetCondition(atkSlot || {});
+  const ability = String(atkSlot?.ability || '').trim();
+  const notes = [];
+  let mult = 1;
+  if(category === '物理' && cond.selfStatus === 'burn' && ability !== 'こんじょう' && moveName !== 'からげんき' && !isBodyPress){
+    mult *= 0.5;
+    notes.push('やけど: 物理ダメージ半減');
+  }
+  return {mult, notes};
 }
 function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const move = moveByName.get(moveName);
@@ -1289,11 +1467,17 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const defenseCategory = SPECIAL_DEFENSE_MOVES.has(move.name) || isBodyPress || rawCategory==='物理' ? '物理' : '特殊';
   const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability, move.name || '', atkSlot.ability);
   const abilityPowerInfo = getAttackAbilityPowerInfo(atkSlot, move, resolvedType.type, rawCategory, eff);
+  const attackItemInfo = getAttackItemInfo(atkSlot.item, resolvedType.type, rawCategory, eff);
+  const defenseItemInfo = getDefenseItemInfo(defSlot.item, resolvedType.type, eff);
+  const abilityStatInfo = getAttackAbilityStatInfo(atkSlot, rawCategory, weather, resolvedType.type, isBodyPress);
+  const itemStatInfo = getAttackItemStatInfo(atkSlot, rawCategory, isBodyPress);
+  const defDmgInfo = getDefAbilityDmgInfo(defSlot, resolvedType.type, eff, defenseCategory, move);
+  const attackStatusDmgInfo = getAttackStatusDamageInfo(atkSlot, rawCategory, move.name, isBodyPress);
   const criticalInfo = quickCriticalInfo(atkSlot, defSlot, move);
   const scrappyNote = quickAbilityLetsNormalFightingHitGhost(atkSlot.ability) && quickIsNormalOrFightingType(resolvedType.type) && defTypes.includes('ゴースト')
     ? [`${atkSlot.ability}: ゴースト無効を通常相性化`]
     : [];
-  const baseNotes = [...(resolvedType.notes||[]), ...(defTypeInfo.notes||[]), ...(stabTypeInfo.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[]), ...(criticalInfo.notes||[]), ...scrappyNote];
+  const baseNotes = [...(resolvedType.notes||[]), ...(defTypeInfo.notes||[]), ...(stabTypeInfo.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[]), ...(attackItemInfo.notes||[]), ...(defenseItemInfo.notes||[]), ...(abilityStatInfo.notes||[]), ...(itemStatInfo.notes||[]), ...(defDmgInfo.notes||[]), ...(attackStatusDmgInfo.notes||[]), ...(criticalInfo.notes||[]), ...scrappyNote];
   if(eff === 0){
     return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'無効', score:0, eff:0, moveType:resolvedType.type, category:rawCategory, attackStatName:offenseCategory, defenseStatName:defenseCategory, notes:baseNotes};
   }
@@ -1310,6 +1494,8 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
     attackRankStage = 0;
   }
   attackStat = quickApplyStage(attackStat, attackRankStage);
+  if(defSlot.ability === 'わざわいのおふだ' && rawCategory === '物理' && !isBodyPress){ attackStat = Math.floor(attackStat * 0.75); baseNotes.push('わざわいのおふだ: 攻撃側の攻撃低下'); }
+  if(defSlot.ability === 'わざわいのうつわ' && rawCategory === '特殊'){ attackStat = Math.floor(attackStat * 0.75); baseNotes.push('わざわいのうつわ: 攻撃側の特攻低下'); }
   let defenseStat = defenseCategory==='物理' ? defStats.def : defStats.spd;
   const defenseRankStat = defenseCategory==='物理' ? 'def' : 'spd';
   let defenseRankStage = parseInt(defSlot.rank?.[defenseRankStat] || 0, 10) || 0;
@@ -1318,14 +1504,16 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
     defenseRankStage = 0;
   }
   defenseStat = quickApplyStage(defenseStat, defenseRankStage);
-  if(defSlot.ability==='ファーコート' && defenseCategory==='物理') defenseStat *= 2;
+  if(defSlot.ability==='ファーコート' && defenseCategory==='物理'){ defenseStat *= 2; baseNotes.push('ファーコート: 防御×2'); }
+  if(atkSlot.ability === 'わざわいのつるぎ' && defenseCategory === '物理'){ defenseStat = Math.floor(defenseStat * 0.75); baseNotes.push('わざわいのつるぎ: 防御側の防御低下'); }
+  if(atkSlot.ability === 'わざわいのたま' && defenseCategory === '特殊'){ defenseStat = Math.floor(defenseStat * 0.75); baseNotes.push('わざわいのたま: 防御側の特防低下'); }
   defenseStat = Math.floor(defenseStat * getWeatherDefenseMult(weather, defTypes, defenseCategory));
-  const statMult = getAttackAbilityStatMult(atkSlot.ability, rawCategory, weather, resolvedType.type, isBodyPress);
+  const statMult = abilityStatInfo.mult * itemStatInfo.mult;
   const powerMult = abilityPowerInfo.mult * resolvedType.skin * getAuraModifier(resolvedType.type, atkSlot.ability, defSlot.ability);
   const weatherMoveMult = getWeatherMoveMult(weather, resolvedType.type);
-  const defDmgMult = getDefAbilityDmgMult(defSlot.ability, resolvedType.type, eff);
-  const itemMult = getAttackItemMultiplier(atkSlot.item, resolvedType.type, rawCategory, eff);
-  const defItemMult = getDefenseItemMultiplier(defSlot.item, resolvedType.type, eff);
+  const defDmgMult = defDmgInfo.mult;
+  const itemMult = attackItemInfo.mult;
+  const defItemMult = defenseItemInfo.mult;
   const effectiveAttack = Math.max(1, Math.floor(attackStat * statMult));
   const effectiveDefense = Math.max(1, Math.floor(defenseStat));
   const hits = parseHits(move.hits || '1');
@@ -1344,6 +1532,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
       dmg = Math.floor(dmg * defDmgMult);
       dmg = Math.floor(dmg * defItemMult);
       dmg = Math.floor(dmg * weatherMoveMult);
+      dmg = Math.floor(dmg * attackStatusDmgInfo.mult);
       if(criticalInfo.active) dmg = Math.floor(dmg * criticalInfo.mult);
       dmg = Math.floor(dmg * i / 100);
       rolls.push(dmg);
@@ -1373,7 +1562,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
       hits,
       critical: criticalInfo.active,
       criticalBlocked: criticalInfo.blocked,
-      criticalLabel: criticalInfo.active ? '確定急所' : (criticalInfo.blocked ? '急所無効' : ''),
+      criticalLabel: criticalInfo.active ? (criticalInfo.label || '急所あり') : (criticalInfo.blocked ? '急所無効' : ''),
       proteanChangedType: stabTypeInfo.changedType || '',
       notes:[...baseNotes, ...(parentBond.note ? [parentBond.note] : []), ...extraNotes]
     };
@@ -1412,6 +1601,7 @@ const quickState = {
   activeMoveIndex: 0,
   combo: { first: 0, second: 1 },
   weather: '',
+  criticalMode: 'normal',
   recent: [],
   mobilePanel: 'attacker'
 };
@@ -1646,10 +1836,14 @@ function quickRenderPresetChips(){
 function quickSetWeather(v){ quickState.weather=v||''; quickRenderAll(); }
 function quickStageMult(stage){ const s = Math.max(-6, Math.min(6, parseInt(stage||0,10)||0)); return s >= 0 ? (2+s)/2 : 2/(2-s); }
 function quickApplyStage(value, stage){ return Math.max(1, Math.floor(value * quickStageMult(stage))); }
-function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false, hpPercent:100, proteanUsed:false, proteanType:'', targetPoisoned:false}; }
+function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false, hpPercent:100, proteanUsed:false, proteanType:'', targetPoisoned:false, selfStatus:'none', targetStatus:'none', movedAfter:false}; }
 function quickNormalizeCondition(condition){
   const src = condition && typeof condition === 'object' ? condition : {};
   const proteanType = QUICK_TYPE_NAMES.includes(src.proteanType) ? src.proteanType : '';
+  const statusValues = new Set(['none','burn','poison','para']);
+  const selfStatus = statusValues.has(src.selfStatus) ? src.selfStatus : 'none';
+  let targetStatus = statusValues.has(src.targetStatus) ? src.targetStatus : 'none';
+  if(src.targetPoisoned && targetStatus === 'none') targetStatus = 'poison';
   return {
     faintedAllies: Math.max(0, Math.min(2, parseInt(src.faintedAllies || 0, 10) || 0)),
     lowHp: !!src.lowHp,
@@ -1657,7 +1851,10 @@ function quickNormalizeCondition(condition){
     hpPercent: Math.max(1, Math.min(100, parseInt(src.hpPercent || 100, 10) || 100)),
     proteanUsed: !!src.proteanUsed,
     proteanType,
-    targetPoisoned: !!src.targetPoisoned
+    targetPoisoned: targetStatus === 'poison',
+    selfStatus,
+    targetStatus,
+    movedAfter: !!src.movedAfter
   };
 }
 function quickGetCondition(slot){
@@ -1686,7 +1883,16 @@ function quickSetCondition(role, key, value){
     if(!condition.proteanUsed) condition.proteanType = '';
   }
   if(key === 'proteanType') condition.proteanType = QUICK_TYPE_NAMES.includes(value) ? value : '';
-  if(key === 'targetPoisoned') condition.targetPoisoned = value === true || value === 'true' || value === 1 || value === '1';
+  if(key === 'targetPoisoned'){
+    condition.targetPoisoned = value === true || value === 'true' || value === 1 || value === '1';
+    condition.targetStatus = condition.targetPoisoned ? 'poison' : 'none';
+  }
+  if(key === 'selfStatus') condition.selfStatus = ['none','burn','poison','para'].includes(value) ? value : 'none';
+  if(key === 'targetStatus'){
+    condition.targetStatus = ['none','burn','poison','para'].includes(value) ? value : 'none';
+    condition.targetPoisoned = condition.targetStatus === 'poison';
+  }
+  if(key === 'movedAfter') condition.movedAfter = value === true || value === 'true' || value === 1 || value === '1';
   slot.condition = condition;
   quickRenderAll();
 }
@@ -2000,15 +2206,22 @@ function quickConditionControls(role, slot){
   const hasLastRespects = quickState.moves.some(name=>String(name || '').trim() === 'おはかまいり');
   const hasSelfHpPower = quickHasMoveInSet(HP_LOW_POWER_MOVES) || quickHasMoveInSet(HP_HIGH_POWER_MOVES);
   const hasTargetHpPower = quickHasMoveInSet(TARGET_HP_POWER_MOVES);
+  const hasFacade = quickState.moves.some(name=>String(name || '').trim() === 'からげんき');
+  const hasTargetStatusPower = quickState.moves.some(name=>['ベノムショック','たたりめ'].includes(String(name || '').trim()));
+  const hasPayback = quickState.moves.some(name=>String(name || '').trim() === 'しっぺがえし');
   const needsFainted = role === 'attacker' && (hasLastRespects || ability === 'そうだいしょう');
   const needsLowHp = role === 'attacker' && !!LOW_HP_TYPE_ABILITIES[ability];
   const needsFlashFire = role === 'attacker' && ability === 'もらいび';
   const needsSelfHp = role === 'attacker' && hasSelfHpPower;
-  const needsTargetHp = role === 'defender' && hasTargetHpPower;
+  const needsTargetHp = role === 'defender' && (hasTargetHpPower || ['マルチスケイル','ファントムガード'].includes(ability));
   const needsProtean = quickHasProteanAbility(slot);
   const needsMerciless = role === 'attacker' && ability === 'ひとでなし';
-  if(!needsFainted && !needsLowHp && !needsFlashFire && !needsSelfHp && !needsTargetHp && !needsProtean && !needsMerciless) return '';
+  const needsSelfStatus = role === 'attacker' && (hasFacade || ['こんじょう','ねつぼうそう'].includes(ability));
+  const needsTargetStatus = role === 'defender' && (hasTargetStatusPower || quickState.attacker.ability === 'ひとでなし');
+  const needsMovedAfter = role === 'attacker' && hasPayback;
+  if(!needsFainted && !needsLowHp && !needsFlashFire && !needsSelfHp && !needsTargetHp && !needsProtean && !needsMerciless && !needsSelfStatus && !needsTargetStatus && !needsMovedAfter) return '';
   const parts = [];
+  const statusButtons = (condKey, current, targetRole)=>`<div class="segment-grid"><button type="button" class="segment-btn ${current==='none'?'active':''}" onclick="quickSetCondition('${targetRole}','${condKey}','none')">なし</button><button type="button" class="segment-btn ${current==='burn'?'active':''}" onclick="quickSetCondition('${targetRole}','${condKey}','burn')">やけど</button><button type="button" class="segment-btn ${current==='poison'?'active':''}" onclick="quickSetCondition('${targetRole}','${condKey}','poison')">どく/猛毒</button><button type="button" class="segment-btn ${current==='para'?'active':''}" onclick="quickSetCondition('${targetRole}','${condKey}','para')">まひ</button></div>`;
   if(needsFainted){
     parts.push(`<div class="rank-box"><div class="label">味方ひんし数</div><div class="segment-grid">${[0,1,2].map(n=>`<button type="button" class="segment-btn ${condition.faintedAllies===n?'active':''}" onclick="quickSetCondition('${role}','faintedAllies',${n})">${n}体</button>`).join('')}</div></div>`);
   }
@@ -2023,12 +2236,21 @@ function quickConditionControls(role, slot){
     const values = needsSelfHp ? [100,67,33,18,8,2] : [100,75,50,25,1];
     parts.push(`<div class="rank-box"><div class="label">${label}</div><div class="segment-grid">${values.map(n=>`<button type="button" class="segment-btn ${condition.hpPercent===n?'active':''}" onclick="quickSetCondition('${role}','hpPercent',${n})">${n}%</button>`).join('')}</div></div>`);
   }
+  if(needsSelfStatus){
+    parts.push(`<div class="rank-box" style="grid-column:1/-1"><div class="label">自分の状態異常</div>${statusButtons('selfStatus', condition.selfStatus || 'none', role)}</div>`);
+  }
+  if(needsTargetStatus){
+    parts.push(`<div class="rank-box" style="grid-column:1/-1"><div class="label">相手の状態異常</div>${statusButtons('targetStatus', condition.targetStatus || 'none', role)}</div>`);
+  }
+  if(needsMovedAfter){
+    parts.push(`<div class="rank-box"><div class="label">しっぺがえし条件</div><div class="segment-grid"><button type="button" class="segment-btn ${!condition.movedAfter?'active':''}" onclick="quickSetCondition('${role}','movedAfter',false)">通常</button><button type="button" class="segment-btn ${condition.movedAfter?'active':''}" onclick="quickSetCondition('${role}','movedAfter',true)">後攻</button></div></div>`);
+  }
   if(needsProtean){
     const currentType = condition.proteanType || slot.poke?.type1 || 'ノーマル';
     const typeButtons = QUICK_TYPE_NAMES.map(t=>`<button type="button" class="segment-btn ${condition.proteanUsed && currentType===t?'active':''}" onclick="quickSetCondition('${role}','proteanType','${t}')">${t}</button>`).join('');
     parts.push(`<div class="rank-box" style="grid-column:1/-1"><div class="label">${escapeHtml(ability)} / リベロ状態</div><div class="segment-grid"><button type="button" class="segment-btn ${!condition.proteanUsed?'active':''}" onclick="quickSetCondition('${role}','proteanUsed',false)">未発動（次の技で変化）</button><button type="button" class="segment-btn ${condition.proteanUsed?'active':''}" onclick="quickSetCondition('${role}','proteanUsed',true)">発動済み</button></div>${condition.proteanUsed ? `<div class="label" style="margin-top:8px">現在タイプ</div><div class="segment-grid">${typeButtons}</div>` : ''}</div>`);
   }
-  if(needsMerciless){
+  if(needsMerciless && !needsTargetStatus){
     parts.push(`<div class="rank-box"><div class="label">ひとでなし条件</div><div class="segment-grid"><button type="button" class="segment-btn ${!condition.targetPoisoned?'active':''}" onclick="quickSetCondition('${role}','targetPoisoned',false)">相手どくなし</button><button type="button" class="segment-btn ${condition.targetPoisoned?'active':''}" onclick="quickSetCondition('${role}','targetPoisoned',true)">相手どく/猛毒</button></div></div>`);
   }
   return `<div class="field" style="grid-column:1/-1"><div class="label">発動条件</div><div class="rank-grid">${parts.join('')}</div></div>`;
@@ -2168,6 +2390,16 @@ function quickRenderCombo(){
   }
   box.innerHTML = `<div class="combo-head"><div><div class="combo-title">2技合計</div><div class="combo-sub">技番号を2つ選ぶと、合計ダメージ数・合計％・判定を表示します。</div></div></div><div class="combo-picks">${selector('first','1つ目')}${selector('second','2つ目')}</div>${body}`;
 }
+function quickSetCriticalMode(mode){
+  quickState.criticalMode = mode === 'crit' ? 'crit' : 'normal';
+  quickRenderResults();
+}
+function quickRenderCriticalControl(){
+  const box = document.getElementById('critical-control');
+  if(!box) return;
+  const mode = quickState.criticalMode === 'crit' ? 'crit' : 'normal';
+  box.innerHTML = `<div><div class="crit-control-title">急所判定</div><div class="crit-control-note">「あり」にすると、確定急所以外の技も急所に当たった時のダメージで表示します。</div></div><div class="crit-control-actions"><button class="segment-btn ${mode==='normal'?'active':''}" type="button" onclick="quickSetCriticalMode('normal')">急所なし</button><button class="segment-btn ${mode==='crit'?'active':''}" type="button" onclick="quickSetCriticalMode('crit')">急所あり</button></div>`;
+}
 function quickComboMoveResult(index, attackerOverride){
   const i = Math.max(0, Math.min(3, parseInt(index || 0, 10) || 0));
   const name = String(quickState.moves[i] || '').trim();
@@ -2186,6 +2418,7 @@ function quickRenderResults(){
   if(pairSub) pairSub.textContent = `${atk.ability || '特性未設定'} / ${atk.item || '持ち物なし'} / 天候:${quickWeatherLabel(quickState.weather)}`;
   quickRenderMatchSummary();
   quickRenderSpeed();
+  quickRenderCriticalControl();
   if(!list){ quickRenderCombo(); return; }
   if(!atk.poke || !def.poke){
     list.innerHTML = '<div class="empty">自分と相手を選ぶと、4技のダメージが表示されます。</div>';
@@ -2224,7 +2457,9 @@ function quickConditionText(slot){
   if(cond.faintedAllies) parts.push(`味方ひんし${cond.faintedAllies}体`);
   if(cond.lowHp) parts.push('HP1/3以下');
   if(cond.flashFire) parts.push('もらいび発動');
-  if(cond.targetPoisoned) parts.push('相手どく/猛毒');
+  if(cond.selfStatus && cond.selfStatus !== 'none') parts.push('自分状態異常');
+  if(cond.targetStatus && cond.targetStatus !== 'none') parts.push(cond.targetStatus === 'poison' ? '相手どく/猛毒' : '相手状態異常');
+  if(cond.movedAfter) parts.push('後攻行動');
   if(quickHasProteanAbility(slot)){
     if(cond.proteanUsed && cond.proteanType) parts.push(`${slot.ability}発動済み:${cond.proteanType}`);
     else parts.push(`${slot.ability}未発動`);
