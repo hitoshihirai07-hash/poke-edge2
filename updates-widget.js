@@ -1,6 +1,7 @@
 (function(){
-  var UPDATE_VERSION = '2026.05.25';
+  var UPDATE_VERSION = '2026.05.31';
   var ITEMS = [
+    {date:'2026.05.31', title:'上位構築関連集計とクイック技ダメージを更新しました', href:'articles/update-summary-recruitment-quick-damage-20260531.html'},
     {date:'2026.05.25', title:'構築アシスト・選出予測を実装しました', href:'articles/update-summary-builder-selection-predictor-20260525.html'},
     {date:'2026.05.16', title:'クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新を行いました', href:'articles/update-summary-quick-damage-season2-register-search-20260516.html'},
     {date:'2026.05.10', title:'バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正を行いました', href:'articles/update-summary-battle-party-damage-20260510.html'},
