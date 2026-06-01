@@ -73,6 +73,10 @@ h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px;}
 .guide-link{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;text-decoration:none;}
 .guide-link.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10);}
 .guide-link:hover{border-color:var(--accent);color:var(--accent);}
+.guide-head-row{display:grid;gap:6px;}
+.guide-toggle{display:none;border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;}
+.guide-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.guide-body{display:grid;gap:14px;}
 [data-theme="light"] .page-guide{background:linear-gradient(180deg,#f8fbff,#eef7fb);border-color:#a9c4d8;box-shadow:0 8px 22px rgba(63,86,107,.10);}
 [data-theme="light"] .guide-point{background:#fff;border-color:#a9c4d8;}
 .layout{display:grid;grid-template-columns:390px minmax(0,1fr);gap:16px;align-items:start;}
@@ -202,7 +206,18 @@ details summary::-webkit-details-marker{display:none;}
 [data-theme="light"] .mobile-tool-nav{background:rgba(248,251,254,0.96);border-bottom-color:#a9c4d8;}
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
-
+@media(max-width:768px){
+  .page-guide{padding:10px 12px;margin:0 0 10px;border-radius:16px;gap:0;}
+  .page-guide .guide-head-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;}
+  .page-guide .guide-kicker{font-size:10px;margin-bottom:2px;}
+  .page-guide .guide-title{font-size:14px;line-height:1.45;margin:0;}
+  .guide-toggle{display:inline-flex;align-items:center;justify-content:center;}
+  .quick-guide.is-collapsed .guide-body{display:none;}
+  .quick-guide:not(.is-collapsed) .guide-body{display:grid;gap:10px;margin-top:10px;}
+  .quick-guide:not(.is-collapsed) .guide-text{font-size:12px;line-height:1.7;}
+  .quick-guide:not(.is-collapsed) .guide-points{grid-template-columns:1fr;gap:8px;}
+  .quick-guide:not(.is-collapsed) .guide-point{padding:10px;}
+}
 
 .quick-mobile-tabs{display:none;}
 .crit-control-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:10px 12px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
@@ -333,22 +348,27 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
     </div>
   </section>
 
-  <section class="page-guide" aria-label="クイック技ダメージの使い方">
-    <div>
-      <div class="guide-kicker">このページでできること</div>
-      <h2 class="guide-title">技ごとの通りやすさを、1画面で比較して判断できます。</h2>
+  <section class="page-guide quick-guide is-collapsed" id="quick-page-guide" aria-label="クイック技ダメージの使い方">
+    <div class="guide-head-row">
+      <div>
+        <div class="guide-kicker">このページでできること</div>
+        <h2 class="guide-title">技ごとの通りやすさを、1画面で比較して判断できます。</h2>
+      </div>
+      <button class="guide-toggle" id="quick-guide-toggle" type="button" aria-expanded="false" aria-controls="quick-guide-body" onclick="quickToggleGuide()">使い方を開く</button>
+    </div>
+    <div class="guide-body" id="quick-guide-body">
       <p class="guide-text">クイック技ダメージは、攻撃側・防御側・技候補を指定して、4つの技のダメージ幅、割合、確定数、タイプ相性をまとめて確認するページです。ランキング型や登録済みポケモンを反映できるため、対戦前に「どの技を押すと倒せるか」「持ち物や急所で結果が変わるか」を短時間で見比べられます。</p>
-    </div>
-    <div class="guide-points">
-      <div class="guide-point"><strong>1. 攻撃側と防御側を選ぶ</strong><span>ポケモン名、タイプ、持ち物、特性、性格、努力値を確認しながら、実際に想定したい対面に近づけます。</span></div>
-      <div class="guide-point"><strong>2. 技候補をまとめて比較</strong><span>候補技4つを並べて、抜群・半減・無効、確定急所、急所ありなしの結果を同じ流れで確認できます。</span></div>
-      <div class="guide-point"><strong>3. 結果から次の行動を考える</strong><span>確定数や割合を見て、倒し切れるか、交代読みが必要か、耐久調整の確認へ進むかを判断しやすくします。</span></div>
-    </div>
-    <div class="guide-links">
-      <a class="guide-link primary" href="calc.html">詳しくダメージ計算する</a>
-      <a class="guide-link" href="endure.html">耐久調整を見る</a>
-      <a class="guide-link" href="pokemon.html">ポケモン登録へ</a>
-      <a class="guide-link" href="season.html">使用可能ポケモンを見る</a>
+      <div class="guide-points">
+        <div class="guide-point"><strong>1. 攻撃側と防御側を選ぶ</strong><span>ポケモン名、タイプ、持ち物、特性、性格、努力値を確認しながら、実際に想定したい対面に近づけます。</span></div>
+        <div class="guide-point"><strong>2. 技候補をまとめて比較</strong><span>候補技4つを並べて、抜群・半減・無効、確定急所、急所ありなしの結果を同じ流れで確認できます。</span></div>
+        <div class="guide-point"><strong>3. 結果から次の行動を考える</strong><span>確定数や割合を見て、倒し切れるか、交代読みが必要か、耐久調整の確認へ進むかを判断しやすくします。</span></div>
+      </div>
+      <div class="guide-links">
+        <a class="guide-link primary" href="calc.html">詳しくダメージ計算する</a>
+        <a class="guide-link" href="endure.html">耐久調整を見る</a>
+        <a class="guide-link" href="pokemon.html">ポケモン登録へ</a>
+        <a class="guide-link" href="season.html">使用可能ポケモンを見る</a>
+      </div>
     </div>
   </section>
 
@@ -2286,6 +2306,14 @@ function quickRenderCriticalControls(){
   const mode = quickState.criticalMode || 'auto';
   const btn = (key, label)=>`<button type="button" class="segment-btn ${mode===key?'active':''}" onclick="quickSetCriticalMode('${key}')">${label}</button>`;
   box.innerHTML = `<div><div class="crit-control-title">急所判定</div><div class="crit-control-help">通常は確定急所のみ反映。急所ありにすると、通常技も急所時のダメージで確認できます。</div></div><div class="segment-grid">${btn('auto','通常')}${btn('on','急所あり')}${btn('off','急所なし')}</div>`;
+}
+function quickToggleGuide(){
+  const guide = document.getElementById('quick-page-guide');
+  const toggle = document.getElementById('quick-guide-toggle');
+  if(!guide || !toggle) return;
+  const collapsed = guide.classList.toggle('is-collapsed');
+  toggle.textContent = collapsed ? '使い方を開く' : '使い方を閉じる';
+  toggle.setAttribute('aria-expanded', String(!collapsed));
 }
 function quickSetMobileTab(tab){
   const next = ['attacker','defender','results'].includes(tab) ? tab : 'attacker';
