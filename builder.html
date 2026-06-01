@@ -70,6 +70,19 @@ header{position:fixed;top:0;left:0;right:0;height:54px;background:rgba(7,9,15,.9
 h1{margin:0 0 10px;font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:5px;line-height:1;color:var(--text);}
 .hero-desc{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
 .hero-desc strong{color:var(--accent3)}
+
+.page-guide{background:linear-gradient(180deg,rgba(255,255,255,.035),transparent),var(--panel);border:1px solid var(--border);border-radius:22px;padding:18px;box-shadow:0 12px 34px rgba(0,0,0,.16);margin:0 0 16px;display:grid;gap:14px;}
+.guide-kicker{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:1.6px;margin-bottom:5px;}
+.guide-title{font-size:20px;line-height:1.5;font-weight:900;color:var(--text);margin:0 0 6px;}
+.guide-text{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
+.guide-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.guide-point{border:1px solid var(--border);background:var(--bg2);border-radius:14px;padding:12px;display:grid;gap:6px;}
+.guide-point strong{font-size:12px;color:var(--accent3);letter-spacing:.04em;}
+.guide-point span{font-size:12px;line-height:1.75;color:var(--text2);}
+.guide-links{display:flex;flex-wrap:wrap;gap:8px;}
+.guide-link{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;text-decoration:none;}
+.guide-link.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10);}
+.guide-link:hover{border-color:var(--accent);color:var(--accent);}
 .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
 .btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:999px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .18s;}
 .btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
@@ -171,8 +184,8 @@ footer{border-top:1px solid var(--border);padding:18px 20px;display:flex;align-i
 [data-theme="light"] .side-link,[data-theme="light"] .mini-box,[data-theme="light"] .slot,[data-theme="light"] .candidate-card,[data-theme="light"] .summary-box,[data-theme="light"] .report-block,[data-theme="light"] .field input,[data-theme="light"] .field select,[data-theme="light"] .mode-btn{background:#f8fbfe;border-color:#a9c4d8;color:#102132;}
 @media(min-width:1241px){body{padding-right:290px}.wrap{max-width:1120px}}
 @media(max-width:1240px){.side-dock{display:none}body{padding-right:0}}
-@media(max-width:900px){.hero,.builder-grid,.team-report{grid-template-columns:1fr}.slot-panel{position:static}.toolbar{grid-template-columns:1fr 1fr}.field.search-field{grid-column:1 / -1}.candidates{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){body{padding-top:54px}.header-nav{display:none;position:fixed;top:54px;right:0;width:230px;height:calc(100vh - 54px);background:rgba(7,9,15,.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px)}.header-nav.open{display:flex}.nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left}.hamburger{display:flex}.mobile-tool-nav{display:block;position:sticky;top:54px;z-index:72;background:rgba(7,9,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);padding:8px 10px}.mobile-tool-nav-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 2px 6px;line-height:1}.mobile-tool-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 2px}.mobile-tool-scroll::-webkit-scrollbar{display:none}.mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap}.mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);font-weight:700}.wrap{padding:14px 10px 42px}.hero-card,.panel{border-radius:18px;padding:14px}h1{font-size:34px}.toolbar{grid-template-columns:1fr}.mini-stat{grid-template-columns:1fr 1fr}.slot-list{grid-template-columns:repeat(2,1fr);gap:7px}.slot{min-height:74px;padding:9px}.slot-no{font-size:17px;width:20px}.slot-name{font-size:12px}.slot-meta{display:none}.summary-grid{grid-template-columns:1fr 1fr}.card-head{align-items:center}.card-name{font-size:17px}.candidate-card{min-height:auto}.hero-actions .btn{flex:1}.header-sub{display:none}}
+@media(max-width:900px){.guide-points{grid-template-columns:1fr}.hero,.builder-grid,.team-report{grid-template-columns:1fr}.slot-panel{position:static}.toolbar{grid-template-columns:1fr 1fr}.field.search-field{grid-column:1 / -1}.candidates{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.guide-links{display:grid;grid-template-columns:1fr}.guide-link{width:100%;}body{padding-top:54px}.header-nav{display:none;position:fixed;top:54px;right:0;width:230px;height:calc(100vh - 54px);background:rgba(7,9,15,.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px)}.header-nav.open{display:flex}.nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left}.hamburger{display:flex}.mobile-tool-nav{display:block;position:sticky;top:54px;z-index:72;background:rgba(7,9,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);padding:8px 10px}.mobile-tool-nav-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 2px 6px;line-height:1}.mobile-tool-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 2px}.mobile-tool-scroll::-webkit-scrollbar{display:none}.mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap}.mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);font-weight:700}.wrap{padding:14px 10px 42px}.hero-card,.panel{border-radius:18px;padding:14px}h1{font-size:34px}.toolbar{grid-template-columns:1fr}.mini-stat{grid-template-columns:1fr 1fr}.slot-list{grid-template-columns:repeat(2,1fr);gap:7px}.slot{min-height:74px;padding:9px}.slot-no{font-size:17px;width:20px}.slot-name{font-size:12px}.slot-meta{display:none}.summary-grid{grid-template-columns:1fr 1fr}.card-head{align-items:center}.card-name{font-size:17px}.candidate-card{min-height:auto}.hero-actions .btn{flex:1}.header-sub{display:none}}
 @media(max-width:420px){.slot-list{grid-template-columns:1fr}.mini-stat,.summary-grid{grid-template-columns:1fr}.card-actions{flex-direction:column}}
 </style>
 </head>
@@ -228,6 +241,26 @@ footer{border-top:1px solid var(--border);padding:18px 20px;display:flex;align-i
       <div class="mini-box"><div class="mini-label">判定軸</div><div class="mini-value">全体補完</div></div>
     </div>
   </section>
+
+  <section class="page-guide" aria-label="構築アシストの使い方">
+    <div>
+      <div class="guide-kicker">このページでできること</div>
+      <h2 class="guide-title">選んだポケモン全体を見ながら、次の候補を比較できます。</h2>
+      <p class="guide-text">構築アシストは、1匹目から6匹目までを順番に選び、現在の構築に足りない要素を確認しながら候補を出すページです。単純にタイプだけを見るのではなく、攻撃範囲、物理・特殊の偏り、素早さ、メガ枠、ランキング上位への打点を合わせて整理するため、構築作成の判断材料として使えます。</p>
+    </div>
+    <div class="guide-points">
+      <div class="guide-point"><strong>1. 使いたいポケモンを追加</strong><span>まず軸にしたいポケモンを検索から選びます。選んだ内容は現在の構築欄に残り、いつでも戻して調整できます。</span></div>
+      <div class="guide-point"><strong>2. 型を確認して候補を更新</strong><span>技、持ち物、性格、努力値を見直すと、その状態をもとに次の候補を判断できます。候補は直前の1匹だけでなく全体で見ます。</span></div>
+      <div class="guide-point"><strong>3. 候補を比較して採用を決める</strong><span>おすすめの断定ではなく、補完・打点・役割の比較材料として表示します。気になる候補はパーティ管理へ送って整理できます。</span></div>
+    </div>
+    <div class="guide-links">
+      <a class="guide-link primary" href="party.html">パーティ管理へ</a>
+      <a class="guide-link" href="selection_predictor.html">選出予測を見る</a>
+      <a class="guide-link" href="move.html">クイック技ダメージへ</a>
+      <a class="guide-link" href="season.html">使用可能ポケモンを見る</a>
+    </div>
+  </section>
+
 
   <section class="panel">
     <div class="toolbar">
