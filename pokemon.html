@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="description" content="PokeEdgeのポケモン個別登録ページ。性格・技・持ち物・努力値・個体値を登録して実数値を自動計算。登録したポケモンをパーティ管理で活用できます。">
+<meta name="description" content="PokeEdgeのポケモン登録ページ。ポケモン、性格、特性、持ち物、技、努力値を登録し、実数値を自動計算。登録した個体はパーティ管理やバトル、ダメージ計算に活用できます。">
 <meta name="keywords" content="ポケモン登録,努力値,個体値,実数値,パーティ管理,PokeEdge">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="ポケモン登録 | PokeEdge">
-<meta property="og:description" content="性格・技・持ち物・努力値・個体値を登録して実数値を自動計算。登録したポケモンをパーティ管理で活用。">
+<meta property="og:description" content="性格・特性・持ち物・技・努力値を登録し、実数値を自動計算。登録した個体をパーティ管理や各種計算に活用できます。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://poke-edge.pages.dev/pokemon.html">
 <meta name="twitter:card" content="summary">
@@ -419,6 +419,21 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 
+
+/* AdSense向け本文ガイド */
+.page-info-card{position:relative;z-index:1;max-width:1100px;margin:18px auto 0;padding:18px 20px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,var(--panel),rgba(11,14,26,.92));box-shadow:0 12px 28px rgba(0,0,0,.18);display:grid;gap:14px;}
+.page-info-kicker{font-size:10px;letter-spacing:2px;color:var(--accent);font-weight:800;}
+.page-info-title{font-size:20px;line-height:1.5;color:var(--text);font-weight:800;}
+.page-info-text{font-size:13px;line-height:1.9;color:var(--text3);}
+.page-info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.page-info-point{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px;display:grid;gap:6px;}
+.page-info-point strong{font-size:12px;color:var(--accent3);}
+.page-info-point span{font-size:12px;line-height:1.7;color:var(--text3);}
+.page-info-links{display:flex;flex-wrap:wrap;gap:8px;}
+.page-info-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 13px;font-size:12px;font-weight:700;transition:all .18s;}
+.page-info-link:hover{border-color:var(--accent);color:var(--accent);}
+@media(max-width:800px){.page-info-card{margin:12px 10px 0;padding:14px;border-radius:16px;}.page-info-title{font-size:18px;}.page-info-grid{grid-template-columns:1fr;}.page-info-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}.page-info-link{width:100%;}}
+
 </style>
 <script src="usage-tracker.js"></script>
 
@@ -461,6 +476,25 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="index.html">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="builder.html">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link active" href="pokemon.html" aria-current="page">登録</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
 </nav>
 
+
+<section class="page-info-card" aria-label="ポケモン登録の使い方">
+  <div>
+    <div class="page-info-kicker">ポケモン登録でできること</div>
+    <h1 class="page-info-title">対戦で使う個体情報を登録し、パーティ管理や計算ツールへつなげられます。</h1>
+    <p class="page-info-text">ポケモン名、性格、特性、持ち物、技、努力値を入力すると、HP・攻撃・防御・特攻・特防・素早さの実数値を自動で確認できます。登録した内容はパーティ管理で6体にまとめたり、バトルシミュレーションやダメージ確認の土台として使えます。</p>
+  </div>
+  <div class="page-info-grid">
+    <div class="page-info-point"><strong>個体登録</strong><span>タイプで絞り込みながらポケモンを選び、性格・特性・持ち物・技をまとめて保存できます。</span></div>
+    <div class="page-info-point"><strong>実数値確認</strong><span>入力した努力値から実数値を自動計算し、調整内容をその場で確認できます。</span></div>
+    <div class="page-info-point"><strong>他ツール連携</strong><span>登録した個体はパーティ管理、バトル、ダメージ計算系の確認に使えるため、同じ入力を何度も行う手間を減らせます。</span></div>
+  </div>
+  <div class="page-info-links">
+    <a class="page-info-link" href="party.html">パーティ管理へ</a>
+    <a class="page-info-link" href="calc.html">ダメージ計算へ</a>
+    <a class="page-info-link" href="move.html">クイック技ダメージへ</a>
+    <a class="page-info-link" href="season.html">使用可能ポケモンへ</a>
+  </div>
+</section>
 
 <div class="layout">
   <div class="mobile-pokemon-tabs" id="mobile-pokemon-tabs" aria-label="スマホ用表示切替">

@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>バトルシミュレーション | PokeEdge</title>
-<meta name="description" content="内定ポケモンだけで6匹見せ合い、3匹選出、CPU対戦を試せるPokeEdgeのバトルシミュレーター。メガシンカは対応メガストーン所持時のみ使用できます。">
+<meta name="description" content="PokeEdgeのバトルシミュレーター。内定ポケモンで6匹見せ合い、3匹選出、CPU対戦を試せます。登録済み個体や保存パーティを読み込み、選出・技選択・交代の流れを確認できます。">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="バトルシミュレーション | PokeEdge">
-<meta property="og:description" content="6匹見せ合いから3匹選出、CPUの技選択・交代までを簡易シミュレーション。">
+<meta property="og:description" content="6匹見せ合いから3匹選出、CPU対戦、技選択、交代、保存パーティ読み込みまで確認できるバトルシミュレーターです。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://poke-edge.pages.dev/battle.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/battle.html">
@@ -128,12 +128,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
 <main class="page">
   <section class="hero">
     <div>
-      <div class="eyebrow">Battle Simulation</div>
-      <h1>6 ON 3 CPU BATTLE</h1>
+      <div class="eyebrow">バトルシミュレーション</div>
+      <h1>6匹見せ合いCPUバトル</h1>
       <p>内定ポケモンだけを対象に、6匹見せ合いから3匹を選出してCPUと対戦します。CPUは設定した思考幅の中で、ダメージ・相性・交代先を評価して有利な行動を選びます。</p>
     </div>
     <div class="status-card">
-      <div class="status-title">CURRENT PHASE</div>
+      <div class="status-title">現在の状態</div>
       <div class="phase-line" id="phase-line">データ読込中</div>
       <div class="phase-note" id="phase-note">対戦データを読み込んでいます。</div>
     </div>
@@ -142,13 +142,13 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
   <section class="page-guide" aria-label="このページの使い方">
     <div>
       <div class="guide-kicker">このページでできること</div>
-      <h2 class="guide-title">6匹見せ合いから、選出・対戦・戦力確認までまとめて試せます。</h2>
-      <p class="guide-text">自分と相手の6匹を並べて3匹選出し、CPU戦で動き方を確認できます。登録済みや保存パーティからそのまま読み込めるので、候補を変えながら仮想対戦を何回も回し、どの選出が通しやすいかを比較するときに使いやすいページです。</p>
+      <h2 class="guide-title">6匹見せ合いから3匹選出、CPU対戦までを流れで確認できます。</h2>
+      <p class="guide-text">自分と相手の6匹を並べて3匹を選出し、CPU戦で技選択や交代の流れを確認できます。登録済み個体や保存パーティを読み込めるので、構築候補を入れ替えながら仮想対戦を回し、どの選出が通しやすいか、どの相手に動きづらいかを比較するためのページです。</p>
     </div>
     <div class="guide-points">
       <div class="guide-point"><strong>編成</strong><span>内定一覧・登録済み・保存パーティから見せ合い6匹を作れます。</span></div>
-      <div class="guide-point"><strong>対戦</strong><span>CPUの思考幅や交代傾向を変えながら、試合の流れを確認できます。</span></div>
-      <div class="guide-point"><strong>比較</strong><span>選出や並びを変えて繰り返し試し、通しやすい形を探せます。</span></div>
+      <div class="guide-point"><strong>対戦</strong><span>技選択、交代、残りHP、相性を見ながら、CPU相手に試合の流れを確認できます。</span></div>
+      <div class="guide-point"><strong>比較</strong><span>選出や並びを変えて繰り返し試し、初手・裏選出・苦手な相手の目安を整理できます。</span></div>
     </div>
     <div class="guide-links">
       <a class="guide-link primary" href="party.html">パーティ管理へ</a>
