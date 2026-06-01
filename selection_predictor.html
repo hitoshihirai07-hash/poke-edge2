@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>選出予測ツール | PokeEdge</title>
-<meta name="description" content="自分と相手の6匹から、相手の選出3匹、自分の推奨選出、相手初手確認後の裏2匹を予測する対戦補助ツール。">
+<meta name="description" content="自分と相手の6匹から相手の選出候補、自分の推奨選出、初手確認後の裏2匹をスコアで比較できる選出予測ツール。">
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
 :root{
@@ -108,6 +108,20 @@ input,select,button{font:inherit}
 @media(max-width:1240px){.side-dock{display:none}body{padding-right:0}}
 @media(max-width:768px){header{padding:0 12px}.nav{gap:6px}.nav a{padding:7px 9px}.mobile-tool-nav{display:block;position:sticky;top:52px;z-index:72;background:rgba(7,9,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);padding:8px 10px}.mobile-tool-nav-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 2px 6px;line-height:1}}
 
+/* AdSense審査向け：ツール本文・使い方ガイド */
+.page-guide{position:relative;z-index:1;max-width:1200px;margin:16px auto 18px;padding:22px;background:linear-gradient(135deg,rgba(0,200,240,.08),rgba(255,48,96,.04));border:1px solid var(--border);box-shadow:0 14px 30px rgba(0,0,0,.14);}
+.page-guide .guide-kicker{font-size:10px;letter-spacing:3px;color:var(--accent);font-weight:800;margin-bottom:8px;}
+.page-guide .guide-title{font-size:20px;line-height:1.55;margin:0 0 10px;color:var(--text);}
+.page-guide .guide-text{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
+.guide-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px;}
+.guide-point{background:var(--panel);border:1px solid var(--border);padding:14px;min-height:96px;}
+.guide-point strong{display:block;color:var(--accent3);font-size:13px;margin-bottom:7px;}
+.guide-point span{display:block;color:var(--text3);font-size:12px;line-height:1.75;}
+.guide-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.guide-link{display:inline-block;text-decoration:none;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text2);padding:9px 12px;font-size:12px;font-weight:700;transition:all .18s;}
+.guide-link:hover,.guide-link.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10);}
+@media(max-width:760px){.page-guide{margin:12px 10px 14px;padding:16px}.page-guide .guide-title{font-size:17px}.guide-points{grid-template-columns:1fr}.guide-point{min-height:auto}}
+
 </style>
 </head>
 <body>
@@ -144,6 +158,25 @@ input,select,button{font:inherit}
       <p class="lead">自分6匹と相手6匹を入れると、相手が出しそうな3匹、自分の推奨3匹、相手初手を見た後の残り2匹をスコアで出します。</p>
     </div>
     <div id="status" class="status">データ読み込み中</div>
+  </section>
+
+  <section class="page-guide" aria-label="選出予測ツールの使い方">
+    <div>
+      <div class="guide-kicker">このページでできること</div>
+      <h2 class="guide-title">相手の選出候補、自分の推奨選出、初手後の裏予測をスコアで比較できます。</h2>
+      <p class="guide-text">選出予測は、自分の6匹と相手の6匹を入力し、相手が選びそうな3匹、自分が出しやすい3匹、相手初手を見た後に残りで考えられる2匹を確認するページです。ランキング情報やタイプ・役割の相性を手がかりに、対戦前の見せ合いで迷いやすい選出判断を整理できます。</p>
+    </div>
+    <div class="guide-points">
+      <div class="guide-point"><strong>相手選出の整理</strong><span>相手6匹から出てきやすい組み合わせを見て、警戒する初手や裏の候補を確認できます。</span></div>
+      <div class="guide-point"><strong>自分選出の比較</strong><span>自分側の3匹候補をスコアで見比べ、通しやすい並びや不安な対面を整理できます。</span></div>
+      <div class="guide-point"><strong>初手後の確認</strong><span>相手初手が分かった後、残り2匹の候補を確認して交代や技選択の準備に使えます。</span></div>
+    </div>
+    <div class="guide-links">
+      <a class="guide-link primary" href="scope.html">バトルアナライザーへ</a>
+      <a class="guide-link" href="builder.html">構築アシストへ</a>
+      <a class="guide-link" href="party.html">パーティ管理へ</a>
+      <a class="guide-link" href="season.html">使用可能ポケモンへ</a>
+    </div>
   </section>
 
   <div class="tabs">

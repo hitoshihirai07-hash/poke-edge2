@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ダメージ計算 | PokeEdge</title>
 <meta property="og:title" content="ダメージ計算 | PokeEdge">
-<meta property="og:description" content="攻撃側・防御側のポケモンと技を選ぶだけで正確なダメージ量と割合を算出。乱数16段階対応。">
+<meta property="og:description" content="攻撃側・防御側・技・持ち物・特性を設定し、乱数16段階や割合、確定数を確認できるポケモンダメージ計算ツール。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://poke-edge.pages.dev/calc.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/calc.html">
-<meta name="description" content="ポケモンのダメージ計算ツール。努力値・個体値・性格補正・STAB・タイプ相性を反映した正確な計算。乱数16段階表示。">
+<meta name="description" content="ポケモンのダメージ計算ツール。努力値・個体値・性格補正・タイプ一致・相性・持ち物・特性を反映し、乱数16段階と確定数を確認できます。">
 <meta name="robots" content="index, follow">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-sync.js"></script>
@@ -676,6 +676,20 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 
+/* AdSense審査向け：ツール本文・使い方ガイド */
+.page-guide{position:relative;z-index:1;max-width:1200px;margin:16px auto 18px;padding:22px;background:linear-gradient(135deg,rgba(0,200,240,.08),rgba(255,48,96,.04));border:1px solid var(--border);box-shadow:0 14px 30px rgba(0,0,0,.14);}
+.page-guide .guide-kicker{font-size:10px;letter-spacing:3px;color:var(--accent);font-weight:800;margin-bottom:8px;}
+.page-guide .guide-title{font-size:20px;line-height:1.55;margin:0 0 10px;color:var(--text);}
+.page-guide .guide-text{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
+.guide-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px;}
+.guide-point{background:var(--panel);border:1px solid var(--border);padding:14px;min-height:96px;}
+.guide-point strong{display:block;color:var(--accent3);font-size:13px;margin-bottom:7px;}
+.guide-point span{display:block;color:var(--text3);font-size:12px;line-height:1.75;}
+.guide-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.guide-link{display:inline-block;text-decoration:none;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text2);padding:9px 12px;font-size:12px;font-weight:700;transition:all .18s;}
+.guide-link:hover,.guide-link.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10);}
+@media(max-width:760px){.page-guide{margin:12px 10px 14px;padding:16px}.page-guide .guide-title{font-size:17px}.guide-points{grid-template-columns:1fr}.guide-point{min-height:auto}}
+
 </style>
 <script src="usage-tracker.js"></script>
 </head>
@@ -714,6 +728,24 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="index.html">TOP</a><a class="mobile-tool-link active" href="calc.html" aria-current="page">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="builder.html">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
 </nav>
 
+<section class="page-guide" aria-label="ダメージ計算の使い方">
+  <div>
+    <div class="guide-kicker">このページでできること</div>
+    <h1 class="guide-title">攻撃側・防御側・技を細かく指定して、ダメージ幅と確定数を確認できます。</h1>
+    <p class="guide-text">ダメージ計算では、ポケモン、技、タイプ相性、性格補正、努力値、持ち物、特性、ランク補正などを入力し、実戦で想定されるダメージをまとめて確認できます。乱数の最小から最大までを見ながら、確定で倒せるか、耐えられるか、急所や道具の有無で結果が変わるかを比較するためのページです。</p>
+  </div>
+  <div class="guide-points">
+    <div class="guide-point"><strong>1. 初期選択</strong><span>攻撃側、防御側、技をまとめて選ぶと、その後の調整変更に合わせて結果が更新されます。</span></div>
+    <div class="guide-point"><strong>2. 条件調整</strong><span>努力値、性格、ランク、持ち物、特性などを変更し、実際の対戦で起こりやすい条件に近づけられます。</span></div>
+    <div class="guide-point"><strong>3. 結果確認</strong><span>ダメージ量、割合、乱数、確定数を確認し、採用技や耐久調整の判断材料にできます。</span></div>
+  </div>
+  <div class="guide-links">
+    <a class="guide-link primary" href="move.html">クイック技ダメージへ</a>
+    <a class="guide-link" href="endure.html">耐久調整へ</a>
+    <a class="guide-link" href="pokemon.html">ポケモン登録へ</a>
+    <a class="guide-link" href="damage-calc-guide.html">計算ガイドを見る</a>
+  </div>
+</section>
 
 <div class="layout">
 <div class="main-content">

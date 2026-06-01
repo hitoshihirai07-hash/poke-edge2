@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PokeEdge | バトルアナライザー</title>
-<meta name="description" content="バトルアナライザー — 対戦中の全局面を俯瞰し、次の最善手と相手の脅威を瞬時に把握。選出支援からバトル中のリアルタイム分析まで。">
+<meta name="description" content="ポケモン対戦の選出、技選択、交代候補、勝ち筋、対面ダメージ、選出率記録をまとめて確認できるバトルアナライザー。">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="バトルアナライザー | PokeEdge">
-<meta property="og:description" content="対戦中の全局面を俯瞰。選出支援・ダメージ予測・交代シミュレーション。">
+<meta property="og:description" content="選出支援、技選択、交代候補、勝ち筋、対面ダメージをまとめて確認できるバトルアナライザー。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://poke-edge.pages.dev/scope.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/scope.html">
@@ -773,6 +773,20 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 
+/* AdSense審査向け：ツール本文・使い方ガイド */
+.page-guide{position:relative;z-index:1;max-width:1200px;margin:16px auto 18px;padding:22px;background:linear-gradient(135deg,rgba(0,200,240,.08),rgba(255,48,96,.04));border:1px solid var(--border);box-shadow:0 14px 30px rgba(0,0,0,.14);}
+.page-guide .guide-kicker{font-size:10px;letter-spacing:3px;color:var(--accent);font-weight:800;margin-bottom:8px;}
+.page-guide .guide-title{font-size:20px;line-height:1.55;margin:0 0 10px;color:var(--text);}
+.page-guide .guide-text{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
+.guide-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px;}
+.guide-point{background:var(--panel);border:1px solid var(--border);padding:14px;min-height:96px;}
+.guide-point strong{display:block;color:var(--accent3);font-size:13px;margin-bottom:7px;}
+.guide-point span{display:block;color:var(--text3);font-size:12px;line-height:1.75;}
+.guide-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.guide-link{display:inline-block;text-decoration:none;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text2);padding:9px 12px;font-size:12px;font-weight:700;transition:all .18s;}
+.guide-link:hover,.guide-link.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10);}
+@media(max-width:760px){.page-guide{margin:12px 10px 14px;padding:16px}.page-guide .guide-title{font-size:17px}.guide-points{grid-template-columns:1fr}.guide-point{min-height:auto}}
+
 </style>
 </head>
 <body>
@@ -811,6 +825,26 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:16
 
 
 <div class="main">
+
+  <section class="page-guide" aria-label="バトルアナライザーの使い方">
+    <div>
+      <div class="guide-kicker">このページでできること</div>
+      <h1 class="guide-title">選出から技選択、交代候補、勝ち筋までを1ページで整理できます。</h1>
+      <p class="guide-text">バトルアナライザーは、対戦中に確認したい情報をフェーズごとに分けて扱うページです。選出段階では相手の並びを見ながら候補を整理し、バトル中は技選択、交代先、対面ダメージ、勝ち筋、選出率記録を切り替えて確認できます。単独の答えを断定するのではなく、状況判断に必要な材料を見やすく並べることを目的にしています。</p>
+    </div>
+    <div class="guide-points">
+      <div class="guide-point"><strong>選出フェーズ</strong><span>自分と相手の6匹を見ながら、出しやすい3匹や注意したい相手を整理できます。</span></div>
+      <div class="guide-point"><strong>バトルフェーズ</strong><span>現在の対面、技候補、交代候補、相手の脅威を確認し、次の行動を比較できます。</span></div>
+      <div class="guide-point"><strong>記録と振り返り</strong><span>選出率や計算履歴を残し、同じ相手や似た構築への対応を見直せます。</span></div>
+    </div>
+    <div class="guide-links">
+      <a class="guide-link primary" href="selection_predictor.html">選出予測へ</a>
+      <a class="guide-link" href="calc.html">ダメージ計算へ</a>
+      <a class="guide-link" href="party.html">パーティ管理へ</a>
+      <a class="guide-link" href="battle.html">バトルシミュレーションへ</a>
+    </div>
+  </section>
+
   <!-- フェーズタブ -->
   <div class="phase-tabs">
     <button class="phase-tab active" id="ptab-1" onclick="showPhase(1)"><span class="tab-icon">♟</span>選出フェーズ</button>
