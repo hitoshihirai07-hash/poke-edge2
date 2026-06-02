@@ -1,13 +1,14 @@
 <!doctype html>
 <html lang="ja">
 <head>
+<meta name="google-adsense-account" content="ca-pub-7687416670736373">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>耐久調整ツール | PokeEdge</title>
-<meta name="description" content="ポケモン対戦向けの耐久調整ツール。防御側のHP・防御・特防を入力し、自由入力やランキング上位ポケモンの攻撃技からダメージ割合・確定数・耐久ラインを確認できます。">
+<meta name="description" content="ポケモン対戦向けの耐久調整ツール。相手の攻撃・技・補正をもとに、必要なHP・防御・特防の目安を確認できます。">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="耐久調整ツール | PokeEdge">
-<meta property="og:description" content="防御側の耐久実数値と相手の攻撃技をもとに、ダメージ割合・確定数・耐久ラインを確認できるPokeEdgeの耐久調整ツールです。">
+<meta property="og:description" content="相手の攻撃・技・補正をもとに、必要な耐久ラインを確認できるPokeEdgeの耐久調整ツールです。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://poke-edge.pages.dev/endure.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/endure.html">
@@ -258,41 +259,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 
-
-/* AdSense向け本文ガイド */
-.page-info-card{background:rgba(22,35,58,.92);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.24);display:grid;gap:14px;}
-.page-info-kicker{font-size:10px;letter-spacing:2px;color:var(--accent);font-weight:800;}
-.page-info-title{margin:0;font-size:20px;line-height:1.5;color:var(--text);}
-.page-info-text{font-size:13px;line-height:1.9;color:var(--muted);}
-.page-info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
-.page-info-point{background:rgba(10,16,28,.35);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:6px;}
-.page-info-point strong{font-size:12px;color:var(--accent2);}
-.page-info-point span{font-size:12px;line-height:1.7;color:var(--muted);}
-.page-info-links{display:flex;flex-wrap:wrap;gap:8px;}
-.page-info-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid var(--line);background:var(--chip);color:var(--text);border-radius:999px;padding:8px 13px;font-size:12px;font-weight:700;}
-.page-info-link:hover{border-color:var(--accent);color:var(--accent);}
-@media(max-width:760px){.page-info-grid{grid-template-columns:1fr;}.page-info-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}.page-info-link{width:100%;}.page-info-title{font-size:18px;}}
-
-
-/* スマホ用：上部ガイド折りたたみ */
-.mobile-guide-toggle-row{display:none;}
-.mobile-guide-body{display:contents;}
-@media(max-width:768px){
-  .mobile-collapsible-guide{display:block!important;padding:10px 12px!important;margin-bottom:12px!important;gap:0!important;}
-  .mobile-collapsible-guide .mobile-guide-toggle-row{display:block;}
-  .mobile-guide-toggle{width:100%;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;text-align:left;border:1px solid var(--border,var(--line,#d4e4ef));background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));color:var(--text,#1d2630);border-radius:14px;padding:10px 12px;font:inherit;cursor:pointer;}
-  .mobile-guide-toggle-label{grid-column:1/2;font-size:11px;line-height:1.2;font-weight:900;letter-spacing:1.5px;color:var(--accent,#087db8);}
-  .mobile-guide-toggle-title{grid-column:1/2;font-size:12px;line-height:1.6;color:var(--text2,var(--muted,#5b6b76));overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-  .mobile-guide-toggle-action{grid-column:2;grid-row:1/3;align-self:center;font-size:12px;line-height:1;font-weight:900;color:var(--accent,#087db8);border:1px solid var(--border2,var(--line,#d4e4ef));border-radius:999px;padding:7px 10px;white-space:nowrap;}
-  .mobile-collapsible-guide.is-mobile-guide-collapsed .mobile-guide-body{display:none!important;}
-  .mobile-collapsible-guide:not(.is-mobile-guide-collapsed) .mobile-guide-body{display:block;margin-top:12px;}
-  .mobile-collapsible-guide:not(.is-mobile-guide-collapsed) .mobile-guide-toggle-title{-webkit-line-clamp:unset;}
-}
-@media(min-width:769px){
-  .mobile-guide-body{display:contents!important;}
-  .mobile-guide-toggle-row{display:none!important;}
-}
-
 </style>
 
 <link rel="stylesheet" href="contrast-tune.css">
@@ -336,25 +302,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:18px
   <section class="card">
     <h1>耐久調整ツール</h1>
     <p class="lead">シングル用の耐久調整ページです。耐久したい側を決めたあと、自由入力やランキング側から攻撃側を選ぶと、自動でダメージを並べて確認できます。</p>
-  </section>
-
-  <section class="page-info-card" aria-label="耐久調整ツールの使い方">
-    <div>
-      <div class="page-info-kicker">耐久調整でできること</div>
-      <h2 class="page-info-title">防御側を先に決め、どの攻撃をどれくらい耐えられるかをまとめて確認できます。</h2>
-      <p class="page-info-text">耐久したいポケモンの性格、特性、持ち物、努力値、ランク補正を入力し、自由入力した攻撃側やランキング上位ポケモンの技を当てたときのダメージを確認できます。割合、確定数、16乱数を見ながら、HP・防御・特防の調整が足りているかを判断するためのページです。</p>
-    </div>
-    <div class="page-info-grid">
-      <div class="page-info-point"><strong>防御側を固定</strong><span>まず耐久したいポケモンを決めるので、複数の攻撃候補を同じ条件で比較できます。</span></div>
-      <div class="page-info-point"><strong>自由入力</strong><span>相手のポケモン、技、持ち物、天候、ランク補正を指定し、個別の耐久確認ができます。</span></div>
-      <div class="page-info-point"><strong>ランキング側</strong><span>シーズン上位の攻撃技を選び、よく見る相手への耐久目安をまとめて確認できます。</span></div>
-    </div>
-    <div class="page-info-links">
-      <a class="page-info-link" href="calc.html">ダメージ計算へ</a>
-      <a class="page-info-link" href="move.html">クイック技ダメージへ</a>
-      <a class="page-info-link" href="party.html">パーティ管理へ</a>
-      <a class="page-info-link" href="season.html">使用可能ポケモンへ</a>
-    </div>
   </section>
 
   <section class="card">
@@ -1810,68 +1757,5 @@ function closeNav(){var nav=document.querySelector('.header-nav');var hb=documen
 
 
 <script src="updates-widget.js"></script>
-
-<script>
-(function(){
-  function setupMobileGuideCollapse(){
-    var guides = Array.prototype.slice.call(document.querySelectorAll('.page-guide, .page-info-card'));
-    guides.forEach(function(guide){
-      if(guide.dataset.mobileGuideReady === '1') return;
-      guide.dataset.mobileGuideReady = '1';
-      guide.classList.add('mobile-collapsible-guide', 'is-mobile-guide-collapsed');
-
-      var body = document.createElement('div');
-      body.className = 'mobile-guide-body';
-      while(guide.firstChild){
-        body.appendChild(guide.firstChild);
-      }
-
-      var titleNode = body.querySelector('.guide-title, .page-info-title, h2, h1');
-      var titleText = titleNode && titleNode.textContent ? titleNode.textContent.trim() : 'このページの使い方';
-
-      var button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'mobile-guide-toggle';
-      button.setAttribute('aria-expanded', 'false');
-
-      var label = document.createElement('span');
-      label.className = 'mobile-guide-toggle-label';
-      label.textContent = 'このページの使い方';
-
-      var title = document.createElement('span');
-      title.className = 'mobile-guide-toggle-title';
-      title.textContent = titleText;
-
-      var action = document.createElement('span');
-      action.className = 'mobile-guide-toggle-action';
-      action.textContent = '開く';
-
-      button.appendChild(label);
-      button.appendChild(title);
-      button.appendChild(action);
-
-      var toggleRow = document.createElement('div');
-      toggleRow.className = 'mobile-guide-toggle-row';
-      toggleRow.appendChild(button);
-
-      guide.appendChild(toggleRow);
-      guide.appendChild(body);
-
-      button.addEventListener('click', function(){
-        var collapsed = guide.classList.toggle('is-mobile-guide-collapsed');
-        button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-        action.textContent = collapsed ? '開く' : '閉じる';
-      });
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', setupMobileGuideCollapse);
-  }else{
-    setupMobileGuideCollapse();
-  }
-})();
-</script>
-
 </body>
 </html>

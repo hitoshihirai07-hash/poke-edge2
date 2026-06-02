@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-adsense-account" content="ca-pub-7687416670736373">
 <title>バトルシミュレーション | PokeEdge</title>
-<meta name="description" content="PokeEdgeのバトルシミュレーター。内定ポケモンで6匹見せ合い、3匹選出、CPU対戦を試せます。登録済み個体や保存パーティを読み込み、選出・技選択・交代の流れを確認できます。">
+<meta name="description" content="内定ポケモンだけで6匹見せ合い、3匹選出、CPU対戦を試せるPokeEdgeのバトルシミュレーター。メガシンカは対応メガストーン所持時のみ使用できます。">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="バトルシミュレーション | PokeEdge">
-<meta property="og:description" content="6匹見せ合いから3匹選出、CPU対戦、技選択、交代、保存パーティ読み込みまで確認できるバトルシミュレーターです。">
+<meta property="og:description" content="6匹見せ合いから3匹選出、CPUの技選択・交代までを簡易シミュレーション。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://poke-edge.pages.dev/battle.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/battle.html">
@@ -88,26 +89,6 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
 [data-theme="light"] .guide-link{background:#ffffff;border-color:#a9c4d8;color:#102132}
 [data-theme="light"] .guide-link.primary{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3}
 
-
-/* スマホ用：上部ガイド折りたたみ */
-.mobile-guide-toggle-row{display:none;}
-.mobile-guide-body{display:contents;}
-@media(max-width:768px){
-  .mobile-collapsible-guide{display:block!important;padding:10px 12px!important;margin-bottom:12px!important;gap:0!important;}
-  .mobile-collapsible-guide .mobile-guide-toggle-row{display:block;}
-  .mobile-guide-toggle{width:100%;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;text-align:left;border:1px solid var(--border,var(--line,#d4e4ef));background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));color:var(--text,#1d2630);border-radius:14px;padding:10px 12px;font:inherit;cursor:pointer;}
-  .mobile-guide-toggle-label{grid-column:1/2;font-size:11px;line-height:1.2;font-weight:900;letter-spacing:1.5px;color:var(--accent,#087db8);}
-  .mobile-guide-toggle-title{grid-column:1/2;font-size:12px;line-height:1.6;color:var(--text2,var(--muted,#5b6b76));overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-  .mobile-guide-toggle-action{grid-column:2;grid-row:1/3;align-self:center;font-size:12px;line-height:1;font-weight:900;color:var(--accent,#087db8);border:1px solid var(--border2,var(--line,#d4e4ef));border-radius:999px;padding:7px 10px;white-space:nowrap;}
-  .mobile-collapsible-guide.is-mobile-guide-collapsed .mobile-guide-body{display:none!important;}
-  .mobile-collapsible-guide:not(.is-mobile-guide-collapsed) .mobile-guide-body{display:block;margin-top:12px;}
-  .mobile-collapsible-guide:not(.is-mobile-guide-collapsed) .mobile-guide-toggle-title{-webkit-line-clamp:unset;}
-}
-@media(min-width:769px){
-  .mobile-guide-body{display:contents!important;}
-  .mobile-guide-toggle-row{display:none!important;}
-}
-
 </style>
 <link rel="stylesheet" href="contrast-tune.css">
 <link rel="stylesheet" href="updates-widget.css">
@@ -148,12 +129,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
 <main class="page">
   <section class="hero">
     <div>
-      <div class="eyebrow">バトルシミュレーション</div>
-      <h1>6匹見せ合いCPUバトル</h1>
+      <div class="eyebrow">Battle Simulation</div>
+      <h1>6 ON 3 CPU BATTLE</h1>
       <p>内定ポケモンだけを対象に、6匹見せ合いから3匹を選出してCPUと対戦します。CPUは設定した思考幅の中で、ダメージ・相性・交代先を評価して有利な行動を選びます。</p>
     </div>
     <div class="status-card">
-      <div class="status-title">現在の状態</div>
+      <div class="status-title">CURRENT PHASE</div>
       <div class="phase-line" id="phase-line">データ読込中</div>
       <div class="phase-note" id="phase-note">対戦データを読み込んでいます。</div>
     </div>
@@ -162,13 +143,13 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
   <section class="page-guide" aria-label="このページの使い方">
     <div>
       <div class="guide-kicker">このページでできること</div>
-      <h2 class="guide-title">6匹見せ合いから3匹選出、CPU対戦までを流れで確認できます。</h2>
-      <p class="guide-text">自分と相手の6匹を並べて3匹を選出し、CPU戦で技選択や交代の流れを確認できます。登録済み個体や保存パーティを読み込めるので、構築候補を入れ替えながら仮想対戦を回し、どの選出が通しやすいか、どの相手に動きづらいかを比較するためのページです。</p>
+      <h2 class="guide-title">6匹見せ合いから、選出・対戦・戦力確認までまとめて試せます。</h2>
+      <p class="guide-text">自分と相手の6匹を並べて3匹選出し、CPU戦で動き方を確認できます。登録済みや保存パーティからそのまま読み込めるので、候補を変えながら仮想対戦を何回も回し、どの選出が通しやすいかを比較するときに使いやすいページです。</p>
     </div>
     <div class="guide-points">
       <div class="guide-point"><strong>編成</strong><span>内定一覧・登録済み・保存パーティから見せ合い6匹を作れます。</span></div>
-      <div class="guide-point"><strong>対戦</strong><span>技選択、交代、残りHP、相性を見ながら、CPU相手に試合の流れを確認できます。</span></div>
-      <div class="guide-point"><strong>比較</strong><span>選出や並びを変えて繰り返し試し、初手・裏選出・苦手な相手の目安を整理できます。</span></div>
+      <div class="guide-point"><strong>対戦</strong><span>CPUの思考幅や交代傾向を変えながら、試合の流れを確認できます。</span></div>
+      <div class="guide-point"><strong>比較</strong><span>選出や並びを変えて繰り返し試し、通しやすい形を探せます。</span></div>
     </div>
     <div class="guide-links">
       <a class="guide-link primary" href="party.html">パーティ管理へ</a>
@@ -848,69 +829,6 @@ function applyTheme(theme){var dark={'--bg':'#07090f','--bg2':'#0b0e1a','--panel
 function toggleTheme(){var current=localStorage.getItem('pokeedge_theme')||'dark';var next=current==='dark'?'light':'dark';localStorage.setItem('pokeedge_theme',next);applyTheme(next);}
 document.addEventListener('DOMContentLoaded',init);
 </script>
-
-<script>
-(function(){
-  function setupMobileGuideCollapse(){
-    var guides = Array.prototype.slice.call(document.querySelectorAll('.page-guide, .page-info-card'));
-    guides.forEach(function(guide){
-      if(guide.dataset.mobileGuideReady === '1') return;
-      guide.dataset.mobileGuideReady = '1';
-      guide.classList.add('mobile-collapsible-guide', 'is-mobile-guide-collapsed');
-
-      var body = document.createElement('div');
-      body.className = 'mobile-guide-body';
-      while(guide.firstChild){
-        body.appendChild(guide.firstChild);
-      }
-
-      var titleNode = body.querySelector('.guide-title, .page-info-title, h2, h1');
-      var titleText = titleNode && titleNode.textContent ? titleNode.textContent.trim() : 'このページの使い方';
-
-      var button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'mobile-guide-toggle';
-      button.setAttribute('aria-expanded', 'false');
-
-      var label = document.createElement('span');
-      label.className = 'mobile-guide-toggle-label';
-      label.textContent = 'このページの使い方';
-
-      var title = document.createElement('span');
-      title.className = 'mobile-guide-toggle-title';
-      title.textContent = titleText;
-
-      var action = document.createElement('span');
-      action.className = 'mobile-guide-toggle-action';
-      action.textContent = '開く';
-
-      button.appendChild(label);
-      button.appendChild(title);
-      button.appendChild(action);
-
-      var toggleRow = document.createElement('div');
-      toggleRow.className = 'mobile-guide-toggle-row';
-      toggleRow.appendChild(button);
-
-      guide.appendChild(toggleRow);
-      guide.appendChild(body);
-
-      button.addEventListener('click', function(){
-        var collapsed = guide.classList.toggle('is-mobile-guide-collapsed');
-        button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-        action.textContent = collapsed ? '開く' : '閉じる';
-      });
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', setupMobileGuideCollapse);
-  }else{
-    setupMobileGuideCollapse();
-  }
-})();
-</script>
-
 </body>
 </html>
 
