@@ -71,6 +71,19 @@ header{position:fixed;top:0;left:0;right:0;height:54px;background:rgba(7,9,15,.9
 h1{margin:0 0 10px;font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:5px;line-height:1;color:var(--text);}
 .hero-desc{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
 .hero-desc strong{color:var(--accent3)}
+
+.page-guide{background:linear-gradient(180deg,rgba(255,255,255,.035),transparent),var(--panel);border:1px solid var(--border);border-radius:22px;padding:18px;box-shadow:0 12px 34px rgba(0,0,0,.16);margin:0 0 16px;display:grid;gap:14px;}
+.guide-kicker{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:1.6px;margin-bottom:5px;}
+.guide-title{font-size:20px;line-height:1.5;font-weight:900;color:var(--text);margin:0 0 6px;}
+.guide-text{font-size:13px;line-height:1.9;color:var(--text3);margin:0;}
+.guide-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.guide-point{border:1px solid var(--border);background:var(--bg2);border-radius:14px;padding:12px;display:grid;gap:6px;}
+.guide-point strong{font-size:12px;color:var(--accent3);letter-spacing:.04em;}
+.guide-point span{font-size:12px;line-height:1.75;color:var(--text2);}
+.guide-links{display:flex;flex-wrap:wrap;gap:8px;}
+.guide-link{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;text-decoration:none;}
+.guide-link.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10);}
+.guide-link:hover{border-color:var(--accent);color:var(--accent);}
 .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
 .btn{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:999px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .18s;}
 .btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
@@ -172,17 +185,28 @@ footer{border-top:1px solid var(--border);padding:18px 20px;display:flex;align-i
 [data-theme="light"] .side-link,[data-theme="light"] .mini-box,[data-theme="light"] .slot,[data-theme="light"] .candidate-card,[data-theme="light"] .summary-box,[data-theme="light"] .report-block,[data-theme="light"] .field input,[data-theme="light"] .field select,[data-theme="light"] .mode-btn{background:#f8fbfe;border-color:#a9c4d8;color:#102132;}
 @media(min-width:1241px){body{padding-right:290px}.wrap{max-width:1120px}}
 @media(max-width:1240px){.side-dock{display:none}body{padding-right:0}}
-@media(max-width:900px){.hero,.builder-grid,.team-report{grid-template-columns:1fr}.slot-panel{position:static}.toolbar{grid-template-columns:1fr 1fr}.field.search-field{grid-column:1 / -1}.candidates{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){body{padding-top:54px}.header-nav{display:none;position:fixed;top:54px;right:0;width:230px;height:calc(100vh - 54px);background:rgba(7,9,15,.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px)}.header-nav.open{display:flex}.nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left}.hamburger{display:flex}.mobile-tool-nav{display:block;position:sticky;top:54px;z-index:72;background:rgba(7,9,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);padding:8px 10px}.mobile-tool-nav-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 2px 6px;line-height:1}.mobile-tool-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 2px}.mobile-tool-scroll::-webkit-scrollbar{display:none}.mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap}.mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);font-weight:700}.wrap{padding:14px 10px 42px}.hero-card,.panel{border-radius:18px;padding:14px}h1{font-size:34px}.toolbar{grid-template-columns:1fr}.mini-stat{grid-template-columns:1fr 1fr}.slot-list{grid-template-columns:repeat(2,1fr);gap:7px}.slot{min-height:74px;padding:9px}.slot-no{font-size:17px;width:20px}.slot-name{font-size:12px}.slot-meta{display:none}.summary-grid{grid-template-columns:1fr 1fr}.card-head{align-items:center}.card-name{font-size:17px}.candidate-card{min-height:auto}.hero-actions .btn{flex:1}.header-sub{display:none}}
+@media(max-width:900px){.guide-points{grid-template-columns:1fr}.hero,.builder-grid,.team-report{grid-template-columns:1fr}.slot-panel{position:static}.toolbar{grid-template-columns:1fr 1fr}.field.search-field{grid-column:1 / -1}.candidates{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.guide-links{display:grid;grid-template-columns:1fr}.guide-link{width:100%;}body{padding-top:54px}.header-nav{display:none;position:fixed;top:54px;right:0;width:230px;height:calc(100vh - 54px);background:rgba(7,9,15,.98);border-left:1px solid var(--border);flex-direction:column;gap:0;padding:12px 0;z-index:99;overflow-y:auto;backdrop-filter:blur(20px)}.header-nav.open{display:flex}.nav-btn{padding:14px 22px;font-size:13px;border:none;border-bottom:1px solid var(--border);width:100%;text-align:left}.hamburger{display:flex}.mobile-tool-nav{display:block;position:sticky;top:54px;z-index:72;background:rgba(7,9,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);padding:8px 10px}.mobile-tool-nav-title{font-size:10px;color:var(--text2);letter-spacing:2px;margin:0 2px 6px;line-height:1}.mobile-tool-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 2px}.mobile-tool-scroll::-webkit-scrollbar{display:none}.mobile-tool-link{flex:0 0 auto;text-decoration:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px;line-height:1;white-space:nowrap}.mobile-tool-link.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);font-weight:700}.wrap{padding:14px 10px 42px}.hero-card,.panel{border-radius:18px;padding:14px}h1{font-size:34px}.toolbar{grid-template-columns:1fr}.mini-stat{grid-template-columns:1fr 1fr}.slot-list{grid-template-columns:repeat(2,1fr);gap:7px}.slot{min-height:74px;padding:9px}.slot-no{font-size:17px;width:20px}.slot-name{font-size:12px}.slot-meta{display:none}.summary-grid{grid-template-columns:1fr 1fr}.card-head{align-items:center}.card-name{font-size:17px}.candidate-card{min-height:auto}.hero-actions .btn{flex:1}.header-sub{display:none}}
 @media(max-width:420px){.slot-list{grid-template-columns:1fr}.mini-stat,.summary-grid{grid-template-columns:1fr}.card-actions{flex-direction:column}}
 
-.seo-note{margin:18px 0 0;padding:16px 18px;border:1px solid var(--border);background:var(--panel);border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.12);display:grid;gap:10px;line-height:1.85;color:var(--text2)}
-.seo-note h2{margin:0;color:var(--text);font-size:18px;line-height:1.5}
-.seo-note p{margin:0;font-size:13px;line-height:1.9}
-.seo-note ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:13px}
-.seo-note strong{color:var(--accent)}
-.seo-note a{color:var(--accent);font-weight:800;text-decoration:none}
-.seo-note a:hover{text-decoration:underline}
+/* スマホ用：上部ガイド折りたたみ */
+.mobile-guide-toggle-row{display:none;}
+.mobile-guide-body{display:contents;}
+@media(max-width:768px){
+  .mobile-collapsible-guide{display:block!important;padding:10px 12px!important;margin-bottom:12px!important;gap:0!important;}
+  .mobile-collapsible-guide .mobile-guide-toggle-row{display:block;}
+  .mobile-guide-toggle{width:100%;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;text-align:left;border:1px solid var(--border,var(--line,#d4e4ef));background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));color:var(--text,#1d2630);border-radius:14px;padding:10px 12px;font:inherit;cursor:pointer;}
+  .mobile-guide-toggle-label{grid-column:1/2;font-size:11px;line-height:1.2;font-weight:900;letter-spacing:1.5px;color:var(--accent,#087db8);}
+  .mobile-guide-toggle-title{grid-column:1/2;font-size:12px;line-height:1.6;color:var(--text2,var(--muted,#5b6b76));overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .mobile-guide-toggle-action{grid-column:2;grid-row:1/3;align-self:center;font-size:12px;line-height:1;font-weight:900;color:var(--accent,#087db8);border:1px solid var(--border2,var(--line,#d4e4ef));border-radius:999px;padding:7px 10px;white-space:nowrap;}
+  .mobile-collapsible-guide.is-mobile-guide-collapsed .mobile-guide-body{display:none!important;}
+  .mobile-collapsible-guide:not(.is-mobile-guide-collapsed) .mobile-guide-body{display:block;margin-top:12px;}
+  .mobile-collapsible-guide:not(.is-mobile-guide-collapsed) .mobile-guide-toggle-title{-webkit-line-clamp:unset;}
+}
+@media(min-width:769px){
+  .mobile-guide-body{display:contents!important;}
+  .mobile-guide-toggle-row{display:none!important;}
+}
 
 </style>
 </head>
@@ -239,6 +263,26 @@ footer{border-top:1px solid var(--border);padding:18px 20px;display:flex;align-i
     </div>
   </section>
 
+  <section class="page-guide" aria-label="構築アシストの使い方">
+    <div>
+      <div class="guide-kicker">このページでできること</div>
+      <h2 class="guide-title">選んだポケモン全体を見ながら、次の候補を比較できます。</h2>
+      <p class="guide-text">構築アシストは、1匹目から6匹目までを順番に選び、現在の構築に足りない要素を確認しながら候補を出すページです。単純にタイプだけを見るのではなく、攻撃範囲、物理・特殊の偏り、素早さ、メガ枠、ランキング上位への打点を合わせて整理するため、構築作成の判断材料として使えます。</p>
+    </div>
+    <div class="guide-points">
+      <div class="guide-point"><strong>1. 使いたいポケモンを追加</strong><span>まず軸にしたいポケモンを検索から選びます。選んだ内容は現在の構築欄に残り、いつでも戻して調整できます。</span></div>
+      <div class="guide-point"><strong>2. 型を確認して候補を更新</strong><span>技、持ち物、性格、努力値を見直すと、その状態をもとに次の候補を判断できます。候補は直前の1匹だけでなく全体で見ます。</span></div>
+      <div class="guide-point"><strong>3. 候補を比較して採用を決める</strong><span>おすすめの断定ではなく、補完・打点・役割の比較材料として表示します。気になる候補はパーティ管理へ送って整理できます。</span></div>
+    </div>
+    <div class="guide-links">
+      <a class="guide-link primary" href="party.html">パーティ管理へ</a>
+      <a class="guide-link" href="selection_predictor.html">選出予測を見る</a>
+      <a class="guide-link" href="move.html">クイック技ダメージへ</a>
+      <a class="guide-link" href="season.html">使用可能ポケモンを見る</a>
+    </div>
+  </section>
+
+
   <section class="panel">
     <div class="toolbar">
       <div class="field">
@@ -277,14 +321,18 @@ footer{border-top:1px solid var(--border);padding:18px 20px;display:flex;align-i
     </section>
   </div>
 
-  <section class="seo-note adsense-priority-note" aria-label="構築アシストの活用メモ">
-    <h2>構築アシストで確認できること</h2>
-    <p>構築アシストは、今選んでいるポケモン全体を見ながら、タイプ補完・攻撃範囲・物理特殊の偏り・素早さラインなどを整理するためのページです。候補をそのまま決めるのではなく、6匹を作る途中で足りない役割を見つける判断材料として使えます。</p>
-    <ul>
-      <li><strong>全体確認:</strong> 1匹ずつ追加しながら、弱点の重なりや攻め方の偏りを見直せます。</li>
-      <li><strong>候補比較:</strong> ランキングや採用されやすい技を参考にしつつ、今の並びに合う候補を探せます。</li>
-      <li><strong>次の確認:</strong> 完成後は<a href="party.html">パーティ管理</a>へ送り、<a href="battle.html">バトルシミュレーション</a>や<a href="selection_predictor.html">選出予測</a>で見せ合いの動きも確認できます。</li>
-    </ul>
+
+  <section class="page-guide adsense-priority-note" aria-label="構築アシストの補足説明">
+    <div>
+      <div class="guide-kicker">構築作成の考え方</div>
+      <h2 class="guide-title">構築アシストは、候補を断定するのではなく、採用理由を比較しやすくするためのページです。</h2>
+      <p class="guide-text">ポケモン対戦の構築は、タイプ相性だけでなく、技範囲、素早さ、物理・特殊の偏り、メガ枠、重くなりやすい相手への打点を合わせて考える必要があります。このページでは、選択済みの6匹全体を見ながら、次に欲しい要素を整理できるようにしています。</p>
+    </div>
+    <div class="guide-points">
+      <div class="guide-point"><strong>全体の穴を確認</strong><span>現在の構築に足りない攻撃範囲や受け先を確認し、次の候補を比較する材料にできます。</span></div>
+      <div class="guide-point"><strong>型変更も考慮</strong><span>技・持ち物・性格を変えると役割も変わるため、候補を固定せず調整しながら見直せます。</span></div>
+      <div class="guide-point"><strong>他ツールへ連携</strong><span>気になる候補はパーティ管理やクイック技ダメージに回して、実際の対面確認につなげられます。</span></div>
+    </div>
   </section>
 
 </main>
@@ -833,5 +881,68 @@ function toggleNav(){var nav=document.getElementById('main-nav');var hb=document
 function closeNav(){var nav=document.getElementById('main-nav');var hb=document.getElementById('hamburger');var ov=document.getElementById('nav-overlay');if(!nav)return;nav.classList.remove('open');hb.classList.remove('open');ov.classList.remove('show');}
 document.addEventListener('DOMContentLoaded',()=>{updateThemeBtn();init();document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{if(window.innerWidth<=768)closeNav();}));});
 </script>
+
+<script>
+(function(){
+  function setupMobileGuideCollapse(){
+    var guides = Array.prototype.slice.call(document.querySelectorAll('.page-guide, .page-info-card'));
+    guides.forEach(function(guide){
+      if(guide.dataset.mobileGuideReady === '1') return;
+      guide.dataset.mobileGuideReady = '1';
+      guide.classList.add('mobile-collapsible-guide', 'is-mobile-guide-collapsed');
+
+      var body = document.createElement('div');
+      body.className = 'mobile-guide-body';
+      while(guide.firstChild){
+        body.appendChild(guide.firstChild);
+      }
+
+      var titleNode = body.querySelector('.guide-title, .page-info-title, h2, h1');
+      var titleText = titleNode && titleNode.textContent ? titleNode.textContent.trim() : 'このページの使い方';
+
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'mobile-guide-toggle';
+      button.setAttribute('aria-expanded', 'false');
+
+      var label = document.createElement('span');
+      label.className = 'mobile-guide-toggle-label';
+      label.textContent = 'このページの使い方';
+
+      var title = document.createElement('span');
+      title.className = 'mobile-guide-toggle-title';
+      title.textContent = titleText;
+
+      var action = document.createElement('span');
+      action.className = 'mobile-guide-toggle-action';
+      action.textContent = '開く';
+
+      button.appendChild(label);
+      button.appendChild(title);
+      button.appendChild(action);
+
+      var toggleRow = document.createElement('div');
+      toggleRow.className = 'mobile-guide-toggle-row';
+      toggleRow.appendChild(button);
+
+      guide.appendChild(toggleRow);
+      guide.appendChild(body);
+
+      button.addEventListener('click', function(){
+        var collapsed = guide.classList.toggle('is-mobile-guide-collapsed');
+        button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        action.textContent = collapsed ? '開く' : '閉じる';
+      });
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', setupMobileGuideCollapse);
+  }else{
+    setupMobileGuideCollapse();
+  }
+})();
+</script>
+
 </body>
 </html>

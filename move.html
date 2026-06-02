@@ -11,7 +11,7 @@
 <meta property="og:url" content="https://poke-edge.pages.dev/move.html">
 <link rel="canonical" href="https://poke-edge.pages.dev/move.html">
 <meta name="robots" content="index, follow">
-<meta name="description" content="自分と相手を選び、4つの技のダメージ・割合・確定数・相性をまとめて確認できるクイック技ダメージページ。">
+<meta name="description" content="ポケモンと相手を選び、4つの技のダメージ・割合・確定数・相性・急所や持ち物による変化をまとめて確認できるクイック技ダメージページ。">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-sync.js"></script>
 <script src="usage-tracker.js"></script>
@@ -61,6 +61,25 @@ h1{font-size:28px;line-height:1.25;letter-spacing:.02em;margin-bottom:8px;}
 .status-pill{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:10px;min-height:60px;}
 .status-label{font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:4px;}
 .status-value{font-size:15px;font-weight:800;color:var(--text);}
+
+.page-guide{border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.028),transparent),var(--panel);border-radius:22px;box-shadow:var(--shadow);padding:16px 18px;margin:0 0 16px;display:grid;gap:14px;}
+.guide-kicker{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:1.6px;margin-bottom:5px;}
+.guide-title{font-size:20px;line-height:1.5;font-weight:900;color:var(--text);margin:0 0 6px;}
+.guide-text{font-size:13px;line-height:1.85;color:var(--text2);margin:0;}
+.guide-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.guide-point{border:1px solid var(--border);background:var(--panel2);border-radius:14px;padding:12px;display:grid;gap:6px;}
+.guide-point strong{font-size:12px;color:var(--accent3);letter-spacing:.04em;}
+.guide-point span{font-size:12px;line-height:1.75;color:var(--text2);}
+.guide-links{display:flex;flex-wrap:wrap;gap:8px;}
+.guide-link{border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;text-decoration:none;}
+.guide-link.primary{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.10);}
+.guide-link:hover{border-color:var(--accent);color:var(--accent);}
+.guide-head-row{display:grid;gap:6px;}
+.guide-toggle{display:none;border:1px solid var(--border2);background:var(--panel2);color:var(--text);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;}
+.guide-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.guide-body{display:grid;gap:14px;}
+[data-theme="light"] .page-guide{background:linear-gradient(180deg,#f8fbff,#eef7fb);border-color:#a9c4d8;box-shadow:0 8px 22px rgba(63,86,107,.10);}
+[data-theme="light"] .guide-point{background:#fff;border-color:#a9c4d8;}
 .layout{display:grid;grid-template-columns:390px minmax(0,1fr);gap:16px;align-items:start;}
 .card{border:1px solid var(--border);background:var(--panel);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.025),transparent);}
@@ -159,7 +178,7 @@ details summary::-webkit-details-marker{display:none;}
 .combo-main{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:900;color:var(--accent);}
 .combo-range{font-size:12px;color:var(--text2);margin-top:4px;}
 .combo-moves{font-size:12px;color:var(--text2);line-height:1.55;}
-@media(max-width:640px){.combo-picks{grid-template-columns:1fr}.combo-result{grid-template-columns:1fr}.combo-main{font-size:18px}.damage-card{grid-template-columns:1fr}.damage-main{text-align:left}}
+@media(max-width:640px){.guide-links{display:grid;grid-template-columns:1fr}.guide-link{width:100%;}.combo-picks{grid-template-columns:1fr}.combo-result{grid-template-columns:1fr}.combo-main{font-size:18px}.damage-card{grid-template-columns:1fr}.damage-main{text-align:left}}
 
 /* shared sidebar / mobile navigation */
 .side-dock{position:fixed;top:70px;right:14px;width:260px;z-index:40;}
@@ -188,10 +207,48 @@ details summary::-webkit-details-marker{display:none;}
 [data-theme="light"] .mobile-tool-nav{background:rgba(248,251,254,0.96);border-bottom-color:#a9c4d8;}
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
+@media(max-width:768px){
+  .page-guide{padding:10px 12px;margin:0 0 10px;border-radius:16px;gap:0;}
+  .page-guide .guide-head-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;}
+  .page-guide .guide-kicker{font-size:10px;margin-bottom:2px;}
+  .page-guide .guide-title{font-size:14px;line-height:1.45;margin:0;}
+  .guide-toggle{display:inline-flex;align-items:center;justify-content:center;}
+  .quick-guide.is-collapsed .guide-body{display:none;}
+  .quick-guide:not(.is-collapsed) .guide-body{display:grid;gap:10px;margin-top:10px;}
+  .quick-guide:not(.is-collapsed) .guide-text{font-size:12px;line-height:1.7;}
+  .quick-guide:not(.is-collapsed) .guide-points{grid-template-columns:1fr;gap:8px;}
+  .quick-guide:not(.is-collapsed) .guide-point{padding:10px;}
+}
+
+.quick-mobile-tabs{display:none;}
+.crit-control-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:10px 12px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.crit-control-title{font-size:12px;font-weight:900;color:var(--text2);}
+.crit-control-help{font-size:11px;color:var(--text3);line-height:1.5;margin-top:3px;}
+.quick-mini-nature{margin-top:10px;border:1px solid var(--border);background:var(--panel2);border-radius:14px;padding:10px;}
+.quick-mini-nature .rank-grid{margin-top:8px;}
+@media(max-width:768px){
+  .quick-mobile-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:sticky;top:102px;z-index:70;background:rgba(7,9,15,.96);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:16px;padding:8px;margin:12px 0;}
+  .quick-mobile-tab{border:1px solid var(--border2);background:var(--panel2);color:var(--text2);border-radius:12px;padding:10px 6px;font-size:12px;font-weight:900;cursor:pointer;}
+  .quick-mobile-tab.active{border-color:var(--accent);background:rgba(0,200,240,.14);color:var(--accent);}
+  body.quick-tab-attacker .quick-panel-defender, body.quick-tab-attacker .quick-panel-results{display:none!important;}
+  body.quick-tab-defender .quick-panel-attacker, body.quick-tab-defender .quick-panel-results{display:none!important;}
+  body.quick-tab-results .quick-control-card{display:none!important;}
+  .quick-control-card{border:0;background:transparent;box-shadow:none;}
+  .quick-control-card>.card-head{display:none;}
+  .quick-control-card>.card-body{padding:0;}
+  .control-grid{gap:10px;}
+  .quick-panel-attacker,.quick-panel-defender{border-radius:18px;}
+  .crit-control-box{align-items:stretch;}
+  .crit-control-box .segment-grid{grid-template-columns:repeat(3,minmax(0,1fr));width:100%;}
+}
+[data-theme="light"] .quick-mobile-tabs{background:rgba(248,251,254,.96);border-color:#a9c4d8;}
+[data-theme="light"] .quick-mobile-tab{background:#ffffff;border-color:#a9c4d8;color:#35536e;}
+[data-theme="light"] .quick-mobile-tab.active{background:rgba(0,106,163,.10);border-color:#006aa3;color:#006aa3;}
 
 footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34px;}
 .footer-logo{font-family:'Bebas Neue',sans-serif;letter-spacing:5px;color:var(--text2);font-size:20px;margin-bottom:6px;}
 @media(max-width:920px){
+  .guide-points{grid-template-columns:1fr;}
   header{padding:0 12px;}
   .header-sub,.header-sep{display:none;}
   .hamburger{display:flex;}
@@ -227,18 +284,9 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
   .result-toggle{min-height:42px;justify-content:center;}
   .btn{min-height:42px;}
 }
-
-.seo-note{margin:18px 0 0;padding:16px 18px;border:1px solid var(--border);background:var(--panel);border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.12);display:grid;gap:10px;line-height:1.85;color:var(--text2)}
-.seo-note h2{margin:0;color:var(--text);font-size:18px;line-height:1.5}
-.seo-note p{margin:0;font-size:13px;line-height:1.9}
-.seo-note ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:13px}
-.seo-note strong{color:var(--accent)}
-.seo-note a{color:var(--accent);font-weight:800;text-decoration:none}
-.seo-note a:hover{text-decoration:underline}
-
 </style>
 </head>
-<body>
+<body class="quick-tab-attacker">
 <header>
   <a class="logo" href="index.html">POKE<em>EDGE</em></a>
   <div class="header-sep"></div>
@@ -301,15 +349,46 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
     </div>
   </section>
 
+  <section class="page-guide quick-guide is-collapsed" id="quick-page-guide" aria-label="クイック技ダメージの使い方">
+    <div class="guide-head-row">
+      <div>
+        <div class="guide-kicker">このページでできること</div>
+        <h2 class="guide-title">技ごとの通りやすさを、1画面で比較して判断できます。</h2>
+      </div>
+      <button class="guide-toggle" id="quick-guide-toggle" type="button" aria-expanded="false" aria-controls="quick-guide-body" onclick="quickToggleGuide()">使い方を開く</button>
+    </div>
+    <div class="guide-body" id="quick-guide-body">
+      <p class="guide-text">クイック技ダメージは、攻撃側・防御側・技候補を指定して、4つの技のダメージ幅、割合、確定数、タイプ相性をまとめて確認するページです。ランキング型や登録済みポケモンを反映できるため、対戦前に「どの技を押すと倒せるか」「持ち物や急所で結果が変わるか」を短時間で見比べられます。</p>
+      <div class="guide-points">
+        <div class="guide-point"><strong>1. 攻撃側と防御側を選ぶ</strong><span>ポケモン名、タイプ、持ち物、特性、性格、努力値を確認しながら、実際に想定したい対面に近づけます。</span></div>
+        <div class="guide-point"><strong>2. 技候補をまとめて比較</strong><span>候補技4つを並べて、抜群・半減・無効、確定急所、急所ありなしの結果を同じ流れで確認できます。</span></div>
+        <div class="guide-point"><strong>3. 結果から次の行動を考える</strong><span>確定数や割合を見て、倒し切れるか、交代読みが必要か、耐久調整の確認へ進むかを判断しやすくします。</span></div>
+      </div>
+      <div class="guide-links">
+        <a class="guide-link primary" href="calc.html">詳しくダメージ計算する</a>
+        <a class="guide-link" href="endure.html">耐久調整を見る</a>
+        <a class="guide-link" href="pokemon.html">ポケモン登録へ</a>
+        <a class="guide-link" href="season.html">使用可能ポケモンを見る</a>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="quick-mobile-tabs" aria-label="クイック技ダメージの表示切り替え">
+    <button class="quick-mobile-tab active" type="button" data-quick-tab="attacker" onclick="quickSetMobileTab('attacker')">攻撃側</button>
+    <button class="quick-mobile-tab" type="button" data-quick-tab="defender" onclick="quickSetMobileTab('defender')">防御側</button>
+    <button class="quick-mobile-tab" type="button" data-quick-tab="results" onclick="quickSetMobileTab('results')">ダメージ計算</button>
+  </div>
+
   <section class="layout">
-    <div class="card">
+    <div class="card quick-control-card">
       <div class="card-head">
         <div class="card-title">入力</div>
         <button class="btn primary" type="button" onclick="quickSwapSides()">自分 ⇄ 相手</button>
       </div>
       <div class="card-body control-grid">
-        <div class="side-card">
-          <div class="side-top"><div class="side-title">自分</div><button class="btn" type="button" onclick="quickAutoMoves()">候補技4つ</button></div>
+        <div class="side-card quick-panel-attacker">
+          <div class="side-top"><div class="side-title">攻撃側</div><button class="btn" type="button" onclick="quickAutoMoves()">候補技4つ</button></div>
           <div class="field">
             <div class="label">ポケモン</div>
             <div class="search-wrap"><input class="input" id="attacker-name" placeholder="ポケモン名を入力" autocomplete="off"><div class="search-panel" id="attacker-name-panel"></div></div>
@@ -325,6 +404,7 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
             <div class="label">攻撃プリセット</div>
             <div class="segment-grid" id="atk-preset-chips"></div>
           </div>
+          <div id="attacker-mini-nature"></div>
           <details class="advanced" id="attacker-advanced">
             <summary>自分の詳細調整</summary>
             <div class="adv-grid" id="attacker-settings"></div>
@@ -332,8 +412,8 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
           </details>
         </div>
 
-        <div class="side-card">
-          <div class="side-top"><div class="side-title">相手</div><button class="btn" type="button" onclick="quickUseDefPreset('HB')">HB</button></div>
+        <div class="side-card quick-panel-defender">
+          <div class="side-top"><div class="side-title">防御側</div><button class="btn" type="button" onclick="quickUseDefPreset('HB')">HB</button></div>
           <div class="field">
             <div class="label">ポケモン</div>
             <div class="search-wrap"><input class="input" id="defender-name" placeholder="ポケモン名を入力" autocomplete="off"><div class="search-panel" id="defender-name-panel"></div></div>
@@ -345,6 +425,7 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
               <div class="label">耐久プリセット</div>
               <div class="segment-grid" id="def-preset-chips"></div>
             </div>
+            <div id="defender-mini-nature"></div>
             <div class="field">
               <div class="label">天候</div>
               <div class="segment-grid" id="weather-chips"></div>
@@ -359,7 +440,7 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
       </div>
     </div>
 
-    <div class="card result-card">
+    <div class="card result-card quick-panel-results">
       <div class="card-head result-head">
         <div>
           <div class="card-title">4技ダメージ</div>
@@ -376,6 +457,7 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
         <div class="speed-box" id="speed-box">
           <div class="speed-side">--</div><div class="speed-mid">素早さ</div><div class="speed-side right">--</div>
         </div>
+        <div class="crit-control-box" id="critical-controls"></div>
         <div class="result-list" id="result-list">
           <div class="empty">自分・相手・技を入れると、ここに4技の結果が出ます。</div>
         </div>
@@ -393,14 +475,18 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
     </div>
   </section>
 
-  <section class="seo-note adsense-priority-note" aria-label="クイック技ダメージの活用メモ">
-    <h2>クイック技ダメージの使いどころ</h2>
-    <p>このページは、1匹同士の対面で4つの技をまとめて確認し、どの技が一番通るか、確定数がどこで変わるかを素早く比べるためのページです。ランキング候補技・持ち物・性格補正・急所判定を見ながら、対戦前の確認や型調整の下調べに使えます。</p>
-    <ul>
-      <li><strong>候補技の比較:</strong> 4技を横並びで確認し、等倍・抜群・半減の違いや確定数の変化を見比べられます。</li>
-      <li><strong>条件変更:</strong> 攻守入替、急所あり/なし、持ち物や補正を変えて、実戦で起こりやすい差を確認できます。</li>
-      <li><strong>使い分け:</strong> 1技を細かく詰めたい場合は<a href="calc.html">ダメージ計算</a>、保存した型で確認したい場合は<a href="pokemon.html">ポケモン登録</a>とあわせて使うと整理しやすくなります。</li>
-    </ul>
+
+  <section class="page-guide adsense-priority-note" aria-label="クイック技ダメージの補足説明">
+    <div>
+      <div class="guide-kicker">使い分けの目安</div>
+      <h2 class="guide-title">クイック技ダメージは、対戦前の技選択を短時間で整理するための確認ページです。</h2>
+      <p class="guide-text">4つの技を同時に並べて確認できるため、単発火力だけでなく、確定数・割合・相性・持ち物補正・急所時の変化を見比べながら判断できます。ピカチュウのでんきだま、半減きのみ、急所切替など、結果が大きく変わる条件は結果欄の近くで確認できるようにしています。</p>
+    </div>
+    <div class="guide-points">
+      <div class="guide-point"><strong>ランキング型の確認</strong><span>ポケモンを選ぶと候補技やよく使われる条件を反映しやすく、対戦前に実戦寄りのダメージ感を素早く見られます。</span></div>
+      <div class="guide-point"><strong>急所・持ち物の比較</strong><span>通常時だけでなく、急所あり・急所なしの切り替えや持ち物補正込みで、倒せるかどうかの境目を確認できます。</span></div>
+      <div class="guide-point"><strong>精密計算との使い分け</strong><span>4技をまとめて比べたい時はこのページ、1つの技を細かく詰めたい時はダメージ計算ページを使うと確認しやすくなります。</span></div>
+    </div>
   </section>
 
 </main>
@@ -1110,15 +1196,21 @@ function quickCriticalInfo(atkSlot, defSlot, move){
   const cond = quickGetCondition(atkSlot || {});
   const byMove = quickMoveAlwaysCrit(move);
   const byMerciless = atkAbility === 'ひとでなし' && !!cond.targetPoisoned;
-  const wantsCrit = byMove || byMerciless;
-  if(!wantsCrit) return {active:false, blocked:false, mult:1, notes:[]};
+  const manualMode = String(quickState?.criticalMode || 'auto');
+  const byManual = manualMode === 'on' && !byMove && !byMerciless;
+  const wantsCrit = byMove || byMerciless || byManual;
+  if(!wantsCrit) return {active:false, blocked:false, mult:1, label:'', notes:[]};
   if(CRIT_BLOCK_ABILITIES.has(defAbility)){
-    return {active:false, blocked:true, mult:1, notes:[`${defAbility}: 急所無効`]};
+    return {active:false, blocked:true, mult:1, label:'急所無効', notes:[`${defAbility}: 急所無効`]};
   }
-  const notes = [byMove ? '確定急所' : 'ひとでなし: 相手どくで確定急所'];
+  const notes = [];
+  let label = '急所';
+  if(byMove){ notes.push('確定急所'); label = '確定急所'; }
+  else if(byMerciless){ notes.push('ひとでなし: 相手どくで確定急所'); label = '確定急所'; }
+  else if(byManual){ notes.push('急所あり'); label = '急所'; }
   const mult = atkAbility === 'スナイパー' ? 2.25 : 1.5;
   if(atkAbility === 'スナイパー') notes.push('スナイパー: 急所強化');
-  return {active:true, blocked:false, mult, notes};
+  return {active:true, blocked:false, mult, label, notes};
 }
 
 function quickHasMoveInSet(setObj){
@@ -1184,14 +1276,65 @@ function resolveMovePower(move, atkSlot, defSlot, weather){
     power = 20 + positiveRankTotal * 20;
     notes.push(`能力上昇合計+${positiveRankTotal}: 威力${power}`);
   }
+  if(move.name === 'アクロバット' && !String(atkSlot.item || '').trim()){
+    power = Math.max(power, 55) * 2;
+    notes.push('アクロバット: 持ち物なしで威力2倍');
+  }
+  if(move.name === 'エレキボール' || move.name === 'ジャイロボール'){
+    const atkStats = calcFullStats(atkSlot);
+    const defStats = calcFullStats(defSlot);
+    const atkSpe = atkStats ? Math.max(1, Math.floor(quickApplyStage(atkStats.spe, atkSlot.rank?.spe || 0) * getSpeedItemMultiplier(atkSlot))) : 1;
+    const defSpe = defStats ? Math.max(1, Math.floor(quickApplyStage(defStats.spe, defSlot.rank?.spe || 0) * getSpeedItemMultiplier(defSlot))) : 1;
+    if(move.name === 'エレキボール'){
+      const ratio = atkSpe / Math.max(1, defSpe);
+      power = ratio >= 4 ? 150 : ratio >= 3 ? 120 : ratio >= 2 ? 80 : ratio >= 1 ? 60 : 40;
+      notes.push(`エレキボール: 素早さ比${ratio.toFixed(2)}で威力${power}`);
+    } else {
+      power = Math.min(150, Math.max(1, Math.floor(25 * defSpe / Math.max(1, atkSpe)) + 1));
+      notes.push(`ジャイロボール: 素早さ比で威力${power}`);
+    }
+  }
   return {power, notes};
 }
-function getAttackItemMultiplier(item, moveType, category, eff){ const text = normalizeItemText(item); const effect = getItemEffectText(item); if(!text) return 1; if(text.includes('こだわりハチマキ') && category==='物理') return 1.5; if(text.includes('こだわりメガネ') && category==='特殊') return 1.5; if(text.includes('いのちのたま')) return 1.3; if(text.includes('たつじんのおび') && eff > 1) return 1.2; if(effect.includes(moveType + 'タイプの技の威力が1.2倍') && eff > 0) return 1.2; if(text.includes('タイプ強化') && eff > 0) return 1.2; return 1; }
-function getDefenseItemMultiplier(item, moveType, eff){ const effect = getItemEffectText(item); if(!item || eff <= 1) return 1; if(effect.includes('効果バツグンの' + moveType + 'タイプの技') && effect.includes('半減')) return 0.5; return 1; }
+function getAttackItemMultiplier(item, moveType, category, eff){
+  const text = normalizeItemText(item);
+  const effect = getItemEffectText(item);
+  if(!text) return 1;
+  if(text.includes('こだわりハチマキ') && category==='物理') return 1.5;
+  if(text.includes('こだわりメガネ') && category==='特殊') return 1.5;
+  if(text.includes('いのちのたま')) return 1.3;
+  if(text.includes('たつじんのおび') && eff > 1) return 1.2;
+  if(effect.includes(moveType + 'タイプの技の威力が1.2倍') && eff > 0) return 1.2;
+  if(text.includes('タイプ強化') && eff > 0) return 1.2;
+  return 1;
+}
+function getAttackItemStatInfo(atkSlot, category, moveName){
+  const item = normalizeItemText(atkSlot?.item || '');
+  const pokeName = String(atkSlot?.poke?.name || atkSlot?.pokeName || '').trim();
+  const notes = [];
+  let mult = 1;
+  if(item.includes('でんきだま') && pokeName === 'ピカチュウ' && (category === '物理' || category === '特殊') && !['ボディプレス','イカサマ'].includes(String(moveName || '').trim())){
+    mult *= 2;
+    notes.push('でんきだま: ピカチュウの攻撃・特攻2倍');
+  }
+  return {mult, notes};
+}
+function getDefenseItemMultiplier(item, moveType, eff){
+  const effect = getItemEffectText(item);
+  if(!item) return 1;
+  if(eff > 1 && effect.includes('効果バツグンの' + moveType + 'タイプの技') && effect.includes('半減')) return 0.5;
+  if(effect.includes(moveType + 'タイプの技を受けた時') && effect.includes('半減')) return 0.5;
+  return 1;
+}
+function getSpeedItemMultiplier(slot){
+  const text = normalizeItemText(slot?.item || '');
+  if(text.includes('こだわりスカーフ')) return 1.5;
+  return 1;
+}
 function getDefAbilityDmgMult(ability, moveType, eff){ if(!ability) return 1; let mult = 1; const ad = getAbilityData(ability); if(ad && ad.defDmgMult){ const arr = Array.isArray(ad.defDmgMult) ? ad.defDmgMult : [ad.defDmgMult]; arr.forEach(d=>{ if(!d.type || d.type===moveType) mult *= d.mult; }); } if(['フィルター','ハードロック'].includes(ability) && eff > 1) mult *= 0.75; if(ability==='あついしぼう' && (moveType==='ほのお' || moveType==='こおり')) mult *= 0.5; return mult; }
 function quickAbilityEffectText(ability){ const ad = getAbilityData(ability); return String(ad?.effect || ''); }
 function quickEffectTextHasMove(ability, moveName){ const effect = quickAbilityEffectText(ability); const name = String(moveName || '').trim(); return !!name && (effect.includes('『' + name + '』') || effect.includes(name)); }
-function getAttackAbilityPowerInfo(atkSlot, move, moveType, category, eff){
+function getAttackAbilityPowerInfo(atkSlot, move, moveType, category, eff, weather=''){
   const ability = String(atkSlot?.ability || '').trim();
   const moveName = String(move?.name || '').trim();
   const condition = quickGetCondition(atkSlot || {});
@@ -1225,6 +1368,26 @@ function getAttackAbilityPowerInfo(atkSlot, move, moveType, category, eff){
   if(EFFECT_LIST_POWER_ABILITIES[ability] && quickEffectTextHasMove(ability, moveName)){
     mult *= EFFECT_LIST_POWER_ABILITIES[ability];
     notes.push(ability);
+  }
+  if(ability === 'テクニシャン' && (Number(move?.power || 0) || 0) > 0 && (Number(move?.power || 0) || 0) <= 60){
+    mult *= 1.5;
+    notes.push('テクニシャン');
+  }
+  if(ability === 'すいほう' && moveType === 'みず'){
+    mult *= 2;
+    notes.push('すいほう: みず技強化');
+  }
+  if(ability === 'すなのちから' && weather === 'sand' && ['じめん','いわ','はがね'].includes(moveType)){
+    mult *= 1.3;
+    notes.push('すなのちから: 砂嵐で強化');
+  }
+  if(['はりきり','ごりむちゅう'].includes(ability) && category === '物理'){
+    mult *= 1.5;
+    notes.push(`${ability}: 物理技強化`);
+  }
+  if(ability === 'ちからずく' && /[0-9０-９]+%/.test(String(move?.effect || ''))){
+    mult *= 1.3;
+    notes.push('ちからずく: 追加効果技を強化');
   }
   if(ability === 'いろめがね' && eff > 0 && eff < 1){
     mult *= 2;
@@ -1264,7 +1427,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const offenseCategory = isBodyPress ? 'ぼうぎょ' : (isFoulPlay ? 'こうげき' : (SPECIAL_DEFENSE_MOVES.has(move.name) ? '特殊' : rawCategory));
   const defenseCategory = SPECIAL_DEFENSE_MOVES.has(move.name) || isBodyPress || rawCategory==='物理' ? '物理' : '特殊';
   const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability, move.name || '', atkSlot.ability);
-  const abilityPowerInfo = getAttackAbilityPowerInfo(atkSlot, move, resolvedType.type, rawCategory, eff);
+  const abilityPowerInfo = getAttackAbilityPowerInfo(atkSlot, move, resolvedType.type, rawCategory, eff, weather);
   const criticalInfo = quickCriticalInfo(atkSlot, defSlot, move);
   const scrappyNote = quickAbilityLetsNormalFightingHitGhost(atkSlot.ability) && quickIsNormalOrFightingType(resolvedType.type) && defTypes.includes('ゴースト')
     ? [`${atkSlot.ability}: ゴースト無効を通常相性化`]
@@ -1286,6 +1449,11 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
     attackRankStage = 0;
   }
   attackStat = quickApplyStage(attackStat, attackRankStage);
+  const itemStatInfo = getAttackItemStatInfo(atkSlot, rawCategory, move.name);
+  if(itemStatInfo.mult !== 1){
+    attackStat = Math.floor(attackStat * itemStatInfo.mult);
+    baseNotes.push(...itemStatInfo.notes);
+  }
   let defenseStat = defenseCategory==='物理' ? defStats.def : defStats.spd;
   const defenseRankStat = defenseCategory==='物理' ? 'def' : 'spd';
   let defenseRankStage = parseInt(defSlot.rank?.[defenseRankStat] || 0, 10) || 0;
@@ -1349,7 +1517,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
       hits,
       critical: criticalInfo.active,
       criticalBlocked: criticalInfo.blocked,
-      criticalLabel: criticalInfo.active ? '確定急所' : (criticalInfo.blocked ? '急所無効' : ''),
+      criticalLabel: criticalInfo.active ? (criticalInfo.label || '急所') : (criticalInfo.blocked ? '急所無効' : ''),
       proteanChangedType: stabTypeInfo.changedType || '',
       notes:[...baseNotes, ...(parentBond.note ? [parentBond.note] : []), ...extraNotes]
     };
@@ -1386,6 +1554,7 @@ const quickState = {
   defender: quickEmptySlot('defender'),
   moves: ['', '', '', ''],
   activeMoveIndex: 0,
+  criticalMode: 'auto',
   combo: { first: 0, second: 1 },
   weather: '',
   recent: []
@@ -1616,6 +1785,10 @@ function quickRenderPresetChips(){
   if(presetWrap){ presetWrap.innerHTML=Object.entries(EV_PRESETS).filter(([k])=>['none','H32','HB','HD','B32','D32'].includes(k)).map(([k,v])=>`<button type="button" class="segment-btn ${quickState.defender.preset===k?'active':''}" onclick="quickUseDefPreset('${k}')">${escapeHtml(v.name)}</button>`).join(''); }
   const weatherWrap=document.getElementById('weather-chips');
   if(weatherWrap){ const arr=[['','なし'],['sunny','晴れ'],['rain','雨'],['snow','雪'],['sand','砂嵐']]; weatherWrap.innerHTML=arr.map(([k,v])=>`<button type="button" class="segment-btn ${quickState.weather===k?'active':''}" onclick="quickSetWeather('${k}')">${escapeHtml(v)}</button>`).join(''); }
+  const atkMini = document.getElementById('attacker-mini-nature');
+  if(atkMini) atkMini.innerHTML = quickMiniNatureHtml('attacker', ['atk','spa','def']);
+  const defMini = document.getElementById('defender-mini-nature');
+  if(defMini) defMini.innerHTML = quickMiniNatureHtml('defender', ['def','spd','atk']);
 }
 function quickSetWeather(v){ quickState.weather=v||''; quickRenderAll(); }
 function quickStageMult(stage){ const s = Math.max(-6, Math.min(6, parseInt(stage||0,10)||0)); return s >= 0 ? (2+s)/2 : 2/(2-s); }
@@ -1666,6 +1839,11 @@ function quickSetCondition(role, key, value){
 }
 function quickSetNatureMod(role, stat, value){ const slot=quickSlot(role); if(!slot.natureMods) slot.natureMods=quickNatureModsFromName(slot.nature); slot.natureMods[stat]=Number(value)||1; slot.nature='カスタム'; quickRenderAll(); }
 function quickNatureModButtons(role, stat, current){ return [0.9,1,1.1].map(v=>`<button type="button" class="segment-btn ${Number(current||1)===v?'active':''}" onclick="quickSetNatureMod('${role}','${stat}',${v})">${v===1?'変化なし':v}</button>`).join(''); }
+function quickMiniNatureHtml(role, stats){
+  const slot = quickSlot(role);
+  const nat = slot.natureMods || quickNatureModsFromName(slot.nature);
+  return `<div class="quick-mini-nature"><div class="label">性格補正（よく使う）</div><div class="rank-grid">${stats.map(st=>`<div class="rank-box"><div class="label">${quickStatLabel(st)}</div><div class="segment-grid">${quickNatureModButtons(role, st, nat[st])}</div></div>`).join('')}</div></div>`;
+}
 async function quickLoadSources(){
   try{ if(typeof initAuth === 'function') await initAuth(); }catch(_e){}
   try{ registeredPokes = typeof initPokemonData === 'function' ? await initPokemonData() : (typeof loadLocal === 'function' ? loadLocal() : []); }catch(_e){ registeredPokes = []; }
@@ -2133,6 +2311,33 @@ function quickComboMoveResult(index, attackerOverride){
   return {no:i+1, name, result};
 }
 
+
+function quickSetCriticalMode(mode){
+  quickState.criticalMode = ['auto','on','off'].includes(mode) ? mode : 'auto';
+  quickRenderResults();
+}
+function quickRenderCriticalControls(){
+  const box = document.getElementById('critical-controls');
+  if(!box) return;
+  const mode = quickState.criticalMode || 'auto';
+  const btn = (key, label)=>`<button type="button" class="segment-btn ${mode===key?'active':''}" onclick="quickSetCriticalMode('${key}')">${label}</button>`;
+  box.innerHTML = `<div><div class="crit-control-title">急所判定</div><div class="crit-control-help">通常は確定急所のみ反映。急所ありにすると、通常技も急所時のダメージで確認できます。</div></div><div class="segment-grid">${btn('auto','通常')}${btn('on','急所あり')}${btn('off','急所なし')}</div>`;
+}
+function quickToggleGuide(){
+  const guide = document.getElementById('quick-page-guide');
+  const toggle = document.getElementById('quick-guide-toggle');
+  if(!guide || !toggle) return;
+  const collapsed = guide.classList.toggle('is-collapsed');
+  toggle.textContent = collapsed ? '使い方を開く' : '使い方を閉じる';
+  toggle.setAttribute('aria-expanded', String(!collapsed));
+}
+function quickSetMobileTab(tab){
+  const next = ['attacker','defender','results'].includes(tab) ? tab : 'attacker';
+  document.body.classList.remove('quick-tab-attacker','quick-tab-defender','quick-tab-results');
+  document.body.classList.add('quick-tab-' + next);
+  document.querySelectorAll('.quick-mobile-tab').forEach(btn=>btn.classList.toggle('active', btn.dataset.quickTab === next));
+}
+
 function quickRenderResults(){
   const atk = quickState.attacker;
   const def = quickState.defender;
@@ -2142,6 +2347,7 @@ function quickRenderResults(){
   if(pairTitle) pairTitle.textContent = `${quickDisplaySlotName(atk)} → ${quickDisplaySlotName(def)}`;
   if(pairSub) pairSub.textContent = `${atk.ability || '特性未設定'} / ${atk.item || '持ち物なし'} / 天候:${quickWeatherLabel(quickState.weather)}`;
   quickRenderSpeed();
+  quickRenderCriticalControls();
   if(!list){ quickRenderCombo(); return; }
   if(!atk.poke || !def.poke){
     list.innerHTML = '<div class="empty">自分と相手を選ぶと、4技のダメージが表示されます。</div>';
@@ -2302,8 +2508,8 @@ function quickRenderSpeed(){
   const atk = quickState.attacker, def = quickState.defender;
   const as = atk.poke ? calcFullStats(atk) : null;
   const ds = def.poke ? calcFullStats(def) : null;
-  const atkSpe = as ? quickApplyStage(as.spe, atk.rank?.spe || 0) : null;
-  const defSpe = ds ? quickApplyStage(ds.spe, def.rank?.spe || 0) : null;
+  const atkSpe = as ? Math.floor(quickApplyStage(as.spe, atk.rank?.spe || 0) * getSpeedItemMultiplier(atk)) : null;
+  const defSpe = ds ? Math.floor(quickApplyStage(ds.spe, def.rank?.spe || 0) * getSpeedItemMultiplier(def)) : null;
   let label = '素早さ';
   if(atkSpe !== null && defSpe !== null) label = atkSpe > defSpe ? '自分が上' : (atkSpe < defSpe ? '相手が上' : '同速');
   box.innerHTML = `<div class="speed-side">${atkSpe !== null ? atkSpe : '--'}</div><div class="speed-mid">${label}</div><div class="speed-side right">${defSpe !== null ? defSpe : '--'}</div>`;
