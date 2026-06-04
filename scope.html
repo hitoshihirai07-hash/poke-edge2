@@ -2079,10 +2079,13 @@ const SCOPE_FIELD_JP = {
   guts:'\u3053\u3093\u3058\u3087\u3046',
   facade:'\u304b\u3089\u3052\u3093\u304d',
   bodyPress:'\u30dc\u30c7\u30a3\u30d7\u30ec\u30b9',
-  psyshock:'\u30b5\u30a4\u30b3\u30b7\u30e7\u30c3\u30af',
-  earthquake:'\u3058\u3057\u3093',
-  bulldoze:'\u3058\u306a\u3089\u3057',
-  magnitude:'\u30de\u30b0\u30cb\u30c1\u30e5\u30fc\u30c9'
+  psyshock:'サイコショック',
+  earthquake:'じしん',
+  bulldoze:'じならし',
+  magnitude:'マグニチュード',
+  risingVoltage:'ライジングボルト',
+  expandingForce:'ワイドフォース',
+  mistyExplosion:'ミストバースト'
 };
 
 function getScopeFieldStateForCalc(){
@@ -2178,27 +2181,49 @@ function getScopeFieldDamageAdjustments(context, atkSlot, move, defSlot, usedTyp
   }
 
   const terrain = state.terrain && state.terrain.type;
-  if(terrain === 'electric' && usedType === SCOPE_FIELD_JP.electric){
+  const atkGrounded = isScopeFieldGrounded(atkSlot);
+  const defGrounded = isScopeFieldGrounded(defSlot);
+  if(terrain === 'electric' && usedType === SCOPE_FIELD_JP.electric && atkGrounded){
     mod *= 1.3;
     notes.push('EF でんき1.3');
   }else if(terrain === 'grassy'){
-    if(usedType === SCOPE_FIELD_JP.grass){
+    if(usedType === SCOPE_FIELD_JP.grass && atkGrounded){
       mod *= 1.3;
       notes.push('GF くさ1.3');
     }
-    if([SCOPE_FIELD_JP.earthquake,SCOPE_FIELD_JP.bulldoze,SCOPE_FIELD_JP.magnitude].includes(move.name)){
+    if([SCOPE_FIELD_JP.earthquake,SCOPE_FIELD_JP.bulldoze,SCOPE_FIELD_JP.magnitude].includes(move.name) && defGrounded){
       mod *= 0.5;
       notes.push('GF 地面技0.5');
     }
-  }else if(terrain === 'psychic' && usedType === SCOPE_FIELD_JP.psychic){
+  }else if(terrain === 'psychic' && usedType === SCOPE_FIELD_JP.psychic && atkGrounded){
     mod *= 1.3;
     notes.push('PF エスパー1.3');
-  }else if(terrain === 'misty' && usedType === SCOPE_FIELD_JP.dragon){
+  }else if(terrain === 'misty' && usedType === SCOPE_FIELD_JP.dragon && defGrounded){
     mod *= 0.5;
     notes.push('MF ドラゴン0.5');
   }
 
   return {mod, notes};
+}
+function getScopeTerrainMoveBasePower(atkSlot, move, defSlot, power){
+  const state = getScopeFieldStateForCalc();
+  const terrain = state && state.terrain && state.terrain.type;
+  let next = Math.max(0, Number(power) || 0);
+  const notes = [];
+  if(!terrain || !move || !next) return {power:next, notes};
+  if(terrain === 'electric' && move.name === SCOPE_FIELD_JP.risingVoltage && isScopeFieldGrounded(defSlot)){
+    next = Math.floor(next * 2);
+    notes.push('ライジングボルト 威力2倍');
+  }
+  if(terrain === 'psychic' && move.name === SCOPE_FIELD_JP.expandingForce && isScopeFieldGrounded(atkSlot)){
+    next = Math.floor(next * 1.5);
+    notes.push('ワイドフォース 威力1.5倍');
+  }
+  if(terrain === 'misty' && move.name === SCOPE_FIELD_JP.mistyExplosion && isScopeFieldGrounded(atkSlot)){
+    next = Math.floor(next * 1.5);
+    notes.push('ミストバースト 威力1.5倍');
+  }
+  return {power:Math.max(1,next), notes};
 }
 
 function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
@@ -2220,9 +2245,12 @@ function calcMoveDmg(atkSlot, move, defSlot, defHpPct, context){
   }
   const baseEff = typeEff(mtype, defTypes, moveName, atkSlot.ability || '');
   const adjustedMove = Object.assign({}, move, {type:mtype, power});
+  const terrainPower = getScopeTerrainMoveBasePower(atkSlot, adjustedMove, defSlot, power);
+  power = terrainPower.power || power;
+  adjustedMove.power = power;
   const adjust = getAbilityDamageAdjustments(atkSlot, adjustedMove, defSlot, baseEff, effectiveDefHpPct);
   const fieldAdjust = getScopeFieldDamageAdjustments(context, atkSlot, adjustedMove, defSlot, mtype);
-  let detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power).concat(fieldAdjust.notes, hpInfo.notes);
+  let detailNotes = getScopeDamageOptionNotes(atkSlot, adjustedMove, mtype, power).concat(terrainPower.notes, fieldAdjust.notes, hpInfo.notes);
   if(scopeAbilityLetsNormalFightingHitGhost(atkSlot.ability) && scopeIsNormalOrFightingType(mtype) && defTypes.includes('ゴースト')){
     detailNotes.push((atkSlot.ability || '特性') + ': ゴースト無効を通常相性化');
   }

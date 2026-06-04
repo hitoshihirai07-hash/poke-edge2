@@ -228,6 +228,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .detail-form-grid{display:grid;gap:10px;}
 .detail-form-card{border:1px solid var(--border);background:var(--bg);padding:10px 12px;}
 .detail-form-card-title{font-size:12px;color:var(--accent3);margin-bottom:8px;font-weight:700;}
+
+.detail-form-link-note{font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px;}
+.detail-form-link-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.detail-form-link-btn{border:1px solid var(--border);background:var(--bg2);color:var(--text);padding:6px 9px;font-size:11px;cursor:pointer;}
+.detail-form-link-btn.active,.detail-form-link-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,240,.08);}
 .detail-link-grid{display:grid;gap:10px;}
 .detail-link-row{display:grid;grid-template-columns:minmax(150px,1fr) auto;gap:8px;align-items:center;}
 .detail-link-row select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;}
@@ -1548,6 +1553,37 @@ document.addEventListener('DOMContentLoaded',function(){
     return uniq(names);
   }
 
+  function getMegaBaseName(name) {
+    const raw = String(name || '').trim();
+    if(!raw) return '';
+    if(MEGA_DATA && MEGA_DATA.formToBase && MEGA_DATA.formToBase[raw]) return String(MEGA_DATA.formToBase[raw] || '').trim();
+    const siteName = ALIAS_TO_SITE_NAME[raw] || raw;
+    if(MEGA_DATA && MEGA_DATA.formToBase && MEGA_DATA.formToBase[siteName]) return String(MEGA_DATA.formToBase[siteName] || '').trim();
+    if(/^メガ/.test(raw)) return raw.replace(/^メガ/, '').replace(/[XYZ]$/, '');
+    return '';
+  }
+
+  function getMegaRelatedNames(name) {
+    const raw = String(name || '').trim();
+    const siteName = ALIAS_TO_SITE_NAME[raw] || raw;
+    const base = getMegaBaseName(siteName) || (getMegaFormsFromRelations(siteName).length ? siteName : '');
+    if(!base) return [siteName].filter(Boolean);
+    return uniq([base].concat(getMegaFormsFromRelations(base)));
+  }
+
+  function resolveDetailSiteNames(name) {
+    const related = getMegaRelatedNames(name);
+    const out = [];
+    related.forEach(n => resolveSiteNames(n).forEach(siteName => out.push(siteName)));
+    return uniq(out).filter(n => POKE_BY_NAME[n]);
+  }
+
+  function resolveDetailMoveSourceNames(name) {
+    const base = getMegaBaseName(name);
+    const source = base || (ALIAS_TO_SITE_NAME[name] || name);
+    return uniq(resolveSiteNames(source)).filter(n => POKE_MOVES_BY_NAME[n]);
+  }
+
   function fetchMaybeJson(path) {
     return fetch(path, {cache:'no-cache'}).then(async (r) => {
       if(!r.ok) return {ok:false, data:null};
@@ -1684,15 +1720,18 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   function collectDetailContext(name) {
-    const requestedName = name || '';
-    const siteNames = resolveSiteNames(requestedName).filter(n => POKE_BY_NAME[n]);
+    const requestedName = String(name || '').trim();
+    const detailSiteNames = resolveDetailSiteNames(requestedName);
     const fallbackName = POKE_BY_NAME[requestedName] ? requestedName : '';
-    const finalSiteNames = siteNames.length ? siteNames : (fallbackName ? [fallbackName] : []);
+    const finalSiteNames = detailSiteNames.length ? detailSiteNames : (fallbackName ? [fallbackName] : []);
     const records = finalSiteNames.map(n => POKE_BY_NAME[n]).filter(Boolean);
-    const primary = records[0] || null;
+    const requestedSiteName = ALIAS_TO_SITE_NAME[requestedName] || requestedName;
+    const primary = records.find(p => p.name === requestedSiteName) || records[0] || null;
 
+    const moveSourceNames = resolveDetailMoveSourceNames(requestedName);
+    const moveNames = moveSourceNames.length ? moveSourceNames : finalSiteNames;
     const moveMap = {};
-    finalSiteNames.forEach(siteName => {
+    moveNames.forEach(siteName => {
       const detail = POKE_MOVES_BY_NAME[siteName];
       const moves = detail && Array.isArray(detail.moves) ? detail.moves : [];
       moves.forEach(m => {
@@ -1702,17 +1741,20 @@ document.addEventListener('DOMContentLoaded',function(){
 
     const abilityNames = uniq(finalSiteNames.flatMap(siteName => Array.isArray(ABILITIES_BY_NAME[siteName]) ? ABILITIES_BY_NAME[siteName] : []));
     const seasons = uniq(finalSiteNames.flatMap(siteName => seasonsForName(siteName)));
+    const relatedNames = getMegaRelatedNames(requestedName).filter(n => POKE_BY_NAME[n]);
 
     return {
       requestedName,
       displayName: requestedName || (primary ? primary.name : ''),
       siteNames: finalSiteNames,
+      moveSourceNames: moveNames,
       records,
       primary,
       moves: Object.values(moveMap),
       abilities: abilityNames,
       seasons,
       rankings: resolveRankingRowsForName(requestedName || (primary ? primary.name : '')),
+      relatedNames,
       hasMultipleForms: records.length > 1
     };
   }
@@ -2083,6 +2125,39 @@ document.addEventListener('DOMContentLoaded',function(){
     else detailSide.appendChild(card);
   }
 
+  function ensureDetailFormBox() {
+    const detailSide = document.querySelector('.detail-side');
+    if(!detailSide || document.getElementById('detail-form-link-box')) return;
+    const card = document.createElement('div');
+    card.className = 'detail-card';
+    card.id = 'detail-form-link-box';
+    card.style.display = 'none';
+    card.innerHTML = '<div class="detail-card-title">メガ進化関連</div><div class="detail-form-link-note" id="detail-form-link-note"></div><div class="detail-form-link-grid" id="detail-form-link-grid"></div>';
+    const typeCard = document.getElementById('detail-types')?.closest('.detail-card');
+    if(typeCard && typeCard.parentNode) typeCard.parentNode.insertBefore(card, typeCard.nextSibling);
+    else detailSide.appendChild(card);
+  }
+
+  function renderDetailFormLinks(ctx) {
+    ensureDetailFormBox();
+    const box = document.getElementById('detail-form-link-box');
+    const grid = document.getElementById('detail-form-link-grid');
+    const note = document.getElementById('detail-form-link-note');
+    if(!box || !grid || !note) return;
+    const names = uniq((ctx && ctx.relatedNames) || []).filter(n => POKE_BY_NAME[n]);
+    if(names.length <= 1){
+      box.style.display = 'none';
+      grid.innerHTML = '';
+      note.textContent = '';
+      return;
+    }
+    box.style.display = '';
+    const base = getMegaBaseName(ctx.requestedName) || names.find(n => !/^メガ/.test(n)) || names[0];
+    note.textContent = `技一覧は${base}の技データを基準に表示しています。通常姿・メガ進化後のタイプ/種族値は下から切り替えて確認できます。`;
+    const current = ALIAS_TO_SITE_NAME[ctx.requestedName] || ctx.requestedName;
+    grid.innerHTML = names.map(n => `<button type="button" class="detail-form-link-btn ${n===current?'active':''}" data-detail-form="${escapeHtml(n)}">${escapeHtml(typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(n) : n)}</button>`).join('');
+  }
+
   function getSeasonTransferName() {
     return currentDetailTransferName || currentDetailName || document.getElementById('detail-name')?.textContent || '';
   }
@@ -2233,6 +2308,7 @@ document.addEventListener('DOMContentLoaded',function(){
     await Promise.all([ensureSeasonMovesLoaded(), loadRankingJson()]);
     ensureDetailRankingBox();
     ensureDetailTransferBox();
+    ensureDetailFormBox();
     ensureDetailMoveToggleButton();
 
     const ctx = collectDetailContext(name);
@@ -2245,9 +2321,10 @@ document.addEventListener('DOMContentLoaded',function(){
     currentDetailMoves = ctx.moves;
     currentDetailMovesExpanded = false;
     setSeasonTransferName(ctx.displayName || primary.name);
+    renderDetailFormLinks(ctx);
 
     const rankingNameNote = ctx.siteNames.length > 1
-      ? `フォルム種族値: ${ctx.siteNames.map(n => typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(n) : n).join(' / ')}`
+      ? `関連フォルム: ${ctx.siteNames.map(n => typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(n) : n).join(' / ')}`
       : ((ctx.displayName !== primary.name) ? `サイト表記: ${primary.name}` : '');
 
     document.getElementById('detail-name').textContent = ctx.displayName;
@@ -2275,7 +2352,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
     const rankingUpdates = uniq(ctx.rankings.single.concat(ctx.rankings.double).map(row => row.updatedAt).filter(Boolean));
     const updatedAt = formatRankingDate(rankingUpdates[0] || '');
-    document.getElementById('detail-move-meta').textContent = ctx.moves.length ? `${ctx.moves.length}件の技${updatedAt ? ` / 更新日: ${updatedAt}` : ''}` : `技データ未登録${updatedAt ? ` / 更新日: ${updatedAt}` : ''}`;
+    document.getElementById('detail-move-meta').textContent = ctx.moves.length ? `${ctx.moves.length}件の技${ctx.moveSourceNames && ctx.moveSourceNames.length ? ` / 技参照: ${ctx.moveSourceNames.join(' / ')}` : ''}${updatedAt ? ` / 更新日: ${updatedAt}` : ''}` : `技データ未登録${updatedAt ? ` / 更新日: ${updatedAt}` : ''}`;
     document.getElementById('detail-move-search').value = '';
     renderDetailMovesPatched();
     setDetailTab(preferredTab === 'ranking' || currentMainView === 'ranking' ? 'ranking' : 'moves');
@@ -2291,6 +2368,14 @@ document.addEventListener('DOMContentLoaded',function(){
   };
 
   document.addEventListener('click', function(e) {
+    const formBtn = e.target.closest('[data-detail-form]');
+    if(formBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+      window.openPokemonDetail(formBtn.dataset.detailForm || '', currentDetailTab || 'moves');
+      return;
+    }
     const btn = e.target.closest('.js-open-detail');
     if(btn && btn.dataset.detailTab) {
       e.preventDefault();
@@ -2304,12 +2389,14 @@ document.addEventListener('DOMContentLoaded',function(){
     ensureSeasonViews();
     ensureDetailRankingBox();
     ensureDetailTransferBox();
+    ensureDetailFormBox();
     ensureDetailMoveToggleButton();
   });
   window.addEventListener('load', function() {
     ensureSeasonViews();
     ensureDetailRankingBox();
     ensureDetailTransferBox();
+    ensureDetailFormBox();
     ensureDetailMoveToggleButton();
     loadRankingJson();
   });
