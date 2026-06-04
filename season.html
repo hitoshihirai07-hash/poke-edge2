@@ -228,6 +228,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 .detail-form-grid{display:grid;gap:10px;}
 .detail-form-card{border:1px solid var(--border);background:var(--bg);padding:10px 12px;}
 .detail-form-card-title{font-size:12px;color:var(--accent3);margin-bottom:8px;font-weight:700;}
+.detail-ability-form-heading{font-size:12px;color:var(--accent3);font-weight:900;margin-bottom:8px;}
+.detail-ability-form-note{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:8px;}
 
 .detail-form-link-note{font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px;}
 .detail-form-link-grid{display:flex;flex-wrap:wrap;gap:6px;}
@@ -2228,12 +2230,43 @@ document.addEventListener('DOMContentLoaded',function(){
     `).join('')}</div>`;
   }
 
-  function renderAbilities(abilityNames) {
-    if(!abilityNames.length) return '<div class="detail-empty">特性データがありません</div>';
-    return abilityNames.map(ability => {
+  function seasonAbilityFormLabel(name) {
+    const raw = String(name || '').trim();
+    if(!raw) return '特性';
+    if(getMegaBaseName(raw)) return 'メガ進化後の特性';
+    if(getMegaFormsFromRelations(raw).length) return '通常時の特性';
+    return 'この姿の特性';
+  }
+
+  function renderAbilityItems(abilityNames) {
+    const names = uniq(abilityNames || []);
+    if(!names.length) return '<div class="detail-empty">特性データがありません</div>';
+    return names.map(ability => {
       const effect = ABILITY_EFFECTS_BY_NAME[ability] && ABILITY_EFFECTS_BY_NAME[ability].effect ? ABILITY_EFFECTS_BY_NAME[ability].effect : '';
       return `<div class="detail-ability-item"><div class="detail-ability-name">${escapeHtml(ability)}</div><div class="detail-ability-effect">${escapeHtml(effect || '効果説明なし')}</div></div>`;
     }).join('');
+  }
+
+  function renderAbilities(abilityNames, records) {
+    const formRecords = (records || []).filter(p => p && p.name);
+    if(formRecords.length > 1) {
+      return `<div class="detail-form-grid">${formRecords.map(pokemon => {
+        const labelName = typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(pokemon.name) : pokemon.name;
+        const abilities = Array.isArray(ABILITIES_BY_NAME[pokemon.name]) ? ABILITIES_BY_NAME[pokemon.name] : [];
+        return `<div class="detail-form-card">
+          <div class="detail-ability-form-heading">${escapeHtml(seasonAbilityFormLabel(pokemon.name))}</div>
+          <div class="detail-ability-form-note">対象: ${escapeHtml(labelName)}</div>
+          ${renderAbilityItems(abilities)}
+        </div>`;
+      }).join('')}</div>`;
+    }
+    if(formRecords.length === 1) {
+      const pokemon = formRecords[0];
+      const labelName = typeof seasonDisplayFormLabel === 'function' ? seasonDisplayFormLabel(pokemon.name) : pokemon.name;
+      const abilities = Array.isArray(ABILITIES_BY_NAME[pokemon.name]) ? ABILITIES_BY_NAME[pokemon.name] : abilityNames;
+      return `<div class="detail-ability-form-note">${escapeHtml(seasonAbilityFormLabel(pokemon.name))}: ${escapeHtml(labelName)}</div>${renderAbilityItems(abilities)}`;
+    }
+    return renderAbilityItems(abilityNames);
   }
 
   function renderDetailRanking(rankings) {
@@ -2344,7 +2377,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
     const types = uniq(ctx.records.flatMap(p => [p.type1, p.type2]).filter(Boolean));
     document.getElementById('detail-types').innerHTML = types.length ? types.map(type => `<span class="tp tp-${type}">${escapeHtml(type)}</span>`).join('') : '<span class="detail-season-tag">タイプ未登録</span>';
-    document.getElementById('detail-abilities').innerHTML = renderAbilities(ctx.abilities);
+    document.getElementById('detail-abilities').innerHTML = renderAbilities(ctx.abilities, ctx.records);
     document.getElementById('detail-seasons').innerHTML = ctx.seasons.length ? ctx.seasons.map(s => `<span class="detail-season-tag">${escapeHtml(s)}</span>`).join('') : '<span class="detail-season-tag">対象シーズンなし</span>';
     document.getElementById('detail-stats').innerHTML = renderDetailStats(ctx.records);
 

@@ -224,6 +224,11 @@ details summary::-webkit-details-marker{display:none;}
 .crit-control-box{border:1px solid var(--border);background:var(--panel2);border-radius:16px;padding:10px 12px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .crit-control-title{font-size:12px;font-weight:900;color:var(--text2);}
 .crit-control-help{font-size:11px;color:var(--text3);line-height:1.5;margin-top:3px;}
+.quick-field-card{border-color:var(--border2);background:linear-gradient(135deg,rgba(0,200,240,.08),rgba(255,200,0,.045)),var(--panel2);}
+.quick-field-card .side-top{margin-bottom:8px;}
+.quick-field-note{font-size:11px;color:var(--text2);line-height:1.55;margin-top:8px;}
+.field-chip-grid{grid-template-columns:repeat(5,minmax(0,1fr));}
+@media(max-width:640px){.field-chip-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.field-chip-grid .segment-btn:first-child{grid-column:1/-1;}}
 .quick-mini-nature{margin-top:10px;border:1px solid var(--border);background:var(--panel2);border-radius:14px;padding:10px;}
 .quick-mini-nature .rank-grid{margin-top:8px;}
 @media(max-width:768px){
@@ -387,6 +392,14 @@ footer{text-align:center;color:var(--text3);font-size:11px;padding:26px 12px 34p
         <button class="btn primary" type="button" onclick="quickSwapSides()">自分 ⇄ 相手</button>
       </div>
       <div class="card-body control-grid">
+        <div class="side-card quick-field-card">
+          <div class="side-top"><div class="side-title">場の状態</div><button class="btn" type="button" onclick="quickSetFieldState('')">フィールドなし</button></div>
+          <div class="field">
+            <div class="label">フィールド</div>
+            <div class="segment-grid field-chip-grid" id="field-chips"></div>
+            <div class="quick-field-note" id="field-note">メイカー系の特性を選ぶと自動で切り替わります。</div>
+          </div>
+        </div>
         <div class="side-card quick-panel-attacker">
           <div class="side-top"><div class="side-title">攻撃側</div><button class="btn" type="button" onclick="quickAutoMoves()">候補技4つ</button></div>
           <div class="field">
@@ -580,6 +593,10 @@ const PROTEAN_ABILITIES = new Set(['へんげんじざい','リベロ']);
 const CRIT_BLOCK_ABILITIES = new Set(['シェルアーマー','カブトアーマー']);
 const QUICK_TYPE_NAMES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
 const WB_MAP = {'sunny':'ほのお','rain':'みず','sand':'いわ','snow':'こおり'};
+const FIELD_LABELS = {electric:'エレキフィールド', grassy:'グラスフィールド', psychic:'サイコフィールド', misty:'ミストフィールド'};
+const FIELD_TYPE_MAP = {electric:'でんき', grassy:'くさ', psychic:'エスパー', misty:'フェアリー'};
+const FIELD_SET_ABILITIES = {'エレキメイカー':'electric','グラスメイカー':'grassy','サイコメイカー':'psychic','ミストメイカー':'misty','こぼれダネ':'grassy','ハドロンエンジン':'electric'};
+const GRASSY_HALF_MOVES = new Set(['じしん','じならし','マグニチュード']);
 const TYPE_BOOST_ABILITIES = {'りゅうのあぎと':['ドラゴン',1.5],'はがねつかい':['はがね',1.5],'いわはこび':['いわ',1.5],'トランジスタ':['でんき',1.3]};
 const LOW_HP_TYPE_ABILITIES = {'もうか':'ほのお','げきりゅう':'みず','しんりょく':'くさ','むしのしらせ':'むし'};
 const EFFECT_LIST_POWER_ABILITIES = {'てつのこぶし':1.2,'すてみ':1.2,'がんじょうあご':1.5,'きれあじ':1.5,'メガランチャー':1.5,'パンクロック':1.3};
@@ -994,7 +1011,7 @@ function setSlotField(side, index, field, value){
   if(field==='lv') slot.lv = clamp(parseInt(value || 50, 10) || 50, 1, 100);
   else if(field==='iv') slot.iv = clamp(parseInt(value || 31, 10) || 31, 0, 31);
   else if(field==='nature') slot.nature = PERSONALITIES[value] ? value : 'がんばりや';
-  else if(field==='ability') slot.ability = String(value || '').trim();
+  else if(field==='ability'){ slot.ability = String(value || '').trim(); quickApplyFieldFromAbility(slot.ability); }
   else if(field==='item' && side==='self') slot.item = String(value || '').trim();
   else if(field==='preset' && side==='opp') slot.preset = value || 'none';
   slot.source = slot.source || 'free';
@@ -1140,7 +1157,7 @@ function typeEffWithAbility(moveType, defTypes, ability, moveName='', attackerAb
 }
 function getAuraModifier(moveType, atkAbility, defAbility){ const fairyAura = atkAbility==='フェアリーオーラ' || defAbility==='フェアリーオーラ'; const darkAura = atkAbility==='ダークオーラ' || defAbility==='ダークオーラ'; const auraBreak = atkAbility==='オーラブレイク' || defAbility==='オーラブレイク'; if(moveType==='フェアリー' && fairyAura) return auraBreak ? 3072/4096 : 5448/4096; if(moveType==='あく' && darkAura) return auraBreak ? 3072/4096 : 5448/4096; return 1; }
 function getDisplayedCategory(move, atkStats, defStats){ if(move.name==='シェルアームズ'){ const physicalScore = Math.max(1, atkStats.atk) / Math.max(1, defStats.def); const specialScore = Math.max(1, atkStats.spa) / Math.max(1, defStats.spd); return physicalScore > specialScore ? '物理' : '特殊'; } return move.category; }
-function resolveMoveType(move, atkAbility, weather){
+function resolveMoveType(move, atkAbility, weather, field='', atkSlot=null){
   let type = move.type;
   let skin = 1;
   let notes = [];
@@ -1157,7 +1174,73 @@ function resolveMoveType(move, atkAbility, weather){
     type = WB_MAP[weather];
     notes.push(`ウェザーボール→${type}`);
   }
+  if(move.name==='だいちのはどう' && field && FIELD_TYPE_MAP[field] && quickIsGrounded(atkSlot)){
+    type = FIELD_TYPE_MAP[field];
+    notes.push(`だいちのはどう: ${quickFieldLabel(field)}で${type}化`);
+  }
   return {type, skin, notes};
+}
+function quickFieldLabel(v){ return FIELD_LABELS[v] || 'なし'; }
+function quickAbilityToField(ability){ return FIELD_SET_ABILITIES[String(ability || '').trim()] || ''; }
+function quickIsGrounded(slot){
+  if(!slot || !slot.poke) return true;
+  const ability = String(slot.ability || '').trim();
+  if(ability === 'ふゆう') return false;
+  const item = normalizeItemText(slot.item || '');
+  if(item.includes('ふうせん')) return false;
+  const types = quickBaseTypes(slot);
+  return !types.includes('ひこう');
+}
+function applyFieldMovePower(field, moveName, power, atkSlot, defSlot, notes){
+  let next = Math.max(0, Number(power || 0) || 0);
+  const name = String(moveName || '').trim();
+  if(!field || !next) return next;
+  if(name === 'ライジングボルト' && field === 'electric' && quickIsGrounded(defSlot)){
+    next *= 2;
+    notes.push('ライジングボルト: 相手がエレキフィールド上で威力2倍');
+  }
+  if(name === 'ワイドフォース' && field === 'psychic' && quickIsGrounded(atkSlot)){
+    next *= 1.5;
+    notes.push('ワイドフォース: サイコフィールド上で威力1.5倍');
+  }
+  if(name === 'ミストバースト' && field === 'misty' && quickIsGrounded(atkSlot)){
+    next *= 1.5;
+    notes.push('ミストバースト: ミストフィールド上で威力1.5倍');
+  }
+  if(name === 'だいちのはどう' && FIELD_TYPE_MAP[field] && quickIsGrounded(atkSlot)){
+    next *= 2;
+    notes.push(`だいちのはどう: ${quickFieldLabel(field)}で威力2倍`);
+  }
+  return next;
+}
+function getFieldDamageInfo(field, moveName, moveType, atkSlot, defSlot){
+  const notes = [];
+  let powerMult = 1;
+  let damageMult = 1;
+  if(!field) return {powerMult, damageMult, notes};
+  const atkGrounded = quickIsGrounded(atkSlot);
+  const defGrounded = quickIsGrounded(defSlot);
+  if(field === 'electric' && moveType === 'でんき' && atkGrounded){
+    powerMult *= 1.3;
+    notes.push('エレキフィールド: でんき技×1.3');
+  }
+  if(field === 'grassy' && moveType === 'くさ' && atkGrounded){
+    powerMult *= 1.3;
+    notes.push('グラスフィールド: くさ技×1.3');
+  }
+  if(field === 'psychic' && moveType === 'エスパー' && atkGrounded){
+    powerMult *= 1.3;
+    notes.push('サイコフィールド: エスパー技×1.3');
+  }
+  if(field === 'grassy' && GRASSY_HALF_MOVES.has(String(moveName || '').trim()) && defGrounded){
+    damageMult *= 0.5;
+    notes.push(`グラスフィールド: ${moveName}半減`);
+  }
+  if(field === 'misty' && moveType === 'ドラゴン' && defGrounded){
+    damageMult *= 0.5;
+    notes.push('ミストフィールド: ドラゴン技半減');
+  }
+  return {powerMult, damageMult, notes};
 }
 function quickBaseTypes(slot){ return [slot?.poke?.type1, slot?.poke?.type2].filter(Boolean); }
 function quickHasProteanAbility(slot){ return PROTEAN_ABILITIES.has(String(slot?.ability || '').trim()); }
@@ -1234,7 +1317,7 @@ function quickTargetHpPower(percent){
   return Math.max(1, Math.floor(120 * p / 100));
 }
 
-function resolveMovePower(move, atkSlot, defSlot, weather){
+function resolveMovePower(move, atkSlot, defSlot, weather, field=''){
   let power = Number(move.power || 0) || 0;
   const notes = [];
   if(move.name==='ウェザーボール' && weather && WB_MAP[weather]){ power = 100; }
@@ -1294,6 +1377,7 @@ function resolveMovePower(move, atkSlot, defSlot, weather){
       notes.push(`ジャイロボール: 素早さ比で威力${power}`);
     }
   }
+  power = applyFieldMovePower(field, move.name, power, atkSlot, defSlot, notes);
   return {power, notes};
 }
 function getAttackItemMultiplier(item, moveType, category, eff){
@@ -1407,19 +1491,23 @@ function getParentalBondInfo(atkSlot, move, hits){
   if((hits?.max || 1) > 1 || (hits?.min || 1) > 1) return {active:false, note:'おやこあい: 連続技のため追加攻撃なし'};
   return {active:true, note:'おやこあい: 2撃目25%'};
 }
-function calcDamageResult(atkSlot, moveName, defSlot, weather){
+function calcDamageResult(atkSlot, moveName, defSlot, weather, field){
+  field = field || quickState.field || '';
   const move = moveByName.get(moveName);
   if(!move || !atkSlot.poke || !defSlot.poke) return null;
   if(!(move.category==='物理' || move.category==='特殊')) return null;
   const atkStats = calcFullStats(atkSlot);
   const defStats = calcFullStats(defSlot);
   if(!atkStats || !defStats) return null;
-  const resolvedType = resolveMoveType(move, atkSlot.ability, weather);
+  const resolvedType = resolveMoveType(move, atkSlot.ability, weather, field, atkSlot);
   const defTypeInfo = quickEffectiveDefTypes(defSlot);
   const defTypes = defTypeInfo.types;
   const stabTypeInfo = quickStabTypesAndNotes(atkSlot, resolvedType.type);
-  const powerInfo = resolveMovePower(move, atkSlot, defSlot, weather);
+  const powerInfo = resolveMovePower(move, atkSlot, defSlot, weather, field);
   let power = Math.max(0, powerInfo.power);
+  if(move.name === 'アイアンローラー' && !field){
+    return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'失敗', score:0, eff:0, moveType:resolvedType.type, category:move.category, attackStatName:'—', defenseStatName:'—', notes:['アイアンローラー: フィールドなしでは失敗']};
+  }
   if(!power) return null;
   const rawCategory = getDisplayedCategory(move, atkStats, defStats);
   const isBodyPress = move.name==='ボディプレス';
@@ -1428,11 +1516,13 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   const defenseCategory = SPECIAL_DEFENSE_MOVES.has(move.name) || isBodyPress || rawCategory==='物理' ? '物理' : '特殊';
   const eff = typeEffWithAbility(resolvedType.type, defTypes, defSlot.ability, move.name || '', atkSlot.ability);
   const abilityPowerInfo = getAttackAbilityPowerInfo(atkSlot, move, resolvedType.type, rawCategory, eff, weather);
+  const fieldDamageInfo = getFieldDamageInfo(field, move.name, resolvedType.type, atkSlot, defSlot);
   const criticalInfo = quickCriticalInfo(atkSlot, defSlot, move);
   const scrappyNote = quickAbilityLetsNormalFightingHitGhost(atkSlot.ability) && quickIsNormalOrFightingType(resolvedType.type) && defTypes.includes('ゴースト')
     ? [`${atkSlot.ability}: ゴースト無効を通常相性化`]
     : [];
-  const baseNotes = [...(resolvedType.notes||[]), ...(defTypeInfo.notes||[]), ...(stabTypeInfo.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[]), ...(criticalInfo.notes||[]), ...scrappyNote];
+  const baseNotes = [...(resolvedType.notes||[]), ...(defTypeInfo.notes||[]), ...(stabTypeInfo.notes||[]), ...(powerInfo.notes||[]), ...(abilityPowerInfo.notes||[]), ...(fieldDamageInfo.notes||[]), ...(criticalInfo.notes||[]), ...scrappyNote];
+  if(field) baseNotes.push('場: ' + quickFieldLabel(field));
   if(eff === 0){
     return {immune:true, min:0, max:0, pctMin:0, pctMax:0, ko:'無効', score:0, eff:0, moveType:resolvedType.type, category:rawCategory, attackStatName:offenseCategory, defenseStatName:defenseCategory, notes:baseNotes};
   }
@@ -1465,7 +1555,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
   if(defSlot.ability==='ファーコート' && defenseCategory==='物理') defenseStat *= 2;
   defenseStat = Math.floor(defenseStat * getWeatherDefenseMult(weather, defTypes, defenseCategory));
   const statMult = getAttackAbilityStatMult(atkSlot.ability, rawCategory, weather, resolvedType.type, isBodyPress);
-  const powerMult = abilityPowerInfo.mult * resolvedType.skin * getAuraModifier(resolvedType.type, atkSlot.ability, defSlot.ability);
+  const powerMult = abilityPowerInfo.mult * resolvedType.skin * getAuraModifier(resolvedType.type, atkSlot.ability, defSlot.ability) * fieldDamageInfo.powerMult;
   const weatherMoveMult = getWeatherMoveMult(weather, resolvedType.type);
   const defDmgMult = getDefAbilityDmgMult(defSlot.ability, resolvedType.type, eff);
   const itemMult = getAttackItemMultiplier(atkSlot.item, resolvedType.type, rawCategory, eff);
@@ -1488,6 +1578,7 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather){
       dmg = Math.floor(dmg * defDmgMult);
       dmg = Math.floor(dmg * defItemMult);
       dmg = Math.floor(dmg * weatherMoveMult);
+      dmg = Math.floor(dmg * fieldDamageInfo.damageMult);
       if(criticalInfo.active) dmg = Math.floor(dmg * criticalInfo.mult);
       dmg = Math.floor(dmg * i / 100);
       rolls.push(dmg);
@@ -1557,6 +1648,7 @@ const quickState = {
   criticalMode: 'auto',
   combo: { first: 0, second: 1 },
   weather: '',
+  field: '',
   recent: []
 };
 
@@ -1785,12 +1877,29 @@ function quickRenderPresetChips(){
   if(presetWrap){ presetWrap.innerHTML=Object.entries(EV_PRESETS).filter(([k])=>['none','H32','HB','HD','B32','D32'].includes(k)).map(([k,v])=>`<button type="button" class="segment-btn ${quickState.defender.preset===k?'active':''}" onclick="quickUseDefPreset('${k}')">${escapeHtml(v.name)}</button>`).join(''); }
   const weatherWrap=document.getElementById('weather-chips');
   if(weatherWrap){ const arr=[['','なし'],['sunny','晴れ'],['rain','雨'],['snow','雪'],['sand','砂嵐']]; weatherWrap.innerHTML=arr.map(([k,v])=>`<button type="button" class="segment-btn ${quickState.weather===k?'active':''}" onclick="quickSetWeather('${k}')">${escapeHtml(v)}</button>`).join(''); }
+  quickRenderFieldChips();
   const atkMini = document.getElementById('attacker-mini-nature');
   if(atkMini) atkMini.innerHTML = quickMiniNatureHtml('attacker', ['atk','spa','def']);
   const defMini = document.getElementById('defender-mini-nature');
   if(defMini) defMini.innerHTML = quickMiniNatureHtml('defender', ['def','spd','atk']);
 }
 function quickSetWeather(v){ quickState.weather=v||''; quickRenderAll(); }
+function quickSetFieldState(v){ quickState.field = FIELD_LABELS[v] ? v : ''; quickRenderAll(); }
+function quickApplyFieldFromAbility(ability){ const f = quickAbilityToField(ability); if(f) quickState.field = f; }
+function quickFieldAutoSourceText(){
+  const entries = [['攻撃側', quickState.attacker], ['防御側', quickState.defender]];
+  const hit = entries.find(([,slot]) => quickAbilityToField(slot?.ability));
+  return hit ? `${hit[0]}の${hit[1].ability}で自動設定` : '手動で選択できます';
+}
+function quickRenderFieldChips(){
+  const wrap = document.getElementById('field-chips');
+  if(wrap){
+    const arr = [['','なし'],['electric','エレキ'],['grassy','グラス'],['psychic','サイコ'],['misty','ミスト']];
+    wrap.innerHTML = arr.map(([k,v])=>`<button type="button" class="segment-btn ${quickState.field===k?'active':''}" onclick="quickSetFieldState('${k}')">${escapeHtml(v)}</button>`).join('');
+  }
+  const note = document.getElementById('field-note');
+  if(note) note.textContent = `現在: ${quickFieldLabel(quickState.field)} / ${quickFieldAutoSourceText()}`;
+}
 function quickStageMult(stage){ const s = Math.max(-6, Math.min(6, parseInt(stage||0,10)||0)); return s >= 0 ? (2+s)/2 : 2/(2-s); }
 function quickApplyStage(value, stage){ return Math.max(1, Math.floor(value * quickStageMult(stage))); }
 function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false, hpPercent:100, proteanUsed:false, proteanType:'', targetPoisoned:false}; }
@@ -1931,6 +2040,7 @@ function quickApplyRecordToRole(rec, role){
     quickState.moves = slot.moves.slice(0,4);
     if(!quickState.moves.some(Boolean)) quickAutoMoves(false);
   }
+  quickApplyFieldFromAbility(slot.ability);
   quickRememberPokemon(slot.pokeName);
   quickSyncInputs();
   quickRenderAll();
@@ -1984,6 +2094,7 @@ function quickSetPokemon(role, value, autoMoves=true, applyRanking=true){
     slot.ability = '';
     slot.rankingLabel = '';
   }
+  if(poke) quickApplyFieldFromAbility(slot.ability);
   if(role === 'attacker' && poke && autoMoves && !quickState.moves.some(Boolean)) quickAutoMoves(false);
   quickRenderAll();
 }
@@ -2039,7 +2150,7 @@ function quickSetField(role, field, value){
     slot.ev = quickNormalizeEVForSlot(slot, slot.ev);
   }
   else if(field === 'nature'){ slot.nature = PERSONALITIES[value] ? value : 'がんばりや'; slot.natureMods = quickNatureModsFromName(slot.nature); }
-  else if(field === 'ability') slot.ability = String(value||'').trim();
+  else if(field === 'ability'){ slot.ability = String(value||'').trim(); quickApplyFieldFromAbility(slot.ability); }
   else if(field === 'item') slot.item = String(value||'').trim();
   quickRenderAll();
 }
@@ -2064,6 +2175,7 @@ function quickResetAll(){
   quickState.moves = ['', '', '', ''];
   quickState.attacker.moves = quickState.moves.slice(0,4);
   quickState.weather = '';
+  quickState.field = '';
   quickSyncInputs();
   quickRenderAll();
 }
@@ -2251,7 +2363,7 @@ function quickSwitchMega(role, name){
   quickSetPokemon(role, name, role === 'attacker', true);
 }
 function quickGetMoveResult(moveName, attackerOverride){
-  return calcDamageResult(attackerOverride || quickState.attacker, moveName, quickState.defender, quickState.weather || '');
+  return calcDamageResult(attackerOverride || quickState.attacker, moveName, quickState.defender, quickState.weather || '', quickState.field || '');
 }
 function quickProteanFollowupAttackerSlot(baseSlot, firstResult){
   if(!baseSlot || !quickHasProteanAbility(baseSlot)) return baseSlot;
@@ -2345,7 +2457,7 @@ function quickRenderResults(){
   const pairTitle = document.getElementById('pair-title');
   const pairSub = document.getElementById('pair-sub');
   if(pairTitle) pairTitle.textContent = `${quickDisplaySlotName(atk)} → ${quickDisplaySlotName(def)}`;
-  if(pairSub) pairSub.textContent = `${atk.ability || '特性未設定'} / ${atk.item || '持ち物なし'} / 天候:${quickWeatherLabel(quickState.weather)}`;
+  if(pairSub) pairSub.textContent = `${atk.ability || '特性未設定'} / ${atk.item || '持ち物なし'} / 天候:${quickWeatherLabel(quickState.weather)} / フィールド:${quickFieldLabel(quickState.field)}`;
   quickRenderSpeed();
   quickRenderCriticalControls();
   if(!list){ quickRenderCombo(); return; }
@@ -2523,7 +2635,7 @@ function quickUpdateStatus(){
     <div class="status-pill"><div class="status-label">自分</div><div class="status-value">${escapeHtml(quickDisplaySlotName(atk))}</div></div>
     <div class="status-pill"><div class="status-label">相手</div><div class="status-value">${escapeHtml(quickDisplaySlotName(def))}</div></div>
     <div class="status-pill"><div class="status-label">技</div><div class="status-value">${moveCount} / 4</div></div>
-    <div class="status-pill"><div class="status-label">状態</div><div class="status-value">即時計算</div></div>`;
+    <div class="status-pill"><div class="status-label">フィールド</div><div class="status-value">${escapeHtml(quickFieldLabel(quickState.field))}</div></div>`;
 }
 function quickApplyResultViewState(){}
 function quickToggleResultSticky(){}
