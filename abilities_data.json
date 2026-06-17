@@ -1654,7 +1654,7 @@
   {
     "name": "ほのおのたてがみ",
     "effect": "ほのおタイプの技の威力が1.5倍になる",
-    "hasMult": false,
+    "hasMult": true,
     "atkPowerUp": {
       "type": "ほのお",
       "mult": 1.5,

@@ -2450,6 +2450,30 @@ function populateMoveSelect() {
   };
 }
 
+
+function partyNormalizeItemKey(itemKey){ return String(itemKey || '').normalize('NFKC').replace(/\s+/g,'').trim(); }
+function partyMetronomeMultiplier(count){ const n=Math.max(1, Math.min(6, parseInt(count || 1, 10) || 1)); return n<=1 ? 1 : Math.min(2, 1 + 0.2 * (n - 1)); }
+function partyGetMetronomeCount(){ const el=document.getElementById('atk-metronome-count'); return el ? Math.max(1, Math.min(6, parseInt(el.value || 1, 10) || 1)) : 1; }
+function partyAttackItemMultiplier(itemKey, moveType, category, eff){
+  const key=partyNormalizeItemKey(itemKey);
+  if(!key || key==='none' || key==='1') return 1;
+  if(key==='hachimaki' || key.includes('こだわりハチマキ')) return category==='物理' ? 1.5 : 1;
+  if(key==='megane' || key.includes('こだわりメガネ')) return category==='特殊' ? 1.5 : 1;
+  if(key==='inochi' || key.includes('いのちのたま')) return 1.3;
+  if(key==='tatsujin' || key.includes('たつじんのおび')) return eff>1 ? 1.2 : 1;
+  if(key==='monoshiri' || key.includes('ものしりメガネ')) return category==='特殊' ? 1.1 : 1;
+  if(key==='chikara' || key.includes('ちからハチマキ')) return category==='物理' ? 1.1 : 1;
+  if(key==='metronome' || key.includes('メトロノーム')) return partyMetronomeMultiplier(partyGetMetronomeCount());
+  if(key==='juel' || key.includes('ジュエル')) return 1.3;
+  if(key==='pangro' || key.includes('タイプ強化')) return eff>0 ? 1.2 : 1;
+  return 1;
+}
+function partyAttackAbilityPowerMultiplier(abilityName, moveType){
+  const ab=String(abilityName || '').trim();
+  if(ab==='ほのおのたてがみ' && moveType==='ほのお') return 1.5;
+  return 1;
+}
+
 // ===== ダメージ計算 =====
 function calcDamage() {
   const sel = document.getElementById('atk-move').selectedOptions[0];
@@ -2490,19 +2514,17 @@ function calcDamage() {
   const moveTypeInPoke = MOVE_TYPE_TO_POKE[mtype] || mtype;
   const stab = atkTypes.includes(moveTypeInPoke) ? 1.5 : 1;
 
-  // 持ち物倍率
-  const itemKey = document.getElementById('atk-item').value;
-  let itemMult = 1;
-  if(itemKey==='hachimaki' && mcat==='物理') itemMult=1.5;
-  else if(itemKey==='megane' && mcat==='特殊') itemMult=1.5;
-  else if(itemKey==='inochi') itemMult=1.3;
-  else if(itemKey==='tatsujin' && eff>1) itemMult=1.2;
+  // 持ち物・特性倍率
+  const itemKey = document.getElementById('atk-item') ? document.getElementById('atk-item').value : 'none';
+  const itemMult = partyAttackItemMultiplier(itemKey, mtype, mcat, eff);
+  const abilityPowerMult = partyAttackAbilityPowerMultiplier(document.getElementById('atk-ability')?.value || '', mtype);
+  const effectivePower = Math.max(1, Math.floor(power * abilityPowerMult));
 
   // 公式ダメージ計算式
   // Step1: floor(Lv×2/5+2)
   const step1 = Math.floor(lv * 2 / 5 + 2);
   // Step2: floor( floor(step1 × power × atkStat / defStat) / 50 ) + 2
-  const step2 = Math.floor(Math.floor(step1 * power * atkStat / defStat) / 50) + 2;
+  const step2 = Math.floor(Math.floor(step1 * effectivePower * atkStat / defStat) / 50) + 2;
   // Step3: × 持ち物補正 → floor
   const step3 = Math.floor(step2 * itemMult);
   // Step4: × STAB → floor
@@ -2650,13 +2672,11 @@ function calcOneDamage(atkStats, atkBase, defStats, defBase, lv, mtype, mcat, mh
   const eff      = getTypeEff(mtype, defTypes, '', attackerAbility);
   const atkTypes = atkBase ? [atkBase.type1, atkBase.type2].filter(Boolean) : [];
   const stab     = atkTypes.includes(MOVE_TYPE_TO_POKE2[mtype]||mtype) ? 1.5 : 1;
-  let itemMult = 1;
-  if(itemKey==='hachimaki' && mcat==='物理') itemMult=1.5;
-  else if(itemKey==='megane' && mcat==='特殊') itemMult=1.5;
-  else if(itemKey==='inochi') itemMult=1.3;
-  else if(itemKey==='tatsujin' && eff>1) itemMult=1.2;
+  const itemMult = partyAttackItemMultiplier(itemKey, mtype, mcat, eff);
+  const abilityPowerMult = partyAttackAbilityPowerMultiplier(attackerAbility, mtype);
+  const effectivePower = Math.max(1, Math.floor(mpower * abilityPowerMult));
   const step1 = Math.floor(lv*2/5+2);
-  const step2 = Math.floor(Math.floor(step1*mpower*atkStat/defStat)/50)+2;
+  const step2 = Math.floor(Math.floor(step1*effectivePower*atkStat/defStat)/50)+2;
   const step3 = Math.floor(step2*itemMult);
   const step4 = Math.floor(step3*stab);
   const rolls  = Array.from({length:16},(_,i)=>Math.floor(step4*(85+i)/100));

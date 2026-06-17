@@ -1000,11 +1000,31 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
           <option value="megane">こだわりメガネ ×1.5（特殊）</option>
           <option value="inochi">いのちのたま ×1.3</option>
           <option value="tatsujin">たつじんのおび ×1.2（抜群時）</option>
+          <option value="monoshiri">ものしりメガネ ×1.1（特殊）</option>
+          <option value="chikara">ちからハチマキ ×1.1（物理）</option>
+          <option value="metronome">メトロノーム（連続使用）</option>
+          <option value="denkidama">でんきだま ×2（ピカチュウ）</option>
           <option value="juel">ジュエル ×1.3</option>
           <option value="pangro">タイプ強化 1.2倍</option>
           <option value="hone">ふとい骨 ×2（ポケモン限定）</option>
           <option value="none">なし</option>
         </select>
+        <div class="corr-section" id="atk-metronome-wrap" style="margin-top:8px;">
+          <div class="corr-section-title">メトロノーム補正</div>
+          <div class="corr-grid" style="grid-template-columns:minmax(0,1fr);">
+            <div>
+              <label class="corr-item">同じ技の連続使用回数</label>
+              <select class="corr-select" id="atk-metronome-count">
+                <option value="1">1回目：補正なし</option>
+                <option value="2">2回目：×1.2</option>
+                <option value="3">3回目：×1.4</option>
+                <option value="4">4回目：×1.6</option>
+                <option value="5">5回目：×1.8</option>
+                <option value="6">6回目以降：×2.0</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
         <div class="corr-section" id="atk-corr-main">
           <div class="corr-section-title">攻撃側 補正</div>
@@ -1510,6 +1530,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <option value="megane">こだわりメガネ ×1.5（特殊）</option>
             <option value="inochi">いのちのたま ×1.3</option>
             <option value="tatsujin">たつじんのおび ×1.2（抜群時）</option>
+            <option value="monoshiri">ものしりメガネ ×1.1（特殊）</option>
+            <option value="chikara">ちからハチマキ ×1.1（物理）</option>
+            <option value="metronome">メトロノーム（連続使用）</option>
+            <option value="denkidama">でんきだま ×2（ピカチュウ）</option>
             <option value="none" selected>なし</option>
           </select>
         </div>
@@ -1534,6 +1558,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
             <option value="megane">こだわりメガネ ×1.5（特殊）</option>
             <option value="inochi">いのちのたま ×1.3</option>
             <option value="tatsujin">たつじんのおび ×1.2（抜群時）</option>
+            <option value="monoshiri">ものしりメガネ ×1.1（特殊）</option>
+            <option value="chikara">ちからハチマキ ×1.1（物理）</option>
+            <option value="metronome">メトロノーム（連続使用）</option>
+            <option value="denkidama">でんきだま ×2（ピカチュウ）</option>
             <option value="none" selected>なし</option>
           </select>
           <div style="font-size:10px;color:var(--text2);margin-top:10px;line-height:1.8;border-top:1px solid var(--border);padding-top:10px;">
@@ -3249,6 +3277,79 @@ function abilityHasListedMove(abilityName,moveName){
   if(!abilityName||!moveName) return false;
   return getAbilityMoveNameSet(abilityName).has(moveName);
 }
+
+function normalizeCalcItemKey(itemKey){
+  return String(itemKey || '').normalize('NFKC').replace(/\s+/g,'').trim();
+}
+function getCalcBelongingByName(name){
+  const key=normalizeCalcItemKey(name);
+  if(!key) return null;
+  return (BELONGINGS_DATA||[]).find(item=>normalizeCalcItemKey(item && item.name)===key) || null;
+}
+function getCalcBelongingEffectText(name){
+  const rec=getCalcBelongingByName(name);
+  return String(rec && rec.effect || '').normalize('NFKC');
+}
+const CALC_TYPE_BOOST_ITEM_TYPE = {
+  'シルクのスカーフ':'ノーマル','もくたん':'ほのお','しんぴのしずく':'みず','じしゃく':'でんき','きせきのタネ':'くさ','とけないこおり':'こおり','くろおび':'かくとう','どくバリ':'どく','やわらかいすな':'じめん','するどいくちばし':'ひこう','まがったスプーン':'エスパー','ぎんのこな':'むし','かたいいし':'いわ','のろいのおふだ':'ゴースト','りゅうのキバ':'ドラゴン','くろいメガネ':'あく','メタルコート':'はがね','ようせいのハネ':'フェアリー','しんかいのキバ':'みず'
+};
+function getCalcTypeBoostFromItemName(itemName){
+  const raw=String(itemName || '').trim();
+  const compact=normalizeCalcItemKey(raw);
+  for(const [name,type] of Object.entries(CALC_TYPE_BOOST_ITEM_TYPE)){
+    if(raw===name || compact===normalizeCalcItemKey(name)) return type;
+  }
+  const effect=getCalcBelongingEffectText(raw);
+  const m=effect.match(/([ぁ-んァ-ンー]+)タイプの技の威力が([0-9.]+)倍/);
+  return m ? m[1] : '';
+}
+function getCalcMetronomeMultiplier(count){
+  const n=Math.max(1, Math.min(6, parseInt(count || 1, 10) || 1));
+  return n <= 1 ? 1 : Math.min(2, 1 + 0.2 * (n - 1));
+}
+function getCalcMetronomeCount(){
+  return Math.max(1, Math.min(6, parseInt(el('atk-metronome-count')?.value || '1', 10) || 1));
+}
+function updateCalcMetronomeVisibility(){
+  const wrap=el('atk-metronome-wrap');
+  const item=normalizeCalcItemKey(el('atk-item')?.value || '');
+  if(wrap) wrap.style.display = item.includes('metronome') || item.includes('メトロノーム') ? '' : 'none';
+}
+function getCalcAttackItemMultiplier(itemKey, moveType, moveCategory, eff, options={}){
+  const key=normalizeCalcItemKey(itemKey);
+  const category=String(moveCategory || '').trim();
+  const count=options.metronomeCount == null ? getCalcMetronomeCount() : options.metronomeCount;
+  if(!key || key==='none' || key==='1') return 1;
+  if(key==='hachimaki' || key.includes('こだわりハチマキ')) return category==='物理' && !options.isBodyPress ? 1.5 : 1;
+  if(key==='megane' || key.includes('こだわりメガネ')) return category==='特殊' ? 1.5 : 1;
+  if(key==='inochi' || key.includes('いのちのたま')) return 1.3;
+  if(key==='tatsujin' || key.includes('たつじんのおび')) return eff > 1 ? 1.2 : 1;
+  if(key==='monoshiri' || key.includes('ものしりメガネ')) return category==='特殊' ? 1.1 : 1;
+  if(key==='chikara' || key.includes('ちからハチマキ')) return category==='物理' ? 1.1 : 1;
+  if(key==='metronome' || key.includes('メトロノーム')) return getCalcMetronomeMultiplier(count);
+  if(key==='juel' || key.includes('ジュエル')) return 1.3;
+  if(key==='pangro' || key.includes('タイプ強化')) return eff > 0 ? 1.2 : 1;
+  const typeBoost=getCalcTypeBoostFromItemName(itemKey);
+  if(typeBoost && typeBoost===moveType && eff>0) return 1.2;
+  return 1;
+}
+function getCalcAttackItemStatMultiplier(itemKey, pokeName, moveCategory, moveName='', options={}){
+  const key=normalizeCalcItemKey(itemKey);
+  const p=String(pokeName || '').trim();
+  const category=String(moveCategory || '').trim();
+  if((key==='denkidama' || key.includes('でんきだま')) && p==='ピカチュウ' && (category==='物理' || category==='特殊') && !['ボディプレス','イカサマ'].includes(String(moveName || '').trim())) return 2;
+  if((key==='hone' || key.includes('ふといホネ') || key.includes('ふとい骨')) && !options.isBodyPress) return 2;
+  return 1;
+}
+function getCalcItemInfoNotes(itemKey, moveType, moveCategory, eff, options={}){
+  const key=normalizeCalcItemKey(itemKey);
+  const notes=[];
+  if(key==='metronome' || key.includes('メトロノーム')) notes.push('メトロノーム: 連続使用'+(options.metronomeCount || getCalcMetronomeCount())+'回目');
+  if(key==='monoshiri' || key.includes('ものしりメガネ')) notes.push('ものしりメガネ: 特殊技×1.1');
+  if(key==='chikara' || key.includes('ちからハチマキ')) notes.push('ちからハチマキ: 物理技×1.1');
+  if(key==='denkidama' || key.includes('でんきだま')) notes.push('でんきだま: ピカチュウの攻撃・特攻×2');
+  return notes;
+}
 function getMoveDataByName(moveName){
   if(!moveName) return null;
   return (MOVES_DATA||[]).find(m=>m&&m.name===moveName) || null;
@@ -3731,7 +3832,7 @@ function applyRegisteredPokemonToCalc(side, recId){
     syncSliderPair('atk-ev-def', Math.max(0, parseInt((rec.ev&&rec.ev.def)||0)||0));
     syncSliderPair('atk-ev-spa', Math.max(0, parseInt((rec.ev&&rec.ev.spa)||0)||0));
     if(rec.ability) selectAbility('atk', rec.ability); else clearAbilitySide('atk');
-    if(el('atk-item')) el('atk-item').value = rec.item || '';
+    if(el('atk-item')) el('atk-item').value = mapRecordItemToCalcKey(rec.item || '', el('atk-move-type')?.value || '') || 'none';
     renderQuickMoveChips(targetPoke.name);
     if(Array.isArray(rec.moves) && rec.moves.length){
       const first = rec.moves.find(m=>m && m.name);
@@ -3925,14 +4026,9 @@ function calcDamage(options={}) {
 
   // 持ち物
   const itemKey=el('atk-item').value;
-  let itemMult=1;
-  if(itemKey==='hachimaki'&&moveCategory==='物理'&&!isBodyPress) itemMult=1.5;
-  else if(itemKey==='megane'&&moveCategory==='特殊') itemMult=1.5;
-  else if(itemKey==='inochi') itemMult=1.3;
-  else if(itemKey==='tatsujin'&&eff>1) itemMult=1.2;
-  else if(itemKey==='juel') itemMult=1.3;
-  else if(itemKey==='pangro') itemMult=1.2;
-  else if(itemKey==='hone'&&!isBodyPress) itemMult=2.0;
+  const itemMult = getCalcAttackItemMultiplier(itemKey, mtype, moveCategory, eff, {isBodyPress, metronomeCount:getCalcMetronomeCount()});
+  const itemStatMult = getCalcAttackItemStatMultiplier(itemKey, window._atkBase?.name || '', moveCategory, moveName, {isBodyPress});
+  getCalcItemInfoNotes(itemKey, mtype, moveCategory, eff, {metronomeCount:getCalcMetronomeCount()}).forEach(note=>abilityExtraInfo.push(note));
 
   // 攻撃側補正
   const atkAbName=atkAbNamePre;
@@ -4002,6 +4098,9 @@ function calcDamage(options={}) {
   }
 
   let atkStatMult=1;
+  if(itemStatMult!==1){
+    atkStatMult*=itemStatMult;
+  }
   const repAtkMods=applyRepresentativeAttackAbilityMods(atkAbName, moveName, mtype, moveCategory, abilityExtraInfo);
   powerMult*=repAtkMods.powerMult;
   atkStatMult*=repAtkMods.atkStatMult;
@@ -4478,10 +4577,8 @@ function calcOneDamage(atkSt,atkBase,defSt,defBase,lv,mtype,mcat,hits,power,item
     const knockOffItemState = getKnockOffItemStateFromText(getSelectedLabel('def-item'));
     if(knockOffItemState.hasItem && knockOffItemState.removable) hitsPower = Math.max(1, Math.floor(hitsPower * 1.5));
   }
-  let itemMult=1;
-  if(itemKey==='hachimaki'&&moveCategory==='物理'&&!isBodyPress) itemMult=1.5;
-  else if(itemKey==='megane'&&moveCategory==='特殊') itemMult=1.5;
-  else if(itemKey==='inochi') itemMult=1.3;
+  const itemMult=getCalcAttackItemMultiplier(itemKey, mtype, moveCategory, eff, {isBodyPress, metronomeCount:getCalcMetronomeCount()});
+  const itemStatMult=getCalcAttackItemStatMultiplier(itemKey, atkBase?.name || '', moveCategory, moveName, {isBodyPress});
 
   let abilityDmgMult=1;
   abilityDmgMult*=repAtkMods.dmgMult;
@@ -4493,7 +4590,7 @@ function calcOneDamage(atkSt,atkBase,defSt,defBase,lv,mtype,mcat,hits,power,item
 
   const rankTable=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
   const atkRankVal = isBodyPress ? getStageValue('atk-extra-rank-def') : (isFoulPlay ? (parseInt(el('def-atk-rank')?.value||'0')||0) : getStageValue('atk-rank'));
-  const effAtk=Math.floor(atkStat*rankTable[atkRankVal+6]);
+  const effAtk=Math.floor(atkStat*itemStatMult*rankTable[atkRankVal+6]);
   const firstHit = calcBaseDamageRolls(lv, hitsPower, effAtk, defStat, stab, eff, itemMult, abilityDmgMult, 1);
   const parentalBondActive = abilityName==='おやこあい' && !isParentalBondBlocked(moveName, hitsInfo);
   if(parentalBondActive){
@@ -4668,11 +4765,15 @@ function mapRecordItemToCalcKey(itemName, moveType){
   if(name.includes('こだわりメガネ')) return 'megane';
   if(name.includes('いのちのたま')) return 'inochi';
   if(name.includes('たつじんのおび')) return 'tatsujin';
+  if(name.includes('ものしりメガネ')) return 'monoshiri';
+  if(name.includes('ちからハチマキ')) return 'chikara';
+  if(name.includes('メトロノーム')) return 'metronome';
+  if(name.includes('でんきだま')) return 'denkidama';
   if(name.includes('ノーマルジュエル')||name.includes('ほのおジュエル')||name.includes('みずジュエル')||name.includes('でんきジュエル')||name.includes('くさジュエル')||name.includes('こおりジュエル')||name.includes('かくとうジュエル')||name.includes('どくジュエル')||name.includes('じめんジュエル')||name.includes('ひこうジュエル')||name.includes('エスパージュエル')||name.includes('むしジュエル')||name.includes('いわジュエル')||name.includes('ゴーストジュエル')||name.includes('ドラゴンジュエル')||name.includes('あくジュエル')||name.includes('はがねジュエル')||name.includes('フェアリージュエル')) return 'juel';
-  const typeBoost={
-    'くろいメガネ':'あく','しんぴのしずく':'みず','ようせいのハネ':'フェアリー','のろいのおふだ':'ゴースト','やわらかいすな':'じめん','するどいくちばし':'ひこう','くろおび':'かくとう','りゅうのキバ':'ドラゴン','もくたん':'ほのお','しんかいのキバ':'みず'
-  };
+  const typeBoost=Object.assign({}, CALC_TYPE_BOOST_ITEM_TYPE);
   if(typeBoost[name] && typeBoost[name]===moveType) return 'pangro';
+  const effectType=getCalcTypeBoostFromItemName(name);
+  if(effectType && effectType===moveType) return 'pangro';
   if(name.includes('ふといホネ')||name.includes('ふとい骨')) return 'hone';
   return 'none';
 }
@@ -4773,14 +4874,8 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   const atkTypes=getEffectiveAtkTypes(atkBase, atkAbilityName, mtype, moveName);
   let stab=atkTypes.includes(mtype)?1.5:1;
   if(stab>1&&atkAbilityName==='てきおうりょく') stab=2.0;
-  let itemMult=1;
-  if(itemKey==='hachimaki'&&moveCategory==='物理'&&!isBodyPress) itemMult=1.5;
-  else if(itemKey==='megane'&&moveCategory==='特殊') itemMult=1.5;
-  else if(itemKey==='inochi') itemMult=1.3;
-  else if(itemKey==='tatsujin'&&eff>1) itemMult=1.2;
-  else if(itemKey==='juel') itemMult=1.3;
-  else if(itemKey==='pangro') itemMult=1.2;
-  else if(itemKey==='hone'&&!isBodyPress) itemMult=2.0;
+  const itemMult=getCalcAttackItemMultiplier(itemKey, mtype, moveCategory, eff, {isBodyPress, metronomeCount:1});
+  const itemStatMult=getCalcAttackItemStatMultiplier(itemKey, atkBase?.name || '', moveCategory, moveName, {isBodyPress});
   let powerMult=1;
   if(atkAbilityName==='てつのこぶし'&&abilityHasListedMove('てつのこぶし',moveName)) powerMult*=1.2;
   if(atkAbilityName==='すてみ'&&abilityHasListedMove('すてみ',moveName)) powerMult*=1.2;
@@ -4854,7 +4949,7 @@ function calcInnerScanDamage(atkBase, atkStats, move, atkAbilityName, itemKey){
   if(defAlly==='def_0.75_fureka') dmgMult*=0.75;
   const defRank=Math.max(-6, Math.min(6, parseInt(el('def-rank')?.value)||0));
   const RANK=[2/8,2/7,2/6,2/5,2/4,2/3,1,3/2,4/2,5/2,6/2,7/2,8/2];
-  const effAtk=Math.floor(atkStat*atkStatMult);
+  const effAtk=Math.floor(atkStat*itemStatMult*atkStatMult);
   const effDef=Math.floor(defStat*defStatMult*RANK[defRank+6]);
   const effPow=Math.floor(power*powerMult*skinMult);
   const firstHit = calcBaseDamageRolls(parseInt((atkStats.lv)||50)||50, effPow, effAtk, effDef, stab, eff, itemMult, dmgMult, weatherDmgMult);
@@ -5249,7 +5344,7 @@ function onSeasonFilterChange(){
 // ===== イベント設定 =====
 function bindAutoCalcEvents(){
   const ids = [
-    'atk-item','atk-ally-ability','atk-burn','atk-current-hp-pct','atk-fainted-last-respects','atk-fainted-supreme','atk-other','atk-weather','atk-field',
+    'atk-item','atk-metronome-count','atk-ally-ability','atk-burn','atk-current-hp-pct','atk-fainted-last-respects','atk-fainted-supreme','atk-other','atk-weather','atk-field',
     'def-item','def-wall','def-ally-ability','def-stealth-rock','def-spikes',
     'atk-rank','atk-extra-rank-def','atk-extra-rank-spd','atk-extra-rank-spe','atk-extra-rank-acc','atk-extra-rank-eva',
     'def-rank','def-atk-rank'
@@ -5257,7 +5352,7 @@ function bindAutoCalcEvents(){
   ids.forEach(id=>{
     const node = el(id);
     if(!node) return;
-    ['input','change'].forEach(ev=>node.addEventListener(ev, ()=>scheduleAutoCalc()));
+    ['input','change'].forEach(ev=>node.addEventListener(ev, ()=>{ if(id==='atk-item') updateCalcMetronomeVisibility(); scheduleAutoCalc(); }));
   });
 }
 function setupEvents(){

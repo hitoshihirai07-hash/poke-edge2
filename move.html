@@ -1380,7 +1380,21 @@ function resolveMovePower(move, atkSlot, defSlot, weather, field=''){
   power = applyFieldMovePower(field, move.name, power, atkSlot, defSlot, notes);
   return {power, notes};
 }
-function getAttackItemMultiplier(item, moveType, category, eff){
+
+function quickMetronomeMultiplier(count){
+  const n = Math.max(1, Math.min(6, parseInt(count || 1, 10) || 1));
+  return n <= 1 ? 1 : Math.min(2, 1 + 0.2 * (n - 1));
+}
+function quickAttackItemPowerNotes(item, moveType, category, eff, atkSlot=null){
+  const text = normalizeItemText(item);
+  const notes = [];
+  if(!text) return notes;
+  if(text.includes('ものしりメガネ') && category === '特殊') notes.push('ものしりメガネ: 特殊技×1.1');
+  if(text.includes('ちからハチマキ') && category === '物理') notes.push('ちからハチマキ: 物理技×1.1');
+  if(text.includes('メトロノーム')) notes.push('メトロノーム: 連続使用' + quickGetCondition(atkSlot || {}).metronomeCount + '回目');
+  return notes;
+}
+function getAttackItemMultiplier(item, moveType, category, eff, atkSlot=null){
   const text = normalizeItemText(item);
   const effect = getItemEffectText(item);
   if(!text) return 1;
@@ -1388,6 +1402,9 @@ function getAttackItemMultiplier(item, moveType, category, eff){
   if(text.includes('こだわりメガネ') && category==='特殊') return 1.5;
   if(text.includes('いのちのたま')) return 1.3;
   if(text.includes('たつじんのおび') && eff > 1) return 1.2;
+  if(text.includes('ものしりメガネ') && category === '特殊') return 1.1;
+  if(text.includes('ちからハチマキ') && category === '物理') return 1.1;
+  if(text.includes('メトロノーム')) return quickMetronomeMultiplier(quickGetCondition(atkSlot || {}).metronomeCount);
   if(effect.includes(moveType + 'タイプの技の威力が1.2倍') && eff > 0) return 1.2;
   if(text.includes('タイプ強化') && eff > 0) return 1.2;
   return 1;
@@ -1428,6 +1445,17 @@ function getAttackAbilityPowerInfo(atkSlot, move, moveType, category, eff, weath
   if(TYPE_BOOST_ABILITIES[ability] && TYPE_BOOST_ABILITIES[ability][0] === moveType){
     mult *= TYPE_BOOST_ABILITIES[ability][1];
     notes.push(`${ability}: ${moveType}技強化`);
+  }
+  const abilityData = getAbilityData(ability);
+  if(abilityData && abilityData.atkPowerUp){
+    const up = abilityData.atkPowerUp;
+    const types = up.type ? (Array.isArray(up.type) ? up.type : [up.type]) : [];
+    const typeOk = !types.length || types.includes(moveType);
+    const powerOk = up.maxPower == null || (Number(move?.power || 0) || 0) <= Number(up.maxPower);
+    if(typeOk && powerOk){
+      mult *= Number(up.mult || 1) || 1;
+      notes.push(up.info || `${ability}: ${moveType}技強化`);
+    }
   }
   if(LOW_HP_TYPE_ABILITIES[ability] === moveType && condition.lowHp){
     mult *= 1.5;
@@ -1558,7 +1586,8 @@ function calcDamageResult(atkSlot, moveName, defSlot, weather, field){
   const powerMult = abilityPowerInfo.mult * resolvedType.skin * getAuraModifier(resolvedType.type, atkSlot.ability, defSlot.ability) * fieldDamageInfo.powerMult;
   const weatherMoveMult = getWeatherMoveMult(weather, resolvedType.type);
   const defDmgMult = getDefAbilityDmgMult(defSlot.ability, resolvedType.type, eff);
-  const itemMult = getAttackItemMultiplier(atkSlot.item, resolvedType.type, rawCategory, eff);
+  const itemMult = getAttackItemMultiplier(atkSlot.item, resolvedType.type, rawCategory, eff, atkSlot);
+  baseNotes.push(...quickAttackItemPowerNotes(atkSlot.item, resolvedType.type, rawCategory, eff, atkSlot));
   const defItemMult = getDefenseItemMultiplier(defSlot.item, resolvedType.type, eff);
   const effectiveAttack = Math.max(1, Math.floor(attackStat * statMult));
   const effectiveDefense = Math.max(1, Math.floor(defenseStat));
@@ -1902,7 +1931,7 @@ function quickRenderFieldChips(){
 }
 function quickStageMult(stage){ const s = Math.max(-6, Math.min(6, parseInt(stage||0,10)||0)); return s >= 0 ? (2+s)/2 : 2/(2-s); }
 function quickApplyStage(value, stage){ return Math.max(1, Math.floor(value * quickStageMult(stage))); }
-function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false, hpPercent:100, proteanUsed:false, proteanType:'', targetPoisoned:false}; }
+function quickDefaultCondition(){ return {faintedAllies:0, lowHp:false, flashFire:false, hpPercent:100, proteanUsed:false, proteanType:'', targetPoisoned:false, metronomeCount:1}; }
 function quickNormalizeCondition(condition){
   const src = condition && typeof condition === 'object' ? condition : {};
   const proteanType = QUICK_TYPE_NAMES.includes(src.proteanType) ? src.proteanType : '';
@@ -1913,7 +1942,8 @@ function quickNormalizeCondition(condition){
     hpPercent: Math.max(1, Math.min(100, parseInt(src.hpPercent || 100, 10) || 100)),
     proteanUsed: !!src.proteanUsed,
     proteanType,
-    targetPoisoned: !!src.targetPoisoned
+    targetPoisoned: !!src.targetPoisoned,
+    metronomeCount: Math.max(1, Math.min(6, parseInt(src.metronomeCount || 1, 10) || 1))
   };
 }
 function quickGetCondition(slot){
@@ -1943,6 +1973,7 @@ function quickSetCondition(role, key, value){
   }
   if(key === 'proteanType') condition.proteanType = QUICK_TYPE_NAMES.includes(value) ? value : '';
   if(key === 'targetPoisoned') condition.targetPoisoned = value === true || value === 'true' || value === 1 || value === '1';
+  if(key === 'metronomeCount') condition.metronomeCount = Math.max(1, Math.min(6, parseInt(value || 1, 10) || 1));
   slot.condition = condition;
   quickRenderAll();
 }
@@ -2254,7 +2285,8 @@ function quickConditionControls(role, slot){
   const needsTargetHp = role === 'defender' && hasTargetHpPower;
   const needsProtean = quickHasProteanAbility(slot);
   const needsMerciless = role === 'attacker' && ability === 'ひとでなし';
-  if(!needsFainted && !needsLowHp && !needsFlashFire && !needsSelfHp && !needsTargetHp && !needsProtean && !needsMerciless) return '';
+  const needsMetronome = role === 'attacker' && normalizeItemText(slot.item || '').includes('メトロノーム');
+  if(!needsFainted && !needsLowHp && !needsFlashFire && !needsSelfHp && !needsTargetHp && !needsProtean && !needsMerciless && !needsMetronome) return '';
   const parts = [];
   if(needsFainted){
     parts.push(`<div class="rank-box"><div class="label">味方ひんし数</div><div class="segment-grid">${[0,1,2].map(n=>`<button type="button" class="segment-btn ${condition.faintedAllies===n?'active':''}" onclick="quickSetCondition('${role}','faintedAllies',${n})">${n}体</button>`).join('')}</div></div>`);
@@ -2277,6 +2309,9 @@ function quickConditionControls(role, slot){
   }
   if(needsMerciless){
     parts.push(`<div class="rank-box"><div class="label">ひとでなし条件</div><div class="segment-grid"><button type="button" class="segment-btn ${!condition.targetPoisoned?'active':''}" onclick="quickSetCondition('${role}','targetPoisoned',false)">相手どくなし</button><button type="button" class="segment-btn ${condition.targetPoisoned?'active':''}" onclick="quickSetCondition('${role}','targetPoisoned',true)">相手どく/猛毒</button></div></div>`);
+  }
+  if(needsMetronome){
+    parts.push(`<div class="rank-box" style="grid-column:1/-1"><div class="label">メトロノーム連続使用</div><div class="segment-grid">${[1,2,3,4,5,6].map(n=>`<button type="button" class="segment-btn ${condition.metronomeCount===n?'active':''}" onclick="quickSetCondition('${role}','metronomeCount',${n})">${n===1?'1回目':(n===6?'6回目以降':'{N}回目').replace('{N}', n)}${n===1?'':` ×${quickMetronomeMultiplier(n).toFixed(1)}`}</button>`).join('')}</div></div>`);
   }
   return `<div class="field" style="grid-column:1/-1"><div class="label">発動条件</div><div class="rank-grid">${parts.join('')}</div></div>`;
 }
