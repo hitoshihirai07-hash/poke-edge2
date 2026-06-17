@@ -1294,16 +1294,44 @@ function getPartyRankingFilePath(mode, seasonLabel){
   const num = m ? parseInt(m[1], 10) : 0;
   return num && num !== 1 ? `${base}_s${num}.json` : `${base}.json`;
 }
-async function reloadPartyRankingData(preferred, mode){
-  const seasonLabel = resolvePartySeasonLabel(preferred);
-  ACTIVE_RANKING_SEASON = seasonLabel;
+function getPartyRankingFallbackLabels(preferred){
+  const labels = Array.isArray(SEASON_DATA?.seasons) ? SEASON_DATA.seasons.slice() : [];
+  const sorted = window.pokeEdgeRankingSeason && typeof pokeEdgeRankingSeason.sortLabels === 'function'
+    ? pokeEdgeRankingSeason.sortLabels(labels, true)
+    : labels.sort((a,b)=>{
+        const an = Number((String(a).match(/\d+/)||['0'])[0]);
+        const bn = Number((String(b).match(/\d+/)||['0'])[0]);
+        return bn - an || String(b).localeCompare(String(a),'ja');
+      });
+  const out = [];
+  const add = (v)=>{ const n=String(v||'').trim(); if(n && !out.includes(n)) out.push(n); };
+  add(resolvePartySeasonLabel(preferred));
+  sorted.forEach(add);
+  add('S2');
+  add('S1');
+  return out;
+}
+async function loadPartyRankingWithFallback(mode, preferred){
   const safeMode = mode === 'double' ? 'double' : 'single';
-  const ranking = await fetchDataJson(getPartyRankingFilePath(safeMode, seasonLabel), {rows:[], updatedAt:''});
+  const labels = getPartyRankingFallbackLabels(preferred);
+  const requested = resolvePartySeasonLabel(preferred);
+  for(const label of labels){
+    const ranking = await fetchDataJson(getPartyRankingFilePath(safeMode, label), {rows:[], updatedAt:''});
+    if(ranking && Array.isArray(ranking.rows) && ranking.rows.length){
+      return {ranking, seasonLabel:label, fallbackFrom: label !== requested ? requested : ''};
+    }
+  }
+  return {ranking:{rows:[], updatedAt:''}, seasonLabel:requested || labels[0] || 'S1', fallbackFrom:''};
+}
+async function reloadPartyRankingData(preferred, mode){
+  const safeMode = mode === 'double' ? 'double' : 'single';
+  const loaded = await loadPartyRankingWithFallback(safeMode, preferred);
+  ACTIVE_RANKING_SEASON = loaded.seasonLabel;
   PARTY_RANKING_DATA = Object.assign({
     single: PARTY_RANKING_DATA.single || {rows:[], updatedAt:''},
     double: PARTY_RANKING_DATA.double || {rows:[], updatedAt:''}
   }, {
-    [safeMode]: normalizeRankingPayload(ranking, safeMode, seasonLabel)
+    [safeMode]: Object.assign(normalizeRankingPayload(loaded.ranking, safeMode, loaded.seasonLabel), {fallbackFrom: loaded.fallbackFrom})
   });
   if(selectedSlot>=0 && party[selectedSlot] && party[selectedSlot].poke) renderPeMoveQuick(party[selectedSlot].poke.name);
   updateCoverage();
@@ -1577,7 +1605,13 @@ function getAbilityOptions(pokeName){
   return getAbilityOptionsUnified(pokeName);
 }
 function getPokemonKnownMoves(pokeName){
-  for(const lookupName of getLookupNamesForPokemon(pokeName)){
+  const names = [];
+  const add = (v)=>{ const n=String(v||'').trim(); if(n && !names.includes(n)) names.push(n); };
+  const megaBase = getMegaBaseNameFromRelations(pokeName);
+  if(megaBase) add(megaBase);
+  getLookupNamesForPokemon(pokeName).forEach(add);
+  add(pokeName);
+  for(const lookupName of names){
     const row = POKEMON_MOVES && POKEMON_MOVES[lookupName];
     if(row && Array.isArray(row.moves) && row.moves.length) return row.moves;
   }
@@ -1587,7 +1621,13 @@ function getPokemonKnownMoves(pokeName){
 function getKnownMoveEntryForPokemon(pokeName, moveName){
   const safeName = String(moveName || '').trim();
   if(!safeName) return null;
-  for(const lookupName of getLookupNamesForPokemon(pokeName)){
+  const names = [];
+  const add = (v)=>{ const n=String(v||'').trim(); if(n && !names.includes(n)) names.push(n); };
+  const megaBase = getMegaBaseNameFromRelations(pokeName);
+  if(megaBase) add(megaBase);
+  getLookupNamesForPokemon(pokeName).forEach(add);
+  add(pokeName);
+  for(const lookupName of names){
     const row = POKEMON_MOVES && POKEMON_MOVES[lookupName];
     if(!row || !Array.isArray(row.moves)) continue;
     const found = row.moves.find(mv => String(mv && mv.name || '').trim() === safeName);
@@ -1610,6 +1650,46 @@ function getMoveDescriptionText(moveEntry, moveMeta){
   const raw = String((moveEntry && moveEntry.description) || (moveMeta && moveMeta.effect) || (moveMeta && moveMeta.notes) || '').trim();
   if(!raw) return '通常の攻撃技。';
   return raw.length > 58 ? `${raw.slice(0, 58)}…` : raw;
+}
+const PARTY_LOW_PRACTICAL_MOVE_NAMES = new Set([
+  'ギガインパクト','はかいこうせん','ブラストバーン','ハイドロカノン','ハードプラント','メテオビーム',
+  'ソーラービーム','ソーラーブレード','ロケットずつき','ゴッドバード','そらをとぶ','とびはねる','あなをほる','ダイビング','シャドーダイブ','ゴーストダイブ',
+  'じばく','だいばくはつ','ミストバースト','ビックリヘッド','てっていこうせん','ゲップ','ゆめくい','きあいパンチ','しぜんのめぐみ'
+]);
+const PARTY_PRIORITY_MOVE_NAMES = new Set(['しんそく','ふいうち','アクアジェット','こおりのつぶて','かげうち','バレットパンチ','マッハパンチ','でんこうせっか','フェイント','アクセルロック','ジェットパンチ','グラススライダー']);
+function getPartyMovePracticalPenalty(moveEntry, moveMeta){
+  const name = String((moveEntry && moveEntry.name) || (moveMeta && moveMeta.name) || '').trim();
+  const text = String((moveEntry && moveEntry.description) || (moveMeta && moveMeta.effect) || (moveMeta && moveMeta.notes) || '').trim();
+  let penalty = 0;
+  if(PARTY_LOW_PRACTICAL_MOVE_NAMES.has(name)) penalty += 900;
+  if(text.includes('使った次のターン') || text.includes('反動状態')) penalty += 700;
+  if(text.includes('溜め状態') || text.includes('ため状態')) penalty += 450;
+  if(text.includes('自分はひんし') || text.includes('自分がひんし')) penalty += 900;
+  if(text.includes('自分のHPを半分') || text.includes('最大HPの1/2')) penalty += 250;
+  const acc = Number((moveEntry && moveEntry.accuracy) || (moveMeta && moveMeta.accuracy)) || 100;
+  if(acc && acc < 80) penalty += 180;
+  return penalty;
+}
+function getPartyMoveFallbackScore(candidate, move){
+  if(!candidate || !move) return -999999;
+  const type = String(move.type || '').trim();
+  const category = String(move.category || '').trim();
+  const power = Number(move.power || 0) || 0;
+  const acc = Number(move.accuracy || 0) || 100;
+  const stabTypes = new Set([candidate.type1, candidate.type2].filter(Boolean));
+  const bias = inferCandidateAttackBiasFromStats(candidate);
+  const classMatch = bias === 'mixed' ? true : category === (bias === 'physical' ? '物理' : '特殊');
+  let score = 0;
+  score += stabTypes.has(type) ? 1200 : 0;
+  score += classMatch ? 850 : -350;
+  score += Math.min(power, 120) * 8;
+  score += acc >= 100 ? 120 : (acc >= 90 ? 80 : (acc >= 80 ? 20 : -120));
+  if(PARTY_PRIORITY_MOVE_NAMES.has(move.name)) score += 180;
+  const desc = String(move.description || '').trim();
+  if(desc.includes('急所に当たりやすい') || desc.includes('必ず急所')) score += 70;
+  if(desc.includes('先制')) score += 120;
+  score -= getPartyMovePracticalPenalty(move, getMoveMetaByName(move.name));
+  return score;
 }
 function inferCandidateAttackBiasFromStats(candidate){
   const atk = Number(candidate && candidate.atk || 0);
@@ -1695,7 +1775,7 @@ function getCandidateUsableMoves(candidate, rankingMode=PARTY_RANKING_MODE){
     seenFallback.add(move.name);
     fallbackMoves.push(move);
   });
-  return fallbackMoves.sort((a,b)=>scoreMove(b) - scoreMove(a)).slice(0, 4);
+  return fallbackMoves.sort((a,b)=>getPartyMoveFallbackScore(candidate, b) - getPartyMoveFallbackScore(candidate, a) || scoreMove(b) - scoreMove(a)).slice(0, 4);
 }
 function buildCandidateMoveDetails(candidate, rankingMode=PARTY_RANKING_MODE){
   return getCandidateUsableMoves(candidate, rankingMode).slice(0, 3);
@@ -2141,7 +2221,8 @@ function getPartyEditorQuickMoves(pokeName, rankingMode=PARTY_RANKING_MODE){
       sourceLabel: 'pokemon_moves'
     });
   });
-  return fallback.slice(0, 24);
+  const candidate = (pokeIndex || []).find(p=>p && p.name === pokeName) || {name:pokeName};
+  return fallback.sort((a,b)=>getPartyMoveFallbackScore(candidate, b) - getPartyMoveFallbackScore(candidate, a)).slice(0, 24);
 }
 function renderPeMoveQuick(pokeName){
   const wrap=document.getElementById('pe-move-quick');
@@ -4280,7 +4361,7 @@ function renderPartyBuildCarte(){
   root.innerHTML = `
     <div class="build-carte-grid">
       <div class="build-carte-card"><div class="build-carte-card-title">構築状態</div><div class="build-carte-card-main">${members.length}/6体 / メガ候補 ${megaCount}体</div><div class="build-carte-card-sub">現在の保存名: ${escapePartyHtml(document.getElementById('party-save-name')?.value || '新規パーティ')}</div></div>
-      <div class="build-carte-card"><div class="build-carte-card-title">参照環境</div><div class="build-carte-card-main">${escapePartyHtml(ACTIVE_RANKING_SEASON || '最新')} / ${escapePartyHtml(modeLabel)} 上位20</div><div class="build-carte-card-sub">保存値ではなく最新シーズンを初期参照します。</div></div>
+      <div class="build-carte-card"><div class="build-carte-card-title">参照環境</div><div class="build-carte-card-main">${escapePartyHtml(ACTIVE_RANKING_SEASON || '最新')} / ${escapePartyHtml(modeLabel)} 上位20</div><div class="build-carte-card-sub">最新ランキングが未更新の場合は前回データを自動参照します。</div></div>
       <div class="build-carte-card"><div class="build-carte-card-title">攻撃範囲</div><div class="build-carte-card-main">${attackCovered}/18タイプに打点</div><div class="build-carte-card-sub">登録技ベース。技未設定の枠は反映しません。</div></div>
       <div class="build-carte-card"><div class="build-carte-card-title">技カテゴリ</div><div class="build-carte-card-main">物理${physicalMoves} / 特殊${specialMoves}</div><div class="build-carte-card-sub">変化技はカウント外。偏り確認用です。</div></div>
     </div>
@@ -4902,7 +4983,9 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
   const megaTarget = PARTY_MEGA_TARGET;
   const megaRemain = Math.max(0, megaTarget - currentMegaCount);
   if(metaEl){
-    metaEl.innerHTML = `最新${escapePartyHtml(ACTIVE_RANKING_SEASON || '')} 上位20参照 / <span style="color:var(--accent3);">${modeLabel}</span>${dataset.updatedAt ? ` / 更新 ${escapePartyHtml(dataset.updatedAt)}` : ''} / メガ枠 ${currentMegaCount}/${megaTarget}`;
+    const rankingSeasonText = dataset.seasonLabel || ACTIVE_RANKING_SEASON || '';
+    const fallbackText = dataset.fallbackFrom ? ` / ${escapePartyHtml(dataset.fallbackFrom)}未更新のため前回データ参照` : '';
+    metaEl.innerHTML = `参照${escapePartyHtml(rankingSeasonText)} 上位20 / <span style="color:var(--accent3);">${modeLabel}</span>${dataset.updatedAt ? ` / 更新 ${escapePartyHtml(dataset.updatedAt)}` : ''}${fallbackText} / メガ枠 ${currentMegaCount}/${megaTarget}`;
   }
 
   if(!members.length) {
@@ -4911,7 +4994,7 @@ function renderPartyRecommendations(atkMap, defWeakCount, defResCount, defImmCou
     return;
   }
   if(!rows.length) {
-    summaryEl.innerHTML = `<div class="recommend-summary-card"><div class="recommend-summary-title">ランキング参照</div><div class="recommend-summary-main">参照用データが見つかりませんでした。</div></div>`;
+    summaryEl.innerHTML = `<div class="recommend-summary-card"><div class="recommend-summary-title">ランキング参照</div><div class="recommend-summary-main">ランキング更新前のため参照データが見つかりませんでした。前回データがある場合は自動で参照します。</div></div>`;
     listEl.innerHTML = '';
     return;
   }

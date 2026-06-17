@@ -2134,6 +2134,16 @@ function getMegaFormsFromRelations(baseName){
   if(!base) return [];
   return Array.isArray(MEGA_DATA?.baseToForms?.[base]) ? MEGA_DATA.baseToForms[base].slice() : [];
 }
+function getCalcMoveLookupNamesForPokemon(name){
+  const raw = String(name || '').trim();
+  const out = [];
+  const add = (v)=>{ const n = String(v || '').trim(); if(n && !out.includes(n)) out.push(n); };
+  const megaBase = getMegaBaseNameFromRelations(raw);
+  if(megaBase) add(megaBase);
+  getSpecialFormLookupNames(raw).forEach(add);
+  add(raw);
+  return out;
+}
 
 // ===== 性格 =====
 const PERSONALITIES = {
@@ -2398,7 +2408,7 @@ function normalizeMoveFromPokemonEntry(entry){
   };
 }
 function getPokemonKnownMoves(name){
-  for(const lookupName of getAegislashLookupNames(name)){
+  for(const lookupName of getCalcMoveLookupNamesForPokemon(name)){
     const row = POKEMON_MOVES[lookupName];
     if(row && Array.isArray(row.moves) && row.moves.length) return row.moves;
   }
