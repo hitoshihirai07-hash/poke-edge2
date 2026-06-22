@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-adsense-account" content="ca-pub-7687416670736373">
-<title>クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新を行いました | PokeEdge</title>
-<meta name="description" content="クイック技ダメージへの変更、シーズン2対応、ポケモン登録の技・特性検索など、本日までの主な更新内容をまとめました。">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新を行いました | PokeEdge">
-<meta property="og:description" content="スマホでも使いやすいクイック技ダメージ、シーズン2向けのデータ対応、ポケモン登録の検索強化などをまとめています。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-quick-damage-season2-register-search-20260516.html">
-<link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-quick-damage-season2-register-search-20260516.html">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="ca-pub-7687416670736373" name="google-adsense-account"/>
+<title>4技比較と環境確認をまとめる方法｜クイック技ダメージ・使用可能ポケモン・登録検索 | PokeEdge</title>
+<meta content="クイック技ダメージで4技を比較し、使用可能ポケモンと登録検索を使って環境や型を確認する流れを解説します。" name="description"/>
+<meta content="index, follow" name="robots"/>
+<meta content="4技比較と環境確認をまとめる方法｜クイック技ダメージ・使用可能ポケモン・登録検索 | PokeEdge" property="og:title"/>
+<meta content="クイック技ダメージで4技を比較し、使用可能ポケモンと登録検索を使って環境や型を確認する流れを解説します。" property="og:description"/>
+<meta content="article" property="og:type"/>
+<meta content="https://poke-edge.pages.dev/articles/update-summary-quick-damage-season2-register-search-20260516.html" property="og:url"/>
+<link href="https://poke-edge.pages.dev/articles/update-summary-quick-damage-season2-register-search-20260516.html" rel="canonical"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-sync.js"></script>
 <script src="../usage-tracker.js"></script>
@@ -31,9 +32,9 @@
   for(var k in vars)root.setProperty(k,vars[k]);
 })();
 </script>
-<link rel="icon" type="image/png" href="../favicon.png">
-<link rel="apple-touch-icon" href="../favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="../favicon.png" rel="icon" type="image/png"/>
+<link href="../favicon.png" rel="apple-touch-icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Noto+Sans+JP:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0d1420;--bg2:#141e2e;--panel:#1a2638;--border:#304766;--border2:#3d5b82;--accent:#59d2ff;--accent2:#ff6b92;--accent3:#f2c66a;--green:#57d89a;--text:#f2f7ff;--text2:#9fb3cb;--text3:#c0d0e1;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -109,116 +110,109 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 </style>
-<link rel="stylesheet" href="../contrast-tune.css">
-<link rel="stylesheet" href="../updates-widget.css">
+<link href="../contrast-tune.css" rel="stylesheet"/>
+<link href="../updates-widget.css" rel="stylesheet"/>
 </head>
 <body>
 <header>
-  <div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
-  <div class="header-sep"></div>
-  <div class="header-sub">記事</div>
-  <div class="header-nav" id="main-nav">
-    <a class="nav-btn" href="../index.html">トップ</a>
-    <a class="nav-btn" href="../calc.html">ダメージ計算</a>
-    <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
-    <a class="nav-btn" href="../battle.html">バトル</a>
-    <a class="nav-btn" href="../builder.html">構築アシスト</a>
-    <a class="nav-btn" href="../party.html">パーティ管理</a>
-    <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
-    <a class="nav-btn" href="../items.html">アイテム</a>
-    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
-    <a class="nav-btn" href="../selection_predictor.html">選出予測</a>
-    <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
-    <a class="nav-btn" href="../speed.html">素早さライン</a>
-    <a class="nav-btn active" href="../blog.html">記事</a>
-    <a class="nav-btn" href="../policy.html">サイト情報</a>
-  </div>
-  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
+<div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
+<div class="header-sep"></div>
+<div class="header-sub">記事</div>
+<div class="header-nav" id="main-nav">
+<a class="nav-btn" href="../index.html">トップ</a>
+<a class="nav-btn" href="../calc.html">ダメージ計算</a>
+<a class="nav-btn" href="../endure.html">耐久調整</a>
+<a class="nav-btn" href="../move.html">クイック技ダメージ</a>
+<a class="nav-btn" href="../battle.html">バトル</a>
+<a class="nav-btn" href="../builder.html">構築アシスト</a>
+<a class="nav-btn" href="../party.html">パーティ管理</a>
+<a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
+<a class="nav-btn" href="../items.html">アイテム</a>
+<a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+<a class="nav-btn" href="../selection_predictor.html">選出予測</a>
+<a class="nav-btn" href="../season.html">使用可能ポケモン</a>
+<a class="nav-btn" href="../speed.html">素早さライン</a>
+<a class="nav-btn active" href="../blog.html">記事</a>
+<a class="nav-btn" href="../policy.html">サイト情報</a>
+</div>
+<button aria-label="メニュー" class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
 </header>
 <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../builder.html">構築アシスト</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../selection_predictor.html">選出予測</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a><a class="side-link active" href="../blog.html">記事一覧</a><a class="side-link" href="../policy.html">サイト情報</a></div></div></aside>
-<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
-  <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+<nav aria-label="スマホ用ページ移動" class="mobile-tool-nav">
+<div class="mobile-tool-nav-title">ツール移動</div>
+<div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a aria-current="page" class="mobile-tool-link active" href="../blog.html">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
 <div class="main">
-  <div class="breadcrumb">
-    <a href="../index.html">トップ</a><span class="sep">/</span>
-    <a href="../blog.html">記事一覧</a><span class="sep">/</span>
-    <span>クイック技ダメージ・シーズン2対応・登録検索の更新まとめ</span>
-  </div>
-  <div class="article-header">
-    <div class="article-meta">
-      <span class="article-date">2026.05.16 / 2026.06.22 更新</span>
-      <span class="article-tag guide">ガイド</span>
-      <span class="article-tag tool">更新まとめ</span>
-    </div>
-    <h1 class="article-h1">クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新を行いました</h1>
-    <p class="article-lead">本日までの更新では、技選択判定をクイック技ダメージへ変更し、シーズン2に合わせたデータ対応や、ポケモン登録の検索まわりを調整しました。</p>
-  </div>
-  <div class="article-body">
-    <h2>今回の更新項目</h2>
-    <ul>
-      <li>技選択判定を<strong>クイック技ダメージ</strong>へ変更</li>
-      <li>シーズン2への切り替わりに合わせてランキング・使用可能ポケモンまわりを調整</li>
-      <li>ポケモン登録で技や特性から探しやすいように検索機能を強化</li>
-      <li>各ページの表記や移動導線をクイック技ダメージに合わせて整理</li>
-    </ul>
-    <p>今回の中心は、これまでの技選択判定を見直し、より使いどころが分かりやすい<strong>クイック技ダメージ</strong>として作り直したことです。</p>
-    <p>通常のダメージ計算は1つの技を細かく確認するためのページとして残し、クイック技ダメージでは、1対1の対面で4つの技をまとめて確認しやすい形にしています。対戦前の確認だけでなく、スマホで開いたときにも見やすいように、入力や結果表示を整理しました。</p>
-
-    <h2>1. 技選択判定をクイック技ダメージに変更しました</h2>
-    <p><a href="../move.html">クイック技ダメージ</a>では、自分と相手のポケモンを選び、4つの技のダメージ・割合・確定数・相性をまとめて確認できます。</p>
-    <p>これまでの技選択判定は、バトルアナライザーと役割が近く、何を確認するページなのか分かりにくい部分がありました。そこで、6体全体の管理ではなく、<strong>1対1で4技を素早く見比べる</strong>ページとして整理しています。</p>
-    <p>スマホでは、プルダウンよりも検索候補式で選びやすくし、ポケモン・技・持ち物を変更したときに結果を確認しやすい構成にしました。通常のダメージ計算よりも軽く、4技の通りをまとめて見たい場面で使いやすい位置づけです。</p>
-
-    <div class="note-box">
-      <strong>クイック技ダメージの主な役割</strong><br>
-      ・1対1の対面で4技をまとめて確認<br>
-      ・ランキング型や登録データを反映して入力を短縮<br>
-      ・スマホでもポケモンや技を選びやすくする<br>
+<div class="breadcrumb">
+<a href="../index.html">トップ</a><span class="sep">/</span>
+<a href="../blog.html">記事一覧</a><span class="sep">/</span>
+<span>活用ガイド</span>
+</div>
+<div class="article-header">
+<div class="article-meta">
+<span class="article-date">2026.05.16 / 内容見直し: 2026.06.22</span>
+<span class="article-tag guide">ガイド</span>
+<span class="article-tag tool">活用ガイド</span>
+</div>
+<h1 class="article-h1">4技比較と環境確認をまとめる方法｜クイック技ダメージ・使用可能ポケモン・登録検索</h1>
+<p class="article-lead">技を選ぶときは、単純な威力だけでなく、4技の確定数・役割・通りを並べて見ると判断しやすくなります。このページでは、クイック技ダメージ、使用可能ポケモン、登録検索を使って、環境確認から4技比較まで進める流れをまとめます。</p><div class="note-box reader-purpose-box"><strong>このページが役立つ場面</strong><br/>対面で押す技を決めたいとき、候補技を4つ並べて比較したいとき、技や特性から自分の登録した型を探したいときに使うページです。</div>
+</div>
+<div class="article-body">
+<h2>このページで確認できること</h2>
+<ul>
+<li>技選択判定を<strong>クイック技ダメージ</strong>へ変更</li>
+<li>シーズン2への切り替わりに合わせてランキング・使用可能ポケモンまわりを調整</li>
+<li>ポケモン登録で技や特性から探しやすいように検索機能を強化</li>
+<li>各ページの表記や移動導線をクイック技ダメージに合わせて整理</li>
+</ul>
+<p>今回の中心は、これまでの技選択判定を見直し、より使いどころが分かりやすい<strong>クイック技ダメージ</strong>として作り直したことです。</p>
+<p>通常のダメージ計算は1つの技を細かく確認するためのページとして残し、クイック技ダメージでは、1対1の対面で4つの技をまとめて確認しやすい形にしています。対戦前の確認だけでなく、スマホで開いたときにも見やすいように、入力や結果表示を整理しました。</p>
+<h2>1. クイック技ダメージで4技を比較する</h2>
+<p><a href="../move.html">クイック技ダメージ</a>では、自分と相手のポケモンを選び、4つの技のダメージ・割合・確定数・相性をまとめて確認できます。</p>
+<p>これまでの技選択判定は、バトルアナライザーと役割が近く、何を確認するページなのか分かりにくい部分がありました。そこで、6体全体の管理ではなく、<strong>1対1で4技を素早く見比べる</strong>ページとして整理しています。</p>
+<p>スマホでは、プルダウンよりも検索候補式で選びやすくし、ポケモン・技・持ち物を変更したときに結果を確認しやすい構成にしました。通常のダメージ計算よりも軽く、4技の通りをまとめて見たい場面で使いやすい位置づけです。</p>
+<div class="note-box">
+<strong>クイック技ダメージの主な役割</strong><br/>
+      ・1対1の対面で4技をまとめて確認<br/>
+      ・ランキング型や登録データを反映して入力を短縮<br/>
+      ・スマホでもポケモンや技を選びやすくする<br/>
       ・細かい1技確認はダメージ計算、6体管理はバトルアナライザーに分ける
     </div>
-
-    <h2>2. シーズン2に合わせて変更しました</h2>
-    <p>シーズン2に切り替わったことで、使用可能ポケモンやランキングの見方も変わるため、サイト側でもシーズン2のデータを扱えるように調整しています。</p>
-    <p><a href="../season.html">使用可能ポケモン</a>では、シーズンごとの情報を確認しやすくし、ランキングや順位推移も新しいシーズンに合わせて見られるようにしています。クイック技ダメージでも、ポケモン選択や型の反映にランキング情報を使えるようにし、シーズンに合った確認がしやすくなるようにしています。</p>
-    <p>シーズンが変わると、使用率の高いポケモンや技、持ち物も変わっていきます。そのため、単にポケモン一覧を見るだけではなく、実際のダメージ確認や登録データへつなげやすい形を意識して更新しました。</p>
-
-    <h2>3. ポケモン登録で技や特性から検索できるようにしました</h2>
-    <p><a href="../pokemon.html">ポケモン登録</a>では、登録済みのポケモンを探すときに、名前だけではなく技や特性をもとに探しやすい形へ調整しています。</p>
-    <p>同じポケモンでも型が複数ある場合、名前だけでは目的の登録を見つけにくくなります。技や特性で探せるようにすることで、「この技を持っている型」「この特性の型」を見つけやすくし、クイック技ダメージやダメージ計算へ反映しやすくしました。</p>
-    <p>ポケモン登録は、単なる保存場所ではなく、他の計算ツールへつなげるためのデータ元として使えるようにしています。今後も、登録した情報を各ページで活かしやすい形に整えていきます。</p>
-
-    <h2>4. その他の更新</h2>
-    <p>今回の更新に合わせて、サイト内の表記も「技選択判定」から<strong>クイック技ダメージ</strong>へ統一しました。トップページ、記事一覧、各ツールのサイドバーなどから移動したときに、同じ名称で分かるようにしています。</p>
-    <p>クイック技ダメージでは、ランキング反映、登録済みポケモンの反映、メガ進化切替、ランク補正、持ち物や特性のダメージ補正なども確認しながら調整しています。1つのページに詰め込みすぎず、4技を素早く確認するためのページとして使いやすくする方向で整理しました。</p>
-    <p>また、スマホで使う場面を考えて、入力欄や候補表示の扱いやすさも見直しています。PCでは他ページと同じサイドバーで移動しやすくし、スマホでは横スクロールのツール移動からすぐにページを切り替えられるようにしています。</p>
-
-    <h2>今回の更新を使う場面</h2>
-    <p>対戦前に相手の型をざっくり確認したいときは、使用可能ポケモンで環境の候補を見てから、クイック技ダメージで4技の通りを比べます。自分の登録済みの型を使う場合は、技や特性で検索して目的の個体を呼び出すと、入力を減らせます。</p>
-    <p>4技のうちどれを押すか迷ったら、まず確定数、次に交代先へ通るタイプ、最後に技枠の役割を見る順にすると、最大ダメージだけに引っ張られにくくなります。</p>
-
-    <h2>まとめ</h2>
-    <p>今回の更新では、技選択判定をクイック技ダメージへ作り直し、スマホでも4技のダメージを確認しやすい形に変更しました。</p>
-    <p>あわせて、シーズン2に合わせたランキング・使用可能ポケモンまわりの調整、ポケモン登録の検索強化、各ページの表記統一も行っています。</p>
-    <p>今後も、ダメージ計算・クイック技ダメージ・ポケモン登録・バトルアナライザーがそれぞれ役割を持って使えるように、対戦前や確認時に使いやすい形へ更新していきます。</p>
-  </div>
-  <div class="related-section">
-    <div class="related-title">RELATED ARTICLES</div>
-    <div class="related-list">
-      <a class="related-link" href="move-judge-guide.html">クイック技ダメージの使い方 — 4技をまとめて確認する</a>
-      <a class="related-link" href="update-summary-battle-party-damage-20260510.html">バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正を行いました</a>
-      <a class="related-link" href="update-summary-register-calc-analyzer-pro-20260506.html">ポケモン登録・パーティ登録・ダメージ計算・バトルアナライザー・PRO関連の更新まとめ</a>
-      <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
-    </div>
-  </div>
+<h2>2. 使用可能ポケモンで環境を確認する</h2>
+<p>シーズン2に切り替わったことで、使用可能ポケモンやランキングの見方も変わるため、サイト側でもシーズン2のデータを扱えるように調整しています。</p>
+<p><a href="../season.html">使用可能ポケモン</a>では、シーズンごとの情報を確認しやすくし、ランキングや順位推移も新しいシーズンに合わせて見られるようにしています。クイック技ダメージでも、ポケモン選択や型の反映にランキング情報を使えるようにし、シーズンに合った確認がしやすくなるようにしています。</p>
+<p>シーズンが変わると、使用率の高いポケモンや技、持ち物も変わっていきます。ポケモン一覧を見るだけで終わらせず、実際のダメージ確認や登録データへつなげて見ると、対面の想定を具体化しやすくなります。</p>
+<h2>3. 技や特性から登録した型を探す</h2>
+<p><a href="../pokemon.html">ポケモン登録</a>では、登録済みのポケモンを探すときに、名前だけではなく技や特性をもとに探しやすい形へ調整しています。</p>
+<p>同じポケモンでも型が複数ある場合、名前だけでは目的の登録を見つけにくくなります。技や特性で探せるようにすることで、「この技を持っている型」「この特性の型」を見つけやすくし、クイック技ダメージやダメージ計算へ反映しやすくしました。</p>
+<p>ポケモン登録は、単なる保存場所ではなく、他の計算ツールへつなげるためのデータ元として使えるようにしています。今後も、登録した情報を各ページで活かしやすい形に整えていきます。</p>
+<h2>4. 比較を続けやすくする工夫</h2>
+<p>サイト内では、4技を比較するページを<strong>クイック技ダメージ</strong>として案内しています。トップページ、記事一覧、各ツールのサイドバーから同じ名称で開けるため、必要なときに探しやすい構成です。</p>
+<p>クイック技ダメージでは、ランキング反映、登録済みポケモンの反映、メガ進化切替、ランク補正、持ち物や特性のダメージ補正なども確認しながら調整しています。1つのページに詰め込みすぎず、4技を素早く確認するためのページとして使いやすくする方向で整理しました。</p>
+<p>また、スマホで使う場面を考えて、入力欄や候補表示の扱いやすさも見直しています。PCでは他ページと同じサイドバーで移動しやすくし、スマホでは横スクロールのツール移動からすぐにページを切り替えられるようにしています。</p>
+<h2>使う流れ</h2>
+<p>対戦前に相手の型をざっくり確認したいときは、使用可能ポケモンで環境の候補を見てから、クイック技ダメージで4技の通りを比べます。自分の登録済みの型を使う場合は、技や特性で検索して目的の個体を呼び出すと、入力を減らせます。</p>
+<p>4技のうちどれを押すか迷ったら、まず確定数、次に交代先へ通るタイプ、最後に技枠の役割を見る順にすると、最大ダメージだけに引っ張られにくくなります。</p>
+<h2>使い方のまとめ</h2>
+<p>クイック技ダメージでは、スマホでも4技のダメージ・割合・確定数を並べて確認できます。</p>
+<p>あわせて、シーズン2に合わせたランキング・使用可能ポケモンまわりの調整、ポケモン登録の検索強化、各ページの表記統一も行っています。</p>
+<p>今後も、ダメージ計算・クイック技ダメージ・ポケモン登録・バトルアナライザーがそれぞれ役割を持って使えるように、対戦前や確認時に使いやすい形へ更新していきます。</p>
+</div>
+<div class="related-section">
+<div class="related-title">RELATED ARTICLES</div>
+<div class="related-list">
+<a class="related-link" href="move-judge-guide.html">クイック技ダメージの使い方 — 4技をまとめて確認する</a>
+<a class="related-link" href="update-summary-battle-party-damage-20260510.html">構築から対面判断までの流れ｜バトルシミュレーションとダメージ計算の使い分け</a>
+<a class="related-link" href="update-summary-register-calc-analyzer-pro-20260506.html">ポケモン登録から対戦判断までの流れ｜ダメージ計算・バトルアナライザーの使い方</a>
+<a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
+</div>
+</div>
 </div>
 <footer>
-  <div class="footer-logo">PokeEdge</div>
-  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
-  <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+<div class="footer-logo">PokeEdge</div>
+<div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br/>© 2026 PokeEdge</div>
+<div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 <script>
 var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};

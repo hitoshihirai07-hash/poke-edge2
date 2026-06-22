@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-adsense-account" content="ca-pub-7687416670736373">
-<title>ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました | PokeEdge</title>
-<meta name="description" content="PokeEdgeのダメージ計算一部修正、パーティ登録の調整、バトルアナライザーのアップデート内容をまとめました。">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました | PokeEdge">
-<meta property="og:description" content="PokeEdgeのダメージ計算一部修正、パーティ登録の調整、バトルアナライザーのアップデート内容をまとめました。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-calc-party-analyzer-fixes.html">
-<link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-calc-party-analyzer-fixes.html">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="ca-pub-7687416670736373" name="google-adsense-account"/>
+<title>登録した型を計算・分析へつなぐ方法｜パーティ管理とバトルアナライザーの使い分け | PokeEdge</title>
+<meta content="ポケモン登録・パーティ管理・ダメージ計算・バトルアナライザーを使い、個体の確認から構築全体の見直しへつなげる流れを解説します。" name="description"/>
+<meta content="index, follow" name="robots"/>
+<meta content="登録した型を計算・分析へつなぐ方法｜パーティ管理とバトルアナライザーの使い分け | PokeEdge" property="og:title"/>
+<meta content="ポケモン登録・パーティ管理・ダメージ計算・バトルアナライザーを使い、個体の確認から構築全体の見直しへつなげる流れを解説します。" property="og:description"/>
+<meta content="article" property="og:type"/>
+<meta content="https://poke-edge.pages.dev/articles/update-summary-calc-party-analyzer-fixes.html" property="og:url"/>
+<link href="https://poke-edge.pages.dev/articles/update-summary-calc-party-analyzer-fixes.html" rel="canonical"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-sync.js"></script>
 <script src="../usage-tracker.js"></script>
@@ -31,9 +32,9 @@
   for(var k in vars)root.setProperty(k,vars[k]);
 })();
 </script>
-<link rel="icon" type="image/png" href="../favicon.png">
-<link rel="apple-touch-icon" href="../favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="../favicon.png" rel="icon" type="image/png"/>
+<link href="../favicon.png" rel="apple-touch-icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Noto+Sans+JP:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0d1420;--bg2:#141e2e;--panel:#1a2638;--border:#304766;--border2:#3d5b82;--accent:#59d2ff;--accent2:#ff6b92;--accent3:#f2c66a;--green:#57d89a;--text:#f2f7ff;--text2:#9fb3cb;--text3:#c0d0e1;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -109,105 +110,99 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 </style>
-<link rel="stylesheet" href="../contrast-tune.css">
-<link rel="stylesheet" href="../updates-widget.css">
+<link href="../contrast-tune.css" rel="stylesheet"/>
+<link href="../updates-widget.css" rel="stylesheet"/>
 </head>
 <body>
 <header>
-  <div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
-  <div class="header-sep"></div>
-  <div class="header-sub">記事</div>
-  <div class="header-nav" id="main-nav">
-    <a class="nav-btn" href="../index.html">トップ</a>
-    <a class="nav-btn" href="../calc.html">ダメージ計算</a>
-    <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
-    <a class="nav-btn" href="../battle.html">バトル</a>
-    <a class="nav-btn" href="../builder.html">構築アシスト</a>
-    <a class="nav-btn" href="../party.html">パーティ管理</a>
-    <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
-    <a class="nav-btn" href="../items.html">アイテム</a>
-    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
-    <a class="nav-btn" href="../selection_predictor.html">選出予測</a>
-    <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
-    <a class="nav-btn" href="../speed.html">素早さライン</a>
-    <a class="nav-btn active" href="../blog.html">記事</a>
-    <a class="nav-btn" href="../policy.html">サイト情報</a>
-  </div>
-  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
-  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
-  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
-  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+<div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
+<div class="header-sep"></div>
+<div class="header-sub">記事</div>
+<div class="header-nav" id="main-nav">
+<a class="nav-btn" href="../index.html">トップ</a>
+<a class="nav-btn" href="../calc.html">ダメージ計算</a>
+<a class="nav-btn" href="../endure.html">耐久調整</a>
+<a class="nav-btn" href="../move.html">クイック技ダメージ</a>
+<a class="nav-btn" href="../battle.html">バトル</a>
+<a class="nav-btn" href="../builder.html">構築アシスト</a>
+<a class="nav-btn" href="../party.html">パーティ管理</a>
+<a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
+<a class="nav-btn" href="../items.html">アイテム</a>
+<a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+<a class="nav-btn" href="../selection_predictor.html">選出予測</a>
+<a class="nav-btn" href="../season.html">使用可能ポケモン</a>
+<a class="nav-btn" href="../speed.html">素早さライン</a>
+<a class="nav-btn active" href="../blog.html">記事</a>
+<a class="nav-btn" href="../policy.html">サイト情報</a>
+</div>
+<button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+<div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+<button aria-label="メニュー" class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
+<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../builder.html">構築アシスト</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../selection_predictor.html">選出予測</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a><a class="side-link active" href="../blog.html">記事一覧</a><a class="side-link" href="../policy.html">サイト情報</a></div></div></aside>
-<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
-  <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+<nav aria-label="スマホ用ページ移動" class="mobile-tool-nav">
+<div class="mobile-tool-nav-title">ツール移動</div>
+<div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a aria-current="page" class="mobile-tool-link active" href="../blog.html">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
 <div class="main">
-  <div class="breadcrumb">
-    <a href="../index.html">トップ</a><span class="sep">/</span>
-    <a href="../blog.html">記事一覧</a><span class="sep">/</span>
-    <span>ダメージ計算・パーティ登録・バトルアナライザーの更新</span>
-  </div>
-  <div class="article-header">
-    <div class="article-meta">
-      <span class="article-date">2026.05.03 / 2026.06.22 更新</span>
-      <span class="article-tag guide">ガイド</span>
-      <span class="article-tag tool">更新まとめ</span>
-    </div>
-    <h1 class="article-h1">ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました</h1>
-    <p class="article-lead">PokeEdgeのダメージ計算まわりの一部修正、パーティ登録の使いやすさの調整、バトルアナライザーのアップデートをまとめました。今回の更新は、実際に触るときの引っかかりを減らすことを優先して整理しています。</p>
-  </div>
-  <div class="article-body">
-    <h2>今回の更新項目</h2>
-    <ul>
-      <li>ダメージ計算の一部修正</li>
-      <li>パーティ登録の修正</li>
-      <li>バトルアナライザーのアップデート</li>
-    </ul>
-    <p>細かい修正をばらばらに進めるのではなく、実際によく触る3か所に絞って更新しています。今回の内容は、構築を作るときと対戦中に使う部分の両方を触りやすくするためのものです。</p>
-
-    <h2>1. ダメージ計算の一部修正</h2>
-    <p>ダメージ計算では、技や相性の扱いでズレやすかった部分を見直しました。登録済みデータや選択内容がそのまま反映される流れを意識して、計算結果のズレを減らす方向で修正しています。</p>
-    <p>特に、対戦で使う前提のデータをそのまま計算に持ち込みたいときに、余計な推定でブレにくい形へ寄せています。普段の確認用としても使いやすくしつつ、登録やアナライザー側とつながる流れも意識しています。</p>
-
-    <h2>2. パーティ登録の修正</h2>
-    <p>パーティ登録は、次の構築を作るときの手間を減らす方向で調整しました。毎回いちいち全削除してから組み直すよりも、今の内容を基準に扱いやすくすることを優先しています。</p>
-    <p>また、保存済みパーティを読み込んだあとに、そのまま元データとして保存し直すのか、新規の別構築として保存するのかを選びやすくしています。似た構築を派生で作りたいときにも使いやすい形です。</p>
-
-    <div class="note-box">
-      <strong>今回のパーティ登録まわりで意識した点</strong><br>
-      ・次の構築を作るときに手間を減らすこと<br>
-      ・保存済み構築を編集するときの流れをわかりやすくすること<br>
+<div class="breadcrumb">
+<a href="../index.html">トップ</a><span class="sep">/</span>
+<a href="../blog.html">記事一覧</a><span class="sep">/</span>
+<span>ダメージ計算・パーティ登録・バトルアナライザーの更新</span>
+</div>
+<div class="article-header">
+<div class="article-meta">
+<span class="article-date">2026.05.03 / 内容見直し: 2026.06.22</span>
+<span class="article-tag guide">ガイド</span>
+<span class="article-tag tool">活用ガイド</span>
+</div>
+<h1 class="article-h1">登録した型を計算・分析へつなぐ方法｜パーティ管理とバトルアナライザーの使い分け</h1>
+<p class="article-lead">個体の努力値や技を調整したあと、構築全体で問題がないかを見るには、登録・計算・分析を切り離さずに使うと効率が上がります。このページでは、ポケモン登録とパーティ管理を起点に、ダメージ計算とバトルアナライザーへつなぐ流れを整理します。</p><div class="note-box reader-purpose-box"><strong>このページが役立つ場面</strong><br/>型を修正したあとに重要対面を確認したいとき、パーティ全体で役割が重なっていないか見たいときに使うページです。</div>
+</div>
+<div class="article-body">
+<h2>このページで確認できること</h2>
+<ul>
+<li>ダメージ計算の一部修正</li>
+<li>パーティ登録の修正</li>
+<li>バトルアナライザーのアップデート</li>
+</ul>
+<p>細かい修正をばらばらに進めるのではなく、実際によく触る3か所に絞って更新しています。今回の内容は、構築を作るときと対戦中に使う部分の両方を触りやすくするためのものです。</p>
+<h2>1. ダメージ計算で個体の役割を確認する</h2>
+<p>ダメージ計算では、技や相性の扱いでズレやすかった部分を見直しました。登録済みデータや選択内容がそのまま反映される流れを意識して、計算結果のズレを減らす方向で修正しています。</p>
+<p>特に、対戦で使う前提のデータをそのまま計算に持ち込みたいときに、余計な推定でブレにくい形へ寄せています。普段の確認用としても使いやすくしつつ、登録やアナライザー側とつながる流れも意識しています。</p>
+<h2>2. パーティ登録で6体を見返す</h2>
+<p>パーティ登録は、次の構築を作るときの手間を減らす方向で調整しました。毎回いちいち全削除してから組み直すよりも、今の内容を基準に扱いやすくすることを優先しています。</p>
+<p>また、保存済みパーティを読み込んだあとに、そのまま元データとして保存し直すのか、新規の別構築として保存するのかを選びやすくしています。似た構築を派生で作りたいときにも使いやすい形です。</p>
+<div class="note-box">
+<strong>今回のパーティ登録まわりで意識した点</strong><br/>
+      ・次の構築を作るときに手間を減らすこと<br/>
+      ・保存済み構築を編集するときの流れをわかりやすくすること<br/>
       ・登録済み内容をベースにしつつ、別構築も作りやすくすること
     </div>
-
-    <h2>3. バトルアナライザーのアップデート</h2>
-    <p>バトルアナライザーは、選出後に確認したい情報を扱いやすくする方向でアップデートしました。見せ合い段階とバトルフェーズで扱いを分けて、必要なタイミングで触る内容がズレないようにしています。</p>
-    <p>また、相手側の情報を見返しやすくする流れや、選出率の記録側であとから確認しやすい形も意識しています。対戦中に使うときだけでなく、あとで振り返るときにも見やすい方向で整理しました。</p>
-
-    <h2>今回の更新を使う場面</h2>
-    <p>型を少し変えたときは、まずダメージ計算で確定数が変わるかを確認し、パーティ登録へ反映します。その後、バトルアナライザーで6体全体としてどの対面を受けるか・どのポケモンを残すかを見直すと、個体調整と構築全体の判断をつなげやすくなります。</p>
-    <p>細かな修正は、単独では目立ちにくいものです。普段使う型で一度計算し、保存済みのパーティーに戻ると、更新で変わった操作感を確認しやすくなります。</p>
-
-    <h2>まとめ</h2>
-    <p>今回の更新は、ダメージ計算・パーティ登録・バトルアナライザーの3つを中心に、日常的に触る場面でストレスになりやすい部分を減らすことを目的にしています。</p>
-    <p>構築を作る、調整する、対戦中に確認する、あとで見返すという流れをできるだけつなげやすくするための更新です。今後も、使う場面での引っかかりを減らしながら整えていきます。</p>
-  </div>
-  <div class="related-section">
-    <div class="related-title">RELATED ARTICLES</div>
-    <div class="related-list">
-      <a class="related-link" href="update-summary-ranking-register-updates-icon.html">ランキング更新・ポケモン登録おすすめ・更新履歴アイコン追加を行いました</a>
-      <a class="related-link" href="update-summary-endure-history-analyzer.html">耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</a>
-      <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
-    </div>
-  </div>
+<h2>3. バトルアナライザーで判断材料を整理する</h2>
+<p>バトルアナライザーは、選出後に確認したい情報を扱いやすくする方向でアップデートしました。見せ合い段階とバトルフェーズで扱いを分けて、必要なタイミングで触る内容がズレないようにしています。</p>
+<p>また、相手側の情報を見返しやすくする流れや、選出率の記録側であとから確認しやすい形も意識しています。対戦中に使うときだけでなく、あとで振り返るときにも見やすい方向で整理しました。</p>
+<h2>使う流れ</h2>
+<p>型を少し変えたときは、まずダメージ計算で確定数が変わるかを確認し、パーティ登録へ反映します。その後、バトルアナライザーで6体全体としてどの対面を受けるか・どのポケモンを残すかを見直すと、個体調整と構築全体の判断をつなげやすくなります。</p>
+<p>細かな修正は、単独では目立ちにくいものです。普段使う型で一度計算し、保存済みのパーティーに戻ると、更新で変わった操作感を確認しやすくなります。</p>
+<h2>使い方のまとめ</h2>
+<p>ダメージ計算・パーティ登録・バトルアナライザーは、個体の確認から構築全体の見直しまでをつなげるために使います。入力した型を使い回すと、確認の抜けが減ります。</p>
+<p>構築を作る、調整する、対戦中に確認する、あとで見返すという流れをできるだけつなげやすくするための更新です。今後も、使う場面での引っかかりを減らしながら整えていきます。</p>
+</div>
+<div class="related-section">
+<div class="related-title">RELATED ARTICLES</div>
+<div class="related-list">
+<a class="related-link" href="update-summary-ranking-register-updates-icon.html">ランキングから型を組み立てる方法｜登録おすすめ・耐久確認の使い方</a>
+<a class="related-link" href="update-summary-endure-history-analyzer.html">耐久調整と対戦の振り返り方｜受けたい技・計算履歴・選出を整理する</a>
+<a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
+</div>
+</div>
 </div>
 <footer>
-  <div class="footer-logo">PokeEdge</div>
-  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
-  <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+<div class="footer-logo">PokeEdge</div>
+<div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br/>© 2026 PokeEdge</div>
+<div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 <script>
 var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};

@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-adsense-account" content="ca-pub-7687416670736373">
-<title>スマホ表示・検索機能・ダメージ計算の修正を行いました | PokeEdge</title>
-<meta name="description" content="PokeEdgeのスマホ表示調整、使用可能ポケモンページの検索・タイプ絞り込み追加、ダメージ計算まわりの一部修正についてまとめました。">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="スマホ表示・検索機能・ダメージ計算の修正を行いました | PokeEdge">
-<meta property="og:description" content="PokeEdgeのスマホ表示調整、使用可能ポケモンページの検索・タイプ絞り込み追加、ダメージ計算まわりの一部修正についてまとめました。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-mobile-search-damage-fix.html">
-<link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-mobile-search-damage-fix.html">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="ca-pub-7687416670736373" name="google-adsense-account"/>
+<title>スマホでの対面確認を速くする方法｜検索・ダメージ計算の使い方 | PokeEdge</title>
+<meta content="スマホでポケモンを絞り込み、必要な対面だけをダメージ計算で確認するための検索・表示・入力の使い方を解説します。" name="description"/>
+<meta content="index, follow" name="robots"/>
+<meta content="スマホでの対面確認を速くする方法｜検索・ダメージ計算の使い方 | PokeEdge" property="og:title"/>
+<meta content="スマホでポケモンを絞り込み、必要な対面だけをダメージ計算で確認するための検索・表示・入力の使い方を解説します。" property="og:description"/>
+<meta content="article" property="og:type"/>
+<meta content="https://poke-edge.pages.dev/articles/update-summary-mobile-search-damage-fix.html" property="og:url"/>
+<link href="https://poke-edge.pages.dev/articles/update-summary-mobile-search-damage-fix.html" rel="canonical"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-sync.js"></script>
 <script src="../usage-tracker.js"></script>
@@ -31,9 +32,9 @@
   for(var k in vars)root.setProperty(k,vars[k]);
 })();
 </script>
-<link rel="icon" type="image/png" href="../favicon.png">
-<link rel="apple-touch-icon" href="../favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="../favicon.png" rel="icon" type="image/png"/>
+<link href="../favicon.png" rel="apple-touch-icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Noto+Sans+JP:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0d1420;--bg2:#141e2e;--panel:#1a2638;--border:#304766;--border2:#3d5b82;--accent:#59d2ff;--accent2:#ff6b92;--accent3:#f2c66a;--green:#57d89a;--text:#f2f7ff;--text2:#9fb3cb;--text3:#c0d0e1;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -114,126 +115,119 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 
 </style>
-
-<link rel="stylesheet" href="../contrast-tune.css">
-<link rel="stylesheet" href="../updates-widget.css">
+<link href="../contrast-tune.css" rel="stylesheet"/>
+<link href="../updates-widget.css" rel="stylesheet"/>
 </head>
 <body>
 <header>
-  <div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
-  <div class="header-sep"></div>
-  <div class="header-sub">記事</div>
-  <div class="header-nav" id="main-nav">
-    <a class="nav-btn" href="../index.html">トップ</a>
-    <a class="nav-btn" href="../calc.html">ダメージ計算</a>
-    <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
-    <a class="nav-btn" href="../battle.html">バトル</a>
-    <a class="nav-btn" href="../builder.html">構築アシスト</a>
-    <a class="nav-btn" href="../party.html">パーティ管理</a>
-    <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
-    <a class="nav-btn" href="../items.html">アイテム</a>
-    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
-    <a class="nav-btn" href="../selection_predictor.html">選出予測</a>
-    <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
-    <a class="nav-btn" href="../speed.html">素早さライン</a>
-    <a class="nav-btn active" href="../blog.html">記事</a>
-    <a class="nav-btn" href="../policy.html">サイト情報</a>
-  </div>
-  <button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
-  <div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
-  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
-  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+<div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
+<div class="header-sep"></div>
+<div class="header-sub">記事</div>
+<div class="header-nav" id="main-nav">
+<a class="nav-btn" href="../index.html">トップ</a>
+<a class="nav-btn" href="../calc.html">ダメージ計算</a>
+<a class="nav-btn" href="../endure.html">耐久調整</a>
+<a class="nav-btn" href="../move.html">クイック技ダメージ</a>
+<a class="nav-btn" href="../battle.html">バトル</a>
+<a class="nav-btn" href="../builder.html">構築アシスト</a>
+<a class="nav-btn" href="../party.html">パーティ管理</a>
+<a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
+<a class="nav-btn" href="../items.html">アイテム</a>
+<a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+<a class="nav-btn" href="../selection_predictor.html">選出予測</a>
+<a class="nav-btn" href="../season.html">使用可能ポケモン</a>
+<a class="nav-btn" href="../speed.html">素早さライン</a>
+<a class="nav-btn active" href="../blog.html">記事</a>
+<a class="nav-btn" href="../policy.html">サイト情報</a>
+</div>
+<button id="theme-btn" onclick="toggleTheme()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:4px 10px;font-size:16px;cursor:pointer;transition:all 0.18s;flex-shrink:0;line-height:1;" title="ライト/ダークモード切替">🌙</button>
+<div id="auth-ui" style="margin-left:8px;display:flex;align-items:center;gap:6px;flex-shrink:0;"></div>
+<button aria-label="メニュー" class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
+<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../builder.html">構築アシスト</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../selection_predictor.html">選出予測</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a><a class="side-link active" href="../blog.html">記事一覧</a><a class="side-link" href="../policy.html">サイト情報</a></div></div></aside>
-<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
-  <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+<nav aria-label="スマホ用ページ移動" class="mobile-tool-nav">
+<div class="mobile-tool-nav-title">ツール移動</div>
+<div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a aria-current="page" class="mobile-tool-link active" href="../blog.html">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
-
 <div class="main">
-  <div class="breadcrumb">
-    <a href="../index.html">トップ</a><span class="sep">/</span>
-    <a href="../blog.html">記事一覧</a><span class="sep">/</span>
-    <span>スマホ表示・検索機能・ダメージ計算の修正</span>
-  </div>
-  <div class="article-header">
-    <div class="article-meta">
-      <span class="article-date">2026.04.26 / 2026.06.22 更新</span>
-      <span class="article-tag guide">ガイド</span>
-      <span class="article-tag tool">更新まとめ</span>
-    </div>
-    <h1 class="article-h1">スマホ表示・検索機能・ダメージ計算の修正を行いました</h1>
-    <p class="article-lead">PokeEdgeの一部ページについて、スマホでの使いやすさ向上と、検索・絞り込み機能の追加、ダメージ計算まわりの修正を行いました。今回の更新では、主にスマホから使う場面を想定して、画面の見やすさや操作のしやすさを調整しています。</p>
-  </div>
-  <div class="article-body">
-    <h2>1. スマホ版の表示を調整しました</h2>
-    <p>ダメージ計算ページを中心に、スマホで操作しやすいよう表示を見直しました。</p>
-    <p>これまでスマホでは、入力項目が縦に長く並びすぎて、攻撃側・防御側・技条件・結果の確認がしづらい場面がありました。</p>
-    <p>今回の修正では、スマホ表示時に入力画面を整理し、必要な項目を確認しやすい形に調整しています。</p>
-    <p>主な変更点は以下です。</p>
-    <ul>
-      <li>攻撃側・防御側・技条件の表示をスマホ向けに整理</li>
-      <li>入力項目が広がりすぎないように調整</li>
-      <li>ボタンや候補表示をスマホで押しやすい形に修正</li>
-      <li>結果表示までの確認がしやすいように調整</li>
-    </ul>
-    <p>PC版の使い方は大きく変えず、スマホで見たときの操作感を中心に改善しています。</p>
-
-    <h2>2. 使用可能ポケモンページに検索・絞り込み機能を追加しました</h2>
-    <p>使用可能ポケモンの確認ページでは、ポケモンを探しやすくするために検索機能と絞り込み機能を追加しました。</p>
-    <p>今回の更新で、以下のような探し方ができます。</p>
-    <ul>
-      <li>ポケモン名で検索</li>
-      <li>技名で検索</li>
-      <li>特性名で検索</li>
-      <li>タイプを選択して絞り込み</li>
-    </ul>
-    <p>タイプについては、文字入力ではなく選択式にしています。そのため、タイプ名を入力する手間を減らし、目的のタイプだけをすぐに絞り込めるようになりました。</p>
-    <p>技検索や特性検索とタイプ絞り込みを組み合わせることで、たとえば「特定の技を覚えるポケモン」「特定タイプの中で候補になるポケモン」などを探しやすくしています。</p>
-
-    <h2>3. ダメージ計算の一部を修正しました</h2>
-    <p>ダメージ計算について、一部条件で表示や計算結果が想定とずれる可能性があった箇所を修正しました。</p>
-    <p>主に、連続技や複数回使用時のダメージ表示まわりを見直しています。</p>
-    <p>修正内容は以下です。</p>
-    <ul>
-      <li>連続技のヒット数を反映する処理を調整</li>
-      <li>複数回使用時の合計ダメージ表示を修正</li>
-      <li>ダメージが相手の残HPを超えて表示される問題を調整</li>
-      <li>クイック技ダメージやバトルアナライザー側の表示にも反映</li>
-    </ul>
-    <p>これにより、複数回当たる技や、同じ技を複数回使った場合の確認が以前より見やすくなっています。</p>
-
-    <div class="note-box">
-      <strong>今回の主な変更点</strong><br>
-      ・スマホ版の表示と操作感を調整<br>
-      ・使用可能ポケモンページに検索とタイプ絞り込みを追加<br>
-      ・連続技や複数回使用時のダメージ表示を修正<br>
+<div class="breadcrumb">
+<a href="../index.html">トップ</a><span class="sep">/</span>
+<a href="../blog.html">記事一覧</a><span class="sep">/</span>
+<span>スマホ表示・検索機能・ダメージ計算の修正</span>
+</div>
+<div class="article-header">
+<div class="article-meta">
+<span class="article-date">2026.04.26 / 内容見直し: 2026.06.22</span>
+<span class="article-tag guide">ガイド</span>
+<span class="article-tag tool">活用ガイド</span>
+</div>
+<h1 class="article-h1">スマホでの対面確認を速くする方法｜検索・ダメージ計算の使い方</h1>
+<p class="article-lead">スマホでは、候補を探す作業とダメージ確認を行き来するだけでも手数が増えがちです。このページでは、使用可能ポケモンの検索・絞り込みから必要な対面を選び、ダメージ計算で確認するまでを短く進める使い方をまとめます。</p><div class="note-box reader-purpose-box"><strong>このページが役立つ場面</strong><br/>外出先や対戦直前に候補を探したいとき、スマホで入力項目を減らして対面だけを確認したいときに使うページです。</div>
+</div>
+<div class="article-body">
+<h2>1. スマホで入力と結果を切り替えて見る</h2>
+<p>ダメージ計算ページを中心に、スマホで操作しやすいよう表示を見直しました。</p>
+<p>これまでスマホでは、入力項目が縦に長く並びすぎて、攻撃側・防御側・技条件・結果の確認がしづらい場面がありました。</p>
+<p>今回の修正では、スマホ表示時に入力画面を整理し、必要な項目を確認しやすい形に調整しています。</p>
+<p>主な変更点は以下です。</p>
+<ul>
+<li>攻撃側・防御側・技条件の表示をスマホ向けに整理</li>
+<li>入力項目が広がりすぎないように調整</li>
+<li>ボタンや候補表示をスマホで押しやすい形に修正</li>
+<li>結果表示までの確認がしやすいように調整</li>
+</ul>
+<p>PC版の使い方は大きく変えず、スマホで見たときの操作感を中心に改善しています。</p>
+<h2>2. 検索と絞り込みで候補を探す</h2>
+<p>使用可能ポケモンの確認ページでは、検索と絞り込みで候補を探せます。</p>
+<p>検索と絞り込みでは、次のような探し方ができます。</p>
+<ul>
+<li>ポケモン名で検索</li>
+<li>技名で検索</li>
+<li>特性名で検索</li>
+<li>タイプを選択して絞り込み</li>
+</ul>
+<p>タイプについては、文字入力ではなく選択式にしています。そのため、タイプ名を入力する手間を減らし、目的のタイプだけをすぐに絞り込めるようになりました。</p>
+<p>技検索や特性検索とタイプ絞り込みを組み合わせることで、たとえば「特定の技を覚えるポケモン」「特定タイプの中で候補になるポケモン」などを探しやすくしています。</p>
+<h2>3. 必要な対面だけを計算する</h2>
+<p>ダメージ計算では、一部条件で表示や計算結果がずれないよう、処理と表示を見直しています。</p>
+<p>主に、連続技や複数回使用時のダメージ表示まわりを見直しています。</p>
+<p>修正内容は以下です。</p>
+<ul>
+<li>連続技のヒット数を反映する処理を調整</li>
+<li>複数回使用時の合計ダメージ表示を修正</li>
+<li>ダメージが相手の残HPを超えて表示される問題を調整</li>
+<li>クイック技ダメージやバトルアナライザー側の表示にも反映</li>
+</ul>
+<p>これにより、複数回当たる技や、同じ技を複数回使った場合の確認が以前より見やすくなっています。</p>
+<div class="note-box">
+<strong>今回の主な変更点</strong><br/>
+      ・スマホ版の表示と操作感を調整<br/>
+      ・使用可能ポケモンページに検索とタイプ絞り込みを追加<br/>
+      ・連続技や複数回使用時のダメージ表示を修正<br/>
       ・クイック技ダメージとバトルアナライザー側の表示にも一部反映
     </div>
-
-    <h2>今回の更新を使う場面</h2>
-    <p>スマホで対戦前に確認するときは、まず使用可能ポケモンで名前や条件を絞り、見つけた候補をダメージ計算へ入れる流れが使いやすくなります。検索で候補を減らしてから計算へ進むことで、入力とスクロールを少なくできます。</p>
-    <p>ダメージ結果を見るときは、技・持ち物・特性の入力を確認してから確定数を見ると、修正後の結果を自分の想定に近い状態で使えます。</p>
-
-    <h2>4. 今後について</h2>
-    <p>今回の更新では、新しい大きな機能追加よりも、すでにある機能をスマホでも使いやすくすることと、計算結果の見やすさを整えることを優先しました。</p>
-    <p>今後も、ダメージ計算・クイック技ダメージ・バトルアナライザーなど、対戦準備や対戦中の確認に使いやすいように調整を続けていきます。</p>
-    <p>表示の崩れや気になる計算結果があれば、確認しながら修正していきます。</p>
-  </div>
-  <div class="related-section">
-    <div class="related-title">RELATED ARTICLES</div>
-    <div class="related-list">
-      <a class="related-link" href="update-summary-endure-history-analyzer.html">PokeEdge 更新まとめ：耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</a>
-      <a class="related-link" href="move-judge-guide.html">クイック技ダメージの使いこなし方 — 4技をまとめて確認したいときの使い方</a>
-      <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
-    </div>
-  </div>
+<h2>使う流れ</h2>
+<p>スマホで対戦前に確認するときは、まず使用可能ポケモンで名前や条件を絞り、見つけた候補をダメージ計算へ入れる流れが使いやすくなります。検索で候補を減らしてから計算へ進むことで、入力とスクロールを少なくできます。</p>
+<p>ダメージ結果を見るときは、技・持ち物・特性の入力を確認してから確定数を見ると、修正後の結果を自分の想定に近い状態で使えます。</p>
+<h2>確認時の補足</h2>
+<p>スマホでは、候補を探す操作と計算結果を見る操作を短く行き来できることを重視しています。必要な対面だけを選び、入力と結果を切り替えて確認する使い方が向いています。</p>
+<p>今後も、ダメージ計算・クイック技ダメージ・バトルアナライザーなど、対戦準備や対戦中の確認に使いやすいように調整を続けていきます。</p>
+<p>表示の崩れや気になる計算結果があれば、確認しながら修正していきます。</p>
+</div>
+<div class="related-section">
+<div class="related-title">RELATED ARTICLES</div>
+<div class="related-list">
+<a class="related-link" href="update-summary-endure-history-analyzer.html">耐久調整と対戦の振り返り方｜受けたい技・計算履歴・選出を整理する</a>
+<a class="related-link" href="move-judge-guide.html">クイック技ダメージの使いこなし方 — 4技をまとめて確認したいときの使い方</a>
+<a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
+</div>
+</div>
 </div>
 <footer>
-  <div class="footer-logo">PokeEdge</div>
-  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
-  <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+<div class="footer-logo">PokeEdge</div>
+<div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br/>© 2026 PokeEdge</div>
+<div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 <script>
 var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
@@ -244,7 +238,6 @@ function closeNav(){const nav=document.querySelector('.header-nav');const hb=doc
 document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){if(window.innerWidth<=768)closeNav();});});});
 </script>
 <script>window.addEventListener("DOMContentLoaded", async ()=>{ await initAuth(); });</script>
-
 <script src="../updates-widget.js"></script>
 </body>
 </html>

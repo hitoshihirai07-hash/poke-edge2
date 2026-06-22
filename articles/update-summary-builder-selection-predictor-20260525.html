@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-adsense-account" content="ca-pub-7687416670736373">
-<title>構築アシスト・選出予測の実装と不具合修正まとめ | PokeEdge</title>
-<meta name="description" content="構築アシスト、選出予測、その他不具合修正を行った更新内容をまとめた記事です。">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="構築アシスト・選出予測の実装と不具合修正まとめ | PokeEdge">
-<meta property="og:description" content="構築アシストと選出予測を追加し、各ページから使いやすい導線と不具合修正を行いました。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-builder-selection-predictor-20260525.html">
-<link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-builder-selection-predictor-20260525.html">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="ca-pub-7687416670736373" name="google-adsense-account"/>
+<title>構築アシストと選出予測の使い方｜6体の不足と選出候補を整理する | PokeEdge</title>
+<meta content="構築アシストで6体の役割や不足を見直し、選出予測で見せ合い時の候補を整理する使い方を解説します。" name="description"/>
+<meta content="index, follow" name="robots"/>
+<meta content="構築アシストと選出予測の使い方｜6体の不足と選出候補を整理する | PokeEdge" property="og:title"/>
+<meta content="構築アシストで6体の役割や不足を見直し、選出予測で見せ合い時の候補を整理する使い方を解説します。" property="og:description"/>
+<meta content="article" property="og:type"/>
+<meta content="https://poke-edge.pages.dev/articles/update-summary-builder-selection-predictor-20260525.html" property="og:url"/>
+<link href="https://poke-edge.pages.dev/articles/update-summary-builder-selection-predictor-20260525.html" rel="canonical"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-sync.js"></script>
 <script src="../usage-tracker.js"></script>
@@ -31,9 +32,9 @@
   for(var k in vars)root.setProperty(k,vars[k]);
 })();
 </script>
-<link rel="icon" type="image/png" href="../favicon.png">
-<link rel="apple-touch-icon" href="../favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="../favicon.png" rel="icon" type="image/png"/>
+<link href="../favicon.png" rel="apple-touch-icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Noto+Sans+JP:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0d1420;--bg2:#141e2e;--panel:#1a2638;--border:#304766;--border2:#3d5b82;--accent:#59d2ff;--accent2:#ff6b92;--accent3:#f2c66a;--green:#57d89a;--text:#f2f7ff;--text2:#9fb3cb;--text3:#c0d0e1;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -109,112 +110,105 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 </style>
-<link rel="stylesheet" href="../contrast-tune.css">
-<link rel="stylesheet" href="../updates-widget.css">
+<link href="../contrast-tune.css" rel="stylesheet"/>
+<link href="../updates-widget.css" rel="stylesheet"/>
 </head>
 <body>
 <header>
-  <div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
-  <div class="header-sep"></div>
-  <div class="header-sub">記事</div>
-  <div class="header-nav" id="main-nav">
-    <a class="nav-btn" href="../index.html">トップ</a>
-    <a class="nav-btn" href="../calc.html">ダメージ計算</a>
-    <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
-    <a class="nav-btn" href="../battle.html">バトル</a>
-    <a class="nav-btn" href="../builder.html">構築アシスト</a>
-    <a class="nav-btn" href="../party.html">パーティ管理</a>
-    <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
-    <a class="nav-btn" href="../items.html">アイテム</a>
-    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
-    <a class="nav-btn" href="../selection_predictor.html">選出予測</a>
-    <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
-    <a class="nav-btn" href="../speed.html">素早さライン</a>
-    <a class="nav-btn active" href="../blog.html">記事</a>
-    <a class="nav-btn" href="../policy.html">サイト情報</a>
-  </div>
-  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
+<div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
+<div class="header-sep"></div>
+<div class="header-sub">記事</div>
+<div class="header-nav" id="main-nav">
+<a class="nav-btn" href="../index.html">トップ</a>
+<a class="nav-btn" href="../calc.html">ダメージ計算</a>
+<a class="nav-btn" href="../endure.html">耐久調整</a>
+<a class="nav-btn" href="../move.html">クイック技ダメージ</a>
+<a class="nav-btn" href="../battle.html">バトル</a>
+<a class="nav-btn" href="../builder.html">構築アシスト</a>
+<a class="nav-btn" href="../party.html">パーティ管理</a>
+<a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
+<a class="nav-btn" href="../items.html">アイテム</a>
+<a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+<a class="nav-btn" href="../selection_predictor.html">選出予測</a>
+<a class="nav-btn" href="../season.html">使用可能ポケモン</a>
+<a class="nav-btn" href="../speed.html">素早さライン</a>
+<a class="nav-btn active" href="../blog.html">記事</a>
+<a class="nav-btn" href="../policy.html">サイト情報</a>
+</div>
+<button aria-label="メニュー" class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
 </header>
 <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../builder.html">構築アシスト</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../selection_predictor.html">選出予測</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a><a class="side-link active" href="../blog.html">記事一覧</a><a class="side-link" href="../policy.html">サイト情報</a></div></div></aside>
-<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
-  <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+<nav aria-label="スマホ用ページ移動" class="mobile-tool-nav">
+<div class="mobile-tool-nav-title">ツール移動</div>
+<div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a aria-current="page" class="mobile-tool-link active" href="../blog.html">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
 <div class="main">
-  <div class="breadcrumb">
-    <a href="../index.html">トップ</a><span class="sep">/</span>
-    <a href="../blog.html">記事一覧</a><span class="sep">/</span>
-    <span>構築アシスト・選出予測の更新まとめ</span>
-  </div>
-  <div class="article-header">
-    <div class="article-meta">
-      <span class="article-date">2026.05.25 / 2026.06.22 更新</span>
-      <span class="article-tag guide">ガイド</span>
-      <span class="article-tag tool">更新まとめ</span>
-    </div>
-    <h1 class="article-h1">構築アシスト・選出予測を実装しました</h1>
-    <p class="article-lead">構築を考える段階と、見せ合いから選出を読む段階を分けて使えるように、構築アシストと選出予測を追加しました。あわせて、各ページから移動しやすい導線と不具合修正も行っています。</p>
-  </div>
-  <div class="article-body">
-    <h2>今回の更新項目</h2>
-    <ul>
-      <li>構築アシストを実装しました</li>
-      <li>選出予測を実装しました</li>
-      <li>各ページの上部ナビ・右側ナビから移動しやすくしました</li>
-      <li>その他、不具合修正と表示調整を行いました</li>
-    </ul>
-    <p>今回の更新では、対戦前の準備で使う機能を強化しました。今までは、ダメージ計算・クイック技ダメージ・耐久調整・パーティ管理などを個別に確認する流れが中心でしたが、そこに<strong>構築を組む段階</strong>と<strong>選出を読む段階</strong>の補助を追加しています。</p>
-
-    <h2>1. 構築アシストを実装しました</h2>
-    <p><a href="../builder.html">構築アシスト</a>では、1匹目から順番にポケモンを選びながら、次に入れる候補を確認できるようにしています。すでに選んだポケモンとの相性や、相手にしやすい範囲を見ながら、6匹の構築を組みやすくするためのページです。</p>
-    <p>技・努力値・性格・持ち物などを選択し、その内容を反映した状態で次の候補を判断できるようにしています。単にタイプ補完だけを見るのではなく、実際に使う型に近い状態で候補を見られることを重視しました。</p>
-    <p>候補に表示するポケモンは、対戦前に選ぶポケモンとして分かりやすいように、メガ進化後ではなくメガ前のポケモンを基本にしています。また、ギルガルドやイルカマンのようにバトル中にフォルムが変わるポケモンも、構築段階では分かりやすい表記で扱えるようにしています。</p>
-
-    <div class="note-box">
-      <strong>構築アシストの使い方</strong><br>
-      ・使いたい1匹目を選ぶ<br>
-      ・技、努力値、性格、持ち物を設定する<br>
-      ・現在の構築に合う次の候補を確認する<br>
-      ・候補から選ぶ、または自分で使いたいポケモンを指定する<br>
+<div class="breadcrumb">
+<a href="../index.html">トップ</a><span class="sep">/</span>
+<a href="../blog.html">記事一覧</a><span class="sep">/</span>
+<span>活用ガイド</span>
+</div>
+<div class="article-header">
+<div class="article-meta">
+<span class="article-date">2026.05.25 / 内容見直し: 2026.06.22</span>
+<span class="article-tag guide">ガイド</span>
+<span class="article-tag tool">活用ガイド</span>
+</div>
+<h1 class="article-h1">構築アシストと選出予測の使い方｜6体の不足と選出候補を整理する</h1>
+<p class="article-lead">構築を作る段階と、見せ合いで3体を選ぶ段階では、確認したいことが少し違います。このページでは、構築アシストで6体の役割や不足を見直し、選出予測で初手・警戒枠・出しにくい枠を整理する使い方をまとめます。</p><div class="note-box reader-purpose-box"><strong>このページが役立つ場面</strong><br/>構築の不足を見つけたいとき、見せ合いで出しやすい3体を整理したいとき、気になる対面だけをダメージ計算へ戻したいときに使うページです。</div>
+</div>
+<div class="article-body">
+<h2>このページで確認できること</h2>
+<ul>
+<li>構築アシストで6体の候補を整理できます</li>
+<li>選出予測で見せ合いの候補を比較できます</li>
+<li>各ページの上部ナビ・右側ナビから移動しやすくしました</li>
+<li>その他、不具合修正と表示調整を行いました</li>
+</ul>
+<p>6体を組む段階では構築アシスト、見せ合い段階では選出予測を使う流れを整理します。</p>
+<h2>1. 構築アシストで6体の役割を整理する</h2>
+<p><a href="../builder.html">構築アシスト</a>では、1匹目から順番にポケモンを選びながら、次に入れる候補を確認できるようにしています。すでに選んだポケモンとの相性や、相手にしやすい範囲を見ながら、6匹の構築を組みやすくするためのページです。</p>
+<p>技・努力値・性格・持ち物などを選択し、その内容を反映した状態で次の候補を判断できるようにしています。単にタイプ補完だけを見るのではなく、実際に使う型に近い状態で候補を見られることを重視しました。</p>
+<p>候補に表示するポケモンは、対戦前に選ぶポケモンとして分かりやすいように、メガ進化後ではなくメガ前のポケモンを基本にしています。また、ギルガルドやイルカマンのようにバトル中にフォルムが変わるポケモンも、構築段階では分かりやすい表記で扱えるようにしています。</p>
+<div class="note-box">
+<strong>構築アシストの使い方</strong><br/>
+      ・使いたい1匹目を選ぶ<br/>
+      ・技、努力値、性格、持ち物を設定する<br/>
+      ・現在の構築に合う次の候補を確認する<br/>
+      ・候補から選ぶ、または自分で使いたいポケモンを指定する<br/>
       ・6匹まで同じ流れで整理する
     </div>
-
-    <h2>2. 選出予測を実装しました</h2>
-    <p><a href="../selection_predictor.html">選出予測</a>では、自分の6匹と相手の6匹を入れて、相手が出してきそうな3匹や、自分の推奨選出を確認できるようにしています。さらに、相手の初手が見えた後に残り2匹を予測する流れも確認できます。</p>
-    <p>選出予測は<a href="../scope.html">バトルアナライザー</a>と近い役割を持っていますが、今回は別ページとして整理しています。バトルアナライザーは対戦中の記録や整理に使うページ、選出予測は見せ合い段階や初手確認後の判断に集中するページとして分けています。</p>
-    <p>ページを分けることで、バトルアナライザーを重くしすぎず、必要なタイミングで必要な機能だけ開きやすくしています。対戦前は選出予測、対戦中はバトルアナライザーという使い分けを想定しています。</p>
-
-    <h2>3. 各ページから移動しやすくしました</h2>
-    <p>構築アシストと選出予測を追加しただけでは使いにくいため、上部ナビ、右側のツール移動、スマホ用の横スクロールナビにも導線を追加しました。主要ページを開いている状態からでも、構築アシストや選出予測へ移動しやすくしています。</p>
-    <p>特にスマホではページ移動が分かりにくくなりやすいため、ツール移動の中に「構築」と「選出予測」を追加し、必要な場面で迷わず開けるようにしました。</p>
-
-    <h2>4. その他、不具合修正を行いました</h2>
-    <p>今回の更新にあわせて、表示や導線まわりの不具合修正も行っています。ページによって新しい機能へのリンクが出ていなかった部分をそろえ、構築アシストや選出予測をサイト全体の流れの中で使いやすくしました。</p>
-    <p>また、構築アシストでは初期読み込みが重くなりすぎないように、必要なデータの読み込みタイミングも見直しています。最初からすべてを読み込むのではなく、型編集など必要な場面で読み込む形にすることで、使い始めの重さを抑えています。</p>
-
-    <h2>今回の更新を使う場面</h2>
-    <p>構築を作ったあとに、6体の役割や苦手な相手を見直したいときは、構築アシストで不足を確認し、選出予測で見せ合い段階の候補を整理します。気になる対面だけをダメージ計算へ戻して確認すると、情報を増やしすぎずに判断しやすくなります。</p>
-    <p>選出予測は答えを固定するためではなく、初手候補・警戒したい並び・出しにくいポケモンを見つける補助として使うと、構築の見直しにつながります。</p>
-
-    <h2>まとめ</h2>
-    <p>今回の更新では、構築を考えるための構築アシストと、見せ合いから選出を読むための選出予測を追加しました。これにより、対戦前の準備から実戦前の判断までを、PokeEdge内で確認しやすくなっています。</p>
-    <p>今後も、単に機能を増やすだけではなく、使う場面ごとに迷わず開けること、そして対戦中に重く感じにくいことを意識して調整していきます。</p>
-  </div>
-  <div class="related-section">
-    <div class="related-title">RELATED ARTICLES</div>
-    <div class="related-list">
-      <a class="related-link" href="update-summary-quick-damage-season2-register-search-20260516.html">クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新まとめ</a>
-      <a class="related-link" href="update-summary-battle-party-damage-20260510.html">バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正まとめ</a>
-      <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
-    </div>
-  </div>
+<h2>2. 選出予測で見せ合いの候補を絞る</h2>
+<p><a href="../selection_predictor.html">選出予測</a>では、自分の6匹と相手の6匹を入れて、相手が出してきそうな3匹や、自分の推奨選出を確認できるようにしています。さらに、相手の初手が見えた後に残り2匹を予測する流れも確認できます。</p>
+<p>選出予測は<a href="../scope.html">バトルアナライザー</a>と近い役割を持っていますが、今回は別ページとして整理しています。バトルアナライザーは対戦中の記録や整理に使うページ、選出予測は見せ合い段階や初手確認後の判断に集中するページとして分けています。</p>
+<p>ページを分けることで、バトルアナライザーを重くしすぎず、必要なタイミングで必要な機能だけ開きやすくしています。対戦前は選出予測、対戦中はバトルアナライザーという使い分けを想定しています。</p>
+<h2>3. 必要な場面でツールを切り替える</h2>
+<p>構築アシストと選出予測は、上部ナビ、右側のツール移動、スマホ用の横スクロールナビから開けます。主要ページを見ている途中でも、必要な場面で構築アシストや選出予測へ移動できます。</p>
+<p>特にスマホではページ移動が分かりにくくなりやすいため、ツール移動の中に「構築」と「選出予測」を追加し、必要な場面で迷わず開けるようにしました。</p>
+<h2>4. 使い始めに確認したい点</h2>
+<p>構築アシストと選出予測は、構築作成・見せ合い・対面確認のどこからでも開けるようにしています。必要な場面でツールを切り替えると、情報を抱え込みすぎずに確認できます。</p>
+<p>また、構築アシストでは初期読み込みが重くなりすぎないように、必要なデータの読み込みタイミングも見直しています。最初からすべてを読み込むのではなく、型編集など必要な場面で読み込む形にすることで、使い始めの重さを抑えています。</p>
+<h2>使う流れ</h2>
+<p>構築を作ったあとに、6体の役割や苦手な相手を見直したいときは、構築アシストで不足を確認し、選出予測で見せ合い段階の候補を整理します。気になる対面だけをダメージ計算へ戻して確認すると、情報を増やしすぎずに判断しやすくなります。</p>
+<p>選出予測は答えを固定するためではなく、初手候補・警戒したい並び・出しにくいポケモンを見つける補助として使うと、構築の見直しにつながります。</p>
+<h2>使い方のまとめ</h2>
+<p>構築アシストは6体を組む段階、選出予測は見せ合いで3体を絞る段階に向いています。役割を整理してから候補を比べることで、対戦前の判断を進めやすくなります。</p>
+<p>今後も、単に機能を増やすだけではなく、使う場面ごとに迷わず開けること、そして対戦中に重く感じにくいことを意識して調整していきます。</p>
+</div>
+<div class="related-section">
+<div class="related-title">RELATED ARTICLES</div>
+<div class="related-list">
+<a class="related-link" href="update-summary-quick-damage-season2-register-search-20260516.html">4技比較と環境確認をまとめる方法｜クイック技ダメージ・使用可能ポケモン・登録検索</a>
+<a class="related-link" href="update-summary-battle-party-damage-20260510.html">構築から対面判断までの流れ｜バトルシミュレーションとダメージ計算の使い分け</a>
+<a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
+</div>
+</div>
 </div>
 <footer>
-  <div class="footer-logo">PokeEdge</div>
-  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
-  <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+<div class="footer-logo">PokeEdge</div>
+<div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br/>© 2026 PokeEdge</div>
+<div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 <script>
 var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};

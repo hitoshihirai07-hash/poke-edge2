@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-adsense-account" content="ca-pub-7687416670736373">
-<title>上位構築関連集計とクイック技ダメージ更新まとめ | PokeEdge</title>
-<meta name="description" content="上位構築関連集計の追加、クイック技ダメージの調整、スマホ時の表示フォーマット変更を行った更新内容をまとめた記事です。">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="上位構築関連集計とクイック技ダメージ更新まとめ | PokeEdge">
-<meta property="og:description" content="上位構築記事の掲載数・持ち物傾向を確認できる集計タブと、クイック技ダメージの表示・計算調整についてまとめています。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-recruitment-quick-damage-20260531.html">
-<link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-recruitment-quick-damage-20260531.html">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="ca-pub-7687416670736373" name="google-adsense-account"/>
+<title>上位構築の傾向を対面確認へ生かす方法｜掲載数・持ち物・4技比較 | PokeEdge</title>
+<meta content="上位構築に見られるポケモンや持ち物の傾向を確認し、クイック技ダメージで重要対面を比べる流れを解説します。" name="description"/>
+<meta content="index, follow" name="robots"/>
+<meta content="上位構築の傾向を対面確認へ生かす方法｜掲載数・持ち物・4技比較 | PokeEdge" property="og:title"/>
+<meta content="上位構築に見られるポケモンや持ち物の傾向を確認し、クイック技ダメージで重要対面を比べる流れを解説します。" property="og:description"/>
+<meta content="article" property="og:type"/>
+<meta content="https://poke-edge.pages.dev/articles/update-summary-recruitment-quick-damage-20260531.html" property="og:url"/>
+<link href="https://poke-edge.pages.dev/articles/update-summary-recruitment-quick-damage-20260531.html" rel="canonical"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-sync.js"></script>
 <script src="../usage-tracker.js"></script>
@@ -31,9 +32,9 @@
   for(var k in vars)root.setProperty(k,vars[k]);
 })();
 </script>
-<link rel="icon" type="image/png" href="../favicon.png">
-<link rel="apple-touch-icon" href="../favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="../favicon.png" rel="icon" type="image/png"/>
+<link href="../favicon.png" rel="apple-touch-icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Noto+Sans+JP:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0d1420;--bg2:#141e2e;--panel:#1a2638;--border:#304766;--border2:#3d5b82;--accent:#59d2ff;--accent2:#ff6b92;--accent3:#f2c66a;--green:#57d89a;--text:#f2f7ff;--text2:#9fb3cb;--text3:#c0d0e1;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -109,109 +110,101 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 </style>
-<link rel="stylesheet" href="../contrast-tune.css">
-<link rel="stylesheet" href="../updates-widget.css">
+<link href="../contrast-tune.css" rel="stylesheet"/>
+<link href="../updates-widget.css" rel="stylesheet"/>
 </head>
 <body>
 <header>
-  <div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
-  <div class="header-sep"></div>
-  <div class="header-sub">記事</div>
-  <div class="header-nav" id="main-nav">
-    <a class="nav-btn" href="../index.html">トップ</a>
-    <a class="nav-btn" href="../calc.html">ダメージ計算</a>
-    <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
-    <a class="nav-btn" href="../battle.html">バトル</a>
-    <a class="nav-btn" href="../builder.html">構築アシスト</a>
-    <a class="nav-btn" href="../party.html">パーティ管理</a>
-    <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
-    <a class="nav-btn" href="../items.html">アイテム</a>
-    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
-    <a class="nav-btn" href="../selection_predictor.html">選出予測</a>
-    <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
-    <a class="nav-btn" href="../speed.html">素早さライン</a>
-    <a class="nav-btn active" href="../blog.html">記事</a>
-    <a class="nav-btn" href="../policy.html">サイト情報</a>
-  </div>
-  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
+<div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
+<div class="header-sep"></div>
+<div class="header-sub">記事</div>
+<div class="header-nav" id="main-nav">
+<a class="nav-btn" href="../index.html">トップ</a>
+<a class="nav-btn" href="../calc.html">ダメージ計算</a>
+<a class="nav-btn" href="../endure.html">耐久調整</a>
+<a class="nav-btn" href="../move.html">クイック技ダメージ</a>
+<a class="nav-btn" href="../battle.html">バトル</a>
+<a class="nav-btn" href="../builder.html">構築アシスト</a>
+<a class="nav-btn" href="../party.html">パーティ管理</a>
+<a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
+<a class="nav-btn" href="../items.html">アイテム</a>
+<a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+<a class="nav-btn" href="../selection_predictor.html">選出予測</a>
+<a class="nav-btn" href="../season.html">使用可能ポケモン</a>
+<a class="nav-btn" href="../speed.html">素早さライン</a>
+<a class="nav-btn active" href="../blog.html">記事</a>
+<a class="nav-btn" href="../policy.html">サイト情報</a>
+</div>
+<button aria-label="メニュー" class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
 </header>
 <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../builder.html">構築アシスト</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../selection_predictor.html">選出予測</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a><a class="side-link active" href="../blog.html">記事一覧</a><a class="side-link" href="../policy.html">サイト情報</a></div></div></aside>
-<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
-  <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+<nav aria-label="スマホ用ページ移動" class="mobile-tool-nav">
+<div class="mobile-tool-nav-title">ツール移動</div>
+<div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a aria-current="page" class="mobile-tool-link active" href="../blog.html">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
 <div class="main">
-  <div class="breadcrumb">
-    <a href="../index.html">トップ</a><span class="sep">/</span>
-    <a href="../blog.html">記事一覧</a><span class="sep">/</span>
-    <span>上位構築関連集計とクイック技ダメージ更新まとめ</span>
-  </div>
-  <div class="article-header">
-    <div class="article-meta">
-      <span class="article-date">2026.05.31 / 2026.06.22 更新</span>
-      <span class="article-tag guide">ガイド</span>
-      <span class="article-tag tool">更新まとめ</span>
-    </div>
-    <h1 class="article-h1">上位構築関連集計とクイック技ダメージを更新しました</h1>
-    <p class="article-lead">上位構築記事に掲載されたポケモン数や持ち物傾向を確認できる集計タブを追加しました。あわせて、クイック技ダメージの計算まわりと、スマホでの表示フォーマットを調整しています。</p>
-  </div>
-  <div class="article-body">
-    <h2>今回の更新項目</h2>
-    <ul>
-      <li>使用可能ポケモンページに「上位構築関連集計」を追加しました</li>
-      <li>ポケモン別の掲載数と、ポケモンごとの持ち物数を確認できるようにしました</li>
-      <li>クイック技ダメージの計算・表示を調整しました</li>
-      <li>スマホ時のクイック技ダメージ画面をタブ切り替え形式に変更しました</li>
-    </ul>
-    <p>今回の更新では、構築を考える前に確認しやすい参考データと、対戦準備中に使いやすいクイック技ダメージまわりを中心に調整しました。ランキングや個別の型だけでは見えにくい部分を、サイト内でまとめて確認しやすくすることを目的にしています。</p>
-
-    <h2>1. 上位構築関連集計を追加しました</h2>
-    <p><a href="../season.html">使用可能ポケモン</a>ページに、新しく<strong>上位構築関連集計</strong>のタブを追加しました。上位構築記事に掲載されていたポケモンの数と、ポケモンごとの持ち物数をまとめて確認できます。</p>
-    <p>ポケモンごとの掲載数を見ることで、上位構築記事でどのポケモンが多く登場しているかをざっくり確認できます。また、同じポケモンでも持ち物の傾向をあわせて見られるため、型を考えるときの入口として使いやすくしています。</p>
-    <p>表示は、ポケモン名や持ち物名で検索できる形にしています。気になるポケモンだけを絞り込んだり、特定の持ち物がどのポケモンで使われているかを確認したりしやすくしました。</p>
-
-    <div class="note-box">
-      <strong>上位構築関連集計について</strong><br>
+<div class="breadcrumb">
+<a href="../index.html">トップ</a><span class="sep">/</span>
+<a href="../blog.html">記事一覧</a><span class="sep">/</span>
+<span>活用ガイド</span>
+</div>
+<div class="article-header">
+<div class="article-meta">
+<span class="article-date">2026.05.31 / 内容見直し: 2026.06.22</span>
+<span class="article-tag guide">ガイド</span>
+<span class="article-tag tool">活用ガイド</span>
+</div>
+<h1 class="article-h1">上位構築の傾向を対面確認へ生かす方法｜掲載数・持ち物・4技比較</h1>
+<p class="article-lead">上位構築の掲載数や持ち物傾向は、そのまま正解を決めるためではなく、警戒する相手や型の候補を絞るための材料になります。このページでは、参考データを見てからクイック技ダメージで重要対面を比較する流れをまとめます。</p><div class="note-box reader-purpose-box"><strong>このページが役立つ場面</strong><br/>環境で意識する相手を絞りたいとき、持ち物候補の傾向を確認したいとき、4技のどれを採用するか対面ごとに比較したいときに使うページです。</div>
+</div>
+<div class="article-body">
+<h2>このページで確認できること</h2>
+<ul>
+<li>使用可能ポケモンページで「上位構築関連集計」を確認できます</li>
+<li>ポケモン別の掲載数と、ポケモンごとの持ち物数を確認できるようにしました</li>
+<li>クイック技ダメージの計算・表示を調整しました</li>
+<li>スマホのクイック技ダメージは、入力と結果をタブで切り替えて確認できます</li>
+</ul>
+<p>上位構築の掲載傾向と持ち物を参考にし、4技比較で自分の構築に必要な対面を確認する方法を整理します。</p>
+<h2>1. 上位構築の掲載傾向を確認する</h2>
+<p><a href="../season.html">使用可能ポケモン</a>ページでは、<strong>上位構築関連集計</strong>のタブから、上位構築記事に掲載されていたポケモン数とポケモンごとの持ち物数をまとめて確認できます。</p>
+<p>ポケモンごとの掲載数を見ることで、上位構築記事でどのポケモンが多く登場しているかをざっくり確認できます。また、同じポケモンでも持ち物の傾向をあわせて見られるため、型を考えるときの入口として使いやすくしています。</p>
+<p>表示は、ポケモン名や持ち物名で検索できる形にしています。気になるポケモンだけを絞り込んだり、特定の持ち物がどのポケモンで使われているかを確認したりしやすくしました。</p>
+<div class="note-box">
+<strong>上位構築関連集計について</strong><br/>
       この集計は、上位構築記事に掲載されていた内容をもとにした参考データです。使用率やおすすめ順位を断定するものではなく、構築を考えるときの目安としてご利用ください。
     </div>
-
-    <h2>2. 持ち物の傾向を確認しやすくしました</h2>
-    <p>上位構築関連集計では、ポケモンごとに主な持ち物の内訳も表示します。たとえば、同じポケモンでも「こだわり系」「きあいのタスキ」「回復系のきのみ」など、どの方向の持ち物が多いかを確認できます。</p>
-    <p>これにより、単純に掲載数が多いポケモンを見るだけでなく、そのポケモンがどのような持ち物で採用されやすいかも合わせて確認できます。パーティ登録や構築アシストに進む前の下調べとして使いやすい形を意識しました。</p>
-
-    <h2>3. クイック技ダメージの計算まわりを調整しました</h2>
-    <p><a href="../move.html">クイック技ダメージ</a>では、技・特性・持ち物などを反映したダメージ確認をしやすくするため、計算まわりの調整を行いました。ポケモンや持ち物を選んだときに、実際のダメージ結果へ反映される範囲を見直しています。</p>
-    <p>また、急所判定も確認しやすくしました。確定で急所に当たる技はその前提で扱い、通常技についても「急所なし」「急所あり」を切り替えてダメージを見られるようにしています。通常時と急所時を見比べたい場面で使いやすくしました。</p>
-
-    <h2>4. スマホ時の表示をタブ形式に変更しました</h2>
-    <p>スマホでは、攻撃側・防御側・ダメージ結果を縦に並べると画面が長くなり、必要な場所までスクロールしづらい問題がありました。そのため、スマホ時は<strong>攻撃側・防御側・ダメージ計算</strong>をタブで切り替える形式に変更しています。</p>
-    <p>ダメージ計算タブでは、攻撃側と防御側の内容を確認しながら結果を見られるようにしています。攻守入れ替えも同じ流れで使えるため、相手目線のダメージ確認にも移りやすくなりました。</p>
-    <p>あわせて、よく使う性格補正の確認もしやすくしています。攻撃側では攻撃・特攻・防御、防御側では防御・特防・攻撃など、ダメージ確認で使うことが多い能力値を見やすい位置に整理しました。</p>
-
-    <h2>今回の更新を使う場面</h2>
-    <p>上位構築関連集計は、構築をそのまま真似するためではなく、採用されやすいポケモンや持ち物の傾向を調べる入口として使えます。気になる組み合わせを見つけたら、自分の登録した型へ反映し、クイック技ダメージで重要な相手への通りを確認する流れがおすすめです。</p>
-    <p>スマホでは、攻撃側・防御側・結果をタブで分けて見られるため、対戦前に4技だけ比較したい場面でも、入力と結果を行き来しやすくなっています。</p>
-
-    <h2>まとめ</h2>
-    <p>今回の更新では、上位構築記事の掲載傾向を確認できる集計タブと、クイック技ダメージの使いやすさを中心に調整しました。構築を考える前の参考データと、実際のダメージ確認を行き来しやすくすることで、対戦準備の流れを少しでも整理しやすくしています。</p>
-    <p>今後も、データを増やすだけではなく、サイト内で自然に確認できる位置に置くこと、スマホでも使いにくくならないことを意識して調整していきます。</p>
-  </div>
-  <div class="related-section">
-    <div class="related-title">RELATED ARTICLES</div>
-    <div class="related-list">
-      <a class="related-link" href="update-summary-builder-selection-predictor-20260525.html">構築アシスト・選出予測を実装しました</a>
-      <a class="related-link" href="update-summary-quick-damage-season2-register-search-20260516.html">クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新まとめ</a>
-      <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
-    </div>
-  </div>
+<h2>2. 持ち物候補を比較する</h2>
+<p>上位構築関連集計では、ポケモンごとに主な持ち物の内訳も表示します。たとえば、同じポケモンでも「こだわり系」「きあいのタスキ」「回復系のきのみ」など、どの方向の持ち物が多いかを確認できます。</p>
+<p>これにより、単純に掲載数が多いポケモンを見るだけでなく、そのポケモンがどのような持ち物で採用されやすいかも合わせて確認できます。パーティ登録や構築アシストに進む前の下調べとして使いやすい形を意識しました。</p>
+<h2>3. 4技の確定数と役割を比べる</h2>
+<p><a href="../move.html">クイック技ダメージ</a>では、技・特性・持ち物などを反映したダメージ確認をしやすくするため、計算まわりの調整を行いました。ポケモンや持ち物を選んだときに、実際のダメージ結果へ反映される範囲を見直しています。</p>
+<p>また、急所判定も確認しやすくしました。確定で急所に当たる技はその前提で扱い、通常技についても「急所なし」「急所あり」を切り替えてダメージを見られるようにしています。通常時と急所時を見比べたい場面で使いやすくしました。</p>
+<h2>4. スマホで入力と結果を切り替える</h2>
+<p>スマホでは、攻撃側・防御側・ダメージ結果を縦に並べると画面が長くなり、必要な場所までスクロールしづらい問題がありました。そのため、スマホ時は<strong>攻撃側・防御側・ダメージ計算</strong>をタブで切り替える形式に変更しています。</p>
+<p>ダメージ計算タブでは、攻撃側と防御側の内容を確認しながら結果を見られるようにしています。攻守入れ替えも同じ流れで使えるため、相手目線のダメージ確認にも移りやすくなりました。</p>
+<p>あわせて、よく使う性格補正の確認もしやすくしています。攻撃側では攻撃・特攻・防御、防御側では防御・特防・攻撃など、ダメージ確認で使うことが多い能力値を見やすい位置に整理しました。</p>
+<h2>使う流れ</h2>
+<p>上位構築関連集計は、構築をそのまま真似するためではなく、採用されやすいポケモンや持ち物の傾向を調べる入口として使えます。気になる組み合わせを見つけたら、自分の登録した型へ反映し、クイック技ダメージで重要な相手への通りを確認する流れがおすすめです。</p>
+<p>スマホでは、攻撃側・防御側・結果をタブで分けて見られるため、対戦前に4技だけ比較したい場面でも、入力と結果を行き来しやすくなっています。</p>
+<h2>使い方のまとめ</h2>
+<p>上位構築の記事掲載傾向と持ち物の情報を参考にし、気になる対面だけをクイック技ダメージで比較すると、対戦準備を進めやすくなります。</p>
+<p>今後も、データを増やすだけではなく、サイト内で自然に確認できる位置に置くこと、スマホでも使いにくくならないことを意識して調整していきます。</p>
 </div>
-
+<div class="related-section">
+<div class="related-title">RELATED ARTICLES</div>
+<div class="related-list">
+<a class="related-link" href="update-summary-builder-selection-predictor-20260525.html">構築アシストと選出予測の使い方｜6体の不足と選出候補を整理する</a>
+<a class="related-link" href="update-summary-quick-damage-season2-register-search-20260516.html">4技比較と環境確認をまとめる方法｜クイック技ダメージ・使用可能ポケモン・登録検索</a>
+<a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
+</div>
+</div>
+</div>
 <footer>
-  <div class="footer-logo">PokeEdge</div>
-  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
-  <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+<div class="footer-logo">PokeEdge</div>
+<div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br/>© 2026 PokeEdge</div>
+<div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 <script>
 var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};

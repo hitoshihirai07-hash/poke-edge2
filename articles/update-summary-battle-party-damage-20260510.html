@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-adsense-account" content="ca-pub-7687416670736373">
-<title>バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正まとめ | PokeEdge</title>
-<meta name="description" content="バトルシミュレーションの設立、パーティーや型紹介コーナーの追加、ダメージ計算など最近の修正内容をまとめた更新記事です。">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正まとめ | PokeEdge">
-<meta property="og:description" content="バトルシミュレーションの追加、パーティーや型紹介の見やすい導線、ダメージ計算など各種調整をまとめています。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://poke-edge.pages.dev/articles/update-summary-battle-party-damage-20260510.html">
-<link rel="canonical" href="https://poke-edge.pages.dev/articles/update-summary-battle-party-damage-20260510.html">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="ca-pub-7687416670736373" name="google-adsense-account"/>
+<title>構築から対面判断までの流れ｜バトルシミュレーションとダメージ計算の使い分け | PokeEdge</title>
+<meta content="登録した型を構築確認・対面確認へつなげるために、バトルシミュレーション、パーティ管理、ダメージ計算を使い分ける流れを解説します。" name="description"/>
+<meta content="index, follow" name="robots"/>
+<meta content="構築から対面判断までの流れ｜バトルシミュレーションとダメージ計算の使い分け | PokeEdge" property="og:title"/>
+<meta content="登録した型を構築確認・対面確認へつなげるために、バトルシミュレーション、パーティ管理、ダメージ計算を使い分ける流れを解説します。" property="og:description"/>
+<meta content="article" property="og:type"/>
+<meta content="https://poke-edge.pages.dev/articles/update-summary-battle-party-damage-20260510.html" property="og:url"/>
+<link href="https://poke-edge.pages.dev/articles/update-summary-battle-party-damage-20260510.html" rel="canonical"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-sync.js"></script>
 <script src="../usage-tracker.js"></script>
@@ -31,9 +32,9 @@
   for(var k in vars)root.setProperty(k,vars[k]);
 })();
 </script>
-<link rel="icon" type="image/png" href="../favicon.png">
-<link rel="apple-touch-icon" href="../favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="../favicon.png" rel="icon" type="image/png"/>
+<link href="../favicon.png" rel="apple-touch-icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Noto+Sans+JP:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0d1420;--bg2:#141e2e;--panel:#1a2638;--border:#304766;--border2:#3d5b82;--accent:#59d2ff;--accent2:#ff6b92;--accent3:#f2c66a;--green:#57d89a;--text:#f2f7ff;--text2:#9fb3cb;--text3:#c0d0e1;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -109,106 +110,100 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 [data-theme="light"] .mobile-tool-link{background:#ffffff;border-color:#a9c4d8;color:#102132;}
 [data-theme="light"] .mobile-tool-link.active{background:rgba(0,106,163,0.10);border-color:#006aa3;color:#006aa3;}
 </style>
-<link rel="stylesheet" href="../contrast-tune.css">
-<link rel="stylesheet" href="../updates-widget.css">
+<link href="../contrast-tune.css" rel="stylesheet"/>
+<link href="../updates-widget.css" rel="stylesheet"/>
 </head>
 <body>
 <header>
-  <div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
-  <div class="header-sep"></div>
-  <div class="header-sub">記事</div>
-  <div class="header-nav" id="main-nav">
-    <a class="nav-btn" href="../index.html">トップ</a>
-    <a class="nav-btn" href="../calc.html">ダメージ計算</a>
-    <a class="nav-btn" href="../endure.html">耐久調整</a>
-    <a class="nav-btn" href="../move.html">クイック技ダメージ</a>
-    <a class="nav-btn" href="../battle.html">バトル</a>
-    <a class="nav-btn" href="../builder.html">構築アシスト</a>
-    <a class="nav-btn" href="../party.html">パーティ管理</a>
-    <a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
-    <a class="nav-btn" href="../items.html">アイテム</a>
-    <a class="nav-btn" href="../scope.html">バトルアナライザー</a>
-    <a class="nav-btn" href="../selection_predictor.html">選出予測</a>
-    <a class="nav-btn" href="../season.html">使用可能ポケモン</a>
-    <a class="nav-btn" href="../speed.html">素早さライン</a>
-    <a class="nav-btn active" href="../blog.html">記事</a>
-    <a class="nav-btn" href="../policy.html">サイト情報</a>
-  </div>
-  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
+<div class="logo" onclick="location.href='../index.html'">Poke<em>Edge</em></div>
+<div class="header-sep"></div>
+<div class="header-sub">記事</div>
+<div class="header-nav" id="main-nav">
+<a class="nav-btn" href="../index.html">トップ</a>
+<a class="nav-btn" href="../calc.html">ダメージ計算</a>
+<a class="nav-btn" href="../endure.html">耐久調整</a>
+<a class="nav-btn" href="../move.html">クイック技ダメージ</a>
+<a class="nav-btn" href="../battle.html">バトル</a>
+<a class="nav-btn" href="../builder.html">構築アシスト</a>
+<a class="nav-btn" href="../party.html">パーティ管理</a>
+<a class="nav-btn" href="../pokemon.html">ポケモン登録</a>
+<a class="nav-btn" href="../items.html">アイテム</a>
+<a class="nav-btn" href="../scope.html">バトルアナライザー</a>
+<a class="nav-btn" href="../selection_predictor.html">選出予測</a>
+<a class="nav-btn" href="../season.html">使用可能ポケモン</a>
+<a class="nav-btn" href="../speed.html">素早さライン</a>
+<a class="nav-btn active" href="../blog.html">記事</a>
+<a class="nav-btn" href="../policy.html">サイト情報</a>
+</div>
+<button aria-label="メニュー" class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
 </header>
 <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 <aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="../calc.html">ダメージ計算</a><a class="side-link" href="../endure.html">耐久調整</a><a class="side-link" href="../move.html">クイック技ダメージ</a><a class="side-link" href="../battle.html">バトルシミュレーション</a><a class="side-link" href="../builder.html">構築アシスト</a><a class="side-link" href="../party.html">パーティ管理</a><a class="side-link" href="../pokemon.html">ポケモン登録</a><a class="side-link" href="../items.html">アイテム</a><a class="side-link" href="../scope.html">バトルアナライザー</a><a class="side-link" href="../selection_predictor.html">選出予測</a><a class="side-link" href="../season.html">使用可能ポケモン</a><a class="side-link" href="../speed.html">素早さライン</a><a class="side-link active" href="../blog.html">記事一覧</a><a class="side-link" href="../policy.html">サイト情報</a></div></div></aside>
-<nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
-  <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a class="mobile-tool-link active" href="../blog.html" aria-current="page">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
+<nav aria-label="スマホ用ページ移動" class="mobile-tool-nav">
+<div class="mobile-tool-nav-title">ツール移動</div>
+<div class="mobile-tool-scroll"><a class="mobile-tool-link" href="../index.html">TOP</a><a class="mobile-tool-link" href="../calc.html">ダメ計</a><a class="mobile-tool-link" href="../endure.html">耐久</a><a class="mobile-tool-link" href="../move.html">クイック</a><a class="mobile-tool-link" href="../battle.html">バトル</a><a class="mobile-tool-link" href="../builder.html">構築</a><a class="mobile-tool-link" href="../party.html">パーティ</a><a class="mobile-tool-link" href="../pokemon.html">登録</a><a class="mobile-tool-link" href="../items.html">アイテム</a><a class="mobile-tool-link" href="../scope.html">アナライザー</a><a class="mobile-tool-link" href="../selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="../season.html">使用可能</a><a class="mobile-tool-link" href="../speed.html">素早さ</a><a aria-current="page" class="mobile-tool-link active" href="../blog.html">記事</a><a class="mobile-tool-link" href="../policy.html">情報</a></div>
 </nav>
 <div class="main">
-  <div class="breadcrumb">
-    <a href="../index.html">トップ</a><span class="sep">/</span>
-    <a href="../blog.html">記事一覧</a><span class="sep">/</span>
-    <span>登録・計算・アナライザー・PRO関連の更新まとめ</span>
-  </div>
-  <div class="article-header">
-    <div class="article-meta">
-      <span class="article-date">2026.05.10 / 2026.06.22 更新</span>
-      <span class="article-tag guide">ガイド</span>
-      <span class="article-tag tool">更新まとめ</span>
-    </div>
-    <h1 class="article-h1">バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正を行いました</h1>
-    <p class="article-lead">バトルシミュレーションの追加、パーティーや型紹介コーナーの整備、ダメージ計算など既存機能の調整内容をまとめています。</p>
-  </div>
-  <div class="article-body">
-    <h2>今回の更新項目</h2>
-    <ul>
-      <li>バトルシミュレーションの設立</li>
-      <li>パーティーや型紹介コーナーの追加</li>
-      <li>ダメージ計算など各種修正</li>
-    </ul>
-    <p>今回の更新では、実際に対戦の流れを追いやすい新機能としてバトルシミュレーションを追加しました。あわせて、構築を見返すときに使いやすいパーティーや型紹介コーナーを整え、既存ツール側でもダメージ計算を中心に細かい修正を進めています。</p>
-    <p>新しいページを増やすだけで終わらせず、登録した内容や調整した型をそのまま見返しやすくする流れを意識しています。対戦前の確認、構築の参考、実戦中の確認までをつなげやすくするための更新です。</p>
-
-    <h2>1. バトルシミュレーションを追加しました</h2>
-    <p><a href="../battle.html">バトルシミュレーション</a>では、見せ合いから対戦を意識した流れで状況を確認しやすいようにしています。単に一覧を見るだけではなく、選出や対面の流れを考えるためのページとして使える形を目指しています。</p>
-    <p>また、バトルシミュレーション内には<strong>戦力分析PRO</strong>も用意しており、1回だけの単発判定ではなく、違う選出パターンを何回か試しながら分析した結果を見られるようにしています。固定の答えを1つだけ出すというより、選出の組み合わせを変えつつ傾向を確認しやすい形にしています。</p>
-    <p>これまでの各ツールは個別確認が中心でしたが、バトルシミュレーションを加えたことで、構築全体を見ながら対戦の流れをイメージしやすくなりました。今後もここを基準に、分析や周辺導線を合わせやすい形へ整えていきます。</p>
-
-    <div class="note-box">
-      <strong>今回のバトルシミュレーション追加で意識した点</strong><br>
-      ・対戦の流れをイメージしやすくすること<br>
-      ・戦力分析PROで違う選出を繰り返し見て傾向を確認しやすくすること<br>
-      ・既存の登録情報や構築確認とつなげやすくすること<br>
+<div class="breadcrumb">
+<a href="../index.html">トップ</a><span class="sep">/</span>
+<a href="../blog.html">記事一覧</a><span class="sep">/</span>
+<span>活用ガイド</span>
+</div>
+<div class="article-header">
+<div class="article-meta">
+<span class="article-date">2026.05.10 / 内容見直し: 2026.06.22</span>
+<span class="article-tag guide">ガイド</span>
+<span class="article-tag tool">活用ガイド</span>
+</div>
+<h1 class="article-h1">構築から対面判断までの流れ｜バトルシミュレーションとダメージ計算の使い分け</h1>
+<p class="article-lead">構築を組んだあとに重要対面まで確認したいときは、6体を眺めるだけでなく、登録した型を使って対面を具体化すると判断しやすくなります。このページでは、バトルシミュレーション・パーティ管理・ダメージ計算をつなげて使う流れを整理します。</p><div class="note-box reader-purpose-box"><strong>このページが役立つ場面</strong><br/>構築を作り終えたあとに、どの対面を確認するか決めたいときや、登録した型を実戦前の判断へつなげたいときに使うページです。</div>
+</div>
+<div class="article-body">
+<h2>このページで確認できること</h2>
+<ul>
+<li>バトルシミュレーションの設立</li>
+<li>パーティーや型紹介コーナーの追加</li>
+<li>ダメージ計算など各種修正</li>
+</ul>
+<p>構築を登録し、重要対面を計算し、バトルシミュレーションで選出や行動を整理する流れをまとめます。</p>
+<p>新しいページを増やすだけで終わらせず、登録した内容や調整した型をそのまま見返しやすくする流れを意識しています。対戦前の確認、構築の参考、実戦中の確認までをつなげやすくするための更新です。</p>
+<h2>1. バトルシミュレーションで対面を整理する</h2>
+<p><a href="../battle.html">バトルシミュレーション</a>では、見せ合いから対戦を意識した流れで状況を確認しやすいようにしています。単に一覧を見るだけではなく、選出や対面の流れを考えるためのページとして使える形を目指しています。</p>
+<p>また、バトルシミュレーション内には<strong>戦力分析PRO</strong>も用意しており、1回だけの単発判定ではなく、違う選出パターンを何回か試しながら分析した結果を見られるようにしています。固定の答えを1つだけ出すというより、選出の組み合わせを変えつつ傾向を確認しやすい形にしています。</p>
+<p>これまでの各ツールは個別確認が中心でしたが、バトルシミュレーションを加えたことで、構築全体を見ながら対戦の流れをイメージしやすくなりました。今後もここを基準に、分析や周辺導線を合わせやすい形へ整えていきます。</p>
+<div class="note-box">
+<strong>今回のバトルシミュレーション追加で意識した点</strong><br/>
+      ・対戦の流れをイメージしやすくすること<br/>
+      ・戦力分析PROで違う選出を繰り返し見て傾向を確認しやすくすること<br/>
+      ・既存の登録情報や構築確認とつなげやすくすること<br/>
       ・個別ツールだけでは見えにくかった全体像を補うこと
     </div>
-
-    <h2>2. パーティーや型紹介コーナーを追加しました</h2>
-    <p>参考用として、パーティーや型を見返しやすいコーナーも追加しています。構築全体をざっと見たいときと、個別のポケモンや型を確認したいときで使い分けやすいようにし、登録や別ページへの移動もしやすくしています。</p>
-    <p>単に一覧を置くだけでなく、「このパーティーがどういう形か」「このポケモンをもっと詳しく見たい」と思ったときに、そのまま次の操作へつながることを意識しています。参考コーナーとして軽く見たい人にも、実際に構築へ反映したい人にも使いやすい方向で整理しました。</p>
-
-    <h2>3. ダメージ計算など既存機能も引き続き修正しています</h2>
-    <p><a href="../calc.html">ダメージ計算</a>まわりでは、実戦時にズレやストレスになりやすい部分を引き続き見直しています。技の扱い、持ち物や特性の反映、表示の分かりやすさなど、対戦で実際に使う前提で細かい調整を進めています。</p>
-    <p>また、今回の更新は新機能追加だけでなく、既存ページを触ったときの違和感を減らすことも重視しています。よく使う機能ほど小さな引っかかりが気になりやすいので、今後もダメージ計算を含めた全体の使い勝手は継続して整えていきます。</p>
-
-    <h2>今回の更新を使う場面</h2>
-    <p>登録した型を使って対面を確認したいときは、まずパーティーや型紹介で自分の前提を整理し、気になる1対1をダメージ計算で確認します。そのあとバトルシミュレーションで、初手・交代先・残したいポケモンを考える流れにすると、各ページを行き来しやすくなります。</p>
-    <p>特に「この技で倒せるか」と「倒せなかった後にどのポケモンへつなぐか」を分けて見ると、数値だけで終わらず、対戦中の行動まで考えやすくなります。</p>
-
-    <h2>まとめ</h2>
-    <p>今回の更新では、バトルシミュレーションという新しい軸を追加しつつ、パーティーや型紹介コーナーで構築を見返しやすくし、既存のダメージ計算なども引き続き調整しました。</p>
-    <p>新しい機能を増やすだけでなく、登録・確認・対戦の流れを自然につなげることを重視しています。今後も、実際に使う場面で役立つ形を優先して更新を続けていきます。</p>
-  </div>
-  <div class="related-section">
-    <div class="related-title">RELATED ARTICLES</div>
-    <div class="related-list">
-      <a class="related-link" href="update-summary-register-calc-analyzer-pro-20260506.html">ポケモン登録・パーティ登録・ダメージ計算・バトルアナライザー・PRO関連の更新まとめ</a>
-      <a class="related-link" href="update-summary-calc-party-analyzer-fixes.html">ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました</a>
-      <a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
-    </div>
-  </div>
+<h2>2. パーティーと型を見返す</h2>
+<p>参考用として、パーティーや型を見返しやすいコーナーも追加しています。構築全体をざっと見たいときと、個別のポケモンや型を確認したいときで使い分けやすいようにし、登録や別ページへの移動もしやすくしています。</p>
+<p>単に一覧を置くだけでなく、「このパーティーがどういう形か」「このポケモンをもっと詳しく見たい」と思ったときに、そのまま次の操作へつながることを意識しています。参考コーナーとして軽く見たい人にも、実際に構築へ反映したい人にも使いやすい方向で整理しました。</p>
+<h2>3. ダメージ計算で重要対面を詰める</h2>
+<p><a href="../calc.html">ダメージ計算</a>まわりでは、実戦時にズレやストレスになりやすい部分を引き続き見直しています。技の扱い、持ち物や特性の反映、表示の分かりやすさなど、対戦で実際に使う前提で細かい調整を進めています。</p>
+<p>バトルシミュレーション、パーティ確認、ダメージ計算は、単体で終わらせずに行き来すると判断材料がそろいやすくなります。よく使う対面から順に確認し、必要なところだけを深掘りする使い方が向いています。</p>
+<h2>使う流れ</h2>
+<p>登録した型を使って対面を確認したいときは、まずパーティーや型紹介で自分の前提を整理し、気になる1対1をダメージ計算で確認します。そのあとバトルシミュレーションで、初手・交代先・残したいポケモンを考える流れにすると、各ページを行き来しやすくなります。</p>
+<p>特に「この技で倒せるか」と「倒せなかった後にどのポケモンへつなぐか」を分けて見ると、数値だけで終わらず、対戦中の行動まで考えやすくなります。</p>
+<h2>使い方のまとめ</h2>
+<p>バトルシミュレーションで対面の流れを整理し、パーティや型の情報を見返し、気になる条件だけをダメージ計算で確認する流れを想定しています。</p>
+<p>新しい機能を増やすだけでなく、登録・確認・対戦の流れを自然につなげることを重視しています。今後も、実際に使う場面で役立つ形を優先して更新を続けていきます。</p>
+</div>
+<div class="related-section">
+<div class="related-title">RELATED ARTICLES</div>
+<div class="related-list">
+<a class="related-link" href="update-summary-register-calc-analyzer-pro-20260506.html">ポケモン登録から対戦判断までの流れ｜ダメージ計算・バトルアナライザーの使い方</a>
+<a class="related-link" href="update-summary-calc-party-analyzer-fixes.html">登録した型を計算・分析へつなぐ方法｜パーティ管理とバトルアナライザーの使い分け</a>
+<a class="related-link" href="../blog.html">← 記事一覧に戻る</a>
+</div>
+</div>
 </div>
 <footer>
-  <div class="footer-logo">PokeEdge</div>
-  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
-  <div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
+<div class="footer-logo">PokeEdge</div>
+<div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br/>© 2026 PokeEdge</div>
+<div style="font-size:10px;"><a href="../policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 <script>
 var THEMES = {dark:{"--bg":"#07090f","--bg2":"#0b0e1a","--panel":"#0f1423","--border":"#1a2540","--border2":"#243356","--accent":"#00c8f0","--accent2":"#ff3060","--accent3":"#ffc800","--green":"#00e676","--text":"#d8e8ff","--text2":"#4a6080","--text3":"#7a90b0"},light:{"--bg":"#e8f4f8","--bg2":"#d0e8f0","--panel":"#f4fbff","--border":"#90c8e0","--border2":"#60a8cc","--accent":"#0066aa","--accent2":"#cc1040","--accent3":"#cc7700","--green":"#007744","--text":"#051828","--text2":"#2a5070","--text3":"#0a3050"}};
