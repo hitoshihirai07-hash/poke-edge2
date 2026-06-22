@@ -79,6 +79,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-f
 .article-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.6;}
 .article-excerpt{font-size:13px;color:var(--text3);line-height:1.9;}
 .article-read{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);letter-spacing:1px;}
+.blog-section{margin-bottom:44px;}
+.blog-section:last-child{margin-bottom:0;}
+.blog-section-title{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:14px;color:var(--text);font-weight:700;letter-spacing:1px;}
+.blog-section-title::after{content:'';height:1px;flex:1;background:var(--border);}
+.blog-section-lead{font-size:12px;color:var(--text3);line-height:1.9;margin:-2px 0 16px;}
+
 
 footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--text2);letter-spacing:4px;}
@@ -185,157 +191,66 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 
 <div class="main">
   <div class="page-title">Articles</div>
-  <div class="page-sub">ポケモン対戦に役立つ解説記事・ガイド</div>
+  <div class="page-sub">ダメージ計算・調整・構築の見直しに役立つガイドと、各機能の更新内容をまとめています。</div>
 
   <div class="article-list">
-
-
-    <!-- ===== 記事14: 上位構築関連集計・クイック技ダメージ更新 ===== -->
-    <a class="article-card" href="articles/update-summary-recruitment-quick-damage-20260531.html">
+  <section class="blog-section">
+    <h2 class="blog-section-title">まず読むガイド</h2>
+    <p class="blog-section-lead">ダメージの見方、努力値調整、構築の確認など、対戦準備で迷いやすいところを目的別にまとめています。</p>
+    <div class="article-list">
+      <a class="article-card" href="articles/damage-calc-result-guide.html">
       <div class="article-meta">
-        <span class="article-date">2026.05.31</span>
+        <span class="article-date">2026.06.22</span>
         <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">上位構築関連集計とクイック技ダメージを更新しました</div>
-      <div class="article-excerpt">上位構築記事に掲載されたポケモン数・持ち物傾向を確認できる集計タブを追加しました。あわせて、クイック技ダメージの計算調整とスマホ時のタブ表示変更をまとめています。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-
-
-    <!-- ===== 記事13: 構築アシスト・選出予測 ===== -->
-    <a class="article-card" href="articles/update-summary-builder-selection-predictor-20260525.html">
-      <div class="article-meta">
-        <span class="article-date">2026.05.25</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">構築アシスト・選出予測を実装しました</div>
-      <div class="article-excerpt">1匹目から6匹まで構築を考えやすくする構築アシストと、見せ合いから相手の選出や初手後の裏を確認しやすくする選出予測を追加しました。各ページからの導線と不具合修正もまとめています。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-
-
-    <!-- ===== 記事12: クイック技ダメージ・シーズン2・登録検索 ===== -->
-    <a class="article-card" href="articles/update-summary-quick-damage-season2-register-search-20260516.html">
-      <div class="article-meta">
-        <span class="article-date">2026.05.16</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新を行いました</div>
-      <div class="article-excerpt">技選択判定をクイック技ダメージへ変更し、スマホでも4技を確認しやすくしました。シーズン2対応や、ポケモン登録で技・特性から探しやすくした更新内容もまとめています。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-
-    <!-- ===== 記事11: バトルシミュレーション・パーティー紹介・各種修正 ===== -->
-    <a class="article-card" href="articles/update-summary-battle-party-damage-20260510.html">
-      <div class="article-meta">
-        <span class="article-date">2026.05.10</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">バトルシミュレーション設立・パーティーや型紹介コーナー追加・ダメージ計算などの修正を行いました</div>
-      <div class="article-excerpt">バトルシミュレーションの新設、パーティーや型紹介コーナーの追加、ダメージ計算を含む既存機能の調整など、最近の主な更新内容をまとめています。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-
-    <!-- ===== 記事10: 登録・計算・アナライザー・PRO更新 ===== -->
-    <a class="article-card" href="articles/update-summary-register-calc-analyzer-pro-20260506.html">
-      <div class="article-meta">
-        <span class="article-date">2026.05.06</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">ポケモン登録・パーティ登録・ダメージ計算・バトルアナライザー・PRO関連の更新を行いました</div>
-      <div class="article-excerpt">ポケモン登録やパーティ登録の調整、ダメージ計算の修正、バトルアナライザーの新規アップデート、PRO関連の導線整備をまとめています。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-    <!-- ===== 記事9: ダメ計・パーティ・アナライザー更新 ===== -->
-    <a class="article-card" href="articles/update-summary-calc-party-analyzer-fixes.html">
-      <div class="article-meta">
-        <span class="article-date">2026.05.03</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました</div>
-      <div class="article-excerpt">ダメージ計算の一部修正、パーティ登録の扱いやすさの調整、バトルアナライザーのアップデート内容をまとめています。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-
-    <!-- ===== 記事8: ランキング更新・登録おすすめ・更新履歴 ===== -->
-    <a class="article-card" href="articles/update-summary-ranking-register-updates-icon.html">
-      <div class="article-meta">
-        <span class="article-date">2026.05.01</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">ランキング更新・ポケモン登録おすすめ表示・更新履歴アイコン追加を行いました</div>
-      <div class="article-excerpt">ランキングの更新、ポケモン登録でランキングを見ながら型を決めやすくしたこと、総合耐久指数の見直し、更新履歴アイコン追加の内容をまとめています。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-
-    <!-- ===== 記事7: スマホ表示・検索・計算修正 ===== -->
-    <a class="article-card" href="articles/update-summary-mobile-search-damage-fix.html">
-      <div class="article-meta">
-        <span class="article-date">2026.04.26</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">スマホ表示・検索機能・ダメージ計算の修正を行いました</div>
-      <div class="article-excerpt">スマホ版の表示調整、使用可能ポケモンページの検索・タイプ絞り込み、連続技や複数回使用時のダメージ表示修正など、今回の主な変更点をまとめました。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-    <!-- ===== 記事5 ===== -->
-    <!--
-    <a class="article-card" href="articles/article-5.html">
-      <div class="article-meta">
-        <span class="article-date">2026.00.00</span>
-        <span class="article-tag guide">ガイド</span>
-      </div>
-      <div class="article-title">記事タイトル</div>
-      <div class="article-excerpt">記事の概要をここに書きます。2〜3行程度で記事の内容がわかるように。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-    -->
-
-    <!-- ===== 記事4 ===== -->
-    <!--
-    <a class="article-card" href="articles/article-4.html">
-      <div class="article-meta">
-        <span class="article-date">2026.00.00</span>
+        <span class="article-tag tool">ツール</span>
         <span class="article-tag beginner">初心者向け</span>
       </div>
-      <div class="article-title">記事タイトル</div>
-      <div class="article-excerpt">記事の概要をここに書きます。</div>
+      <div class="article-title">ダメージ計算機の使い方｜結果を見る前に確認する5項目</div>
+      <div class="article-excerpt">攻撃側・防御側・技を選んだあと、持ち物・特性・盤面条件・急所・確定数をどう確認するかを、実際の入力順に整理します。</div>
       <span class="article-read">→ 続きを読む</span>
     </a>
-    -->
-
-    <!-- ===== 記事3 ===== -->
-    <!--
-    <a class="article-card" href="articles/article-3.html">
+      <a class="article-card" href="articles/damage-adjustment-guide.html">
       <div class="article-meta">
-        <span class="article-date">2026.00.00</span>
-        <span class="article-tag advanced">実践</span>
+        <span class="article-date">2026.06.22</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag advanced">実戦向け</span>
+        <span class="article-tag tool">ツール</span>
       </div>
-      <div class="article-title">記事タイトル</div>
-      <div class="article-excerpt">記事の概要をここに書きます。</div>
+      <div class="article-title">火力調整・耐久調整の考え方｜ダメージ計算で決める手順</div>
+      <div class="article-excerpt">倒したい相手・耐えたい技から努力値の目標を決める流れを解説。ダメージ計算と耐久調整の使い分けもまとめています。</div>
       <span class="article-read">→ 続きを読む</span>
     </a>
-    -->
-
-
-    <!-- ===== 記事5: 素早さラインの見方 ===== -->
-    <a class="article-card" href="articles/speed-tier-guide.html">
+      <a class="article-card" href="articles/party-review-checklist.html">
+      <div class="article-meta">
+        <span class="article-date">2026.06.22</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag advanced">実戦向け</span>
+      </div>
+      <div class="article-title">構築を組んだ後の確認チェックリスト｜対戦前に見直すポイント</div>
+      <div class="article-excerpt">技・持ち物・努力値・役割から、6体全体の苦手な相手や重要対面まで。構築を使う前の見直しに使えるチェックリストです。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/damage-calc-guide.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.07 / 更新</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag beginner">初心者向け</span>
+      </div>
+      <div class="article-title">ダメージ計算の仕組み｜乱数・確定数の基本</div>
+      <div class="article-excerpt">確定1発・乱数1発・確定2発の違いと、ダメージ幅を対戦の判断に使うための基本を解説します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/move-judge-guide.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.09 / 更新</span>
+        <span class="article-tag guide">ガイド</span>
+        <span class="article-tag tool">ツール</span>
+      </div>
+      <div class="article-title">クイック技ダメージの使い方｜4技をまとめて比べる</div>
+      <div class="article-excerpt">4つの技を比べるときに、確定数・ダメージ割合・役割をどう見るかを整理。通常のダメージ計算との使い分けも紹介します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/speed-tier-guide.html">
       <div class="article-meta">
         <span class="article-date">2026.04.17</span>
         <span class="article-tag guide">ガイド</span>
@@ -343,77 +258,124 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <span class="article-tag beginner">初心者向け</span>
       </div>
       <div class="article-title">素早さラインの見方と使い方 — 抜ける相手・抜けない相手をすぐ整理する方法</div>
-      <div class="article-excerpt">最速・準速・無振り・最遅の意味から、スカーフ・追い風込みでの見方までを整理。PokeEdgeの素早さライン早見表を使って、どの相手を抜けるかを実戦向けに確認する流れを紹介します。</div>
+      <div class="article-excerpt">最速・準速・無振り・最遅の意味から、抜きたい相手を決めて努力値を考える方法までをまとめます。</div>
       <span class="article-read">→ 続きを読む</span>
     </a>
-
-
-    <!-- ===== 記事6: 更新まとめ ===== -->
-    <a class="article-card" href="articles/update-summary-endure-history-analyzer.html">
+      <a class="article-card" href="articles/features-guide.html">
       <div class="article-meta">
-        <span class="article-date">2026.04.19</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">PokeEdge 更新まとめ：耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</div>
-      <div class="article-excerpt">耐久調整ツールの追加、ダメージ計算の履歴保存と1発判定表示、選出率記録とアナライザー整理など、最近の主な変更点をまとめました。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-    <!-- ===== 記事4: 最近の更新まとめ ===== -->
-    <a class="article-card" href="articles/recent-updates-images-register-known-moves.html">
-      <div class="article-meta">
-        <span class="article-date">2026.04.10</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">更新まとめ</span>
-      </div>
-      <div class="article-title">最近の更新まとめ：画像作成・登録機能・判明技一覧を追加しました</div>
-      <div class="article-excerpt">ダメージ計算の画像作成、ポケモンやパーティー登録の画像作成、各ポケモンで現在判明している技の確認機能をまとめて紹介します。共有しやすさと見返しやすさを中心に整えた更新です。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-    <!-- ===== 記事3: クイック技ダメージの使いこなし方 ===== -->
-    <a class="article-card" href="articles/move-judge-guide.html">
-      <div class="article-meta">
-        <span class="article-date">2026.04.09</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag tool">ツール</span>
-      </div>
-      <div class="article-title">クイック技ダメージの使い方 — 4技をまとめて確認する</div>
-      <div class="article-excerpt">クイック技ダメージの基本的な使い方を整理しました。自分と相手を選び、4技の割合・確定数・相性をまとめて確認する流れを紹介します。</div>
-      <span class="article-read">→ 続きを読む</span>
-    </a>
-
-    <!-- ===== 記事2: PokeEdgeでできること ===== -->
-    <a class="article-card" href="articles/features-guide.html">
-      <div class="article-meta">
-        <span class="article-date">2026.04.18</span>
+        <span class="article-date">2026.04.18 / 更新</span>
         <span class="article-tag guide">ガイド</span>
         <span class="article-tag beginner">初心者向け</span>
       </div>
-      <div class="article-title">PokeEdgeでできること全まとめ！ — 8つの機能をやさしく紹介</div>
-      <div class="article-excerpt">「PokeEdgeって何ができるの？」という方へ。ダメージ計算・クイック技ダメージ・パーティ管理・ポケモン登録・アイテム一覧・バトルアナライザー・使用可能ポケモン・素早さラインの8つの機能を、はじめての方にもわかるようにやさしく紹介します。</div>
+      <div class="article-title">PokeEdgeでできること｜9つの機能を使い分ける</div>
+      <div class="article-excerpt">ポケモン登録、ダメージ計算、耐久調整、構築確認まで。どの順で使うと迷いにくいかを機能別に整理します。</div>
       <span class="article-read">→ 続きを読む</span>
     </a>
+    </div>
+  </section>
 
-    <!-- ===== 記事1: ダメージ計算の仕組み ===== -->
-    <a class="article-card" href="articles/damage-calc-guide.html">
+  <section class="blog-section">
+    <h2 class="blog-section-title">更新内容と使いどころ</h2>
+    <p class="blog-section-lead">追加・修正した内容だけで終わらせず、どんな場面で使うと役立つかまで各記事に整理しています。</p>
+    <div class="article-list">
+      <a class="article-card" href="articles/update-summary-recruitment-quick-damage-20260531.html">
       <div class="article-meta">
-        <span class="article-date">2026.04.07</span>
-        <span class="article-tag guide">ガイド</span>
-        <span class="article-tag beginner">初心者向け</span>
+        <span class="article-date">2026.05.31 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
       </div>
-      <div class="article-title">【完全ガイド】ダメージ計算の仕組みを徹底解説 — 計算式・乱数・確定数の意味</div>
-      <div class="article-excerpt">ポケモン対戦で「確定1発」「乱数2発」という言葉を聞いたことはありますか？ この記事では、ダメージ計算の基本的な仕組みから、乱数の16段階、確定数の考え方まで、実際の計算例を交えながらわかりやすく解説します。</div>
+      <div class="article-title">上位構築関連集計とクイック技ダメージを更新しました</div>
+      <div class="article-excerpt">上位構築の掲載傾向・持ち物の見方と、クイック技ダメージを構築確認に使う流れをまとめました。</div>
       <span class="article-read">→ 続きを読む</span>
     </a>
-
-  </div>
+      <a class="article-card" href="articles/update-summary-builder-selection-predictor-20260525.html">
+      <div class="article-meta">
+        <span class="article-date">2026.05.25 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">構築アシスト・選出予測を実装しました</div>
+      <div class="article-excerpt">構築を組んだ後に不足を見つけ、見せ合い段階の候補を整理するための使い方を紹介します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/update-summary-quick-damage-season2-register-search-20260516.html">
+      <div class="article-meta">
+        <span class="article-date">2026.05.16 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">クイック技ダメージ・シーズン2対応・ポケモン登録検索の更新を行いました</div>
+      <div class="article-excerpt">環境確認、登録済みの型の検索、4技比較をつなげて使うための更新内容です。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/update-summary-battle-party-damage-20260510.html">
+      <div class="article-meta">
+        <span class="article-date">2026.05.10 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">バトルシミュレーション・パーティー・ダメージ計算を更新しました</div>
+      <div class="article-excerpt">登録した型から重要対面を計算し、バトルシミュレーションの判断へつなげる流れを紹介します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/update-summary-register-calc-analyzer-pro-20260506.html">
+      <div class="article-meta">
+        <span class="article-date">2026.05.06 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">ポケモン登録・パーティ登録・ダメージ計算・バトルアナライザーを更新しました</div>
+      <div class="article-excerpt">登録・計算・アナライザーを使って対戦準備を進めるときの、機能ごとの役割を整理します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/update-summary-calc-party-analyzer-fixes.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.29 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">ダメージ計算・パーティ登録・バトルアナライザーの更新を行いました</div>
+      <div class="article-excerpt">個体の修正を構築全体の確認につなげるための、ダメージ計算・保存・分析の使い方をまとめました。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/update-summary-ranking-register-updates-icon.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.26 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">ランキング更新・ポケモン登録おすすめ・更新履歴アイコン追加を行いました</div>
+      <div class="article-excerpt">ランキングを型の入口として使い、登録・耐久調整へつなげるための更新内容です。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/update-summary-mobile-search-damage-fix.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.21 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">スマホ表示・検索機能・ダメージ計算の修正を行いました</div>
+      <div class="article-excerpt">スマホでポケモンを絞り込み、必要な対面だけ確認するための使い方をまとめました。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/update-summary-endure-history-analyzer.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.19 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">耐久調整ツール追加・ダメージ計算強化・アナライザー整理など</div>
+      <div class="article-excerpt">受けたい攻撃の確認、計算履歴の見直し、選出振り返りにつながる機能を紹介します。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+      <a class="article-card" href="articles/recent-updates-images-register-known-moves.html">
+      <div class="article-meta">
+        <span class="article-date">2026.04.10 / 更新</span>
+        <span class="article-tag tool">更新内容</span>
+      </div>
+      <div class="article-title">画像作成・登録機能・判明技一覧を追加しました</div>
+      <div class="article-excerpt">型やパーティーを見返し・共有するための画像作成と、候補技を確認する使い方をまとめました。</div>
+      <span class="article-read">→ 続きを読む</span>
+    </a>
+    </div>
+  </section>
+</div>
 </div>
 
 <footer>
   <div class="footer-logo">PokeEdge</div>
-  <div class="footer-text">非公式ファンサイト / Unofficial Fan Tool<br>© 2026 PokeEdge</div>
+  <div class="footer-text">非公式ファンサイト / 個人運営<br>© 2026 PokeEdge</div>
   <div style="font-size:10px;"><a href="policy.html" style="color:var(--text2);text-decoration:none;">プライバシーポリシー / 利用規約</a></div>
 </footer>
 

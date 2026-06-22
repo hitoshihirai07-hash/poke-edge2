@@ -80,37 +80,37 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/blog.html</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/policy.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/damage-calc-guide.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/features-guide.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/move-judge-guide.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/recent-updates-images-register-known-moves.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -122,56 +122,74 @@
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-endure-history-analyzer.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-mobile-search-damage-fix.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-ranking-register-updates-icon.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-calc-party-analyzer-fixes.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-register-calc-analyzer-pro-20260506.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-battle-party-damage-20260510.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-quick-damage-season2-register-search-20260516.html</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-builder-selection-predictor-20260525.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://poke-edge.pages.dev/articles/update-summary-recruitment-quick-damage-20260531.html</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://poke-edge.pages.dev/articles/damage-calc-result-guide.html</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://poke-edge.pages.dev/articles/damage-adjustment-guide.html</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://poke-edge.pages.dev/articles/party-review-checklist.html</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
