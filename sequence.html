@@ -69,6 +69,20 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
 @media(max-width:900px){.scenario-grid{grid-template-columns:1fr}.workspace-toolbar{align-items:flex-start;flex-direction:column}}
 @media(max-width:768px){.guide-details{margin:12px 10px}.guide-details>summary{grid-template-columns:1fr auto;padding:13px 14px;gap:6px}.guide-details .guide-kicker{grid-column:1/-1}.guide-details summary strong{font-size:12px}.guide-body{padding:0 14px 14px}.workspace-tabs{top:98px;gap:6px;overflow-x:auto;padding:8px 0}.workspace-tab{font-size:11px;padding:9px 11px;flex:0 0 auto}.workspace-toolbar{margin:9px 0 11px;padding:10px}.workspace-toolbar .button-row{width:100%}.workspace-toolbar .button-row button{flex:1}.side-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 10px}.side-switch-btn{border:1px solid var(--border);background:var(--bg);color:var(--text3);font:inherit;font-size:12px;font-weight:700;padding:10px;cursor:pointer}.side-switch-btn.active{border-color:var(--accent);background:rgba(0,200,240,.08);color:var(--accent)}#side-pair[data-mobile-side="atk"] #def-card,#side-pair[data-mobile-side="def"] #atk-card{display:none}.ev-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.timeline{max-height:52vh}.fields.five{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:769px){.pair-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-toolbar .button-row{flex-shrink:0}}
+/* 使い道と計算対象を最初に見せる */
+.purpose-panel{position:relative;z-index:1;max-width:1200px;margin:0 auto 16px;padding:18px;border:1px solid var(--border);background:var(--panel)}
+.purpose-kicker{font-size:10px;letter-spacing:2px;color:var(--accent);font-weight:700;margin-bottom:6px}
+.purpose-title{font-size:18px;line-height:1.55;color:var(--text);margin:0}
+.purpose-text{font-size:12px;line-height:1.8;color:var(--text3);margin:6px 0 13px}
+.purpose-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.purpose-card{appearance:none;width:100%;min-height:104px;text-align:left;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
+.purpose-card:hover{border-color:var(--accent)}.purpose-card.active{border-color:var(--accent);background:rgba(0,200,240,.08)}
+.purpose-card strong{display:block;font-size:12px;margin-bottom:6px}.purpose-card span{display:block;font-size:10px;line-height:1.7;color:var(--text3)}
+.purpose-note{margin-top:10px;border-left:3px solid var(--accent);background:var(--bg2);padding:9px 11px;font-size:11px;line-height:1.75;color:var(--text3)}
+.workspace-context{font-size:11px;line-height:1.65;color:var(--accent3);margin-top:2px}
+.move-sequence-card{margin-top:14px}.move-sequence-card .card-help{margin-bottom:0}
+@media(max-width:760px){.purpose-panel{margin:0 10px 13px;padding:14px}.purpose-title{font-size:16px}.purpose-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.purpose-card{min-height:98px;padding:10px}.purpose-card strong{font-size:11px}.purpose-card span{font-size:10px}.purpose-note{font-size:10px}.workspace-context{font-size:10px}}
+@media(max-width:430px){.purpose-grid{grid-template-columns:1fr}.purpose-card{min-height:auto}}
 
 </style>
 </head>
@@ -116,24 +130,40 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
   </div>
 </details>
 
+<section class="purpose-panel" aria-labelledby="purpose-title">
+  <div class="purpose-kicker">このページでできること</div>
+  <h1 class="purpose-title" id="purpose-title">連続するダメージ・HP・素早さを、同じ条件のまま確認する</h1>
+  <p class="purpose-text">調べたい目的を選ぶと、必要な入力の順番が分かります。数値・特性・持ち物・技は自動で決めず、すべて自分で選んだ条件だけを計算します。</p>
+  <div class="purpose-grid" role="list" aria-label="計算の目的">
+    <button class="purpose-card active" type="button" data-purpose="ko" onclick="choosePurpose('ko')"><strong>連続で倒せるか</strong><span>最大3回の攻撃後に、相手を倒せるか確認します。</span></button>
+    <button class="purpose-card" type="button" data-purpose="hp" onclick="choosePurpose('hp')"><strong>HPの推移を確認</strong><span>登場時・攻撃後・回復後の残りHPを順に見ます。</span></button>
+    <button class="purpose-card" type="button" data-purpose="speed" onclick="choosePurpose('speed')"><strong>素早さ変化後に先制できるか</strong><span>能力変化や場の条件を反映した最終素早さを確認します。</span></button>
+    <button class="purpose-card" type="button" data-purpose="tune" onclick="choosePurpose('tune')"><strong>条件を満たす努力値を探す</strong><span>撃破・先制などの条件を同時に満たす配分を探します。</span></button>
+  </div>
+  <div class="purpose-note" id="purpose-note">まず「ポケモン・技・調整」で、誰が誰に何を使うかと努力値をまとめて設定します。必要な時だけ「場の条件」と「努力値探索」を使います。</div>
+</section>
+
 <div class="layout">
   <div class="sequence-workspace" id="sequence-workspace">
     <div class="workspace-tabs" role="tablist" aria-label="連続ダメージの入力手順">
-      <button class="workspace-tab active" id="pane-tab-setup" type="button" role="tab" aria-selected="true" onclick="switchWorkspacePane('setup')">ポケモン・調整</button>
-      <button class="workspace-tab" id="pane-tab-scenario" type="button" role="tab" aria-selected="false" onclick="switchWorkspacePane('scenario')">場・連続条件</button>
-      <button class="workspace-tab" id="pane-tab-solver" type="button" role="tab" aria-selected="false" onclick="switchWorkspacePane('solver')">条件探索</button>
-      <button class="workspace-tab" id="pane-tab-result" type="button" role="tab" aria-selected="false" onclick="switchWorkspacePane('result')">結果</button>
+      <button class="workspace-tab active" id="pane-tab-setup" type="button" role="tab" aria-selected="true" onclick="switchWorkspacePane('setup')">1. ポケモン・技・調整</button>
+      <button class="workspace-tab" id="pane-tab-scenario" type="button" role="tab" aria-selected="false" onclick="switchWorkspacePane('scenario')">2. 場の条件（必要な時）</button>
+      <button class="workspace-tab" id="pane-tab-solver" type="button" role="tab" aria-selected="false" onclick="switchWorkspacePane('solver')">3. 努力値探索（必要な時）</button>
+      <button class="workspace-tab" id="pane-tab-result" type="button" role="tab" aria-selected="false" onclick="switchWorkspacePane('result')">4. 結果</button>
     </div>
 
     <div class="workspace-toolbar">
-      <div class="workspace-toolbar-copy" id="workspace-status">ポケモンと技を選んだら、上の「結果」へ自動表示します。</div>
-      <div class="button-row"><button class="primary-btn" type="button" onclick="runSimulation()">シミュレーション</button><button class="secondary-btn" type="button" onclick="openCalcHistoryModal()">保存済み計算を読む</button></div>
+      <div>
+        <div class="workspace-toolbar-copy" id="workspace-status">「ポケモン・技・調整」を設定し、必要な時だけ場の条件を追加してから計算します。</div>
+        <div class="workspace-context" id="workspace-context">計算対象：攻撃側・防御側・技を選択してください。</div>
+      </div>
+      <div class="button-row"><button class="primary-btn" type="button" onclick="runSimulation()">計算する</button><button class="secondary-btn" type="button" onclick="openCalcHistoryModal()">保存済み計算を読む</button></div>
     </div>
 
     <section class="workspace-pane active" id="sequence-pane-setup" role="tabpanel" aria-labelledby="pane-tab-setup">
       <section class="card">
-        <div class="card-title">ポケモン・個体条件</div>
-        <div class="card-help">ポケモンを選ぶと、そのポケモンに紐づく特性だけを選べます。メガポケモンを攻撃側に選んだ場合は、元のポケモンが覚える技を選択します。</div>
+        <div class="card-title">ポケモン・技・調整</div>
+        <div class="card-help">誰が誰に何を使うか、どの努力値で計算するかをここでまとめて設定します。ポケモンを選ぶと、そのポケモンに紐づく特性だけを選べます。メガポケモンを攻撃側に選んだ場合は、元のポケモンが覚える技を選択します。</div>
         <div class="side-switch" aria-label="攻撃側と防御側の表示切替"><button class="side-switch-btn active" type="button" id="side-tab-atk" onclick="setMobileSide('atk')">攻撃側</button><button class="side-switch-btn" type="button" id="side-tab-def" onclick="setMobileSide('def')">防御側</button></div>
         <div class="pair-grid" id="side-pair" data-mobile-side="atk">
           <div class="side-card" id="atk-card"><div class="side-card-head"><div class="side-card-title">攻撃側</div><div class="selected-state" id="atk-state">未選択</div></div>
@@ -151,30 +181,30 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.96);backdrop-fi
             <details class="rank-details"><summary>能力ランク（必要な場合のみ）</summary><div class="fields five" id="def-ranks"></div></details>
           </div>
         </div>
+        <section class="card move-sequence-card">
+          <div class="card-title">使う技と攻撃の順番</div>
+          <div class="card-help">上で選んだ攻撃側が使う技を、1〜3回目の順に選びます。ここで選んだ技に合わせて、上の努力値は必要な項目だけ表示します。</div>
+          <div id="actions"></div>
+        </section>
       </section>
     </section>
 
     <section class="workspace-pane" id="sequence-pane-scenario" role="tabpanel" aria-labelledby="pane-tab-scenario" hidden>
       <div class="scenario-grid">
         <section class="card">
-          <div class="card-title">場に出る時の条件</div>
-          <div class="card-help">設置技は、選んだ側が場に出た時だけ反映します。</div>
+          <div class="card-title">場の条件</div>
+          <div class="card-help">設置技・天候・登場時の素早さ変化など、今回の計算に必要な条件だけを追加します。設定しない場合は、そのまま結果へ進めます。</div>
           <div class="fields two"><div class="field"><label for="game-mode">ゲームモード</label><select id="game-mode" onchange="syncEvMode()"><option value="champions">Pokémon Champions</option><option value="classic">従来作</option></select></div><div class="field"><label for="entry-side">場に出る側</label><select id="entry-side"><option value="def">防御側が登場</option><option value="atk">攻撃側が登場</option><option value="none">登場時処理なし</option></select></div></div>
           <div class="fields three" style="margin-top:10px"><div class="field"><label for="weather">天候</label><select id="weather"><option value="">なし</option><option value="sun">晴れ</option><option value="rain">雨</option><option value="sand">砂嵐</option><option value="snow">雪</option></select></div><div class="field"><label for="hazard-sr">ステルスロック</label><select id="hazard-sr"><option value="0">なし</option><option value="1">あり</option></select></div><div class="field"><label for="hazard-spikes">まきびし</label><select id="hazard-spikes"><option value="0">なし</option><option value="1">1回</option><option value="2">2回</option><option value="3">3回</option></select></div></div>
           <div class="fields two" style="margin-top:10px"><div class="field"><label for="hazard-web">ねばねばネット</label><select id="hazard-web" onchange="updateRelevantEvFields()"><option value="0">なし</option><option value="1">あり</option></select></div><div class="field"><label>現在の使用可能シーズン</label><input id="current-season-label" readonly value="読み込み中"></div></div>
-        </section>
-        <section class="card">
-          <div class="card-title">連続する行動</div>
-          <div class="card-help">攻撃側の技を最大3回まで並べ、各行動ごとの急所とターン終了処理を指定できます。</div>
-          <div id="actions"></div>
         </section>
       </div>
     </section>
 
     <section class="workspace-pane" id="sequence-pane-solver" role="tabpanel" aria-labelledby="pane-tab-solver" hidden>
       <section class="card solver-card">
-        <div class="card-title">条件探索</div>
-        <div class="card-help">現在のシナリオで、撃破と素早さの条件を同時に満たす攻撃側の努力値候補を探します。</div>
+        <div class="card-title">努力値探索</div>
+        <div class="card-help">「連続で倒す」「最終時点で先制する」を同時に満たす、攻撃側の努力値候補を探します。先に「ポケモン・技・調整」と、必要なら場の条件を設定してください。</div>
         <div class="fields three"><div class="field"><label for="solver-nature-mode">性格</label><select id="solver-nature-mode"><option value="current">現在の性格のみ</option><option value="all">全性格</option></select></div><div class="field"><label class="switch"><input id="solver-ko" type="checkbox" checked> 防御側を倒す</label></div><div class="field"><label class="switch"><input id="solver-speed" type="checkbox" onchange="updateRelevantEvFields()"> 最終時点で先制</label><select id="speed-rule"><option value="above">上回る</option><option value="tie">同速以上</option></select></div></div>
         <div class="button-row" style="margin-top:12px"><button class="secondary-btn" type="button" onclick="runSolver()">条件を探索</button></div><div class="solver-list" id="solver-result"></div>
       </section>
@@ -219,6 +249,7 @@ function initControls(){
   syncEvMode();
   setMobileSide('atk');
   updateRelevantEvFields();
+  updateWorkspaceContext();
 }
 function rankOptions(selected){return Array.from({length:13},(_,i)=>i-6).map(v=>`<option value="${v}"${v===selected?' selected':''}>${v>0?'＋':''}${v}</option>`).join('')}
 function renderAction(i){
@@ -226,7 +257,7 @@ function renderAction(i){
   action.innerHTML=`<div class="action-head"><strong>${i}回目の攻撃</strong><label class="switch"><input id="action-${i}-enabled" type="checkbox" ${i===1?'checked':''} onchange="toggleAction(${i})">使用する</label></div><div id="action-${i}-body" class="action-body"><div class="fields two"><div class="field"><label>技</label><button class="pick-btn" type="button" id="action-${i}-move-btn" onclick="openPicker('move','atk',${i})" disabled><span>攻撃側を選択後に表示</span><span class="pick-meta">検索</span></button><input type="hidden" id="action-${i}-move"></div><div class="field"><label for="action-${i}-crit">急所</label><select id="action-${i}-crit"><option value="0">なし</option><option value="1">あり</option></select></div></div><div class="rank-grid" style="margin-top:9px"><div class="field"><label for="action-${i}-side">手動ランク変化</label><select id="action-${i}-side"><option value="">なし</option><option value="atk">攻撃側</option><option value="def">防御側</option></select></div><div class="rank-control"><div class="field"><label for="action-${i}-stat">能力</label><select id="action-${i}-stat">${Object.entries(RANK_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label for="action-${i}-delta">変化</label><select id="action-${i}-delta">${rankOptions(0)}</select></div></div></div><label class="switch" style="margin-top:10px"><input id="action-${i}-endturn" type="checkbox" ${i<3?'checked':''}>この攻撃の後にターン終了処理</label></div>`;
   root.appendChild(action);
 }
-function toggleAction(i){$('action-'+i+'-body').classList.toggle('disabled',!$('action-'+i+'-enabled').checked);updateRelevantEvFields()}
+function toggleAction(i){$('action-'+i+'-body').classList.toggle('disabled',!$('action-'+i+'-enabled').checked);updateRelevantEvFields();updateWorkspaceContext()}
 function setEv(side,key,value){const el=$(side+'-ev-'+key);if(!el)return;el.value=Math.max(0,Math.min(evSettings().max,Number(value)||0))}
 function resetAllEv(side){STAT_KEYS.forEach(key=>setEv(side,key,0))}
 function selectedActionMoves(){return [1,2,3].filter(i=>$('action-'+i+'-enabled')?.checked).map(i=>{const name=$('action-'+i+'-move')?.value||'';return currentMoves().find(m=>m.name===name)||movesByName.get(name)||null}).filter(Boolean)}
@@ -244,6 +275,27 @@ function updateRelevantEvFields(){
 }
 function readEv(side,key){const control=$(side+'-ev-control-'+key);if(control?.classList.contains('is-hidden'))return 0;return Math.max(0,n(side+'-ev-'+key,0))}
 function setMobileSide(side){const pair=$('side-pair');if(pair)pair.dataset.mobileSide=side;['atk','def'].forEach(k=>{const b=$('side-tab-'+k);if(b)b.classList.toggle('active',k===side)})}
+const PURPOSE_TEXT={
+  ko:'連続で倒せるかを確認します。まず「ポケモン・技・調整」で、誰が誰に何を使うかを設定し、必要な時だけ場の条件を追加して計算します。',
+  hp:'HPの推移を確認します。登場時のダメージ、攻撃後の能力変化、回復の順番を反映して、各時点の残りHPを確認します。',
+  speed:'素早さ変化後の先制判定を確認します。ポケモンと技を設定後、必要な場の条件を追加し、「努力値探索」で最終時点の先制条件を有効にします。',
+  tune:'条件を満たす努力値を探します。ポケモン・技・調整と、必要なら場の条件を設定してから「努力値探索」で条件を選びます。'
+};
+function choosePurpose(key){
+  document.querySelectorAll('.purpose-card').forEach(btn=>btn.classList.toggle('active',btn.dataset.purpose===key));
+  const note=$('purpose-note');if(note)note.textContent=PURPOSE_TEXT[key]||PURPOSE_TEXT.ko;
+  const status=$('workspace-status');if(status)status.textContent=PURPOSE_TEXT[key]||PURPOSE_TEXT.ko;
+  if(key==='speed'&&$('solver-speed')){$('solver-speed').checked=true;updateRelevantEvFields()}
+  switchWorkspacePane('setup');
+  $('sequence-workspace')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function updateWorkspaceContext(){
+  const a=$('atk-name')?.value||'攻撃側を選択';
+  const d=$('def-name')?.value||'防御側を選択';
+  const used=[1,2,3].filter(i=>$('action-'+i+'-enabled')?.checked).map(i=>$('action-'+i+'-move')?.value).filter(Boolean);
+  const moveText=used.length?used.join(' → '):'技を選択';
+  const context=$('workspace-context');if(context)context.textContent=`計算対象：${a} → ${d} / ${moveText}`;
+}
 function switchWorkspacePane(name){
   ['setup','scenario','solver','result'].forEach(key=>{const pane=$('sequence-pane-'+key),tab=$('pane-tab-'+key),active=key===name;if(pane){pane.classList.toggle('active',active);pane.hidden=!active}if(tab){tab.classList.toggle('active',active);tab.setAttribute('aria-selected',active?'true':'false')}});
   if(name==='setup')setMobileSide('atk');
@@ -261,10 +313,10 @@ function closePickerFromBackdrop(e){if(e.target===$('picker-modal'))closePicker(
 function renderPickerResults(){const all=pickerOptions();const q=norm($('picker-search').value);const rows=all.filter(x=>!q||norm(x.label).includes(q)).slice(0,200);const source=picker.kind==='move'&&moveSourceLabel()?`（${moveSourceLabel()}）`:'';$('picker-meta').textContent=`${rows.length}${rows.length!==all.length?` / ${all.length}`:''}件${source}`;$('picker-list').innerHTML=rows.length?rows.map((x,idx)=>`<button type="button" class="picker-row" onclick="selectPicker(${idx})"><span><span class="picker-row-main">${esc(x.label)}</span>${x.sub?`<span class="picker-row-sub">${esc(x.sub)}</span>`:''}</span><span class="picker-row-tag">${esc(x.tag||'')}</span></button>`).join(''):'<div class="picker-empty">一致する候補がありません。</div>';window._pickerRows=rows}
 function selectPicker(index){const x=window._pickerRows?.[index];if(!x)return;if(picker.kind==='pokemon'){setSidePokemon(picker.side,x.value)}else if(picker.kind==='ability'){setSideAbility(picker.side,x.value)}else if(picker.kind==='item'){setSideItem(picker.side,x.value)}else if(picker.kind==='move'){setActionMove(picker.action,x.value)}closePicker()}
 function setBtn(id,text,meta='検索'){const b=$(id);if(!b)return;b.innerHTML=`<span>${esc(text)}</span><span class="pick-meta">${esc(meta)}</span>`}
-function setSidePokemon(side,name){const p=getPokemon(name);if(!p)return;const changed=$(side+'-name').value!==p.name;$(side+'-name').value=p.name;setBtn(side+'-pokemon-btn',p.name,'変更');$(side+'-ability').value='';setBtn(side+'-ability-btn','特性を選択','検索');$(side+'-ability-btn').disabled=false;$(side+'-state').textContent='選択済み';$(side+'-state').classList.add('ready');if(side==='atk'){const sourceLabel=moveSourceLabel();for(let i=1;i<=3;i++){const b=$('action-'+i+'-move-btn');b.disabled=false;if(changed){$('action-'+i+'-move').value='';setBtn('action-'+i+'-move-btn',sourceLabel?`${sourceLabel}を選択`:'技を選択','検索')}else if(!$('action-'+i+'-move').value){setBtn('action-'+i+'-move-btn',sourceLabel?`${sourceLabel}を選択`:'技を選択','検索')}}}updateRelevantEvFields()}
+function setSidePokemon(side,name){const p=getPokemon(name);if(!p)return;const changed=$(side+'-name').value!==p.name;$(side+'-name').value=p.name;setBtn(side+'-pokemon-btn',p.name,'変更');$(side+'-ability').value='';setBtn(side+'-ability-btn','特性を選択','検索');$(side+'-ability-btn').disabled=false;$(side+'-state').textContent='選択済み';$(side+'-state').classList.add('ready');if(side==='atk'){const sourceLabel=moveSourceLabel();for(let i=1;i<=3;i++){const b=$('action-'+i+'-move-btn');b.disabled=false;if(changed){$('action-'+i+'-move').value='';setBtn('action-'+i+'-move-btn',sourceLabel?`${sourceLabel}を選択`:'技を選択','検索')}else if(!$('action-'+i+'-move').value){setBtn('action-'+i+'-move-btn',sourceLabel?`${sourceLabel}を選択`:'技を選択','検索')}}}updateRelevantEvFields();updateWorkspaceContext()}
 function setSideAbility(side,name){if(name&&!currentAbilities(side).includes(name))return;$(side+'-ability').value=name||'';setBtn(side+'-ability-btn',name||'特性を選択','検索')}
 function setSideItem(side,name){if(name&&!items.some(x=>x.name===name))return;$(side+'-item').value=name||'';setBtn(side+'-item-btn',name||'持ち物なし',name?'変更':'検索')}
-function setActionMove(i,name){const m=currentMoves().find(x=>x.name===name)||movesByName.get(name);if(!m)return;$('action-'+i+'-move').value=m.name;setBtn('action-'+i+'-move-btn',m.name,'変更');updateRelevantEvFields()}
+function setActionMove(i,name){const m=currentMoves().find(x=>x.name===name)||movesByName.get(name);if(!m)return;$('action-'+i+'-move').value=m.name;setBtn('action-'+i+'-move-btn',m.name,'変更');updateRelevantEvFields();updateWorkspaceContext()}
 function profile(side,overrideEv=null,overrideNature=null){const p=getPokemon($(side+'-name').value);if(!p)throw new Error((side==='atk'?'攻撃側':'防御側')+'のポケモンを選択してください。');const lv=Math.max(1,Math.min(100,n(side+'-lv',50))),iv=Math.max(0,Math.min(31,n(side+'-iv',31))),nature=overrideNature||$(side+'-nature').value||'がんばりや';const set=evSettings(),ev={};STAT_KEYS.forEach(k=>{ev[k]=Math.max(0,Math.min(set.max,overrideEv?.[k]??readEv(side,k)))});const stats={};STAT_KEYS.forEach(k=>{stats[k]=calcStat(Number(p[k])||0,iv,ev[k],lv,nature,k)});const ranks={};Object.keys(RANK_LABELS).forEach(k=>{ranks[k]=Math.max(-6,Math.min(6,n(side+'-rank-'+k,0)))});return {side,p,lv,iv,nature,ev,stats,ranks,ability:$(side+'-ability').value||'',item:$(side+'-item').value||'',hp:stats.hp,maxHp:stats.hp,itemUsed:false}}
 function typesOf(x){return [x.p.type1,x.p.type2].filter(Boolean)}
 function typeEff(type,types,moveName='',ability=''){let e=1,chart=TYPE_CHART[type]||{};types.forEach(t=>{if(moveName==='フリーズドライ'&&t==='みず')e*=2;else e*=chart[t]===undefined?1:chart[t]});if(['きもったま','しんがん'].includes(ability)&&['ノーマル','かくとう'].includes(type)&&types.includes('ゴースト'))e=e===0?1:e;return e}
@@ -289,7 +341,7 @@ function runSolver(){try{const i=[1,2,3].find(x=>$('action-'+x+'-enabled').check
 function syncEvMode(){const s=evSettings();['atk','def'].forEach(side=>STAT_KEYS.forEach(k=>{const el=$(side+'-ev-'+k);if(!el)return;el.max=s.max;el.step=s.step;if(Number(el.value)>s.max)el.value=s.max}));updateRelevantEvFields()}
 function getScenarioSource(){const side=x=>({name:$(x+'-name').value,lv:n(x+'-lv',50),iv:n(x+'-iv',31),nature:$(x+'-nature').value,ability:$(x+'-ability').value,item:$(x+'-item').value,ev:currentSpread(x),ranks:Object.fromEntries(Object.keys(RANK_LABELS).map(k=>[k,n(x+'-rank-'+k,0)]))});const actions=[];for(let i=1;i<=3;i++)actions.push({enabled:$('action-'+i+'-enabled').checked,move:$('action-'+i+'-move').value,crit:$('action-'+i+'-crit').value==='1',endTurn:$('action-'+i+'-endturn').checked,manual:{side:$('action-'+i+'-side').value,stat:$('action-'+i+'-stat').value,delta:n('action-'+i+'-delta',0)}});return {version:2,gameMode:$('game-mode').value,entrySide:$('entry-side').value,weather:$('weather').value,hazards:{sr:$('hazard-sr').value,spikes:$('hazard-spikes').value,web:$('hazard-web').value},attacker:side('atk'),defender:side('def'),actions}}
 function setIfAllowed(side,data){if(!data)return;setSidePokemon(side,data.name);$(side+'-lv').value=data.lv||50;$(side+'-iv').value=data.iv??31;$(side+'-nature').value=NATURES.includes(data.nature)?data.nature:'がんばりや';STAT_KEYS.forEach(k=>$(side+'-ev-'+k).value=data.ev?.[k]??0);Object.entries(data.ranks||{}).forEach(([k,v])=>{if($(side+'-rank-'+k))$(side+'-rank-'+k).value=Math.max(-6,Math.min(6,Number(v)||0))});if(currentAbilities(side).includes(data.ability))setSideAbility(side,data.ability);if(items.some(x=>x.name===data.item))setSideItem(side,data.item)}
-function applyScenario(src){if(!src)return;$('game-mode').value=src.gameMode||'champions';syncEvMode();$('entry-side').value=src.entrySide||'def';$('weather').value=src.weather||'';$('hazard-sr').value=src.hazards?.sr||'0';$('hazard-spikes').value=src.hazards?.spikes||'0';$('hazard-web').value=src.hazards?.web||'0';setIfAllowed('atk',src.attacker);setIfAllowed('def',src.defender);(src.actions||[]).forEach((a,idx)=>{const i=idx+1;if(i>3||!a)return;$('action-'+i+'-enabled').checked=!!a.enabled;toggleAction(i);if(currentMoves().some(m=>m.name===a.move))setActionMove(i,a.move);$('action-'+i+'-crit').value=a.crit?'1':'0';$('action-'+i+'-endturn').checked=!!a.endTurn;$('action-'+i+'-side').value=a.manual?.side||'';$('action-'+i+'-stat').value=a.manual?.stat||'atk';$('action-'+i+'-delta').value=Math.max(-6,Math.min(6,Number(a.manual?.delta)||0))})}
+function applyScenario(src){if(!src)return;$('game-mode').value=src.gameMode||'champions';syncEvMode();$('entry-side').value=src.entrySide||'def';$('weather').value=src.weather||'';$('hazard-sr').value=src.hazards?.sr||'0';$('hazard-spikes').value=src.hazards?.spikes||'0';$('hazard-web').value=src.hazards?.web||'0';setIfAllowed('atk',src.attacker);setIfAllowed('def',src.defender);(src.actions||[]).forEach((a,idx)=>{const i=idx+1;if(i>3||!a)return;$('action-'+i+'-enabled').checked=!!a.enabled;toggleAction(i);if(currentMoves().some(m=>m.name===a.move))setActionMove(i,a.move);$('action-'+i+'-crit').value=a.crit?'1':'0';$('action-'+i+'-endturn').checked=!!a.endTurn;$('action-'+i+'-side').value=a.manual?.side||'';$('action-'+i+'-stat').value=a.manual?.stat||'atk';$('action-'+i+'-delta').value=Math.max(-6,Math.min(6,Number(a.manual?.delta)||0))});updateRelevantEvFields();updateWorkspaceContext()}
 function parseOldAdjustment(t){const out={ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},lv:50,iv:31,nature:'がんばりや',ability:'',item:''},s=String(t||'');let m=s.match(/Lv(\d+)/);if(m)out.lv=+m[1];m=s.match(/\/\s*([^/]+?)\s*\/\s*H/);if(m)out.nature=m[1].trim();['hp','atk','def','spa','spd','spe'].forEach((k,i)=>{const tag=['H','A','B','C','D','S'][i],r=s.match(new RegExp(tag+'(\\d+)'));if(r)out.ev[k]=+r[1]});m=s.match(/特性\s*([^/]+?)(?:\s*\/|$)/);if(m)out.ability=m[1].trim();m=s.match(/持ち物\s*(.+)$/);if(m)out.item=m[1].trim();return out}
 function recordToScenario(r){if(r?.sequenceSource)return r.sequenceSource;const a=parseOldAdjustment(r?.attacker?.adjustment),d=parseOldAdjustment(r?.defender?.adjustment);return {version:1,gameMode:'champions',entrySide:'def',weather:'',hazards:{sr:'0',spikes:'0',web:'0'},attacker:{...a,name:r?.attacker?.name||''},defender:{...d,name:r?.defender?.name||''},actions:[{enabled:true,move:r?.move?.name||'',crit:false,endTurn:true,manual:{side:'',stat:'atk',delta:0}}]}}
 async function openCalcHistoryModal(){$('history-modal').classList.add('open');$('history-list').innerHTML='<div class="empty">読み込み中です。</div>';try{const records=typeof loadCalcRecords==='function'?await loadCalcRecords(100):[];if(!records.length){$('history-list').innerHTML='<div class="empty">保存された計算履歴はありません。</div>';return}window._sequenceRecords=records;$('history-list').innerHTML=records.map((r,i)=>`<article class="history-row"><div><div class="history-main">${esc(r.attacker?.displayName||r.attacker?.name||'—')} → ${esc(r.defender?.displayName||r.defender?.name||'—')}</div><div class="history-sub">${esc(r.move?.name||'—')}　${esc(r.result?.damage||'')}</div></div><button class="history-open" type="button" onclick="importRecord(${i})">読み込む</button></article>`).join('')}catch(_){$('history-list').innerHTML='<div class="empty">履歴を読み込めませんでした。</div>'}}
