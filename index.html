@@ -248,7 +248,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
-    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="sequence.html">連続ダメージ</a>
     <a class="nav-btn" href="selection_predictor.html">選出予測</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
     <a class="nav-btn" href="speed.html">素早さライン</a>
@@ -263,10 +263,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
   </button>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 </header>
-<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">クイック技ダメージ</a><a class="side-link" href="battle.html">バトルシミュレーション</a><a class="side-link" href="builder.html">構築アシスト</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link" href="scope.html">バトルアナライザー</a><a class="side-link" href="selection_predictor.html">選出予測</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a><a class="side-link" href="blog.html">記事一覧</a><a class="side-link" href="policy.html">サイト情報</a></div></div></aside>
+<aside class="side-dock"><div class="side-card"><div class="side-title">ツール移動</div><div class="side-links"><a class="side-link" href="calc.html">ダメージ計算</a><a class="side-link" href="endure.html">耐久調整</a><a class="side-link" href="move.html">クイック技ダメージ</a><a class="side-link" href="battle.html">バトルシミュレーション</a><a class="side-link" href="builder.html">構築アシスト</a><a class="side-link" href="party.html">パーティ管理</a><a class="side-link" href="pokemon.html">ポケモン登録</a><a class="side-link" href="items.html">アイテム</a><a class="side-link" href="sequence.html">連続ダメージ</a><a class="side-link" href="selection_predictor.html">選出予測</a><a class="side-link" href="season.html">使用可能ポケモン</a><a class="side-link" href="speed.html">素早さライン</a><a class="side-link" href="blog.html">記事一覧</a><a class="side-link" href="policy.html">サイト情報</a></div></div></aside>
 <nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
   <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link active" href="index.html" aria-current="page">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="builder.html">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
+  <div class="mobile-tool-scroll"><a class="mobile-tool-link active" href="index.html" aria-current="page">TOP</a><a class="mobile-tool-link" href="calc.html">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="builder.html">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="sequence.html">連続計算</a><a class="mobile-tool-link" href="selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
 </nav>
 
 
@@ -334,7 +334,7 @@ POKE-EDGE
     <a class="tool-card" href="pokemon.html">
       <div class="tool-card-icon">🔴</div>
       <div class="tool-card-name">ポケモン登録</div>
-      <div class="tool-card-desc">ポケモンごとに性格・個体値・努力値・技・持ち物を登録。Champions / 従来作の努力値モードを切替可能。登録データはダメージ計算・クイック・アナライザーで自動読み込みされます。</div>
+      <div class="tool-card-desc">ポケモンごとに性格・個体値・努力値・技・持ち物を登録。Champions / 従来作の努力値モードを切替可能。登録データはダメージ計算・クイック・連続ダメージで自動読み込みされます。</div>
       <span class="tool-card-tag">Champions努力値対応 / 全ツール連携</span>
     </a>
     <a class="tool-card" href="items.html">
@@ -343,11 +343,11 @@ POKE-EDGE
       <div class="tool-card-desc">現在使える道具・きのみ・メガストーンを一覧表示。入手方法と効果をまとめて確認できるので、ポケモン登録で持ち物を決める前の確認にも向いています。</div>
       <span class="tool-card-tag">入手方法 / 効果を一覧確認</span>
     </a>
-    <a class="tool-card" href="scope.html">
-      <div class="tool-card-icon">🔭</div>
-      <div class="tool-card-name">バトルアナライザー</div>
-      <div class="tool-card-desc">自分と相手の選出を入力して、盤面を整理しやすくするための機能です。タイプ相性・実数値・技をもとに形勢の見え方を確認でき、交代や行動の候補を考える材料として使えます。登録済みポケモンは技・努力値が自動入力されます。</div>
-      <span class="tool-card-tag">形勢判断 / 交代候補提示</span>
+    <a class="tool-card" href="sequence.html">
+      <div class="tool-card-icon">🔁</div>
+      <div class="tool-card-name">連続ダメージ</div>
+      <div class="tool-card-desc">設置技で場に出た時のHP、オボンのみ・たべのこし、能力変化、急所を含めて複数回のダメージを順番に確認。じきゅうりょくで防御が上がった後の2回目なども計算できます。</div>
+      <span class="tool-card-tag">設置技 / 回復 / 能力変化</span>
     </a>
     <a class="tool-card" href="season.html">
       <div class="tool-card-icon">📅</div>
@@ -406,148 +406,7 @@ POKE-EDGE
   </div>
 </div>
 
-<!-- PROモード案内 -->
-<div id="pro-mode" style="position:relative;z-index:1;max-width:980px;margin:0 auto 40px;padding:0 20px;">
-  <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:16px;">SELECTION SUPPORT PRO</div>
-  <div style="background:linear-gradient(135deg, rgba(255,200,0,0.10), rgba(0,200,240,0.06));border:1px solid var(--accent3);padding:22px;margin-bottom:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;">
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--accent3);">選出予測PRO</div>
-        <div style="font-size:13px;color:var(--text3);line-height:1.9;margin-top:8px;max-width:760px;">バトルアナライザー内で、相手の想定選出3体・初手候補・危険な並び・こちらの推奨選出をまとめて表示します。無料の相性確認を残したまま、判断を一段進める追加機能です。</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a href="scope.html" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--accent3);background:rgba(255,200,0,0.08);color:var(--accent3);text-decoration:none;font-weight:700;font-size:12px;">scopeで見る</a>
-        <a href="auth.html?redirect=scope.html" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);text-decoration:none;font-weight:700;font-size:12px;">無料登録 / ログイン</a>
-        <a href="https://ofuse.me/memberships/4525" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);text-decoration:none;font-weight:700;font-size:12px;">OFUSEで継続する</a>
-        <a href="https://x.com/sorasitekanri" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);text-decoration:none;font-weight:700;font-size:12px;">加入後に連絡する</a>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px;">
-      <div style="background:var(--panel);border:1px solid var(--border);padding:14px;">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:6px;">できること</div>
-        <div style="font-size:12px;color:var(--text3);line-height:1.9;">相手の想定選出、初手候補、危険な並び、こちらの推奨選出、別案まで一画面で確認できます。</div>
-      </div>
-      <div style="background:var(--panel);border:1px solid var(--border);padding:14px;">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:6px;">開始方法</div>
-        <div style="font-size:12px;color:var(--text3);line-height:1.9;">scope.html で選出フェーズを開き、表示されるカードから無料体験を開始します。最初の7日間はそのまま使えます。</div>
-      </div>
-      <div style="background:var(--panel);border:1px solid var(--border);padding:14px;">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:6px;">継続予定</div>
-        <div style="font-size:12px;color:var(--text3);line-height:1.9;">無料期間後は OFUSE のメンバーシップ（月額200円）から継続できます。加入後は、Poke Edgeでログインした状態でXから連絡 → 支払い確認 → 運営側でPRO解放の流れです。</div>
-      </div>
-    </div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;">
-    <div style="background:var(--panel);border:1px solid var(--border);padding:18px;">
-      <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:10px;">ご利用の流れ</div>
-      <div style="display:grid;gap:10px;">
-        <div style="border:1px solid var(--border);background:var(--bg2);padding:12px;"><strong style="display:block;color:var(--text);margin-bottom:4px;">1. 無料登録 / ログイン</strong><span style="font-size:12px;color:var(--text3);line-height:1.8;">継続利用はログイン中のアカウントに反映する想定です。最初に登録しておくと、案内後の対応がスムーズです。</span></div>
-        <div style="border:1px solid var(--border);background:var(--bg2);padding:12px;"><strong style="display:block;color:var(--text);margin-bottom:4px;">2. 7日間の無料体験</strong><span style="font-size:12px;color:var(--text3);line-height:1.8;">scope.html の選出予測PROカードから開始できます。相手と自分を3体以上入れると、想定選出と初手候補まで表示します。</span></div>
-        <div style="border:1px solid var(--border);background:var(--bg2);padding:12px;"><strong style="display:block;color:var(--text);margin-bottom:4px;">3. 継続したい場合</strong><span style="font-size:12px;color:var(--text3);line-height:1.8;">無料期間終了後は、OFUSEのメンバーシップに加入してください。加入後は、Poke Edgeでログインした状態でXから連絡してください。支払い確認後に、同じログインアカウントへPROを反映します。</span></div>
-      </div>
-    </div>
-    <div style="background:var(--panel);border:1px solid var(--border);padding:18px;">
-      <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:10px;">現在の対応方法</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.9;">今の段階では自動決済ではなく、個別案内での運用を前提にしています。問い合わせ時はログイン済みの状態で連絡してもらうと、運営側で対象アカウントへ反映しやすくなります。</div>
-      <div style="margin-top:12px;padding:12px;border:1px dashed var(--border2);background:rgba(255,255,255,0.02);font-size:12px;color:var(--text3);line-height:1.9;">
-        <strong style="display:block;color:var(--text);margin-bottom:4px;">運営側の想定対応</strong>
-        OFUSE加入確認 → X連絡確認 → PRO反映 → 必要なら期限更新、の流れです。最初は手動反映でそのまま回せます。
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
-        <a href="https://x.com/sorasitekanri" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--accent3);background:rgba(255,200,0,0.08);color:var(--accent3);text-decoration:none;font-size:12px;font-weight:700;">問い合わせ先を見る</a>
-        <a href="policy.html#terms" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);text-decoration:none;font-size:12px;font-weight:700;">利用条件を見る</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- 使い方ガイド -->
-<div style="position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 20px 48px;">
-
-  <!-- ログイン説明 -->
-  <div style="margin-bottom:36px;" data-nosnippet>
-    <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:16px;">LOGIN GUIDE</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-
-      <!-- 未ログイン -->
-      <div style="background:var(--panel);border:1px solid var(--border);padding:20px;">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:8px;">未ログイン</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text3);margin-bottom:12px;">ブラウザ内のみ保存</div>
-        <ul style="font-size:12px;color:var(--text3);line-height:2;list-style:none;padding:0;">
-          <li>✓ ポケモン登録・パーティ・対戦記録をこの端末に保存</li>
-          <li>✓ すべての計算機能をそのまま使える</li>
-          <li style="color:var(--accent2);">✗ 端末をまたいでデータは見られない</li>
-          <li style="color:var(--accent2);">✗ キャッシュ削除でデータが消える</li>
-        </ul>
-      </div>
-
-      <!-- ログイン済み -->
-      <div style="background:var(--panel);border:1px solid var(--accent);padding:20px;position:relative;">
-        <div style="position:absolute;top:-1px;right:12px;background:var(--accent);color:#000;font-size:9px;font-weight:700;padding:2px 8px;letter-spacing:1px;">推奨</div>
-        <div style="font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">ログイン済み</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);margin-bottom:12px;">クラウド同期</div>
-        <ul style="font-size:12px;color:var(--text3);line-height:2;list-style:none;padding:0;">
-          <li style="color:var(--green);">✓ スマホ・PCのどちらからでも同じデータを使える</li>
-          <li style="color:var(--green);">✓ ログイン後も保存した内容を引き継げる</li>
-          <li style="color:var(--green);">✓ ポケモン登録・パーティ・対戦記録をまとめて管理できる</li>
-          <li>✓ すべての計算機能をそのまま使える</li>
-        </ul>
-        <a href="auth.html" style="display:inline-block;margin-top:12px;padding:8px 20px;background:linear-gradient(135deg,var(--accent),#007a99);color:#000;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;text-decoration:none;">無料登録 →</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- 機能別ログイン効果 -->
-  <div>
-    <div style="font-size:10px;letter-spacing:3px;color:var(--text2);margin-bottom:16px;">FEATURES</div>
-    <div style="background:var(--panel);border:1px solid var(--border);overflow:hidden;">
-      <table style="width:100%;border-collapse:collapse;font-size:12px;">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border);">
-            <th style="padding:12px 16px;text-align:left;color:var(--text2);font-weight:400;letter-spacing:1px;font-size:10px;">機能</th>
-            <th style="padding:12px 16px;text-align:center;color:var(--text2);font-weight:400;letter-spacing:1px;font-size:10px;">未ログイン</th>
-            <th style="padding:12px 16px;text-align:center;color:var(--accent);font-weight:400;letter-spacing:1px;font-size:10px;">ログイン済み</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:11px 16px;color:var(--text);">ダメージ計算</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:11px 16px;color:var(--text);">クイック技ダメージ</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:11px 16px;color:var(--text);">バトルアナライザー</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--green);">✓ 使用可能</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:11px 16px;color:var(--text);">ポケモン登録</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--text3);">端末内のみ保存</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:11px 16px;color:var(--text);">パーティ管理</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--text3);">端末内のみ保存</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
-          </tr>
-          <tr>
-            <td style="padding:11px 16px;color:var(--text);">バトルアナライザー内記録</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--text3);">端末内のみ保存</td>
-            <td style="padding:11px 16px;text-align:center;color:var(--accent);">☁ クラウド同期</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
+<!-- 連続ダメージシミュレーターに置換済み -->
 
 <footer>
   <div class="footer-logo">PokeEdge</div>

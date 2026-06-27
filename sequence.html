@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-adsense-account" content="ca-pub-7687416670736373">
+<title>連続ダメージシミュレーター | PokeEdge</title>
+<meta name="description" content="設置技、木の実、たべのこし、能力変化、急所を含めて複数回のダメージとHP推移を確認できるポケモン対戦向け連続ダメージシミュレーター。">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="連続ダメージシミュレーター | PokeEdge">
+<meta property="og:description" content="設置技・能力変化・回復・急所を含む複数回のダメージを確認。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://poke-edge.pages.dev/sequence.html">
+<link rel="canonical" href="https://poke-edge.pages.dev/sequence.html">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script src="usage-tracker.js"></script>
+<style>
+:root{--bg:#fffaf2;--panel:#fff;--panel2:#fff7eb;--border:#e8d8c5;--text:#34251d;--muted:#78685e;--accent:#df6b28;--accent2:#a64d1d;--soft:#f7e5d4;--good:#19734b;--bad:#be3c33;--warn:#9b5b08;--shadow:0 4px 16px rgba(91,54,26,.08)}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#fffaf2 0,#fff 280px);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;line-height:1.55}
+a{color:inherit}.site-header{position:sticky;top:0;z-index:20;background:rgba(255,250,242,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(10px)}.header-inner{max-width:1240px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:14px}.brand{font-weight:800;text-decoration:none;color:var(--accent2);font-size:20px;letter-spacing:.4px}.brand small{font-size:10px;color:var(--muted);font-weight:600;margin-left:5px}.nav{display:flex;gap:5px;overflow:auto;white-space:nowrap;flex:1}.nav a{font-size:12px;text-decoration:none;padding:7px 8px;border-radius:8px;color:#6d5041}.nav a:hover,.nav a.active{background:var(--soft);color:var(--accent2);font-weight:700}.auth{margin-left:auto;white-space:nowrap}
+main{max-width:1180px;margin:0 auto;padding:22px 16px 56px}.hero{background:linear-gradient(135deg,#fff 0,#fff2e1 100%);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow);margin-bottom:18px}.hero h1{font-size:25px;margin:0 0 6px;color:#422818}.hero p{margin:0;color:var(--muted);font-size:13px}.hero-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+button,.button{border:1px solid #d8bda5;border-radius:10px;background:#fff;color:#5a3828;padding:8px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.primary:hover{background:var(--accent2)}button:hover{border-color:var(--accent);color:var(--accent2)}button:disabled{opacity:.5;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px}.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px}.card h2{font-size:16px;margin:0 0 11px;color:#4c2d1c}.card h3{font-size:13px;margin:0 0 8px}.help{font-size:11px;color:var(--muted);margin:0 0 9px}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}.row.three{grid-template-columns:repeat(3,1fr)}.row.four{grid-template-columns:repeat(4,1fr)}label{display:block;font-size:11px;font-weight:700;color:#624838;margin-bottom:3px}input,select{width:100%;border:1px solid #dfcbb7;border-radius:9px;background:#fffdfa;padding:8px;color:var(--text);font:inherit;font-size:13px;min-height:36px}input:focus,select:focus{outline:2px solid #f7c8a4;border-color:#e18748}.ev-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.ev-grid label{font-size:10px;text-align:center}.ev-grid input{text-align:center;padding:6px 3px;font-size:12px}.subsection{border-top:1px dashed #e6d5c5;margin-top:12px;padding-top:12px}.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid #e1cab4;border-radius:999px;background:#fff8f0;font-size:11px;margin:2px 3px 2px 0}.pill input{width:auto;min-height:0}.action-card{border:1px solid #e8d7c7;background:#fffdf9;border-radius:12px;padding:12px;margin-top:10px}.action-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.action-head strong{font-size:13px}.switchline{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:11px;color:#624838}.switchline label{display:flex;align-items:center;gap:5px;margin:0;font-weight:600}.switchline input{width:auto;min-height:0}.wide{grid-column:1/-1}
+.result-card{position:sticky;top:58px}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.metric{border:1px solid #ead8c6;border-radius:10px;padding:9px;background:#fffaf4}.metric .k{font-size:10px;color:var(--muted)}.metric .v{font-weight:800;font-size:15px;color:#502d1c}.timeline{display:flex;flex-direction:column;gap:8px}.event{border-left:4px solid #d8bca4;border:1px solid #eadccd;border-left-width:4px;border-radius:10px;padding:9px 10px;background:#fffdfa}.event.good{border-left-color:var(--good)}.event.bad{border-left-color:var(--bad)}.event.warn{border-left-color:var(--warn)}.event strong{font-size:12px;display:block}.event small{font-size:11px;color:var(--muted);display:block;margin-top:2px}.event .hp{font-weight:800;font-size:13px;margin-top:3px}.empty{color:var(--muted);font-size:12px;padding:14px 2px}.notice{font-size:11px;border-radius:10px;padding:10px 12px;background:#fff6e7;border:1px solid #f0d2a7;color:#714a1e;margin-top:10px}.solver-result{margin-top:10px;border-top:1px dashed #e6d5c5;padding-top:9px}.solver-row{display:grid;grid-template-columns:84px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f1e6dc;font-size:12px}.solver-row:last-child{border-bottom:none}.ok{color:var(--good);font-weight:800}.ng{color:var(--bad);font-weight:800}.modal-backdrop{position:fixed;inset:0;background:rgba(52,36,25,.35);display:none;align-items:flex-end;justify-content:center;z-index:50}.modal-backdrop.open{display:flex}.modal{background:#fffdf9;width:min(760px,100%);border-radius:18px 18px 0 0;padding:16px;max-height:82vh;overflow:auto;box-shadow:0 -10px 30px rgba(63,35,15,.18)}.modal h2{margin:0 0 8px;font-size:16px}.record-item{border:1px solid #e7d5c3;border-radius:11px;padding:10px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}.record-item strong{font-size:13px}.record-item small{font-size:11px;color:var(--muted);display:block}.footer-note{font-size:11px;color:var(--muted);margin:14px 2px 0}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.result-card{position:static}.header-inner{padding:8px 10px;gap:8px}.brand{font-size:18px}.brand small{display:none}.nav a{font-size:11px;padding:6px 7px}main{padding:14px 10px 46px}.hero{padding:16px}.hero h1{font-size:21px}.row.three,.row.four{grid-template-columns:1fr 1fr}.ev-grid{grid-template-columns:repeat(3,1fr)}.action-card{padding:10px}.solver-row{grid-template-columns:76px 1fr}.solver-row .state{grid-column:2}.summary{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="site-header"><div class="header-inner">
+<a class="brand" href="index.html">PokeEdge <small>連続計算</small></a>
+<nav class="nav">
+<a href="calc.html">ダメ計</a><a href="move.html">クイック</a><a href="endure.html">耐久</a><a href="speed.html">素早さ</a><a href="party.html">パーティ</a><a href="sequence.html" class="active">連続ダメージ</a><a href="history.html">履歴</a>
+</nav><div class="auth" id="auth-ui"></div>
+</div></header>
+<main>
+<section class="hero">
+<h1>連続ダメージシミュレーター</h1>
+<p>設置技、オボンのみ・たべのこし、能力変化、行動ごとの急所を含めて、HPがどう動くかを確認します。選出や勝ち筋の提案は行いません。</p>
+<div class="hero-tools">
+<button type="button" onclick="openCalcHistoryModal()">保存したダメージ計算から読み込む</button>
+<button type="button" onclick="saveScenarioLocal()">この条件を端末に保存</button>
+<button type="button" onclick="resetScenario()">条件をリセット</button>
+</div>
+</section>
+
+<div class="grid">
+<section>
+<div class="card">
+<h2>1. ポケモンと基本条件</h2>
+<p class="help">現在は1体が場に出た後、同じ攻撃側が最大3回行動する場面に対応しています。</p>
+<div class="row">
+<div><label>ゲームモード</label><select id="game-mode"><option value="champions">Pokémon Champions</option><option value="classic">従来作</option></select></div>
+<div><label>場に出る側</label><select id="entry-side"><option value="def">防御側が登場</option><option value="atk">攻撃側が登場</option><option value="none">登場時処理なし</option></select></div>
+</div>
+<div class="row">
+<div><label>攻撃側ポケモン</label><input id="atk-name" list="pokemon-list" placeholder="例：ガブリアス" onchange="syncPokemonLabel('atk')"></div>
+<div><label>防御側ポケモン</label><input id="def-name" list="pokemon-list" placeholder="例：ブリジュラス" onchange="syncPokemonLabel('def')"></div>
+</div>
+<div class="row">
+<div><label>攻撃側 特性</label><input id="atk-ability" list="ability-list" placeholder="例：さめはだ"></div>
+<div><label>防御側 特性</label><input id="def-ability" list="ability-list" placeholder="例：じきゅうりょく"></div>
+</div>
+<div class="row">
+<div><label>攻撃側 持ち物</label><input id="atk-item" list="item-list" placeholder="例：こだわりハチマキ"></div>
+<div><label>防御側 持ち物</label><input id="def-item" list="item-list" placeholder="例：オボンのみ"></div>
+</div>
+<div class="subsection">
+<h3>攻撃側の能力</h3>
+<div class="row three"><div><label>レベル</label><input id="atk-lv" type="number" min="1" max="100" value="50"></div><div><label>性格</label><select id="atk-nature"></select></div><div><label>個体値（共通）</label><input id="atk-iv" type="number" min="0" max="31" value="31"></div></div>
+<div class="ev-grid" id="atk-evs"></div>
+<div class="row three" style="margin-top:9px"><div><label>攻撃ランク</label><select id="atk-rank-atk"></select></div><div><label>特攻ランク</label><select id="atk-rank-spa"></select></div><div><label>素早さランク</label><select id="atk-rank-spe"></select></div></div>
+</div>
+<div class="subsection">
+<h3>防御側の能力</h3>
+<div class="row three"><div><label>レベル</label><input id="def-lv" type="number" min="1" max="100" value="50"></div><div><label>性格</label><select id="def-nature"></select></div><div><label>個体値（共通）</label><input id="def-iv" type="number" min="0" max="31" value="31"></div></div>
+<div class="ev-grid" id="def-evs"></div>
+<div class="row four" style="margin-top:9px"><div><label>攻撃ランク</label><select id="def-rank-atk"></select></div><div><label>防御ランク</label><select id="def-rank-def"></select></div><div><label>特防ランク</label><select id="def-rank-spd"></select></div><div><label>素早さランク</label><select id="def-rank-spe"></select></div></div>
+</div>
+</div>
+
+<div class="card" style="margin-top:15px">
+<h2>2. 登場時の処理</h2>
+<div class="row">
+<div><label>ステルスロック</label><select id="hazard-sr"><option value="0">なし</option><option value="1">あり</option></select></div>
+<div><label>まきびし</label><select id="hazard-spikes"><option value="0">なし</option><option value="1">1回</option><option value="2">2回</option><option value="3">3回</option></select></div>
+</div>
+<div class="row">
+<div><label>ねばねばネット</label><select id="hazard-web"><option value="0">なし</option><option value="1">あり（素早さ−1）</option></select></div>
+<div><label>天候</label><select id="weather"><option value="">なし</option><option value="sun">晴れ</option><option value="rain">雨</option><option value="sand">砂嵐</option><option value="snow">雪</option></select></div>
+</div>
+<p class="help">まきびし・ねばねばネットは、ひこうタイプ／ふゆう／ふうせんのポケモンには適用しません。どくびしの状態異常処理は初回対象外です。</p>
+</div>
+
+<div class="card" style="margin-top:15px">
+<h2>3. 行動を追加</h2>
+<p class="help">各行動の後に、自動特性・木の実・反動・ターン終了処理を順番に反映します。手動ランク変化はその後に加算します。</p>
+<div id="actions"></div>
+<button type="button" class="primary" style="margin-top:12px" onclick="runSimulation()">HP推移を計算</button>
+</div>
+
+<div class="card" style="margin-top:15px">
+<h2>4. 火力＋素早さの最小努力値を探す</h2>
+<p class="help">上のシナリオで「最後の攻撃までに確定で倒す」と、指定相手を素早さで上回る条件を同時に探します。耐久条件の同時探索は次段階で追加します。</p>
+<div class="row">
+<div><label><input id="solver-ko" type="checkbox" checked style="width:auto;margin-right:5px">最後の攻撃までに確定撃破</label></div>
+<div><label><input id="solver-speed" type="checkbox" checked style="width:auto;margin-right:5px">防御側より速い</label></div>
+</div>
+<div class="row">
+<div><label>素早さ判定</label><select id="speed-rule"><option value="strict">自分が上（同速は未達）</option><option value="tie">同速以上</option></select></div>
+<div><label>探索する性格</label><select id="solver-nature-mode"><option value="all">全性格から候補を出す</option><option value="current">現在の性格だけ使う</option></select></div>
+</div>
+<button type="button" onclick="runSolver()">努力値候補を探す</button>
+<div class="solver-result" id="solver-result"><div class="empty">計算後に候補を表示します。</div></div>
+</div>
+</section>
+
+<aside>
+<div class="card result-card">
+<h2>HP推移</h2>
+<div class="summary" id="summary"><div class="metric"><div class="k">防御側の最終HP</div><div class="v">—</div></div><div class="metric"><div class="k">攻撃側の最終HP</div><div class="v">—</div></div></div>
+<div id="timeline" class="timeline"><div class="empty">ポケモンと行動を設定して「HP推移を計算」を押してください。</div></div>
+<div class="notice">初回対応：ステルスロック・まきびし・ねばねばネット／オボンのみ・たべのこし・くろいヘドロ・いのちのたま・ゴツゴツメット／じきゅうりょく・くだけるよろい・かそく・いかく／手動ランク変化／行動ごとの急所。対応外の変化は「手動ランク変化」で確認できます。</div>
+</div>
+</aside>
+</div>
+<p class="footer-note">乱数は各行動の最小〜最大で表示します。複数回の厳密な乱数合算確率は、初回版では表示しません。確定撃破はすべて最低乱数で判定します。</p>
+</main>
+
+<datalist id="pokemon-list"></datalist><datalist id="move-list"></datalist><datalist id="ability-list"></datalist><datalist id="item-list"></datalist>
+<div class="modal-backdrop" id="history-modal" onclick="closeModalIfBackdrop(event)"><div class="modal">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h2>保存したダメージ計算</h2><button type="button" onclick="closeCalcHistoryModal()">閉じる</button></div>
+<p class="help">新しく保存した履歴は努力値・特性・持ち物も読み込みます。以前の履歴は、取り込める項目だけ反映します。</p>
+<div id="history-list"><div class="empty">読み込み中です。</div></div>
+</div></div>
+
+<script>
+const TYPE_CHART={
+'ノーマル':{'いわ':.5,'ゴースト':0,'はがね':.5},'ほのお':{'ほのお':.5,'みず':.5,'くさ':2,'こおり':2,'むし':2,'いわ':.5,'ドラゴン':.5,'はがね':2},
+'みず':{'ほのお':2,'みず':.5,'くさ':.5,'じめん':2,'いわ':2,'ドラゴン':.5},'でんき':{'みず':2,'でんき':.5,'くさ':.5,'じめん':0,'ひこう':2,'ドラゴン':.5},
+'くさ':{'ほのお':.5,'みず':2,'くさ':.5,'どく':.5,'じめん':2,'ひこう':.5,'むし':.5,'いわ':2,'ドラゴン':.5,'はがね':.5},
+'こおり':{'ほのお':.5,'みず':.5,'くさ':2,'じめん':2,'ひこう':2,'ドラゴン':2,'はがね':.5},'かくとう':{'ノーマル':2,'こおり':2,'どく':.5,'ひこう':.5,'エスパー':.5,'むし':.5,'いわ':2,'ゴースト':0,'あく':2,'はがね':2,'フェアリー':.5},
+'どく':{'くさ':2,'どく':.5,'じめん':.5,'いわ':.5,'ゴースト':.5,'はがね':0,'フェアリー':2},'じめん':{'ほのお':2,'でんき':2,'くさ':.5,'どく':2,'ひこう':0,'むし':.5,'いわ':2,'はがね':2},
+'ひこう':{'でんき':.5,'くさ':2,'かくとう':2,'むし':2,'いわ':.5,'はがね':.5},'エスパー':{'かくとう':2,'どく':2,'エスパー':.5,'あく':0,'はがね':.5},
+'むし':{'ほのお':.5,'くさ':2,'かくとう':.5,'どく':.5,'ひこう':.5,'エスパー':2,'ゴースト':.5,'あく':2,'はがね':.5,'フェアリー':.5},
+'いわ':{'ほのお':2,'こおり':2,'かくとう':.5,'じめん':.5,'ひこう':2,'むし':2,'はがね':.5},'ゴースト':{'ノーマル':0,'エスパー':2,'ゴースト':2,'あく':.5},
+'ドラゴン':{'ドラゴン':2,'はがね':.5,'フェアリー':0},'あく':{'かくとう':.5,'エスパー':2,'ゴースト':2,'あく':.5,'フェアリー':.5},
+'はがね':{'ほのお':.5,'みず':.5,'でんき':.5,'こおり':2,'いわ':2,'はがね':.5,'フェアリー':2},'フェアリー':{'ほのお':.5,'かくとう':2,'どく':.5,'ドラゴン':2,'あく':2,'はがね':.5}
+};
+const NATURES={
+'がんばりや':[1,1,1,1,1],'さみしがり':[1.1,.9,1,1,1],'いじっぱり':[1.1,1,.9,1,1],'やんちゃ':[1.1,1,1,.9,1],'ゆうかん':[1.1,1,1,1,.9],
+'ずぶとい':[.9,1.1,1,1,1],'わんぱく':[1,1.1,.9,1,1],'のうてんき':[1,1.1,1,.9,1],'のんき':[1,1.1,1,1,.9],
+'ひかえめ':[.9,1,1,1.1,1],'おっとり':[1, .9,1,1.1,1],'うっかりや':[1,1,.9,1.1,1],'れいせい':[1,1,1,1.1,.9],
+'おだやか':[.9,1,1,1,1.1],'おとなしい':[1,.9,1,1,1.1],'しんちょう':[1,1,.9,1,1.1],'なまいき':[1,1,1, .9,1.1],
+'おくびょう':[.9,1,1,1,1.1],'せっかち':[1,.9,1,1,1.1],'ようき':[1,1,.9,1,1.1],'むじゃき':[1,1,1,.9,1]
+};
+// actual speed-up natures are corrected during stat calc through natureTarget; keeping explicit map avoids visual-only labels
+const NATURE_TARGET={
+'さみしがり':['atk','def'],'いじっぱり':['atk','spa'],'やんちゃ':['atk','spd'],'ゆうかん':['atk','spe'],
+'ずぶとい':['def','atk'],'わんぱく':['def','spa'],'のうてんき':['def','spd'],'のんき':['def','spe'],
+'ひかえめ':['spa','atk'],'おっとり':['spa','def'],'うっかりや':['spa','spd'],'れいせい':['spa','spe'],
+'おだやか':['spd','atk'],'おとなしい':['spd','def'],'しんちょう':['spd','spa'],'なまいき':['spd','spe'],
+'おくびょう':['spe','atk'],'せっかち':['spe','def'],'ようき':['spe','spa'],'むじゃき':['spe','spd']
+};
+const STAT_KEYS=['hp','atk','def','spa','spd','spe'];
+let pokemon=[], moves=[], abilities=[], items=[];
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function num(id, fallback=0){const v=parseInt($(id)?.value,10);return Number.isFinite(v)?v:fallback;}
+function norm(v){return String(v||'').trim().replace(/[　\s]/g,'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248));}
+function optionHtml(options, selected){return options.map(o=>`<option value="${esc(o.value??o)}"${String(o.value??o)===String(selected)?' selected':''}>${esc(o.label??o)}</option>`).join('');}
+function initControls(){
+ const natureOptions=Object.keys(NATURES).map(n=>({value:n,label:n}));
+ $('atk-nature').innerHTML=optionHtml(natureOptions,'いじっぱり'); $('def-nature').innerHTML=optionHtml(natureOptions,'ずぶとい');
+ ['atk-rank-atk','atk-rank-spa','atk-rank-spe','def-rank-atk','def-rank-def','def-rank-spd','def-rank-spe'].forEach(id=>$(id).innerHTML=optionHtml(Array.from({length:13},(_,i)=>({value:i-6,label:(i-6)>0?'+'+(i-6):(i-6===0?'±0':String(i-6))})),0));
+ ['atk','def'].forEach(side=>{
+   $(side+'-evs').innerHTML=STAT_KEYS.map(k=>`<label>${({hp:'H',atk:'A',def:'B',spa:'C',spd:'D',spe:'S'})[k]}<input id="${side}-ev-${k}" type="number" min="0" max="252" step="4" value="0"></label>`).join('');
+ });
+ for(let i=1;i<=3;i++) renderAction(i);
+}
+function renderAction(i){
+ const root=$('actions'); const block=document.createElement('div'); block.className='action-card'; block.id='action-'+i;
+ block.innerHTML=`<div class="action-head"><strong>${i}回目の攻撃</strong><label class="switchline"><input id="action-${i}-enabled" type="checkbox" ${i===1?'checked':''} onchange="toggleAction(${i})">使う</label></div>
+ <div class="action-body" id="action-${i}-body">
+ <div class="row"><div><label>攻撃技</label><input id="action-${i}-move" list="move-list" placeholder="例：じしん" onchange="fillMoveInfo(${i})"></div><div><label>急所</label><select id="action-${i}-crit"><option value="0">急所なし</option><option value="1">急所あり</option></select></div></div>
+ <div class="row three"><div><label>タイプ</label><input id="action-${i}-type" placeholder="自動"></div><div><label>分類</label><select id="action-${i}-cat"><option value="物理">物理</option><option value="特殊">特殊</option></select></div><div><label>威力</label><input id="action-${i}-power" type="number" min="0" placeholder="自動"></div></div>
+ <div class="row"><div><label>手動ランク変化：対象</label><select id="action-${i}-side"><option value="">なし</option><option value="atk">攻撃側</option><option value="def">防御側</option></select></div><div><label>能力 / 変化</label><div style="display:grid;grid-template-columns:1fr 78px;gap:6px"><select id="action-${i}-stat"><option value="atk">攻撃</option><option value="def">防御</option><option value="spa">特攻</option><option value="spd">特防</option><option value="spe">素早さ</option></select><select id="action-${i}-delta">${optionHtml(Array.from({length:13},(_,j)=>({value:j-6,label:(j-6)>0?'+'+(j-6):String(j-6)})),0)}</select></div></div></div>
+ <div class="switchline"><label><input id="action-${i}-endturn" type="checkbox" ${i<3?'checked':''}>この攻撃の後にターン終了処理</label><label><input id="action-${i}-contact" type="checkbox">接触技として処理（ゴツゴツメット）</label></div></div>`;
+ root.appendChild(block);
+}
+function toggleAction(i){$('action-'+i+'-body').style.display=$('action-'+i+'-enabled').checked?'block':'none';}
+function fillMoveInfo(i){
+ const found=moves.find(m=>norm(m.name)===norm($('action-'+i+'-move').value));
+ if(!found)return;
+ $('action-'+i+'-type').value=found.type||''; $('action-'+i+'-cat').value=found.category==='特殊'?'特殊':'物理'; $('action-'+i+'-power').value=parseInt(found.power)||0;
+}
+function natureMult(nature,key){
+ const pair=NATURE_TARGET[nature];
+ if(!pair)return 1;
+ if(pair[0]===key)return 1.1;
+ if(pair[1]===key)return .9;
+ return 1;
+}
+function calcStat(base,iv,ev,lv,nature,key,mode){
+ if(key==='hp'){
+  return mode==='champions'?Math.floor(Math.floor((base*2+iv)*lv/100)+10+lv)+ev:Math.floor(Math.floor((base*2+iv+Math.floor(ev/4))*lv/100)+10+lv);
+ }
+ const n=natureMult(nature,key);
+ return mode==='champions'?Math.floor((Math.floor((base*2+iv)*lv/100)+5)*n)+Math.floor(ev*n):Math.floor((Math.floor((base*2+iv+Math.floor(ev/4))*lv/100)+5)*n);
+}
+function stageMult(stage){stage=Math.max(-6,Math.min(6,stage||0));return stage>=0?(2+stage)/2:2/(2-stage);}
+function getPokemon(name){return pokemon.find(p=>norm(p.name)===norm(name));}
+function getMove(name){return moves.find(m=>norm(m.name)===norm(name));}
+function profile(side, overrideEv=null, overrideNature=null){
+ const p=getPokemon($(side+'-name').value);
+ if(!p)throw new Error((side==='atk'?'攻撃側':'防御側')+'のポケモンを選択してください。');
+ const lv=Math.max(1,Math.min(100,num(side+'-lv',50))), iv=Math.max(0,Math.min(31,num(side+'-iv',31))), nature=overrideNature||$(side+'-nature').value||'がんばりや', mode=$('game-mode').value;
+ const ev={}; STAT_KEYS.forEach(k=>ev[k]=overrideEv&&overrideEv[k]!==undefined?overrideEv[k]:Math.max(0,Math.min(252,num(side+'-ev-'+k,0))));
+ const stats={}; STAT_KEYS.forEach(k=>stats[k]=calcStat(Number(p[k])||0,iv,ev[k],lv,nature,k,mode));
+ const ranks={atk:0,def:0,spa:0,spd:0,spe:0};
+ ['atk','def','spa','spd','spe'].forEach(k=>{const id=side==='atk' ? (['atk','spa','spe'].includes(k)?'atk-rank-'+k:'') : 'def-rank-'+k; if(id&&$(id))ranks[k]=num(id,0);});
+ return {side,p,lv,iv,nature,ev,stats,ranks,ability:$((side)+'-ability').value||'',item:$((side)+'-item').value||'',hp:stats.hp,maxHp:stats.hp,itemUsed:false};
+}
+function typesOf(x){return [x.p.type1,x.p.type2].filter(Boolean);}
+function typeEff(type,types,moveName='',ability=''){
+ let e=1; const chart=TYPE_CHART[type]||{};
+ types.forEach(t=>{if(moveName==='フリーズドライ'&&t==='みず')e*=2;else e*=chart[t]===undefined?1:chart[t];});
+ if(['きもったま','しんがん'].includes(ability)&&['ノーマル','かくとう'].includes(type)&&types.includes('ゴースト'))e=e===0?1:e;
+ return e;
+}
+function isGrounded(x){
+ const types=typesOf(x); const a=norm(x.ability), item=norm(x.item);
+ return !types.includes('ひこう')&&!a.includes('ふゆう')&&!item.includes('ふうせん');
+}
+function hasMagicGuard(x){return norm(x.ability).includes('マジックガード');}
+function clampHp(x){x.hp=Math.max(0,Math.min(x.maxHp,Math.floor(x.hp)));}
+function hpText(x){return `${x.hp}/${x.maxHp} (${Math.floor(x.hp/x.maxHp*100)}%)`;}
+function pushEvent(events,kind,title,detail,atk,def){events.push({kind,title,detail,atk:hpText(atk),def:hpText(def)});}
+function itemName(x){return norm(x.item);}
+function abilityName(x){return norm(x.ability);}
+function applySitrus(x, events, atk, def, trigger){
+ if(x.itemUsed||!itemName(x).includes('オボンのみ')||x.hp<=0||x.hp>x.maxHp/2)return false;
+ const heal=Math.max(1,Math.floor(x.maxHp/4));x.hp=Math.min(x.maxHp,x.hp+heal);x.itemUsed=true;
+ pushEvent(events,'good',(x.side==='atk'?'攻撃側':'防御側')+'のオボンのみ',`${trigger}でHPが半分以下になったため ${heal} 回復`,atk,def);return true;
+}
+function applyEntry(x, events, atk, def){
+ const entry=$('entry-side').value; if(entry!==x.side)return;
+ const sr=$('hazard-sr').value==='1', spikes=num('hazard-spikes'), web=$('hazard-web').value==='1';
+ if(sr&&!hasMagicGuard(x)){const eff=typeEff('いわ',typesOf(x));const dmg=Math.max(1,Math.floor(x.maxHp*eff/8));x.hp-=dmg;clampHp(x);pushEvent(events,'bad','ステルスロック',`${x.side==='atk'?'攻撃側':'防御側'}に ${dmg} ダメージ（いわ×${eff}）`,atk,def);applySitrus(x,events,atk,def,'ステルスロック');}
+ if(spikes&&isGrounded(x)&&!hasMagicGuard(x)&&x.hp>0){const ratio=spikes===1?1/8:spikes===2?1/6:1/4;const dmg=Math.max(1,Math.floor(x.maxHp*ratio));x.hp-=dmg;clampHp(x);pushEvent(events,'bad','まきびし',`${spikes}回：${dmg} ダメージ`,atk,def);applySitrus(x,events,atk,def,'まきびし');}
+ if(web&&isGrounded(x)&&x.hp>0){x.ranks.spe=Math.max(-6,x.ranks.spe-1);pushEvent(events,'warn','ねばねばネット',`${x.side==='atk'?'攻撃側':'防御側'}の素早さが1段階下降`,atk,def);}
+ // intimidate triggers on the entrant
+ if(abilityName(x).includes('いかく')&&x.hp>0){const target=x.side==='atk'?def:atk;target.ranks.atk=Math.max(-6,target.ranks.atk-1);pushEvent(events,'warn','いかく',`${target.side==='atk'?'攻撃側':'防御側'}の攻撃が1段階下降`,atk,def);}
+}
+function effectiveStat(x,key,crit,attacking){
+ let stage=x.ranks[key]||0;
+ if(crit){if(attacking&&stage<0)stage=0;if(!attacking&&stage>0)stage=0;}
+ let val=Math.floor(x.stats[key]*stageMult(stage));
+ const item=itemName(x), ability=abilityName(x);
+ if(key==='spe'){
+  if(item.includes('こだわりスカーフ'))val=Math.floor(val*1.5);
+  if(item.includes('くろいてっきゅう'))val=Math.floor(val*.5);
+  if(ability.includes('すいすい')&&$('weather').value==='rain')val*=2;
+  if(ability.includes('すなかき')&&$('weather').value==='sand')val*=2;
+  if(ability.includes('ゆきかき')&&$('weather').value==='snow')val*=2;
+ }
+ return Math.max(1,val);
+}
+function resolveMove(i){
+ const stored=getMove($('action-'+i+'-move').value); const name=$('action-'+i+'-move').value.trim();
+ const type=$('action-'+i+'-type').value.trim()||(stored?.type||'');
+ const cat=$('action-'+i+'-cat').value||stored?.category||'物理';
+ const power=num('action-'+i+'-power',parseInt(stored?.power)||0);
+ if(!name||!type||!power)throw new Error(`${i}回目の攻撃技を選択してください。`);
+ return {name,type,category:cat==='特殊'?'特殊':'物理',power,crit:$('action-'+i+'-crit').value==='1',contact:$('action-'+i+'-contact').checked};
+}
+function modifierFor(atk,def,move,crit){
+ let power=move.power, type=move.type, atkKey=move.category==='物理'?'atk':'spa', defKey=move.category==='物理'?'def':'spd';
+ if(move.name==='ボディプレス'){atkKey='def';}
+ if(move.name==='イカサマ'){atkKey='atk';}
+ if(['サイコショック','サイコブレイク','しんぴのつるぎ'].includes(move.name))defKey='def';
+ const abA=abilityName(atk),abD=abilityName(def), itA=itemName(atk);
+ if(['スカイスキン','フリーズスキン','フェアリースキン','エレキスキン'].some(s=>abA.includes(s))&&type==='ノーマル'){
+  if(abA.includes('スカイスキン'))type='ひこう'; if(abA.includes('フリーズスキン'))type='こおり'; if(abA.includes('フェアリースキン'))type='フェアリー'; if(abA.includes('エレキスキン'))type='でんき'; power=Math.floor(power*1.2);
+ }
+ if(move.name==='ウェザーボール'&&$('weather').value){const m={sun:'ほのお',rain:'みず',sand:'いわ',snow:'こおり'};type=m[$('weather').value]||type;power=100;}
+ let eff=typeEff(type,typesOf(def),move.name,abA);
+ if(type==='じめん'&&abD.includes('ふゆう'))eff=0;
+ let a;
+ if(move.name==='イカサマ')a=effectiveStat(def,'atk',crit,true);else a=effectiveStat(atk,atkKey,crit,true);
+ let d=effectiveStat(def,defKey,crit,false);
+ let statMult=1, dmgMult=1;
+ if(move.category==='物理'&&(['ちからもち','ヨガパワー'].some(s=>abA.includes(s))))statMult*=2;
+ if(move.category==='物理'&&abA.includes('はりきり'))statMult*=1.5;
+ if(move.category==='物理'&&abA.includes('こんじょう'))statMult*=1.5;
+ if(move.category==='物理'&&itA.includes('こだわりハチマキ'))statMult*=1.5;
+ if(move.category==='特殊'&&itA.includes('こだわりメガネ'))statMult*=1.5;
+ if(atk.p.name==='ピカチュウ'&&itA.includes('でんきだま'))statMult*=2;
+ if(move.category==='物理'&&abA.includes('テクニシャン')&&power<=60)dmgMult*=1.5;
+ if(itA.includes('いのちのたま'))dmgMult*=1.3;
+ if(itA.includes('たつじんのおび')&&eff>1)dmgMult*=1.2;
+ const typeBoost={'もくたん':'ほのお','しんぴのしずく':'みず','じしゃく':'でんき','きせきのタネ':'くさ','とけないこおり':'こおり','くろおび':'かくとう','どくバリ':'どく','やわらかいすな':'じめん','するどいくちばし':'ひこう','まがったスプーン':'エスパー','ぎんのこな':'むし','かたいいし':'いわ','のろいのおふだ':'ゴースト','りゅうのキバ':'ドラゴン','くろいメガネ':'あく','メタルコート':'はがね','せいれいプレート':'フェアリー'};
+ Object.keys(typeBoost).forEach(k=>{if(itA.includes(k)&&typeBoost[k]===type)dmgMult*=1.2;});
+ if(abD.includes('もふもふ')&&move.category==='物理')dmgMult*=.5;
+ if(abD.includes('フィルター')&&eff>1)dmgMult*=.75;
+ if(abD.includes('ハードロック')&&eff>1)dmgMult*=.75;
+ if(abD.includes('プリズムアーマー')&&eff>1)dmgMult*=.75;
+ if((abD.includes('マルチスケイル')||abD.includes('ファントムガード'))&&def.hp===def.maxHp)dmgMult*=.5;
+ if(abD.includes('あついしぼう')&&(type==='ほのお'||type==='こおり'))dmgMult*=.5;
+ if(abD.includes('ふわふわ')){if(move.category==='物理')dmgMult*=.5;if(type==='ほのお')dmgMult*=2;}
+ if($('weather').value==='sun'){if(type==='ほのお')dmgMult*=1.5;if(type==='みず')dmgMult*=.5;}
+ if($('weather').value==='rain'){if(type==='みず')dmgMult*=1.5;if(type==='ほのお')dmgMult*=.5;}
+ if($('weather').value==='snow'&&typesOf(def).includes('こおり')&&defKey==='def')d=Math.floor(d*1.5);
+ if($('weather').value==='sand'&&typesOf(def).includes('いわ')&&defKey==='spd')d=Math.floor(d*1.5);
+ const stab=(typesOf(atk).includes(type)?(abA.includes('てきおうりょく')?2:1.5):1);
+ if(crit)dmgMult*=1.5;
+ return {power,type,eff,atk:Math.max(1,Math.floor(a*statMult)),def:Math.max(1,d),stab,dmgMult};
+}
+function damageRange(atk,def,move){
+ const m=modifierFor(atk,def,move,move.crit); if(m.eff===0)return {min:0,max:0,immune:true,m};
+ const base=Math.floor(Math.floor(Math.floor((2*atk.lv/5+2)*m.power*m.atk/m.def)/50)+2);
+ const rolls=[];for(let r=85;r<=100;r++)rolls.push(Math.max(1,Math.floor(Math.floor(Math.floor(base*m.stab)*m.eff)*m.dmgMult*r/100)));
+ return {min:rolls[0],max:rolls[15],rolls,immune:false,m};
+}
+function afterHitAuto(atk,def,move,events){
+ if(def.hp>0&&move.category==='物理'){
+  if(abilityName(def).includes('じきゅうりょく')){def.ranks.def=Math.min(6,def.ranks.def+1);pushEvent(events,'good','じきゅうりょく','防御が1段階上昇',atk,def);}
+  if(abilityName(def).includes('くだけるよろい')){def.ranks.def=Math.max(-6,def.ranks.def-1);def.ranks.spe=Math.min(6,def.ranks.spe+2);pushEvent(events,'warn','くだけるよろい','防御が1段階下降／素早さが2段階上昇',atk,def);}
+ }
+ if(move.contact&&def.hp>0&&itemName(def).includes('ゴツゴツメット')){const dmg=Math.max(1,Math.floor(atk.maxHp/6));atk.hp-=dmg;clampHp(atk);pushEvent(events,'bad','ゴツゴツメット',`攻撃側に ${dmg} ダメージ`,atk,def);applySitrus(atk,events,atk,def,'ゴツゴツメット');}
+ if(atk.hp>0&&itemName(atk).includes('いのちのたま')){const dmg=Math.max(1,Math.floor(atk.maxHp/10));atk.hp-=dmg;clampHp(atk);pushEvent(events,'bad','いのちのたま',`攻撃側に ${dmg} 反動ダメージ`,atk,def);applySitrus(atk,events,atk,def,'いのちのたま');}
+}
+function endTurn(atk,def,events){
+ [atk,def].forEach(x=>{
+  if(x.hp<=0)return;const item=itemName(x), ab=abilityName(x);
+  if(item.includes('たべのこし')){const heal=Math.max(1,Math.floor(x.maxHp/16));x.hp=Math.min(x.maxHp,x.hp+heal);pushEvent(events,'good','たべのこし',`${x.side==='atk'?'攻撃側':'防御側'}が ${heal} 回復`,atk,def);}
+  if(item.includes('くろいヘドロ')){if(typesOf(x).includes('どく')){const heal=Math.max(1,Math.floor(x.maxHp/16));x.hp=Math.min(x.maxHp,x.hp+heal);pushEvent(events,'good','くろいヘドロ',`${x.side==='atk'?'攻撃側':'防御側'}が ${heal} 回復`,atk,def);}else{const dmg=Math.max(1,Math.floor(x.maxHp/8));x.hp-=dmg;clampHp(x);pushEvent(events,'bad','くろいヘドロ',`${x.side==='atk'?'攻撃側':'防御側'}が ${dmg} ダメージ`,atk,def);}}
+  if($('weather').value==='sand'&&!hasMagicGuard(x)&&!typesOf(x).some(t=>['いわ','じめん','はがね'].includes(t))){const dmg=Math.max(1,Math.floor(x.maxHp/16));x.hp-=dmg;clampHp(x);pushEvent(events,'bad','砂嵐',`${x.side==='atk'?'攻撃側':'防御側'}に ${dmg} ダメージ`,atk,def);}
+  if(x.hp>0&&ab.includes('かそく')){x.ranks.spe=Math.min(6,x.ranks.spe+1);pushEvent(events,'good','かそく',`${x.side==='atk'?'攻撃側':'防御側'}の素早さが1段階上昇`,atk,def);}
+  applySitrus(x,events,atk,def,'ターン終了');
+ });
+}
+function applyManual(i,atk,def,events){
+ const side=$('action-'+i+'-side').value, delta=num('action-'+i+'-delta',0), key=$('action-'+i+'-stat').value;if(!side||!delta)return;
+ const x=side==='atk'?atk:def;x.ranks[key]=Math.max(-6,Math.min(6,(x.ranks[key]||0)+delta));
+ const names={atk:'攻撃',def:'防御',spa:'特攻',spd:'特防',spe:'素早さ'};pushEvent(events,'warn','手動ランク変化',`${x.side==='atk'?'攻撃側':'防御側'}の${names[key]} ${delta>0?'+':''}${delta}`,atk,def);
+}
+function simulate(options={}){
+ const atk=profile('atk',options.atkEv||null,options.atkNature||null), def=profile('def',options.defEv||null,options.defNature||null), events=[];const entry=$('entry-side').value;
+ if(entry==='atk')applyEntry(atk,events,atk,def);if(entry==='def')applyEntry(def,events,atk,def);
+ for(let i=1;i<=3;i++){
+  if(!$('action-'+i+'-enabled').checked)continue; if(atk.hp<=0||def.hp<=0)break;const move=resolveMove(i);const r=damageRange(atk,def,move);
+  if(r.immune){pushEvent(events,'warn',`${i}回目：${move.name}`,'無効',atk,def);continue;}
+  const before=def.hp;def.hp-=r.min;clampHp(def);const critText=move.crit?'急所 / ':'';pushEvent(events,def.hp===0?'good':'bad',`${i}回目：${move.name}`,`${critText}${r.min}〜${r.max} ダメージ（最低乱数でHP推移を表示）／相性×${r.m.eff}`,atk,def);
+  applySitrus(def,events,atk,def,move.name);afterHitAuto(atk,def,move,events);applyManual(i,atk,def,events);if($('action-'+i+'-endturn').checked&&atk.hp>0&&def.hp>0)endTurn(atk,def,events);
+ }
+ return {atk,def,events};
+}
+function renderSimulation(result){
+ $('timeline').innerHTML=result.events.length?result.events.map(e=>`<div class="event ${e.kind}"><strong>${esc(e.title)}</strong><small>${esc(e.detail)}</small><div class="hp">攻撃側 ${esc(e.atk)}　/　防御側 ${esc(e.def)}</div></div>`).join(''):'<div class="empty">適用された処理はありません。</div>';
+ $('summary').innerHTML=`<div class="metric"><div class="k">防御側の最終HP</div><div class="v">${esc(hpText(result.def))}</div></div><div class="metric"><div class="k">攻撃側の最終HP</div><div class="v">${esc(hpText(result.atk))}</div></div>`;
+}
+function runSimulation(){try{const r=simulate();renderSimulation(r);if(window.PokeEdgeUsage)PokeEdgeUsage.track('sequence_simulation');return r;}catch(e){alert(e.message||'計算できませんでした。');return null;}}
+function currentSpread(side){const out={};STAT_KEYS.forEach(k=>out[k]=Math.max(0,Math.min(252,num(side+'-ev-'+k,0))));return out;}
+function currentRanksForSpeed(side,simulation){
+ const x=side==='atk'?simulation.atk:simulation.def;return effectiveStat(x,'spe',false,true);
+}
+function koGuaranteed(ev,nature){
+ const r=simulate({atkEv:ev,atkNature:nature});return r.def.hp<=0;
+}
+function findMinEvForKo(baseEv,nature,statKey){
+ let lo=0,hi=252,best=null;for(let v=0;v<=252;v+=4){const ev={...baseEv,[statKey]:v};if(koGuaranteed(ev,nature)){best=v;break;}}return best;
+}
+function findMinEvForSpeed(baseEv,nature){
+ const rule=$('speed-rule').value;
+ for(let v=0;v<=252;v+=4){const ev={...baseEv,spe:v};const test=simulate({atkEv:ev,atkNature:nature});const mine=effectiveStat(test.atk,'spe',false,true);const targetSpeed=effectiveStat(test.def,'spe',false,false);if(rule==='tie'?mine>=targetSpeed:mine>targetSpeed)return {ev:v,mine,target:targetSpeed};}return null;
+}
+function runSolver(){
+ try{
+  const firstEnabled=[1,2,3].find(i=>$('action-'+i+'-enabled').checked);if(!firstEnabled)throw new Error('少なくとも1つの攻撃を有効にしてください。');
+  const m=resolveMove(firstEnabled);const statKey=m.name==='ボディプレス'?'def':m.category==='特殊'?'spa':'atk';
+  const baseEv=currentSpread('atk'), currentNature=$('atk-nature').value, natNames=$('solver-nature-mode').value==='current'?[currentNature]:Object.keys(NATURES);
+  const needKo=$('solver-ko').checked, needSpeed=$('solver-speed').checked, fixed=STAT_KEYS.filter(k=>k!==statKey&&k!=='spe').reduce((s,k)=>s+(baseEv[k]||0),0);
+  const candidates=[];
+  natNames.forEach(n=>{
+   const ko=needKo?findMinEvForKo(baseEv,n,statKey):0; const speed=needSpeed?findMinEvForSpeed(baseEv,n):{ev:0,mine:null,target:null};
+   if((needKo&&ko===null)||(needSpeed&&!speed))return;
+   const ev={...baseEv,[statKey]:needKo?ko:baseEv[statKey],spe:needSpeed?speed.ev:baseEv.spe};
+   const total=Object.values(ev).reduce((a,b)=>a+b,0);
+   if(total<=508)candidates.push({nature:n,ev,total,ko,speed});
+  });
+  candidates.sort((a,b)=>a.total-b.total||a.nature.localeCompare(b.nature,'ja'));
+  if(!candidates.length){$('solver-result').innerHTML='<div class="ng">現在の固定努力値を残したまま、指定条件を両立できる候補はありません。</div><div class="help">火力条件・素早さ条件のどちらが限界かは、片方だけチェックして確認できます。</div>';return;}
+  $('solver-result').innerHTML=candidates.slice(0,8).map((c,idx)=>`<div class="solver-row"><strong>${idx===0?'最小候補':c.nature}</strong><span>${esc(c.nature)} / A${c.ev.atk} C${c.ev.spa} B${c.ev.def} S${c.ev.spe}<br><small>合計 ${c.total}　${needKo?`撃破: ${c.ko}`:''}${needSpeed?`　素早さ: ${c.speed.mine} ＞ ${c.speed.target}`:''}</small></span><span class="ok">達成</span></div>`).join('');
+  if(window.PokeEdgeUsage)PokeEdgeUsage.track('sequence_solver');
+ }catch(e){alert(e.message||'探索できませんでした。');}
+}
+function getScenarioSource(){
+ const side=s=>({name:$(s+'-name').value,lv:num(s+'-lv',50),iv:num(s+'-iv',31),nature:$(s+'-nature').value,ability:$(s+'-ability').value,item:$(s+'-item').value,ev:currentSpread(s),ranks:{atk:num(s+'-rank-atk',0),def:num(s+'-rank-def',0),spa:num(s+'-rank-spa',0),spd:num(s+'-rank-spd',0),spe:num(s+'-rank-spe',0)}});
+ const actions=[];for(let i=1;i<=3;i++)actions.push({enabled:$('action-'+i+'-enabled').checked,move:$('action-'+i+'-move').value,type:$('action-'+i+'-type').value,category:$('action-'+i+'-cat').value,power:num('action-'+i+'-power',0),crit:$('action-'+i+'-crit').value==='1',endTurn:$('action-'+i+'-endturn').checked,contact:$('action-'+i+'-contact').checked,manual:{side:$('action-'+i+'-side').value,stat:$('action-'+i+'-stat').value,delta:num('action-'+i+'-delta',0)}});
+ return {version:1,gameMode:$('game-mode').value,entrySide:$('entry-side').value,weather:$('weather').value,hazards:{sr:$('hazard-sr').value,spikes:$('hazard-spikes').value,web:$('hazard-web').value},attacker:side('atk'),defender:side('def'),actions};
+}
+function applyScenario(src){
+ if(!src)return; $('game-mode').value=src.gameMode||'champions';$('entry-side').value=src.entrySide||'def';$('weather').value=src.weather||'';
+ $('hazard-sr').value=src.hazards?.sr||'0';$('hazard-spikes').value=src.hazards?.spikes||'0';$('hazard-web').value=src.hazards?.web||'0';
+ [['atk',src.attacker],['def',src.defender]].forEach(([s,x])=>{if(!x)return;$(s+'-name').value=x.name||'';$(s+'-lv').value=x.lv||50;$(s+'-iv').value=x.iv??31;$(s+'-nature').value=x.nature||'がんばりや';$(s+'-ability').value=x.ability||'';$(s+'-item').value=x.item||'';STAT_KEYS.forEach(k=>{$(s+'-ev-'+k).value=x.ev?.[k]??0;});Object.entries(x.ranks||{}).forEach(([k,v])=>{const id=s+'-rank-'+k;if($(id))$(id).value=v;});});
+ (src.actions||[]).forEach((a,idx)=>{const i=idx+1;if(i>3||!a)return;$('action-'+i+'-enabled').checked=!!a.enabled;toggleAction(i);$('action-'+i+'-move').value=a.move||'';$('action-'+i+'-type').value=a.type||'';$('action-'+i+'-cat').value=a.category||'物理';$('action-'+i+'-power').value=a.power||'';$('action-'+i+'-crit').value=a.crit?'1':'0';$('action-'+i+'-endturn').checked=!!a.endTurn;$('action-'+i+'-contact').checked=!!a.contact;$('action-'+i+'-side').value=a.manual?.side||'';$('action-'+i+'-stat').value=a.manual?.stat||'atk';$('action-'+i+'-delta').value=a.manual?.delta||0;});
+}
+function saveScenarioLocal(){try{localStorage.setItem('pokeedge_sequence_draft_v1',JSON.stringify(getScenarioSource()));alert('この端末に保存しました。');}catch(e){alert('保存できませんでした。');}}
+function resetScenario(){if(!confirm('入力した条件をリセットしますか？'))return;localStorage.removeItem('pokeedge_sequence_draft_v1');location.reload();}
+function parseOldAdjustment(text){
+ const out={ev:{hp:0,atk:0,def:0,spa:0,spd:0,spe:0},lv:50,iv:31,nature:'がんばりや',ability:'',item:''};const s=String(text||'');let m=s.match(/Lv(\d+)/);if(m)out.lv=+m[1];m=s.match(/\/\s*([^/]+?)\s*\/\s*H/);if(m)out.nature=m[1].trim();['hp','atk','def','spa','spd','spe'].forEach((k,idx)=>{const tag=['H','A','B','C','D','S'][idx];const p=s.match(new RegExp(tag+'(\\d+)'));if(p)out.ev[k]=+p[1];});m=s.match(/特性\s*([^/]+?)(?:\s*\/|$)/);if(m)out.ability=m[1].trim();m=s.match(/持ち物\s*(.+)$/);if(m)out.item=m[1].trim();return out;
+}
+async function openCalcHistoryModal(){
+ $('history-modal').classList.add('open');const list=$('history-list');list.innerHTML='<div class="empty">読み込み中です。</div>';
+ try{const records=typeof loadCalcRecords==='function'?await loadCalcRecords(100):[];if(!records.length){list.innerHTML='<div class="empty">保存された計算履歴はありません。</div>';return;}
+ list.innerHTML=records.map((r,i)=>`<div class="record-item"><div><strong>${esc(r.attacker?.displayName||r.attacker?.name||'—')} → ${esc(r.defender?.displayName||r.defender?.name||'—')}</strong><small>${esc(r.move?.name||'—')}　${esc(r.result?.damage||'')}</small></div><button type="button" onclick="importRecord(${i})">読み込む</button></div>`).join('');window._sequenceRecords=records;}catch(e){list.innerHTML='<div class="empty">履歴を読み込めませんでした。</div>';}
+}
+function recordToScenario(r){
+ if(r?.sequenceSource)return r.sequenceSource;
+ const a=parseOldAdjustment(r?.attacker?.adjustment),d=parseOldAdjustment(r?.defender?.adjustment);
+ return {version:1,gameMode:'champions',entrySide:'def',weather:'',hazards:{sr:'0',spikes:'0',web:'0'},attacker:{...a,name:r?.attacker?.name||''},defender:{...d,name:r?.defender?.name||''},actions:[{enabled:true,move:r?.move?.name||'',type:r?.move?.type||'',category:r?.move?.category||'物理',power:r?.move?.power||0,crit:false,endTurn:true,contact:false,manual:{side:'',stat:'atk',delta:0}}]};
+}
+function importRecord(i){
+ const r=window._sequenceRecords?.[i];if(!r)return;const src=recordToScenario(r);
+ applyScenario(src);closeCalcHistoryModal();alert(r.sequenceSource?'計算条件を読み込みました。':'以前の履歴のため、保存されていた項目だけ読み込みました。確認してから計算してください。');
+}
+function closeCalcHistoryModal(){$('history-modal').classList.remove('open');}
+function closeModalIfBackdrop(e){if(e.target===$('history-modal'))closeCalcHistoryModal();}
+async function loadData(){
+ const [p,m,a,it]=await Promise.all([fetch('pokemon.json').then(r=>r.json()),fetch('moves.json').then(r=>r.json()),fetch('abilities_data.json').then(r=>r.json()),fetch('belongings.json').then(r=>r.json())]);
+ pokemon=p||[];moves=m||[];abilities=a||[];items=it||[];
+ $('pokemon-list').innerHTML=pokemon.map(x=>`<option value="${esc(x.name)}"></option>`).join('');
+ $('move-list').innerHTML=moves.filter(x=>x.category!=='変化'&&parseInt(x.power)>0).map(x=>`<option value="${esc(x.name)}"></option>`).join('');
+ $('ability-list').innerHTML=abilities.map(x=>`<option value="${esc(x.name)}"></option>`).join('');
+ $('item-list').innerHTML=items.map(x=>`<option value="${esc(x.name)}"></option>`).join('');
+}
+function syncPokemonLabel(side){/* datalist selection is intentionally non-destructive */ }
+window.addEventListener('DOMContentLoaded',async()=>{
+ initControls();await loadData();try{if(typeof initAuth==='function')await initAuth();}catch(_){}
+ let src=null;try{src=JSON.parse(localStorage.getItem('pokeedge_sequence_import_v1')||'null');if(src)localStorage.removeItem('pokeedge_sequence_import_v1');else src=JSON.parse(localStorage.getItem('pokeedge_sequence_draft_v1')||'null');}catch(_){}
+ if(src){
+   if(src.legacyRecord) src=recordToScenario(src.legacyRecord);
+   applyScenario(src);
+ }
+});
+</script>
+</body></html>

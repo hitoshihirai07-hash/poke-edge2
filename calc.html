@@ -729,7 +729,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
     <a class="nav-btn" href="party.html">パーティ管理</a>
     <a class="nav-btn" href="pokemon.html">ポケモン登録</a>
     <a class="nav-btn" href="items.html">アイテム</a>
-    <a class="nav-btn" href="scope.html">バトルアナライザー</a>
+    <a class="nav-btn" href="sequence.html">連続ダメージ</a>
     <a class="nav-btn" href="selection_predictor.html">選出予測</a>
     <a class="nav-btn" href="season.html">使用可能ポケモン</a>
     <a class="nav-btn" href="speed.html">素早さライン</a>
@@ -746,7 +746,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
 </header>
 <nav class="mobile-tool-nav" aria-label="スマホ用ページ移動">
   <div class="mobile-tool-nav-title">ツール移動</div>
-  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="index.html">TOP</a><a class="mobile-tool-link active" href="calc.html" aria-current="page">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="builder.html">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="scope.html">アナライザー</a><a class="mobile-tool-link" href="selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
+  <div class="mobile-tool-scroll"><a class="mobile-tool-link" href="index.html">TOP</a><a class="mobile-tool-link active" href="calc.html" aria-current="page">ダメ計</a><a class="mobile-tool-link" href="endure.html">耐久</a><a class="mobile-tool-link" href="move.html">クイック</a><a class="mobile-tool-link" href="battle.html">バトル</a><a class="mobile-tool-link" href="builder.html">構築</a><a class="mobile-tool-link" href="party.html">パーティ</a><a class="mobile-tool-link" href="pokemon.html">登録</a><a class="mobile-tool-link" href="items.html">アイテム</a><a class="mobile-tool-link" href="sequence.html">連続計算</a><a class="mobile-tool-link" href="selection_predictor.html">選出予測</a><a class="mobile-tool-link" href="season.html">使用可能</a><a class="mobile-tool-link" href="speed.html">素早さ</a><a class="mobile-tool-link" href="blog.html">記事</a><a class="mobile-tool-link" href="policy.html">情報</a></div>
 </nav>
 
 <section class="page-guide" aria-label="ダメージ計算の使い方">
@@ -1407,6 +1407,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18
         <div class="result-subpanel-title">保存・確認</div>
         <div class="calc-result-actions">
           <button class="save-btn" type="button" onclick="saveCurrentCalcHistory()">履歴に保存</button>
+          <button class="save-btn" type="button" onclick="openCurrentCalcInSequence()">連続計算で開く</button>
           <button class="save-btn" type="button" onclick="openCalcHistoryTab()">履歴を開く</button>
           <button class="save-btn" type="button" onclick="checkRegisteredMajorKOs()">このポケモンに倒せるのいるかな</button>
         </div>
@@ -4718,6 +4719,70 @@ function getCurrentCalcSideAdjustment(side){
   const ev={hp:parseInt(el('def-ev-hp')?.value)||0, atk:parseInt(el('def-ev-atk')?.value)||0, def:parseInt(el('def-ev-def')?.value)||0, spa:0, spd:parseInt(el('def-ev-spd')?.value)||0, spe:0};
   return `Lv${el('def-lv')?.value||50} / ${el('def-nature')?.value||'がんばりや'} / ${formatSpreadText(ev)} / 特性 ${el('def-ability')?.value||'なし'} / 持ち物 ${getSelectedLabel('def-item')||'なし'}`;
 }
+function getCurrentCalcSequenceSideSnapshot(side){
+  const isAtk = side === 'atk';
+  const base = isAtk ? window._atkBase : window._defBase;
+  if(!base) return null;
+  const ev = isAtk
+    ? {hp:0,atk:parseInt(el('atk-ev-atk')?.value)||0,def:parseInt(el('atk-ev-def')?.value)||0,spa:parseInt(el('atk-ev-spa')?.value)||0,spd:0,spe:0}
+    : {hp:parseInt(el('def-ev-hp')?.value)||0,atk:parseInt(el('def-ev-atk')?.value)||0,def:parseInt(el('def-ev-def')?.value)||0,spa:0,spd:parseInt(el('def-ev-spd')?.value)||0,spe:0};
+  const moveCategory = el('atk-move-cat')?.value || '物理';
+  const mainAtkRank = parseInt(el('atk-rank')?.value)||0;
+  const mainDefRank = parseInt(el('def-rank')?.value)||0;
+  const ranks = {atk:0,def:0,spa:0,spd:0,spe:0};
+  if(isAtk) {
+    if(moveCategory === '特殊') ranks.spa = mainAtkRank;
+    else ranks.atk = mainAtkRank;
+    ranks.def = parseInt(el('atk-extra-rank-def')?.value)||0;
+    ranks.spd = parseInt(el('atk-extra-rank-spd')?.value)||0;
+    ranks.spe = parseInt(el('atk-extra-rank-spe')?.value)||0;
+  } else {
+    if(moveCategory === '特殊') ranks.spd = mainDefRank;
+    else ranks.def = mainDefRank;
+    ranks.atk = parseInt(el('def-atk-rank')?.value)||0;
+  }
+  return {
+    name: base.name || '',
+    lv: parseInt(el(isAtk ? 'atk-lv' : 'def-lv')?.value)||50,
+    iv: parseInt(el(isAtk ? 'atk-iv' : 'def-iv')?.value)||31,
+    nature: el(isAtk ? 'atk-nature' : 'def-nature')?.value || 'がんばりや',
+    ability: el(isAtk ? 'atk-ability' : 'def-ability')?.value || '',
+    item: getSelectedLabel(isAtk ? 'atk-item' : 'def-item') || '',
+    ev,
+    ranks
+  };
+}
+function getCurrentCalcSequenceSource(){
+  const attacker = getCurrentCalcSequenceSideSnapshot('atk');
+  const defender = getCurrentCalcSequenceSideSnapshot('def');
+  if(!attacker || !defender) return null;
+  const weatherRaw = el('atk-weather')?.value || '';
+  const weatherMap = {sunny:'sun',rain:'rain',sand:'sand',snow:'snow'};
+  return {
+    version: 1,
+    gameMode: isAtkChampions() ? 'champions' : 'classic',
+    entrySide: 'def',
+    weather: weatherMap[weatherRaw] || '',
+    hazards: {
+      sr: el('def-stealth-rock')?.checked ? '1' : '0',
+      spikes: String(parseInt(el('def-spikes')?.value)||0),
+      web: '0'
+    },
+    attacker,
+    defender,
+    actions: [{
+      enabled: true,
+      move: el('atk-move-search')?.value || '',
+      type: el('atk-move-type')?.value || '',
+      category: el('atk-move-cat')?.value || '物理',
+      power: parseInt(el('atk-move-pow')?.value)||0,
+      crit: !!(el('atk-move-crit')?.value||''),
+      endTurn: true,
+      contact: false,
+      manual: {side:'',stat:'atk',delta:0}
+    }]
+  };
+}
 function getCurrentCalcRecordData(){
   const base = getDamageExportData();
   if(!base) return null;
@@ -4748,7 +4813,8 @@ function getCurrentCalcRecordData(){
       range: base.result.range,
       desc: base.result.desc,
       hazardSummary: base.result.hazardSummary
-    }
+    },
+    sequenceSource: getCurrentCalcSequenceSource()
   };
 }
 async function saveCurrentCalcHistory(){
@@ -4766,7 +4832,21 @@ async function saveCurrentCalcHistory(){
   if(status) status.textContent = ok ? '計算履歴に保存しました。' : '保存に失敗しました。';
 }
 function openCalcHistoryTab(){
-  location.href='scope.html#phase-4';
+  location.href='history.html#calc';
+}
+function openCurrentCalcInSequence(){
+  const status = el('calc-history-status');
+  const record = getCurrentCalcRecordData();
+  if(!record || !record.sequenceSource){
+    if(status) status.textContent='先にダメージ計算結果を表示してください。';
+    return;
+  }
+  try{
+    localStorage.setItem('pokeedge_sequence_import_v1', JSON.stringify(record.sequenceSource));
+    location.href='sequence.html';
+  }catch(e){
+    if(status) status.textContent='連続計算への引き継ぎに失敗しました。';
+  }
 }
 function mapRecordItemToCalcKey(itemName, moveType){
   const name=String(itemName||'');
